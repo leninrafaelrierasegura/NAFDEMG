@@ -30,12 +30,14 @@ header-includes:
   - \newcommand{\Wcal}{\mathcal{W}}
 ---
 
-<div style="color: blue;">
-********
-**Press the Show buttons to reveal the code chunks.**
+
+<div style="color: #2c3e50; text-align: right;">
+********  
+<strong>Press Show to reveal the code chunks.</strong>  
 
 ********
 </div>
+
 
 ```{r}
 # Create a clipboard button on the rendered HTML page
@@ -81,6 +83,13 @@ library(reshape2)
 library(plotly)
 ```
 
+
+```{r}
+knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R"))
+source(here::here("functionality.R"))
+```
+
+
 ## Finite Element Basis Functions on a Metric Graph {#fem-basis}
 
 Let each edge $e\in\Ecal$ be subdivided into $n_{e}\geq 2$ regular segments of length $h_{e}$, and be delimited by the nodes $0 = x_0^{e},x_1^{e},\dots,x_{n_{e}-1}^{e}, x_{n_{e}}^{e} = \ell_{e}$. For each $j = 1,\dots,n_{e}-1$, we consider the following standard hat basis functions 
@@ -108,17 +117,6 @@ which is a star-shaped set with center at $v$ and rays made of the segments cont
 where $x_v^e$ is either $x_0^e$ or $x_{n_e}^e$ depending on the edge direction and its parameterization. See @arioli2018finite for more details. Figure 1 shows an illustration of the basis function system $\{\varphi_j^e, \phi_v\}$ on the tadpole graph (in black). Standard hat functions associated with internal edge nodes are shown in blue, while special vertex-centered function are highlighted in red.
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Illustration of the system of basis functions $\\{\\varphi_j^e, \\phi_v\\}$ on the tadpole graph. Notice that the sets $\\Ncal_{v}$ are depicted in green and their corresponding basis functions are shown in red.")}
-gets.graph.tadpole <- function(h){
-  edge1 <- rbind(c(0,0),c(1,0))
-  theta <- seq(from=-pi,to=pi,length.out = 100)
-  edge2 <- cbind(1+1/pi+cos(theta)/pi,sin(theta)/pi)
-  edges <- list(edge1, edge2)
-  graph <- metric_graph$new(edges = edges)
-  graph$set_manual_edge_lengths(edge_lengths = c(1,2))
-  graph$build_mesh(h = h)
-  return(graph)
-}
-
 graph <- gets.graph.tadpole(h = 1/4)
 graph_to_get_loc <- gets.graph.tadpole(h = 1/40)
 loc <- graph_to_get_loc$get_mesh_locations()

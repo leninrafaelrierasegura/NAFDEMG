@@ -379,7 +379,7 @@ $(document).ready(function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">My Website</a>
+      <a class="navbar-brand" href="index.html">NAFDEMG</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -391,6 +391,9 @@ $(document).ready(function () {
 </li>
 <li>
   <a href="preliminaries.html">Preliminaries</a>
+</li>
+<li>
+  <a href="functionality.html">Functionality</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -443,9 +446,57 @@ $(document).ready(function () {
 </div>
 
 
+<div style="color: #2c3e50; text-align: right;">
+<hr />
+<p><strong>Press Show to reveal the code chunks.</strong></p>
+<hr />
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Set seed for reproducibility</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1982</span>) </span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Set global options for all code chunks</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="co"># Disable messages printed by R code chunks</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">TRUE</span>,    </span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="co"># Disable warnings printed by R code chunks</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">TRUE</span>,    </span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="co"># Show R code within code chunks in output</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,        </span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="co"># Include both R code and its results in output</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">include =</span> <span class="cn">TRUE</span>,     </span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="co"># Evaluate R code chunks</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">TRUE</span>,       </span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="co"># Enable caching of R code chunks for faster rendering</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">FALSE</span>,      </span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="co"># Align figures in the center of the output</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">&quot;center&quot;</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="co"># Enable retina display for high-resolution figures</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  <span class="at">retina =</span> <span class="dv">2</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  <span class="co"># Show errors in the output instead of stopping rendering</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  <span class="at">error =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>  <span class="co"># Do not collapse code and output into a single block</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>  <span class="at">collapse =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>)</span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co"># Start the figure counter</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>fig_count <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co"># Define the captioner function</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>captioner <span class="ot">&lt;-</span> <span class="cf">function</span>(caption) {</span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>  fig_count <span class="ot">&lt;&lt;-</span> fig_count <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;Figure &quot;</span>, fig_count, <span class="st">&quot;: &quot;</span>, caption)</span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/rspde&quot;, ref = &quot;devel&quot;)</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/metricgraph&quot;, ref = &quot;devel&quot;)</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">library</span>(rSPDE)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">library</span>(MetricGraph)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">library</span>(grateful)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="fu">library</span>(plotly)</span></code></pre></div>
 <p>Go back to the <a href="about.html">About page</a>.</p>
-<div id="problem-statement" class="section level2">
-<h2>Problem Statement</h2>
+<div id="fractional-diffusion-equations-on-metric-graphs"
+class="section level2">
+<h2>Fractional diffusion equations on metric graphs</h2>
 <p>We analyze and numerically approximate solutions to fractional
 diffusion equations on metric graphs of the form <span
 class="math display">\[\begin{equation}
@@ -520,6 +571,12 @@ class="math display">\[\begin{align}
 \label{diff_eq_discrete}
     (\boldsymbol{C}+\tau \boldsymbol{L}^{\alpha/2})\boldsymbol{U}^{k+1}
 = \boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1},
+\end{align}\]</span> or by introducing the scaling parameter <span
+class="math inline">\(\kappa^2&gt;0\)</span>, <span
+class="math display">\[\begin{align}
+    (\boldsymbol{C}+\tau
+(\kappa^2)^{\alpha/2}(\boldsymbol{L}/\kappa^2)^{\alpha/2})\boldsymbol{U}^{k+1}
+= \boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1},
 \end{align}\]</span> where <span
 class="math inline">\(\boldsymbol{C}\)</span> has entries <span
 class="math inline">\(\boldsymbol{C}_{ij} =
@@ -538,28 +595,37 @@ class="math inline">\(\tilde{\boldsymbol{C}}_{ii}=\sum_{j=1}^{N_h}\boldsymbol{C}
 For convenience, we write <span
 class="math inline">\(\boldsymbol{C}\)</span> instead of <span
 class="math inline">\(\tilde{\boldsymbol{C}}\)</span> in the following.
-Applying <span class="math inline">\(\boldsymbol{L}^{-\alpha/2}\)</span>
-to both sides yields <span class="math display">\[\begin{equation}
-(\boldsymbol{L}^{-\alpha/2}\boldsymbol{C}+\tau
-\boldsymbol{I})\boldsymbol{U}^{k+1} =
-\boldsymbol{L}^{-\alpha/2}(\boldsymbol{C}\boldsymbol{U}^k+\tau
+Applying <span
+class="math inline">\((\boldsymbol{L}/\kappa^2)^{-\alpha/2}\)</span> to
+both sides yields <span class="math display">\[\begin{equation}
+((\boldsymbol{L}/\kappa^2)^{-\alpha/2}\boldsymbol{C}+\tau
+(\kappa^2)^{\alpha/2}\boldsymbol{I})\boldsymbol{U}^{k+1} =
+(\boldsymbol{L}/\kappa^2)^{-\alpha/2}(\boldsymbol{C}\boldsymbol{U}^k+\tau
 \boldsymbol{F}^{k+1}).
 \end{equation}\]</span> Following <span class="citation">Bolin and
 Kirchner (2020)</span>, we approximate <span
-class="math inline">\(\boldsymbol{L}^{-\alpha/2}\)</span> by <span
-class="math inline">\(\boldsymbol{P}_r\boldsymbol{P}_l^{-1}\)</span> to
-arrive at <span class="math display">\[\begin{equation}
-(\boldsymbol{P}_r\boldsymbol{P}_l^{-1}\boldsymbol{C}+\tau
+class="math inline">\((\boldsymbol{L}/\kappa^2)^{-\alpha/2}\)</span> by
+<span
+class="math inline">\(\boldsymbol{P}_\ell^{-\top}\boldsymbol{P}_r^\top\)</span>
+to arrive at <span class="math display">\[\begin{equation}
+\label{eq:scheme2}
+\tag{5}
+(\boldsymbol{P}_\ell^{-\top}\boldsymbol{P}_r^\top
+\boldsymbol{C}+\tau(\kappa^2)^{\alpha/2}
 \boldsymbol{I})\boldsymbol{U}^{k+1} =
-\boldsymbol{P}_r\boldsymbol{P}_l^{-1}(\boldsymbol{C}\boldsymbol{U}^k+\tau
-\boldsymbol{F}^{k+1}),
+\boldsymbol{P}_\ell^{-\top}\boldsymbol{P}_r^\top(\boldsymbol{C}\boldsymbol{U}^k+\tau
+\boldsymbol{F}^{k+1}).
 \end{equation}\]</span> where <span
 class="math display">\[\begin{equation}
-\boldsymbol{P}_r = c_m\prod_{i=1}^m
-(\boldsymbol{I}-r_{1i}\boldsymbol{C}^{-1}\boldsymbol{L})\quad\text{and}\quad
-\boldsymbol{P}_\ell = b_{m+1}\boldsymbol{C}\prod_{j=1}^{m+1}
-(\boldsymbol{I}-r_{2j}\boldsymbol{C}^{-1}\boldsymbol{L})
-\end{equation}\]</span> and <span
+\label{eq:PLPR}
+\tag{6}
+\boldsymbol{P}_r = \prod_{i=1}^m
+\left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right)\quad\text{and}\quad
+\boldsymbol{P}_\ell =
+\dfrac{1}{\texttt{factor}}\boldsymbol{C}\prod_{j=1}^{m+1}
+\left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right),
+\end{equation}\]</span> and <span class="math inline">\(\texttt{factor}
+= \dfrac{c_m}{b_{m+1}}\)</span>, and <span
 class="math inline">\(\{r_{1i}\}_{i=1}^m\)</span> and <span
 class="math inline">\(\{r_{2j}\}_{j=1}^{m+1}\)</span> are the roots of
 <span class="math inline">\(q_1(x) =\sum_{i=0}^mc_ix^{i}\)</span> and
@@ -569,28 +635,33 @@ class="math inline">\(\{c_i\}_{i=0}^m\)</span> and <span
 class="math inline">\(\{b_j\}_{j=0}^{m+1}\)</span> are determined as the
 best rational approximation <span class="math inline">\(\hat{r}_m
 =q_1/q_2\)</span> of the function <span class="math inline">\(\hat{f}(x)
-:= x^{\beta-1}\)</span> over the interval <span
+:= x^{\alpha/2-1}\)</span> over the interval <span
 class="math inline">\(J_h: = [\kappa^{2}\lambda_{N_h,h}^{-1},
 \kappa^{2}\lambda_{1,h}^{-1}]\)</span>, where <span
 class="math inline">\(\lambda_{1,h}, \lambda_{N_h,h}&gt;0\)</span> are
 the smallest and the largest eigenvalue of <span
 class="math inline">\(L_h\)</span>, respectively.</p>
-<p>Actually, <span
-class="math inline">\(\boldsymbol{L}^{-\alpha/2}\)</span> should be
-approximated by <span
-class="math inline">\(\boldsymbol{P}_l^{-\top}\boldsymbol{P}_r^\top\)</span>
-(this is like this because we want to use <span
-class="math inline">\(\boldsymbol{P}_r\)</span> and <span
-class="math inline">\(\boldsymbol{P}_l\)</span> the way they were
-actually constructed in <span class="citation">Bolin and Kirchner
-(2020)</span>) and so we can write <span
+<p>For the sake of clarity, we note that the numerical implementation of
+<span class="citation">Bolin and Kirchner (2020)</span> actually defines
+<span class="math inline">\(\boldsymbol{P}_r\)</span> and <span
+class="math inline">\(\boldsymbol{P}_\ell\)</span> as <span
 class="math display">\[\begin{equation}
-(\boldsymbol{P}_l^{-\top}\boldsymbol{P}_r^\top \boldsymbol{C}+\tau
-\boldsymbol{I})\boldsymbol{U}^{k+1} =
-\boldsymbol{P}_l^{-\top}\boldsymbol{P}_r^\top(\boldsymbol{C}\boldsymbol{U}^k+\tau
-\boldsymbol{F}^{k+1}).
-\end{equation}\]</span> From this, we arrive at the scheme <span
-class="math display">\[\begin{equation}
+\label{eq:PLPRbolin}
+\tag{7}
+\boldsymbol{P}_r = \prod_{i=1}^m
+\left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right)\quad\text{and}\quad
+\boldsymbol{P}_\ell =
+\dfrac{\kappa^{2\beta}}{\texttt{factor}}\boldsymbol{C}\prod_{j=1}^{m+1}
+\left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right),
+\end{equation}\]</span> where <span class="math inline">\(\beta =
+\alpha/2\)</span> and the scaling factor <span
+class="math inline">\((\kappa^2)^{\alpha/2}\)</span> or <span
+class="math inline">\(\kappa^{2\beta}\)</span> is already incorporated
+in <span class="math inline">\(\boldsymbol{P}_\ell\)</span>, a
+convention we adopt in the following. With this under consideration, we
+can rewrite <span class="math inline">\(\eqref{eq:scheme2}\)</span> as
+<span class="math display">\[\begin{equation}
+\tag{8}
 (\boldsymbol{P}_r^\top \boldsymbol{C}+\tau
 \boldsymbol{P}_\ell^\top)\boldsymbol{U}^{k+1} =
 \boldsymbol{P}_r^\top(\boldsymbol{C}\boldsymbol{U}^k+\tau
@@ -598,236 +669,288 @@ class="math display">\[\begin{equation}
 \label{eq:scheme}
 \end{equation}\]</span> where<br />
 <span class="math display">\[\begin{equation}
-\boldsymbol{P}_r^\top = c_m\prod_{i=1}^m
-(\boldsymbol{I}-r_{1i}\boldsymbol{L}\boldsymbol{C}^{-1})\quad\text{and}\quad
-\boldsymbol{P}_\ell^\top = b_{m+1}\prod_{j=1}^{m+1}
-(\boldsymbol{I}-r_{2j}\boldsymbol{L}\boldsymbol{C}^{-1})\cdot
+\boldsymbol{P}_r^\top = \prod_{i=1}^m
+\left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\quad\text{and}\quad
+\boldsymbol{P}_\ell^\top =
+\dfrac{\kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1}
+\left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\cdot
 \boldsymbol{C}
 \end{equation}\]</span> since <span
 class="math inline">\(\boldsymbol{L}\)</span> and <span
 class="math inline">\(\boldsymbol{C}^{-1}\)</span> are symmetric and the
-factors in the product commute . Replacing these two in our scheme we
-get <span class="math display">\[\begin{equation}
-\left(\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})+\tau
-\prod_{j=1}^{m+1} (I-r_{2j}LC^{-1})\right)CU^{k+1} =
-\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
-\end{equation}\]</span></p>
-<p>We now need to compute the roots of the polynomial <span
+factors in the product commute. Replacing these two into <span
+class="math inline">\(\eqref{eq:scheme}\)</span> yields <span
 class="math display">\[\begin{equation}
-R(x) = \dfrac{c_m}{b_{m+1}} \prod_{i=1}^m (1-r_{1i}x)+\tau
-\prod_{j=1}^{m+1} (1-r_{2j}x)
-\end{equation}\]</span> <span class="math inline">\(R\)</span> has
-leading coefficient <span class="math inline">\(\gamma=\tau (-1)^{m+1}
-\prod_{j=1}^{m+1}r_{2j}\)</span> and <span
-class="math inline">\(m+1\)</span> roots <span
-class="math inline">\(R_k\)</span> for <span
-class="math inline">\(k=1,\ldots,m+1\)</span>. That is, <span
+\left(\prod_{i=1}^m
+\left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau
+\kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1}
+\left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\right)\boldsymbol{C}\boldsymbol{U}^{k+1}
+= \prod_{i=1}^m
+\left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\cdot
+(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}),
+\end{equation}\]</span> that is, <span
 class="math display">\[\begin{equation}
-R(x) = \tau(-1)^{m+1} \prod_{j=1}^{m+1}r_{2j}\prod_{k=1}^{m+1} (x-R_k)=
-\gamma\prod_{k=1}^{m+1} (x-R_k)
-\end{equation}\]</span> We can then write our scheme as <span
-class="math display">\[\begin{equation}
-\left(\gamma\prod_{k=1}^{m+1} (LC^{-1}-R_kI)\right)CU^{k+1} =
-\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
-\end{equation}\]</span> That is, <span
-class="math display">\[\begin{equation}
-U^{k+1} = \dfrac{c_m}{b_{m+1}}\dfrac{1}{\gamma}C^{-1}\prod_{k=1}^{m+1}
-(LC^{-1}-R_kI)^{-1}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
-\end{equation}\]</span></p>
-<p>Roots <span class="math inline">\(r_{1i}\)</span> and <span
-class="math inline">\(r_{2j}\)</span> are real but <span
-class="math inline">\(R_k\)</span> can be complex. In that case, we
-consider the quadratic terms. For example, if <span
-class="math inline">\(m=3\)</span>, and <span
-class="math inline">\(R\)</span> has one real root <span
-class="math inline">\(r\)</span> and two complex conjugate roots <span
-class="math inline">\(z\)</span> and <span
-class="math inline">\(\bar{z}\)</span> such that <span
-class="math inline">\((x-z)(x-\bar{z}) = x^2+ax+b\)</span>, we will work
-with <span class="math display">\[\begin{equation}
-R(x) = \gamma(x^2+ax+b)(x-r)
-\end{equation}\]</span> instead of <span
-class="math display">\[\begin{equation}
-R(x) = \gamma(x-z)(x-\bar{z})(x-r)
-\end{equation}\]</span></p>
-<p>From the scheme</p>
-<p><span class="math display">\[\begin{equation}
-\left(\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})+\tau
-\prod_{j=1}^{m+1} (I-r_{2j}LC^{-1})\right)CU^{k+1} =
-\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
-\end{equation}\]</span></p>
-<p>we write</p>
-<p><span class="math display">\[\begin{equation}
-U^{k+1} = C^{-1}\left(\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m
-(I-r_{1i}LC^{-1})+\tau \prod_{j=1}^{m+1}
-(I-r_{2j}LC^{-1})\right)^{-1}\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m
-(I-r_{1i}LC^{-1})\cdot CU^k
-\end{equation}\]</span></p>
-<p>We want the partial fraction decomposition of</p>
-<p><span class="math display">\[\begin{equation}
-\dfrac{\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m
-(1-r_{1i}x)}{\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (1-r_{1i}x)+\tau
-\prod_{j=1}^{m+1} (1-r_{2j}x)}
-\end{equation}\]</span></p>
-<p>or</p>
-<p><span class="math display">\[\begin{equation}
-\dfrac{\prod_{i=1}^m (1-r_{1i}x)}{\prod_{i=1}^m (1-r_{1i}x)+\tau
-\dfrac{b_{m+1}}{c_m} \prod_{j=1}^{m+1} (1-r_{2j}x)}
-\end{equation}\]</span></p>
-<p>That is</p>
-<p><span class="math display">\[\begin{equation}
-\sum_{k=1}^{m+1} \dfrac{a_k}{x-p_k} + r = \sum_{k=1}^{m+1}
-a_k(x-p_k)^{-1} + r
-\end{equation}\]</span></p>
-<p>Therefore</p>
-<p><span class="math display">\[\begin{equation}
-U^{k+1} = C^{-1}\left(\sum_{k=1}^{m+1} a_k(LC^{-1}-p_kI)^{-1} +
-rI\right) CU^k
+\label{eq:final_scheme}
+\tag{9}
+\boldsymbol{U}^{k+1} = \boldsymbol{C}^{-1}\left(\prod_{i=1}^m
+\left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau
+\kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1}
+\left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\right)^{-1}
+\prod_{i=1}^m
+\left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\cdot
+(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}).
+\end{equation}\]</span> Considering the partial fraction decomposition
+<span class="math display">\[\begin{equation}
+\label{eq:partial_fraction}
+\tag{10}
+\dfrac{\prod_{i=1}^m (1-r_{1i}x)}{\prod_{i=1}^m (1-r_{1i}x)+\dfrac{\tau
+\kappa^{2\beta}}{\texttt{factor}} \prod_{j=1}^{m+1}
+(1-r_{2j}x)}=\sum_{k=1}^{m+1} a_k(x-p_k)^{-1} + r,
+\end{equation}\]</span> scheme <span
+class="math inline">\(\eqref{eq:final_scheme}\)</span> can be expressed
+as <span class="math display">\[\begin{equation}
+\label{eq:final_scheme2}
+\tag{11}
+\boldsymbol{U}^{k+1} = \boldsymbol{C}^{-1}\left(\sum_{k=1}^{m+1}
+a_k\left(
+\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1}
++ r\boldsymbol{I}\right) (\boldsymbol{C}\boldsymbol{U}^k+\tau
+\boldsymbol{F}^{k+1})
 \end{equation}\]</span></p>
 </div>
-<div id="now-with-nonzero-right-hand-side" class="section level1">
-<h1>Now with nonzero right hand side</h1>
-<p>Therefore</p>
-<p><span class="math display">\[\begin{equation}
-U^{k+1} = C^{-1}\left(\sum_{k=1}^{m+1} a_k(LC^{-1}-p_kI)^{-1} +
-rI\right) (CU^k+\tau F^{k+1})
-\end{equation}\]</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Create a clipboard button on the rendered HTML page</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;clipboard.R&quot;</span>)); clipboard</span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Set seed for reproducibility</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1982</span>) </span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># Set global options for all code chunks</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="co"># Disable messages printed by R code chunks</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">TRUE</span>,    </span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="co"># Disable warnings printed by R code chunks</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">TRUE</span>,    </span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="co"># Show R code within code chunks in output</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,        </span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="co"># Include both R code and its results in output</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="at">include =</span> <span class="cn">TRUE</span>,     </span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="co"># Evaluate R code chunks</span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">TRUE</span>,       </span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="co"># Enable caching of R code chunks for faster rendering</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">FALSE</span>,      </span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="co"># Align figures in the center of the output</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">&quot;center&quot;</span>,</span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="co"># Enable retina display for high-resolution figures</span></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="at">retina =</span> <span class="dv">2</span>,</span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  <span class="co"># Show errors in the output instead of stopping rendering</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="at">error =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="co"># Do not collapse code and output into a single block</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  <span class="at">collapse =</span> <span class="cn">FALSE</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>)</span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co"># Start the figure counter</span></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>fig_count <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co"># Define the captioner function</span></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>captioner <span class="ot">&lt;-</span> <span class="cf">function</span>(caption) {</span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  fig_count <span class="ot">&lt;&lt;-</span> fig_count <span class="sc">+</span> <span class="dv">1</span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;Figure &quot;</span>, fig_count, <span class="st">&quot;: &quot;</span>, caption)</span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/rspde&quot;, ref = &quot;devel&quot;)</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/metricgraph&quot;, ref = &quot;devel&quot;)</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co"># library(INLA)</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># library(inlabru)</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">library</span>(rSPDE)</span></code></pre></div>
-<pre><code>## Loading required package: Matrix</code></pre>
-<pre><code>## This is rSPDE 2.5.1.9000
-## - See https://davidbolin.github.io/rSPDE for vignettes and manuals.</code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">library</span>(MetricGraph)</span></code></pre></div>
-<pre><code>## This is MetricGraph 1.5.0.9000
-## - See https://davidbolin.github.io/MetricGraph for vignettes and manuals.</code></pre>
-<pre><code>## 
-## Attaching package: &#39;MetricGraph&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:stats&#39;:
-## 
-##     filter</code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(grateful)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="fu">library</span>(plotly)</span></code></pre></div>
-<pre><code>## 
-## Attaching package: &#39;plotly&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:ggplot2&#39;:
-## 
-##     last_plot</code></pre>
-<pre><code>## The following object is masked from &#39;package:stats&#39;:
-## 
-##     filter</code></pre>
-<pre><code>## The following object is masked from &#39;package:graphics&#39;:
-## 
-##     layout</code></pre>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># This file contains functions that are used in the vignettes</span></span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co"># For each rational order m (1,2,3,4) and smoothness parameter beta (= alpha/2 with alpha between 0.5 and 2), Function my.get.roots() (adapted from the rSPDE package) returns c_m/b_{m+1} and the roots of p_\ell and p_r. </span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co"># See David Bolin &amp; Kristin Kirchner (2020) The Rational SPDE Approach for Gaussian Random Fields With General Smoothness, Journal of Computational and Graphical Statistics, 29:2, 274-285, DOI: 10.1080/10618600.2019.1665537</span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co"># for the definition of c_m/b_{m+1} and p_\ell and p_r.</span></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>my.get.roots <span class="ot">&lt;-</span> <span class="cf">function</span>(m, <span class="co"># rational order, m = 1, 2, 3, or 4</span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>                         beta <span class="co"># smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>                         ) {</span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>  m1table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m1table</span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>  m2table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m2table</span>
-<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>  m3table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m3table</span>
-<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>  m4table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m4table</span>
-<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>  mt <span class="ot">&lt;-</span> <span class="fu">get</span>(<span class="fu">paste0</span>(<span class="st">&quot;m&quot;</span>, m, <span class="st">&quot;table&quot;</span>))</span>
-<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a>  rb <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, m <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a>  rc <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, m)</span>
-<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a>  <span class="cf">if</span>(m <span class="sc">==</span> <span class="dv">1</span>) {</span>
-<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a>    rc <span class="ot">=</span> <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt[[<span class="fu">paste0</span>(<span class="st">&quot;rc&quot;</span>)]], beta)<span class="sc">$</span>y</span>
-<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a>    rc <span class="ot">=</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span>m, <span class="cf">function</span>(i) {</span>
-<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a>      <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt[[<span class="fu">paste0</span>(<span class="st">&quot;rc.&quot;</span>, i)]], beta)<span class="sc">$</span>y</span>
-<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a>    })</span>
-<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a>  }</span>
-<span id="cb15-24"><a href="#cb15-24" tabindex="-1"></a>  rb <span class="ot">=</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span>(m<span class="sc">+</span><span class="dv">1</span>), <span class="cf">function</span>(i) {</span>
-<span id="cb15-25"><a href="#cb15-25" tabindex="-1"></a>    <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt[[<span class="fu">paste0</span>(<span class="st">&quot;rb.&quot;</span>, i)]], <span class="at">xout =</span> beta)<span class="sc">$</span>y</span>
-<span id="cb15-26"><a href="#cb15-26" tabindex="-1"></a>  })</span>
-<span id="cb15-27"><a href="#cb15-27" tabindex="-1"></a>  factor <span class="ot">=</span> <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt<span class="sc">$</span>factor, <span class="at">xout =</span> beta)<span class="sc">$</span>y</span>
-<span id="cb15-28"><a href="#cb15-28" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">rb =</span> rb, <span class="co"># roots of p_\ell</span></span>
-<span id="cb15-29"><a href="#cb15-29" tabindex="-1"></a>              <span class="at">rc =</span> rc, <span class="co"># roots of p_r</span></span>
-<span id="cb15-30"><a href="#cb15-30" tabindex="-1"></a>              <span class="at">factor =</span> factor <span class="co"># this is c_m/b_{m+1}</span></span>
-<span id="cb15-31"><a href="#cb15-31" tabindex="-1"></a>              ))</span>
-<span id="cb15-32"><a href="#cb15-32" tabindex="-1"></a>}</span>
-<span id="cb15-33"><a href="#cb15-33" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
-<span id="cb15-34"><a href="#cb15-34" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
-<span id="cb15-35"><a href="#cb15-35" tabindex="-1"></a><span class="co"># Function poly.from.roots() computes the coefficients of a polynomial from its roots.</span></span>
-<span id="cb15-36"><a href="#cb15-36" tabindex="-1"></a>poly.from.roots <span class="ot">&lt;-</span> <span class="cf">function</span>(roots) {</span>
-<span id="cb15-37"><a href="#cb15-37" tabindex="-1"></a>  coef <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb15-38"><a href="#cb15-38" tabindex="-1"></a>  <span class="cf">for</span> (r <span class="cf">in</span> roots) {coef <span class="ot">&lt;-</span> <span class="fu">convolve</span>(coef, <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span>r), <span class="at">type =</span> <span class="st">&quot;open&quot;</span>)}</span>
-<span id="cb15-39"><a href="#cb15-39" tabindex="-1"></a>  <span class="fu">return</span>(coef) <span class="co"># returned in increasing order like a+bx+cx^2+...</span></span>
-<span id="cb15-40"><a href="#cb15-40" tabindex="-1"></a>}</span>
-<span id="cb15-41"><a href="#cb15-41" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
-<span id="cb15-42"><a href="#cb15-42" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
-<span id="cb15-43"><a href="#cb15-43" tabindex="-1"></a><span class="co"># Function compute.partial.fraction.param() computes the parameters for the partial fraction decomposition of the rational function</span></span>
-<span id="cb15-44"><a href="#cb15-44" tabindex="-1"></a><span class="co"># \dfrac{p_r(x)}{p_r(x)+\tau \kappa^{2\beta}p_\ell(x) } = \sum_{k=1}^{m+1}a_k(x-p_k)^{-1} + r</span></span>
-<span id="cb15-45"><a href="#cb15-45" tabindex="-1"></a>compute.partial.fraction.param <span class="ot">&lt;-</span> <span class="cf">function</span>(factor, pr_roots, pl_roots, time_step, scaling) {</span>
-<span id="cb15-46"><a href="#cb15-46" tabindex="-1"></a>  pr_coef <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">poly.from.roots</span>(pr_roots)) </span>
-<span id="cb15-47"><a href="#cb15-47" tabindex="-1"></a>  pl_coef <span class="ot">&lt;-</span> <span class="fu">poly.from.roots</span>(pl_roots) </span>
-<span id="cb15-48"><a href="#cb15-48" tabindex="-1"></a>  factor_pr_coef <span class="ot">&lt;-</span> pr_coef</span>
-<span id="cb15-49"><a href="#cb15-49" tabindex="-1"></a>  pr_plus_pl_coef <span class="ot">&lt;-</span> factor_pr_coef <span class="sc">+</span> ((scaling <span class="sc">*</span> time_step)<span class="sc">/</span>factor) <span class="sc">*</span> pl_coef</span>
-<span id="cb15-50"><a href="#cb15-50" tabindex="-1"></a>  res <span class="ot">&lt;-</span> gsignal<span class="sc">::</span><span class="fu">residue</span>(factor_pr_coef, pr_plus_pl_coef)</span>
-<span id="cb15-51"><a href="#cb15-51" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">r =</span> res<span class="sc">$</span>r, <span class="at">p =</span> res<span class="sc">$</span>p, <span class="at">k =</span> res<span class="sc">$</span>k)) </span>
-<span id="cb15-52"><a href="#cb15-52" tabindex="-1"></a>}</span></code></pre></div>
+<div id="numerical-implementation" class="section level2">
+<h2>Numerical implementation</h2>
+<div id="function-my.get.roots" class="section level4">
+<h4>Function <code>my.get.roots()</code></h4>
+<p>For each rational order <span class="math inline">\(m\)</span>
+(1,2,3,4) and smoothness parameter <span
+class="math inline">\(\beta\)</span> (= <span
+class="math inline">\(\alpha/2\)</span> with <span
+class="math inline">\(\alpha\)</span> between 0.5 and 2), function
+<code>my.get.roots()</code> (adapted from the <code>rSPDE</code>
+package) returns <span class="math inline">\(\texttt{factor} =
+\dfrac{c_m}{b_{m+1}}\)</span>, and the roots <span
+class="math inline">\(\{r_{1i}\}_{i=1}^m\)</span> and <span
+class="math inline">\(\{r_{2j}\}_{j=1}^{m+1}\)</span>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>my.get.roots <span class="ot">&lt;-</span> <span class="cf">function</span>(m, <span class="co"># rational order, m = 1, 2, 3, or 4</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>                         beta <span class="co"># smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>                         ) {</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  m1table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m1table</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  m2table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m2table</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  m3table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m3table</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  m4table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m4table</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  mt <span class="ot">&lt;-</span> <span class="fu">get</span>(<span class="fu">paste0</span>(<span class="st">&quot;m&quot;</span>, m, <span class="st">&quot;table&quot;</span>))</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  rb <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, m <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  rc <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, m)</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="cf">if</span>(m <span class="sc">==</span> <span class="dv">1</span>) {</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    rc <span class="ot">=</span> <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt[[<span class="fu">paste0</span>(<span class="st">&quot;rc&quot;</span>)]], beta)<span class="sc">$</span>y</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    rc <span class="ot">=</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span>m, <span class="cf">function</span>(i) {</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>      <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt[[<span class="fu">paste0</span>(<span class="st">&quot;rc.&quot;</span>, i)]], beta)<span class="sc">$</span>y</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>    })</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>  }</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>  rb <span class="ot">=</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span>(m<span class="sc">+</span><span class="dv">1</span>), <span class="cf">function</span>(i) {</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>    <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt[[<span class="fu">paste0</span>(<span class="st">&quot;rb.&quot;</span>, i)]], <span class="at">xout =</span> beta)<span class="sc">$</span>y</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>  })</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>  factor <span class="ot">=</span> <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt<span class="sc">$</span>factor, <span class="at">xout =</span> beta)<span class="sc">$</span>y</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">pl_roots =</span> rb, <span class="co"># roots \{r_{2j}\}_{j=1}^{m+1}</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>              <span class="at">pr_roots =</span> rc, <span class="co"># roots \{r_{1i}\}_{i=1}^m</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>              <span class="at">factor =</span> factor <span class="co"># this is c_m/b_{m+1}</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>              ))</span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="function-poly.from.roots" class="section level4">
+<h4>Function <code>poly.from.roots()</code></h4>
+<p>Function <code>poly.from.roots()</code> computes the coefficients of
+a polynomial from its roots.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>poly.from.roots <span class="ot">&lt;-</span> <span class="cf">function</span>(roots) {</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  coef <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="cf">for</span> (r <span class="cf">in</span> roots) {coef <span class="ot">&lt;-</span> <span class="fu">convolve</span>(coef, <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span>r), <span class="at">type =</span> <span class="st">&quot;open&quot;</span>)}</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="fu">return</span>(coef) <span class="co"># returned in increasing order like a+bx+cx^2+...</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="function-compute.partial.fraction.param"
+class="section level4">
+<h4>Function <code>compute.partial.fraction.param()</code></h4>
+<p>Given <code>factor</code><span class="math inline">\(=\texttt{factor}
+= \dfrac{c_m}{b_{m+1}}\)</span>, <code>pr_roots</code><span
+class="math inline">\(=\{r_{1i}\}_{i=1}^m\)</span>,
+<code>pl_roots</code><span
+class="math inline">\(=\{r_{2j}\}_{j=1}^{m+1}\)</span>,
+<code>time_step</code><span class="math inline">\(=\tau\)</span>, and
+<code>scaling</code><span
+class="math inline">\(=\kappa^{2\beta}\)</span>, function
+<code>compute.partial.fraction.param()</code> computes the parameters
+for the partial fraction decomposition <span
+class="math inline">\(\eqref{eq:partial_fraction}\)</span>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>compute.partial.fraction.param <span class="ot">&lt;-</span> <span class="cf">function</span>(factor, <span class="co"># c_m/b_{m+1}</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>                                           pr_roots, <span class="co"># roots \{r_{1i}\}_{i=1}^m</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>                                           pl_roots, <span class="co"># roots \{r_{2j}\}_{j=1}^{m+1}</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>                                           time_step, <span class="co"># \tau</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                                           scaling <span class="co"># \kappa^{2\beta}</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>                                           ) {</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  pr_coef <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">poly.from.roots</span>(pr_roots)) </span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  pl_coef <span class="ot">&lt;-</span> <span class="fu">poly.from.roots</span>(pl_roots) </span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  factor_pr_coef <span class="ot">&lt;-</span> pr_coef</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  pr_plus_pl_coef <span class="ot">&lt;-</span> factor_pr_coef <span class="sc">+</span> ((scaling <span class="sc">*</span> time_step)<span class="sc">/</span>factor) <span class="sc">*</span> pl_coef</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  res <span class="ot">&lt;-</span> gsignal<span class="sc">::</span><span class="fu">residue</span>(factor_pr_coef, pr_plus_pl_coef)</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">r =</span> res<span class="sc">$</span>r, <span class="co"># residues \{a_k\}_{k=1}^{m+1}</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>              <span class="at">p =</span> res<span class="sc">$</span>p, <span class="co"># poles \{p_k\}_{k=1}^{m+1}</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>              <span class="at">k =</span> res<span class="sc">$</span>k <span class="co"># remainder r</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>              )) </span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="function-my.fractional.operators.frac" class="section level4">
+<h4>Function <code>my.fractional.operators.frac()</code></h4>
+<p>Given the Laplacian matrix <code>L</code>, the smoothness parameter
+<code>beta</code>, the mass matrix <code>C</code> (not lumped), the
+scaling factor <code>scale.factor</code><span
+class="math inline">\(=\kappa^2\)</span>, the rational order
+<code>m</code>, and the time step <code>time_step</code><span
+class="math inline">\(=\tau\)</span>, function
+<code>my.fractional.operators.frac()</code> computes the fractional
+operator and returns a list containing the necessary matrices and
+parameters for the fractional diffusion equation.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Function to compute the fractional operator</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>my.fractional.operators.frac <span class="ot">&lt;-</span> <span class="cf">function</span>(L, <span class="co"># Laplacian matrix</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>                                         beta, <span class="co"># smoothness parameter beta</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>                                         C, <span class="co"># mass matrix (not lumped)</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>                                         scale.factor, <span class="co"># scaling parameter = kappa^2</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>                                         <span class="at">m =</span> <span class="dv">1</span>, <span class="co"># rational order, m = 1, 2, 3, or 4</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>                                         time_step <span class="co"># time step = tau</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>                                         ) {</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  </span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  C <span class="ot">&lt;-</span> Matrix<span class="sc">::</span><span class="fu">Diagonal</span>(<span class="fu">dim</span>(C)[<span class="dv">1</span>], <span class="fu">rowSums</span>(C)) </span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>  Ci <span class="ot">&lt;-</span> Matrix<span class="sc">::</span><span class="fu">Diagonal</span>(<span class="fu">dim</span>(C)[<span class="dv">1</span>], <span class="dv">1</span> <span class="sc">/</span> <span class="fu">rowSums</span>(C)) </span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  I <span class="ot">&lt;-</span> Matrix<span class="sc">::</span><span class="fu">Diagonal</span>(<span class="fu">dim</span>(C)[<span class="dv">1</span>])</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  L <span class="ot">&lt;-</span> L <span class="sc">/</span> scale.factor </span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>  LCi <span class="ot">&lt;-</span> L <span class="sc">%*%</span> Ci</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  <span class="cf">if</span>(beta <span class="sc">==</span> <span class="dv">1</span>){</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>    L <span class="ot">&lt;-</span> L <span class="sc">*</span> scale.factor<span class="sc">^</span>beta</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">Ci =</span> Ci, <span class="co"># inverse of lumped mass matrix</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>                <span class="at">C =</span> C, <span class="co"># lumped mass matrix</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>                <span class="at">LCi =</span> LCi, <span class="co"># Laplacian matrix times inverse of lumped mass matrix</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>                <span class="at">L =</span> L, <span class="co"># Laplacian matrix scaled</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>                <span class="at">m =</span> m, <span class="co"># rational order</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>                <span class="at">beta =</span> beta, <span class="co"># smoothness parameter</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>                <span class="at">LHS =</span> C <span class="sc">+</span> time_step <span class="sc">*</span> L <span class="co"># left-hand side of the linear system</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>                ))</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>    scaling <span class="ot">&lt;-</span> scale.factor<span class="sc">^</span>beta</span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>    roots <span class="ot">&lt;-</span> <span class="fu">my.get.roots</span>(m, beta)</span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>    poles_rs_k <span class="ot">&lt;-</span> <span class="fu">compute.partial.fraction.param</span>(roots<span class="sc">$</span>factor, roots<span class="sc">$</span>pr_roots, roots<span class="sc">$</span>pl_roots, time_step, scaling)</span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a>    partial_fraction_terms <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(m<span class="sc">+</span><span class="dv">1</span>)) {</span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a>      <span class="co"># Here is where the terms in the sum eq 11 are computed</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a>      partial_fraction_terms[[i]] <span class="ot">&lt;-</span> (LCi <span class="sc">-</span> poles_rs_k<span class="sc">$</span>p[i] <span class="sc">*</span> I)<span class="sc">/</span>poles_rs_k<span class="sc">$</span>r[i]</span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a>      }</span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a>    partial_fraction_terms[[m<span class="sc">+</span><span class="dv">2</span>]] <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">is.null</span>(poles_rs_k<span class="sc">$</span>k), <span class="dv">0</span>, poles_rs_k<span class="sc">$</span>k) <span class="sc">*</span> I</span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">Ci =</span> Ci, <span class="co"># inverse of lumped mass matrix</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a>                <span class="at">C =</span> C, <span class="co"># lumped mass matrix</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a>                <span class="at">LCi =</span> LCi, <span class="co"># Laplacian matrix times inverse of lumped mass matrix</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a>                <span class="at">L =</span> L, <span class="co"># Laplacian matrix scaled</span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a>                <span class="at">m =</span> m, <span class="co"># rational order</span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a>                <span class="at">beta =</span> beta, <span class="co"># smoothness parameter</span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a>                <span class="at">partial_fraction_terms =</span> partial_fraction_terms <span class="co"># partial fraction terms</span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a>                ))</span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a>  }</span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="function-my.solver.frac" class="section level4">
+<h4>Function <code>my.solver.frac()</code></h4>
+<p>Given the object returned by
+<code>my.fractional.operators.frac()</code> and a vector <code>v</code>,
+function <code>my.solver.frac()</code> solves the linear system <span
+class="math inline">\(\eqref{eq:final_scheme2}\)</span> for the vector
+<code>v</code>. If <code>beta = 1</code>, it solves the linear system
+directly; otherwise, it uses the partial fraction decomposition.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Function to solve the iteration</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>my.solver.frac <span class="ot">&lt;-</span> <span class="cf">function</span>(obj, <span class="co"># object returned by my.fractional.operators.frac()</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>                           v <span class="co"># vector to be solved for</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>                           ){</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> obj<span class="sc">$</span>beta</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  m <span class="ot">&lt;-</span> obj<span class="sc">$</span>m</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  C <span class="ot">&lt;-</span> obj<span class="sc">$</span>C</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  Ci <span class="ot">&lt;-</span> obj<span class="sc">$</span>Ci</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="cf">if</span> (beta <span class="sc">==</span> <span class="dv">1</span>){</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">solve</span>(obj<span class="sc">$</span>LHS, v) <span class="co"># solve the linear system directly for beta = 1</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>           )</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>    partial_fraction_terms <span class="ot">&lt;-</span> obj<span class="sc">$</span>partial_fraction_terms</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>    output <span class="ot">&lt;-</span> partial_fraction_terms[[m<span class="sc">+</span><span class="dv">2</span>]] <span class="sc">%*%</span> v</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(m<span class="sc">+</span><span class="dv">1</span>)) {output <span class="ot">&lt;-</span> output <span class="sc">+</span> <span class="fu">solve</span>(partial_fraction_terms[[i]], v)}</span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>    <span class="fu">return</span>(Ci <span class="sc">%*%</span> output <span class="co"># solve the linear system using the partial fraction decomposition</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>           )</span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>  }</span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+</div>
+<div id="auxiliary-functions" class="section level2">
+<h2>Auxiliary functions</h2>
+<p>d</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Function to build a tadpole graph and create a mesh</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>gets.graph.tadpole <span class="ot">&lt;-</span> <span class="cf">function</span>(h){</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  edge1 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>))</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  theta <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from=</span><span class="sc">-</span>pi,<span class="at">to=</span>pi,<span class="at">length.out =</span> <span class="dv">10000</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  edge2 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span><span class="sc">+</span><span class="dv">1</span><span class="sc">/</span>pi<span class="sc">+</span><span class="fu">cos</span>(theta)<span class="sc">/</span>pi,<span class="fu">sin</span>(theta)<span class="sc">/</span>pi)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  edges <span class="ot">&lt;-</span> <span class="fu">list</span>(edge1, edge2)</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  graph <span class="ot">&lt;-</span> metric_graph<span class="sc">$</span><span class="fu">new</span>(<span class="at">edges =</span> edges, <span class="at">verbose =</span> <span class="dv">0</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  graph<span class="sc">$</span><span class="fu">set_manual_edge_lengths</span>(<span class="at">edge_lengths =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  graph<span class="sc">$</span><span class="fu">build_mesh</span>(<span class="at">h =</span> h)</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="fu">return</span>(graph)</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>}</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co"># Function to compute the eigenfunctions </span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>tadpole.eig <span class="ot">&lt;-</span> <span class="cf">function</span>(k,graph){</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,graph<span class="sc">$</span><span class="fu">get_edge_lengths</span>()[<span class="dv">1</span>]<span class="sc">*</span>graph<span class="sc">$</span>mesh<span class="sc">$</span>PtE[graph<span class="sc">$</span>mesh<span class="sc">$</span>PtE[,<span class="dv">1</span>]<span class="sc">==</span><span class="dv">1</span>,<span class="dv">2</span>]) </span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,graph<span class="sc">$</span><span class="fu">get_edge_lengths</span>()[<span class="dv">2</span>]<span class="sc">*</span>graph<span class="sc">$</span>mesh<span class="sc">$</span>PtE[graph<span class="sc">$</span>mesh<span class="sc">$</span>PtE[,<span class="dv">1</span>]<span class="sc">==</span><span class="dv">2</span>,<span class="dv">2</span>]) </span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="cf">if</span>(k<span class="sc">==</span><span class="dv">0</span>){ </span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>  f.e1 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>,<span class="fu">length</span>(x1)) </span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>  f.e2 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>,<span class="fu">length</span>(x2)) </span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>  f1 <span class="ot">=</span> <span class="fu">c</span>(f.e1[<span class="dv">1</span>],f.e2[<span class="dv">1</span>],f.e1[<span class="sc">-</span><span class="dv">1</span>], f.e2[<span class="sc">-</span><span class="dv">1</span>]) </span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>  f <span class="ot">=</span> <span class="fu">list</span>(<span class="at">phi=</span>f1<span class="sc">/</span><span class="fu">sqrt</span>(<span class="dv">3</span>)) </span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>  </span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a>  f.e1 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span><span class="sc">*</span><span class="fu">sin</span>(pi<span class="sc">*</span>k<span class="sc">*</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)<span class="sc">*</span><span class="fu">cos</span>(pi<span class="sc">*</span>k<span class="sc">*</span>x1<span class="sc">/</span><span class="dv">2</span>) </span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>  f.e2 <span class="ot">&lt;-</span> <span class="fu">sin</span>(pi<span class="sc">*</span>k<span class="sc">*</span>x2<span class="sc">/</span><span class="dv">2</span>)                  </span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>  </span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a>  f1 <span class="ot">=</span> <span class="fu">c</span>(f.e1[<span class="dv">1</span>],f.e2[<span class="dv">1</span>],f.e1[<span class="sc">-</span><span class="dv">1</span>], f.e2[<span class="sc">-</span><span class="dv">1</span>]) </span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>  </span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>  <span class="cf">if</span>((k <span class="sc">%%</span> <span class="dv">2</span>)<span class="sc">==</span><span class="dv">1</span>){ </span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a>    f <span class="ot">=</span> <span class="fu">list</span>(<span class="at">phi=</span>f1<span class="sc">/</span><span class="fu">sqrt</span>(<span class="dv">3</span>)) </span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a>  } <span class="cf">else</span> { </span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a>    f.e1 <span class="ot">&lt;-</span> (<span class="sc">-</span><span class="dv">1</span>)<span class="sc">^</span>{k<span class="sc">/</span><span class="dv">2</span>}<span class="sc">*</span><span class="fu">cos</span>(pi<span class="sc">*</span>k<span class="sc">*</span>x1<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a>    f.e2 <span class="ot">&lt;-</span> <span class="fu">cos</span>(pi<span class="sc">*</span>k<span class="sc">*</span>x2<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a>    f2 <span class="ot">=</span> <span class="fu">c</span>(f.e1[<span class="dv">1</span>],f.e2[<span class="dv">1</span>],f.e1[<span class="sc">-</span><span class="dv">1</span>],f.e2[<span class="sc">-</span><span class="dv">1</span>]) </span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a>    f <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">phi=</span>f1,<span class="at">psi=</span>f2<span class="sc">/</span><span class="fu">sqrt</span>(<span class="dv">3</span><span class="sc">/</span><span class="dv">2</span>))</span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a>  }</span>
+<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a>}</span>
+<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a><span class="fu">return</span>(f)</span>
+<span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="plotting-functions" class="section level2">
+<h2>Plotting functions</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Function to order the vertices for plotting</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>plotting.order <span class="ot">&lt;-</span> <span class="cf">function</span>(v, graph){</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  edge_number <span class="ot">&lt;-</span> graph<span class="sc">$</span>mesh<span class="sc">$</span>VtE[, <span class="dv">1</span>]</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  pos <span class="ot">&lt;-</span> <span class="fu">sum</span>(edge_number <span class="sc">==</span> <span class="dv">1</span>)<span class="sc">+</span><span class="dv">1</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">c</span>(v[<span class="dv">1</span>], v[<span class="dv">3</span><span class="sc">:</span>pos], v[<span class="dv">2</span>], v[(pos<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span><span class="fu">length</span>(v)], v[<span class="dv">2</span>]))</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>}</span></code></pre></div>
+</div>
 <div id="references" class="section level2">
 <h2>References</h2>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>grateful<span class="sc">::</span><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>grateful<span class="sc">::</span><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
 <p>We used R version 4.5.0 <span class="citation">(R Core Team
 2025)</span> and the following R packages: gsignal v. 0.3.7 <span
 class="citation">(Van Boxtel, G.J.M., et al. 2021)</span>, here v. 1.0.1
 <span class="citation">(Müller 2020)</span>, htmltools v. 0.5.8.1 <span
-class="citation">(Cheng et al. 2024)</span>, INLA v. 25.5.1 <span
-class="citation">(Rue, Martino, and Chopin 2009; Lindgren, Rue, and
-Lindström 2011; Martins et al. 2013; Lindgren and Rue 2015; De Coninck
-et al. 2016; Rue et al. 2017; Verbosio et al. 2017; Bakka et al. 2018;
-Kourounis, Fuchs, and Schenk 2018)</span>, inlabru v. 2.12.0 <span
-class="citation">(Yuan et al. 2017; Bachl et al. 2019)</span>, knitr v.
-1.50 <span class="citation">(Xie 2014, 2015, 2025)</span>, Matrix v.
-1.7.3 <span class="citation">(Bates, Maechler, and Jagan 2025)</span>,
-MetricGraph v. 1.5.0.9000 <span class="citation">(Bolin, Simas, and
-Wallin 2023a, 2023b, 2024, 2025; Bolin et al. 2024)</span>, plotly v.
-4.10.4 <span class="citation">(Sievert 2020)</span>, renv v. 1.0.7 <span
+class="citation">(Cheng et al. 2024)</span>, knitr v. 1.50 <span
+class="citation">(Xie 2014, 2015, 2025)</span>, Matrix v. 1.7.3 <span
+class="citation">(Bates, Maechler, and Jagan 2025)</span>, MetricGraph
+v. 1.5.0.9000 <span class="citation">(Bolin, Simas, and Wallin 2023a,
+2023b, 2024, 2025; Bolin et al. 2024)</span>, plotly v. 4.10.4 <span
+class="citation">(Sievert 2020)</span>, renv v. 1.0.7 <span
 class="citation">(Ushey and Wickham 2024)</span>, reshape2 v. 1.4.4
 <span class="citation">(Wickham 2007)</span>, rmarkdown v. 2.29 <span
 class="citation">(Xie, Allaire, and Grolemund 2018; Xie, Dervieux, and
@@ -851,22 +974,6 @@ Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier
 Luraschi, Kevin Ushey, Aron Atkins, et al. 2024. <em><span
 class="nocase">rmarkdown</span>: Dynamic Documents for r</em>. <a
 href="https://github.com/rstudio/rmarkdown">https://github.com/rstudio/rmarkdown</a>.
-</div>
-<div id="ref-inlabru2019" class="csl-entry">
-Bachl, Fabian E., Finn Lindgren, David L. Borchers, and Janine B.
-Illian. 2019. <span>“<span class="nocase">inlabru</span>: An
-<span>R</span> Package for <span>Bayesian</span> Spatial Modelling from
-Ecological Survey Data.”</span> <em>Methods in Ecology and
-Evolution</em> 10: 760–66. <a
-href="https://doi.org/10.1111/2041-210X.13168">https://doi.org/10.1111/2041-210X.13168</a>.
-</div>
-<div id="ref-INLA2018f" class="csl-entry">
-Bakka, Haakon, Håvard Rue, Geir-Arne Fuglstad, Andrea I. Riebler, David
-Bolin, Janine Illian, Elias Krainski, Daniel P. Simpson, and Finn K.
-Lindgren. 2018. <span>“Spatial Modelling with <span>INLA</span>:
-<span>A</span> Review.”</span> <em>WIRES (Invited Extended Review)</em>
-xx (Feb): xx–. <a
-href="http://arxiv.org/abs/1802.06350">http://arxiv.org/abs/1802.06350</a>.
 </div>
 <div id="ref-Matrix" class="csl-entry">
 Bates, Douglas, Martin Maechler, and Mikael Jagan. 2025.
@@ -928,39 +1035,6 @@ and Jeff Allen. 2024. <em><span class="nocase">htmltools</span>: Tools
 for HTML</em>. <a
 href="https://doi.org/10.32614/CRAN.package.htmltools">https://doi.org/10.32614/CRAN.package.htmltools</a>.
 </div>
-<div id="ref-INLA2016g" class="csl-entry">
-De Coninck, Arne, Bernard De Baets, Drosos Kourounis, Fabio Verbosio,
-Olaf Schenk, Steven Maenhout, and Jan Fostier. 2016.
-<span>“<span>Needles</span>: Toward Large-Scale Genomic Prediction with
-Marker-by-Environment Interaction.”</span> <em>Genetics</em> 203 (1):
-543–55. <a
-href="https://doi.org/10.1534/genetics.115.179887">https://doi.org/10.1534/genetics.115.179887</a>.
-</div>
-<div id="ref-INLA2018i" class="csl-entry">
-Kourounis, D., A. Fuchs, and O. Schenk. 2018. <span>“Towards the Next
-Generation of Multiperiod Optimal Power Flow Solvers.”</span> <em>IEEE
-Transactions on Power Systems</em> PP (99): 1–10. <a
-href="https://doi.org/10.1109/TPWRS.2017.2789187">https://doi.org/10.1109/TPWRS.2017.2789187</a>.
-</div>
-<div id="ref-INLA2015d" class="csl-entry">
-Lindgren, Finn, and Håvard Rue. 2015. <span>“Bayesian Spatial Modelling
-with <span>R</span>-<span>INLA</span>.”</span> <em>Journal of
-Statistical Software</em> 63 (19): 1–25. <a
-href="http://www.jstatsoft.org/v63/i19/">http://www.jstatsoft.org/v63/i19/</a>.
-</div>
-<div id="ref-INLA2011c" class="csl-entry">
-Lindgren, Finn, Håvard Rue, and Johan Lindström. 2011. <span>“An
-Explicit Link Between <span>Gaussian</span> Fields and
-<span>Gaussian</span> <span>Markov</span> Random Fields: The Stochastic
-Partial Differential Equation Approach (with Discussion).”</span>
-<em>Journal of the Royal Statistical Society B</em> 73 (4): 423–98.
-</div>
-<div id="ref-INLA2013b" class="csl-entry">
-Martins, Thiago G., Daniel Simpson, Finn Lindgren, and Håvard Rue. 2013.
-<span>“Bayesian Computing with <span>INLA</span>: <span>N</span>ew
-Features.”</span> <em>Computational Statistics and Data Analysis</em>
-67: 68–83.
-</div>
 <div id="ref-here" class="csl-entry">
 Müller, Kirill. 2020. <em><span class="nocase">here</span>: A Simpler
 Way to Find Your Files</em>. <a
@@ -971,20 +1045,6 @@ R Core Team. 2025. <em><span>R</span>: A Language and Environment for
 Statistical Computing</em>. Vienna, Austria: R Foundation for
 Statistical Computing. <a
 href="https://www.R-project.org/">https://www.R-project.org/</a>.
-</div>
-<div id="ref-INLA2009a" class="csl-entry">
-Rue, Håvard, Sara Martino, and Nicholas Chopin. 2009. <span>“Approximate
-<span>Bayesian</span> Inference for Latent <span>Gaussian</span> Models
-Using Integrated Nested <span>Laplace</span> Approximations (with
-Discussion).”</span> <em>Journal of the Royal Statistical Society B</em>
-71: 319–92.
-</div>
-<div id="ref-INLA2017e" class="csl-entry">
-Rue, Håvard, Andrea I. Riebler, Sigrunn H. Sørbye, Janine B. Illian,
-Daniel P. Simpson, and Finn K. Lindgren. 2017. <span>“Bayesian Computing
-with <span>INLA</span>: <span>A</span> Review.”</span> <em>Annual
-Reviews of Statistics and Its Applications</em> 4 (March): 395–421. <a
-href="http://arxiv.org/abs/1604.00860">http://arxiv.org/abs/1604.00860</a>.
 </div>
 <div id="ref-plotly" class="csl-entry">
 Sievert, Carson. 2020. <em>Interactive Web-Based Data Visualization with
@@ -1000,13 +1060,6 @@ href="https://doi.org/10.32614/CRAN.package.renv">https://doi.org/10.32614/CRAN.
 Van Boxtel, G.J.M., et al. 2021. <em><span
 class="nocase">gsignal</span>: Signal Processing</em>. <a
 href="https://github.com/gjmvanboxtel/gsignal">https://github.com/gjmvanboxtel/gsignal</a>.
-</div>
-<div id="ref-INLA2017h" class="csl-entry">
-Verbosio, Fabio, Arne De Coninck, Drosos Kourounis, and Olaf Schenk.
-2017. <span>“Enhancing the Scalability of Selected Inversion
-Factorization Algorithms in Genomic Prediction.”</span> <em>Journal of
-Computational Science</em> 22 (Supplement C): 99–108. <a
-href="https://doi.org/10.1016/j.jocs.2017.08.013">https://doi.org/10.1016/j.jocs.2017.08.013</a>.
 </div>
 <div id="ref-reshape2" class="csl-entry">
 Wickham, Hadley. 2007. <span>“Reshaping Data with the <span
@@ -1053,18 +1106,10 @@ Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R
 Markdown Cookbook</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
 href="https://bookdown.org/yihui/rmarkdown-cookbook">https://bookdown.org/yihui/rmarkdown-cookbook</a>.
 </div>
-<div id="ref-inlabru2017" class="csl-entry">
-Yuan, Yuan, Bachl, Fabian E., Lindgren, Finn, Borchers, et al. 2017.
-<span>“Point Process Models for Spatio-Temporal Distance Sampling Data
-from a Large-Scale Survey of Blue Whales.”</span> <em>Ann. Appl.
-Stat.</em> 11 (4): 2270–97. <a
-href="https://doi.org/10.1214/17-AOAS1078">https://doi.org/10.1214/17-AOAS1078</a>.
-</div>
-</div>
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiRnVuY3Rpb25hbGl0eSIKZGF0ZTogIkxhc3QgbW9kaWZpZWQ6IGByIGZvcm1hdChTeXMudGltZSgpLCAnJWQtJW0tJVkuJylgIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDoKICAgIG1hdGhqYXg6ICJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL21hdGhqYXhAMy9lczUvdGV4LW1tbC1jaHRtbC5qcyIKICAgIGhpZ2hsaWdodDogcHlnbWVudHMKICAgIHRoZW1lOiBmbGF0bHkKICAgIGNvZGVfZm9sZGluZzogaGlkZSAjIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUiIHRvIGhpZGUgY29kZSBhbmQgYWRkIGEgYnV0dG9uIHRvIHNob3cgaXQKICAgIGRmX3ByaW50OiBwYWdlZAogICAgIyB0b2M6IHRydWUKICAgICMgdG9jX2Zsb2F0OgogICAgIyAgIGNvbGxhcHNlZDogdHJ1ZQogICAgIyAgIHNtb290aF9zY3JvbGw6IHRydWUKICAgIG51bWJlcl9zZWN0aW9uczogZmFsc2UKICAgIGZpZ19jYXB0aW9uOiB0cnVlCiAgICBjb2RlX2Rvd25sb2FkOiB0cnVlCiAgICBjc3M6IHZpc3VhbC5jc3MKYWx3YXlzX2FsbG93X2h0bWw6IHRydWUKYmlibGlvZ3JhcGh5OiAKICAtIHJlZmVyZW5jZXMuYmliCiAgLSBncmF0ZWZ1bC1yZWZzLmJpYgpoZWFkZXItaW5jbHVkZXM6CiAgLSBcbmV3Y29tbWFuZHtcYXJ9e1xtYXRoYmJ7Un19CiAgLSBcbmV3Y29tbWFuZHtcbGxhdn1bMV17XGxlZnRceyMxXHJpZ2h0XH19CiAgLSBcbmV3Y29tbWFuZHtccGFyZX1bMV17XGxlZnQoIzFccmlnaHQpfQogIC0gXG5ld2NvbW1hbmR7XE5jYWx9e1xtYXRoY2Fse059fQogIC0gXG5ld2NvbW1hbmR7XFZjYWx9e1xtYXRoY2Fse1Z9fQogIC0gXG5ld2NvbW1hbmR7XEVjYWx9e1xtYXRoY2Fse0V9fQogIC0gXG5ld2NvbW1hbmR7XFdjYWx9e1xtYXRoY2Fse1d9fQotLS0KCkdvIGJhY2sgdG8gdGhlIFtBYm91dCBwYWdlXShhYm91dC5odG1sKS4KCiMjIFByb2JsZW0gU3RhdGVtZW50CgpXZSBhbmFseXplIGFuZCBudW1lcmljYWxseSBhcHByb3hpbWF0ZSBzb2x1dGlvbnMgdG8gZnJhY3Rpb25hbCBkaWZmdXNpb24gZXF1YXRpb25zIG9uIG1ldHJpYyBncmFwaHMgb2YgdGhlIGZvcm0KXGJlZ2lue2VxdWF0aW9ufQpcbGFiZWx7ZXE6bWFpbmVxfQpcdGFnezF9ClxsZWZ0XHsKXGJlZ2lue2FsaWduZWR9CiAgICBccGFydGlhbF90IHUocyx0KSArIChca2FwcGFeMiAtIFxEZWx0YV9cR2FtbWEpXntcYWxwaGEvMn0gdShzLHQpICY9IGYocyx0KSwgJiYgXHF1YWQgKHMsdCkgXGluIFxHYW1tYSBcdGltZXMgKDAsIFQpLCBcXAogICAgdShzLDApICY9IHVfMChzKSwgJiYgXHF1YWQgcyBcaW4gXEdhbW1hLApcZW5ke2FsaWduZWR9ClxyaWdodC4KXGVuZHtlcXVhdGlvbn0Kd2l0aCAkdShcY2RvdCx0KSQgc2F0aXNmeWluZyB0aGUgS2lyY2hob2ZmIHZlcnRleCBjb25kaXRpb25zClxiZWdpbntlcXVhdGlvbn0KXGxhYmVse2VxOktjb25kfQpcdGFnezJ9CiAgIFxtYXRoY2Fse0t9ID0gIFxsZWZ0XHtccGhpXGluIEMoXEdhbW1hKVw7XG1pZGRsZXxcOyBcZm9yYWxsIHZcaW4gXG1hdGhjYWx7Vn06XDsgXHRleHRzdHlsZVxzdW1fe2VcaW5cbWF0aGNhbHtFfV92fVxwYXJ0aWFsX2UgXHBoaSh2KT0wIFxyaWdodFx9LgpcZW5ke2VxdWF0aW9ufQpIZXJlICRcR2FtbWEgPSAoXG1hdGhjYWx7Vn0sXG1hdGhjYWx7RX0pJCBpcyBhIG1ldHJpYyBncmFwaCwgJFxrYXBwYT4wJCwgJFxhbHBoYVxpbigwLDJdJCBkZXRlcm1pbmVzIHRoZSBzbW9vdGhuZXNzIG9mICR1KFxjZG90LHQpJCwgJFxEZWx0YV97XEdhbW1hfSQgaXMgdGhlIHNvLWNhbGxlZCBLaXJjaGhvZmYtLUxhcGxhY2lhbiwgYW5kICRmOlxHYW1tYVx0aW1lcyAoMCxUKVx0b1xtYXRoYmJ7Un0kIGFuZCAkdV8wOiBcR2FtbWEgXHRvIFxtYXRoYmJ7Un0kIGFyZSBmaXhlZCBmdW5jdGlvbnMsIGNhbGxlZCByaWdodC1oYW5kIHNpZGUgYW5kIGluaXRpYWwgY29uZGl0aW9uLCByZXNwZWN0aXZlbHkuCgojIyBOdW1lcmljYWwgU2NoZW1lCgpMZXQgJFxhbHBoYVxpbigwLDJdJCBhbmQgJFVfaF5cdGF1JCBkZW5vdGUgdGhlIHNlcXVlbmNlIG9mIGFwcHJveGltYXRpb25zIG9mIHRoZSBzb2x1dGlvbiB0byB0aGUgd2VhayBmb3JtIG9mIHByb2JsZW0gXGVxcmVme2VxOm1haW5lcX0gYXQgZWFjaCB0aW1lIHN0ZXAgb24gYSBtZXNoIGluZGV4ZWQgYnkgJGgkLiBMZXQgJFVeMF9oID0gUF9odV8wJC4gRm9yICRrPTAsXGRvdHMsIE4tMSQsICRVX2hee2srMX1caW4gVl9oJCBzb2x2ZXMgdGhlIGZvbGxvd2luZyBzY2hlbWUKXGJlZ2lue2FsaWdufQpcbGFiZWx7c3lzdGVtOmZ1bGx5X2Rpc2NyZXRlX3NjaGVtZX0KXHRhZ3szfQogICAgICAgIFxsYW5nbGVcZGVsdGEgVV9oXntrKzF9LFxwaGlccmFuZ2xlICsgXG1hdGhmcmFre2F9KFVfaF57aysxfSxccGhpKSA9IFxsYW5nbGUgZl57aysxfSxccGhpXHJhbmdsZSAsXHF1YWRcZm9yYWxsXHBoaVxpbiBWX2gsClxlbmR7YWxpZ259CndoZXJlICRmXntrKzF9ID0gXGRpc3BsYXlzdHlsZVxkZnJhY3sxfXtcdGF1fVxpbnRfe3Rfa31ee3Ree2srMX19Zih0KWR0JC4gQXQgZWFjaCB0aW1lIHN0ZXAgJHRfayQsIHRoZSBmaW5pdGUgZWxlbWVudCBzb2x1dGlvbiAkVV9oXmtcaW4gVl9oJCB0byBcZXFyZWZ7c3lzdGVtOmZ1bGx5X2Rpc2NyZXRlX3NjaGVtZX0gY2FuIGJlIGV4cHJlc3NlZCBhcyBhIGxpbmVhciBjb21iaW5hdGlvbiBvZiB0aGUgYmFzaXMgZnVuY3Rpb25zICAkXHtccHNpXmlfaFx9X3tpPTF9XntOX2h9JCBpbnRyb2R1Y2VkIGluIHRoZSBbUHJlbGltaW5hcmllc10ocHJlbGltaW5hcmllcy5odG1sI2ZlbS1iYXNpcykgcGFnZSwgbmFtZWx5LCAKXGJlZ2lue2FsaWdufQpcbGFiZWx7bnVtX3NvbH0KXHRhZ3s0fQogICAgVV9oXmsocykgPSAgXHN1bV97aT0xfV57Tl9ofXVfaV5rXHBzaV5pX2gocyksIFw7c1xpblxHYW1tYS4KXGVuZHthbGlnbn0KUmVwbGFjaW5nIFxlcXJlZntudW1fc29sfSBpbnRvIFxlcXJlZntzeXN0ZW06ZnVsbHlfZGlzY3JldGVfc2NoZW1lfSB5aWVsZHMgdGhlIGZvbGxvd2luZyBsaW5lYXIgc3lzdGVtClxiZWdpbnthbGlnbip9CiAgICBcc3VtX3tqPTF9XntOX2h9dV9qXntrKzF9WyhccHNpX2osXHBzaV9pKV97TF8yKFxHYW1tYSl9KyBcdGF1XG1hdGhmcmFre2F9KFxwc2lfaixccHNpX2kpXSA9IFxzdW1fe2o9MX1ee05faH11X2pee2t9KFxwc2lfaixccHNpX2kpX3tMXzIoXEdhbW1hKX0rXHRhdSggZl57aysxfSxccHNpX2kpX3tMXzIoXEdhbW1hKX0sClxlbmR7YWxpZ24qfQpmb3IgJGkgPSAxLFxkb3RzLCBOX2gkLiBJbiBtYXRyaXggbm90YXRpb24sClxiZWdpbnthbGlnbn0KXGxhYmVse2RpZmZfZXFfZGlzY3JldGV9CiAgICAoXGJvbGRzeW1ib2x7Q30rXHRhdSBcYm9sZHN5bWJvbHtMfV57XGFscGhhLzJ9KVxib2xkc3ltYm9se1V9XntrKzF9ID0gXGJvbGRzeW1ib2x7Q31cYm9sZHN5bWJvbHtVfV5rK1x0YXUgXGJvbGRzeW1ib2x7Rn1ee2srMX0sClxlbmR7YWxpZ259CndoZXJlICRcYm9sZHN5bWJvbHtDfSQgaGFzIGVudHJpZXMgJFxib2xkc3ltYm9se0N9X3tpan0gPSAoXHBzaV9qLFxwc2lfaSlfe0xfMihcR2FtbWEpfSQsICRcYm9sZHN5bWJvbHtMfV57XGFscGhhLzJ9JCBoYXMgZW50cmllcyAkXG1hdGhmcmFre2F9KFxwc2lfaixccHNpX2kpJCwgJFxib2xkc3ltYm9se1V9XmskIGhhcyBlbnRyaWVzICR1X2peayQsIGFuZCAkXGJvbGRzeW1ib2x7Rn1eayQgaGFzIGVudHJpZXMgJCggZl57a30sXHBzaV9pKV97TF8yKFxHYW1tYSl9JC4gIFRvIHJlZHVjZSBjb21wdXRhdGlvbmFsIGNvc3QgYW5kIHByb21vdGUgc3BhcnNpdHksIHdlIHJlcGxhY2UgdGhlIG1hc3MgbWF0cml4ICRcYm9sZHN5bWJvbHtDfSQgd2l0aCBhIGx1bXBlZCBtYXNzIG1hdHJpeCAkXHRpbGRle1xib2xkc3ltYm9se0N9fSQsIHdoaWNoIGlzIGRpYWdvbmFsIHdpdGggZW50cmllcyAkXHRpbGRle1xib2xkc3ltYm9se0N9fV97aWl9PVxzdW1fe2o9MX1ee05faH1cYm9sZHN5bWJvbHtDfV97aWp9JC4gIEZvciBjb252ZW5pZW5jZSwgd2Ugd3JpdGUgJFxib2xkc3ltYm9se0N9JCBpbnN0ZWFkIG9mICRcdGlsZGV7XGJvbGRzeW1ib2x7Q319JCBpbiB0aGUgZm9sbG93aW5nLiBBcHBseWluZyAkXGJvbGRzeW1ib2x7TH1eey1cYWxwaGEvMn0kIHRvIGJvdGggc2lkZXMgeWllbGRzClxiZWdpbntlcXVhdGlvbn0KKFxib2xkc3ltYm9se0x9XnstXGFscGhhLzJ9XGJvbGRzeW1ib2x7Q30rXHRhdSBcYm9sZHN5bWJvbHtJfSlcYm9sZHN5bWJvbHtVfV57aysxfSA9IFxib2xkc3ltYm9se0x9XnstXGFscGhhLzJ9KFxib2xkc3ltYm9se0N9XGJvbGRzeW1ib2x7VX1eaytcdGF1IFxib2xkc3ltYm9se0Z9XntrKzF9KS4KXGVuZHtlcXVhdGlvbn0KRm9sbG93aW5nIEByU1BERTIwMjAsIHdlIGFwcHJveGltYXRlICRcYm9sZHN5bWJvbHtMfV57LVxhbHBoYS8yfSQgYnkgJFxib2xkc3ltYm9se1B9X3JcYm9sZHN5bWJvbHtQfV9sXnstMX0kIHRvIGFycml2ZSBhdApcYmVnaW57ZXF1YXRpb259CihcYm9sZHN5bWJvbHtQfV9yXGJvbGRzeW1ib2x7UH1fbF57LTF9XGJvbGRzeW1ib2x7Q30rXHRhdSBcYm9sZHN5bWJvbHtJfSlcYm9sZHN5bWJvbHtVfV57aysxfSA9IFxib2xkc3ltYm9se1B9X3JcYm9sZHN5bWJvbHtQfV9sXnstMX0oXGJvbGRzeW1ib2x7Q31cYm9sZHN5bWJvbHtVfV5rK1x0YXUgXGJvbGRzeW1ib2x7Rn1ee2srMX0pLApcZW5ke2VxdWF0aW9ufQp3aGVyZSAKXGJlZ2lue2VxdWF0aW9ufQpcYm9sZHN5bWJvbHtQfV9yID0gY19tXHByb2Rfe2k9MX1ebSAoXGJvbGRzeW1ib2x7SX0tcl97MWl9XGJvbGRzeW1ib2x7Q31eey0xfVxib2xkc3ltYm9se0x9KVxxdWFkXHRleHR7YW5kfVxxdWFkIFxib2xkc3ltYm9se1B9X1xlbGwgPSBiX3ttKzF9XGJvbGRzeW1ib2x7Q31ccHJvZF97aj0xfV57bSsxfSAoXGJvbGRzeW1ib2x7SX0tcl97Mmp9XGJvbGRzeW1ib2x7Q31eey0xfVxib2xkc3ltYm9se0x9KQpcZW5ke2VxdWF0aW9ufQphbmQKJFx7cl97MWl9XH1fe2k9MX1ebSQgYW5kICRce3JfezJqfVx9X3tqPTF9XnttKzF9JCBhcmUgdGhlIHJvb3RzIG9mICRxXzEoeCkgPVxzdW1fe2k9MH1ebWNfaXhee2l9JCBhbmQgICRxXzIoeCk9XHN1bV97aj0wfV57bSsxfWJfanhee2p9JCwgcmVzcGVjdGl2ZWx5LiBUaGUgY29lZmZpY2llbnRzICAkXHtjX2lcfV97aT0wfV5tJCBhbmQgICRce2Jfalx9X3tqPTB9XnttKzF9JCBhcmUgZGV0ZXJtaW5lZCBhcyB0aGUgYmVzdCByYXRpb25hbCBhcHByb3hpbWF0aW9uICRcaGF0e3J9X20gPXFfMS9xXzIkIG9mIHRoZSBmdW5jdGlvbiAkXGhhdHtmfSh4KSA6PSB4XntcYmV0YS0xfSQgb3ZlciB0aGUgaW50ZXJ2YWwgJEpfaDogPSBbXGthcHBhXnsyfVxsYW1iZGFfe05faCxofV57LTF9LCBca2FwcGFeezJ9XGxhbWJkYV97MSxofV57LTF9XSQsIHdoZXJlICRcbGFtYmRhX3sxLGh9LCBcbGFtYmRhX3tOX2gsaH0+MCQgYXJlIHRoZSBzbWFsbGVzdCBhbmQgdGhlIGxhcmdlc3QgZWlnZW52YWx1ZSBvZiAkTF9oJCwgcmVzcGVjdGl2ZWx5LgoKQWN0dWFsbHksICRcYm9sZHN5bWJvbHtMfV57LVxhbHBoYS8yfSQgc2hvdWxkIGJlIGFwcHJveGltYXRlZCBieSAkXGJvbGRzeW1ib2x7UH1fbF57LVx0b3B9XGJvbGRzeW1ib2x7UH1fcl5cdG9wJCAodGhpcyBpcyBsaWtlIHRoaXMgYmVjYXVzZSB3ZSB3YW50IHRvIHVzZSAkXGJvbGRzeW1ib2x7UH1fciQgYW5kICRcYm9sZHN5bWJvbHtQfV9sJCB0aGUgd2F5IHRoZXkgd2VyZSBhY3R1YWxseSBjb25zdHJ1Y3RlZCBpbiBAclNQREUyMDIwKSBhbmQgc28gd2UgY2FuIHdyaXRlClxiZWdpbntlcXVhdGlvbn0KKFxib2xkc3ltYm9se1B9X2xeey1cdG9wfVxib2xkc3ltYm9se1B9X3JeXHRvcCBcYm9sZHN5bWJvbHtDfStcdGF1IFxib2xkc3ltYm9se0l9KVxib2xkc3ltYm9se1V9XntrKzF9ID0gXGJvbGRzeW1ib2x7UH1fbF57LVx0b3B9XGJvbGRzeW1ib2x7UH1fcl5cdG9wKFxib2xkc3ltYm9se0N9XGJvbGRzeW1ib2x7VX1eaytcdGF1IFxib2xkc3ltYm9se0Z9XntrKzF9KS4KXGVuZHtlcXVhdGlvbn0KRnJvbSB0aGlzLCB3ZSBhcnJpdmUgYXQgdGhlIHNjaGVtZQpcYmVnaW57ZXF1YXRpb259CihcYm9sZHN5bWJvbHtQfV9yXlx0b3AgXGJvbGRzeW1ib2x7Q30rXHRhdSBcYm9sZHN5bWJvbHtQfV9cZWxsXlx0b3ApXGJvbGRzeW1ib2x7VX1ee2srMX0gPSBcYm9sZHN5bWJvbHtQfV9yXlx0b3AoXGJvbGRzeW1ib2x7Q31cYm9sZHN5bWJvbHtVfV5rK1x0YXUgXGJvbGRzeW1ib2x7Rn1ee2srMX0pLApcbGFiZWx7ZXE6c2NoZW1lfQpcZW5ke2VxdWF0aW9ufQp3aGVyZSAgClxiZWdpbntlcXVhdGlvbn0KXGJvbGRzeW1ib2x7UH1fcl5cdG9wID0gY19tXHByb2Rfe2k9MX1ebSAoXGJvbGRzeW1ib2x7SX0tcl97MWl9XGJvbGRzeW1ib2x7TH1cYm9sZHN5bWJvbHtDfV57LTF9KVxxdWFkXHRleHR7YW5kfVxxdWFkIFxib2xkc3ltYm9se1B9X1xlbGxeXHRvcCA9IGJfe20rMX1ccHJvZF97aj0xfV57bSsxfSAoXGJvbGRzeW1ib2x7SX0tcl97Mmp9XGJvbGRzeW1ib2x7TH1cYm9sZHN5bWJvbHtDfV57LTF9KVxjZG90IFxib2xkc3ltYm9se0N9ClxlbmR7ZXF1YXRpb259CnNpbmNlICRcYm9sZHN5bWJvbHtMfSQgYW5kICRcYm9sZHN5bWJvbHtDfV57LTF9JCBhcmUgc3ltbWV0cmljIGFuZCB0aGUgZmFjdG9ycyBpbiB0aGUgcHJvZHVjdCBjb21tdXRlIC4gUmVwbGFjaW5nIHRoZXNlIHR3byBpbiBvdXIgc2NoZW1lIHdlIGdldApcYmVnaW57ZXF1YXRpb259ClxsZWZ0KFxkZnJhY3tjX219e2Jfe20rMX19XHByb2Rfe2k9MX1ebSAoSS1yX3sxaX1MQ157LTF9KStcdGF1IFxwcm9kX3tqPTF9XnttKzF9IChJLXJfezJqfUxDXnstMX0pXHJpZ2h0KUNVXntrKzF9ID0gXGRmcmFje2NfbX17Yl97bSsxfX1ccHJvZF97aT0xfV5tIChJLXJfezFpfUxDXnstMX0pXGNkb3QgQ1VeawpcZW5ke2VxdWF0aW9ufQoKV2Ugbm93IG5lZWQgdG8gY29tcHV0ZSB0aGUgcm9vdHMgb2YgdGhlIHBvbHlub21pYWwKXGJlZ2lue2VxdWF0aW9ufQpSKHgpID0gXGRmcmFje2NfbX17Yl97bSsxfX0gXHByb2Rfe2k9MX1ebSAoMS1yX3sxaX14KStcdGF1IFxwcm9kX3tqPTF9XnttKzF9ICgxLXJfezJqfXgpIApcZW5ke2VxdWF0aW9ufQokUiQgaGFzIGxlYWRpbmcgY29lZmZpY2llbnQgJFxnYW1tYT1cdGF1ICgtMSlee20rMX0gXHByb2Rfe2o9MX1ee20rMX1yX3syan0kIGFuZCAkbSsxJCByb290cyAkUl9rJCBmb3IgJGs9MSxcbGRvdHMsbSsxJC4gVGhhdCBpcywKXGJlZ2lue2VxdWF0aW9ufQpSKHgpID0gXHRhdSgtMSlee20rMX0gXHByb2Rfe2o9MX1ee20rMX1yX3syan1ccHJvZF97az0xfV57bSsxfSAoeC1SX2spPSBcZ2FtbWFccHJvZF97az0xfV57bSsxfSAoeC1SX2spClxlbmR7ZXF1YXRpb259CldlIGNhbiB0aGVuIHdyaXRlIG91ciBzY2hlbWUgYXMgClxiZWdpbntlcXVhdGlvbn0KXGxlZnQoXGdhbW1hXHByb2Rfe2s9MX1ee20rMX0gKExDXnstMX0tUl9rSSlccmlnaHQpQ1Vee2srMX0gPSBcZGZyYWN7Y19tfXtiX3ttKzF9fVxwcm9kX3tpPTF9Xm0gKEktcl97MWl9TENeey0xfSlcY2RvdCBDVV5rClxlbmR7ZXF1YXRpb259ClRoYXQgaXMsClxiZWdpbntlcXVhdGlvbn0KVV57aysxfSA9IFxkZnJhY3tjX219e2Jfe20rMX19XGRmcmFjezF9e1xnYW1tYX1DXnstMX1ccHJvZF97az0xfV57bSsxfSAoTENeey0xfS1SX2tJKV57LTF9XHByb2Rfe2k9MX1ebSAoSS1yX3sxaX1MQ157LTF9KVxjZG90IENVXmsKXGVuZHtlcXVhdGlvbn0KCgpSb290cyAkcl97MWl9JCBhbmQgJHJfezJqfSQgYXJlIHJlYWwgYnV0ICRSX2skIGNhbiBiZSBjb21wbGV4LiBJbiB0aGF0IGNhc2UsIHdlIGNvbnNpZGVyIHRoZSBxdWFkcmF0aWMgdGVybXMuIEZvciBleGFtcGxlLCBpZiAkbT0zJCwgYW5kICRSJCBoYXMgb25lIHJlYWwgcm9vdCAkciQgYW5kIHR3byBjb21wbGV4IGNvbmp1Z2F0ZSByb290cyAkeiQgYW5kICRcYmFye3p9JCBzdWNoIHRoYXQgJCh4LXopKHgtXGJhcnt6fSkgPSB4XjIrYXgrYiQsIHdlIHdpbGwgd29yayB3aXRoIApcYmVnaW57ZXF1YXRpb259ClIoeCkgPSBcZ2FtbWEoeF4yK2F4K2IpKHgtcikKXGVuZHtlcXVhdGlvbn0KaW5zdGVhZCBvZiAKXGJlZ2lue2VxdWF0aW9ufQpSKHgpID0gXGdhbW1hKHgteikoeC1cYmFye3p9KSh4LXIpClxlbmR7ZXF1YXRpb259CgpGcm9tIHRoZSBzY2hlbWUKClxiZWdpbntlcXVhdGlvbn0KXGxlZnQoXGRmcmFje2NfbX17Yl97bSsxfX1ccHJvZF97aT0xfV5tIChJLXJfezFpfUxDXnstMX0pK1x0YXUgXHByb2Rfe2o9MX1ee20rMX0gKEktcl97Mmp9TENeey0xfSlccmlnaHQpQ1Vee2srMX0gPSBcZGZyYWN7Y19tfXtiX3ttKzF9fVxwcm9kX3tpPTF9Xm0gKEktcl97MWl9TENeey0xfSlcY2RvdCBDVV5rClxlbmR7ZXF1YXRpb259Cgp3ZSB3cml0ZSAKClxiZWdpbntlcXVhdGlvbn0KVV57aysxfSA9IENeey0xfVxsZWZ0KFxkZnJhY3tjX219e2Jfe20rMX19XHByb2Rfe2k9MX1ebSAoSS1yX3sxaX1MQ157LTF9KStcdGF1IFxwcm9kX3tqPTF9XnttKzF9IChJLXJfezJqfUxDXnstMX0pXHJpZ2h0KV57LTF9XGRmcmFje2NfbX17Yl97bSsxfX1ccHJvZF97aT0xfV5tIChJLXJfezFpfUxDXnstMX0pXGNkb3QgQ1VeawpcZW5ke2VxdWF0aW9ufQoKV2Ugd2FudCB0aGUgcGFydGlhbCBmcmFjdGlvbiBkZWNvbXBvc2l0aW9uIG9mIAoKClxiZWdpbntlcXVhdGlvbn0KXGRmcmFje1xkZnJhY3tjX219e2Jfe20rMX19XHByb2Rfe2k9MX1ebSAoMS1yX3sxaX14KX17XGRmcmFje2NfbX17Yl97bSsxfX1ccHJvZF97aT0xfV5tICgxLXJfezFpfXgpK1x0YXUgXHByb2Rfe2o9MX1ee20rMX0gKDEtcl97Mmp9eCl9ClxlbmR7ZXF1YXRpb259CgpvcgoKXGJlZ2lue2VxdWF0aW9ufQpcZGZyYWN7XHByb2Rfe2k9MX1ebSAoMS1yX3sxaX14KX17XHByb2Rfe2k9MX1ebSAoMS1yX3sxaX14KStcdGF1IFxkZnJhY3tiX3ttKzF9fXtjX219IFxwcm9kX3tqPTF9XnttKzF9ICgxLXJfezJqfXgpfQpcZW5ke2VxdWF0aW9ufQoKVGhhdCBpcwoKXGJlZ2lue2VxdWF0aW9ufQpcc3VtX3trPTF9XnttKzF9IFxkZnJhY3thX2t9e3gtcF9rfSArIHIgPSBcc3VtX3trPTF9XnttKzF9IGFfayh4LXBfayleey0xfSArIHIKXGVuZHtlcXVhdGlvbn0KClRoZXJlZm9yZQoKXGJlZ2lue2VxdWF0aW9ufQpVXntrKzF9ID0gQ157LTF9XGxlZnQoXHN1bV97az0xfV57bSsxfSBhX2soTENeey0xfS1wX2tJKV57LTF9ICsgcklccmlnaHQpIENVXmsKXGVuZHtlcXVhdGlvbn0KCgojIE5vdyB3aXRoIG5vbnplcm8gcmlnaHQgaGFuZCBzaWRlCgpUaGVyZWZvcmUKClxiZWdpbntlcXVhdGlvbn0KVV57aysxfSA9IENeey0xfVxsZWZ0KFxzdW1fe2s9MX1ee20rMX0gYV9rKExDXnstMX0tcF9rSSleey0xfSArIHJJXHJpZ2h0KSAoQ1VeaytcdGF1IEZee2srMX0pClxlbmR7ZXF1YXRpb259CgoKYGBge3J9CiMgQ3JlYXRlIGEgY2xpcGJvYXJkIGJ1dHRvbiBvbiB0aGUgcmVuZGVyZWQgSFRNTCBwYWdlCnNvdXJjZShoZXJlOjpoZXJlKCJjbGlwYm9hcmQuUiIpKTsgY2xpcGJvYXJkCiMgU2V0IHNlZWQgZm9yIHJlcHJvZHVjaWJpbGl0eQpzZXQuc2VlZCgxOTgyKSAKIyBTZXQgZ2xvYmFsIG9wdGlvbnMgZm9yIGFsbCBjb2RlIGNodW5rcwprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgIyBEaXNhYmxlIG1lc3NhZ2VzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIG1lc3NhZ2UgPSBUUlVFLCAgICAKICAjIERpc2FibGUgd2FybmluZ3MgcHJpbnRlZCBieSBSIGNvZGUgY2h1bmtzCiAgd2FybmluZyA9IFRSVUUsICAgIAogICMgU2hvdyBSIGNvZGUgd2l0aGluIGNvZGUgY2h1bmtzIGluIG91dHB1dAogIGVjaG8gPSBUUlVFLCAgICAgICAgCiAgIyBJbmNsdWRlIGJvdGggUiBjb2RlIGFuZCBpdHMgcmVzdWx0cyBpbiBvdXRwdXQKICBpbmNsdWRlID0gVFJVRSwgICAgIAogICMgRXZhbHVhdGUgUiBjb2RlIGNodW5rcwogIGV2YWwgPSBUUlVFLCAgICAgICAKICAjIEVuYWJsZSBjYWNoaW5nIG9mIFIgY29kZSBjaHVua3MgZm9yIGZhc3RlciByZW5kZXJpbmcKICBjYWNoZSA9IEZBTFNFLCAgICAgIAogICMgQWxpZ24gZmlndXJlcyBpbiB0aGUgY2VudGVyIG9mIHRoZSBvdXRwdXQKICBmaWcuYWxpZ24gPSAiY2VudGVyIiwKICAjIEVuYWJsZSByZXRpbmEgZGlzcGxheSBmb3IgaGlnaC1yZXNvbHV0aW9uIGZpZ3VyZXMKICByZXRpbmEgPSAyLAogICMgU2hvdyBlcnJvcnMgaW4gdGhlIG91dHB1dCBpbnN0ZWFkIG9mIHN0b3BwaW5nIHJlbmRlcmluZwogIGVycm9yID0gVFJVRSwKICAjIERvIG5vdCBjb2xsYXBzZSBjb2RlIGFuZCBvdXRwdXQgaW50byBhIHNpbmdsZSBibG9jawogIGNvbGxhcHNlID0gRkFMU0UKKQojIFN0YXJ0IHRoZSBmaWd1cmUgY291bnRlcgpmaWdfY291bnQgPC0gMAojIERlZmluZSB0aGUgY2FwdGlvbmVyIGZ1bmN0aW9uCmNhcHRpb25lciA8LSBmdW5jdGlvbihjYXB0aW9uKSB7CiAgZmlnX2NvdW50IDw8LSBmaWdfY291bnQgKyAxCiAgcGFzdGUwKCJGaWd1cmUgIiwgZmlnX2NvdW50LCAiOiAiLCBjYXB0aW9uKQp9CmBgYAoKCgpgYGB7cn0KIyByZW1vdGVzOjppbnN0YWxsX2dpdGh1YigiZGF2aWRib2xpbi9yc3BkZSIsIHJlZiA9ICJkZXZlbCIpCiMgcmVtb3Rlczo6aW5zdGFsbF9naXRodWIoImRhdmlkYm9saW4vbWV0cmljZ3JhcGgiLCByZWYgPSAiZGV2ZWwiKQojIGxpYnJhcnkoSU5MQSkKIyBsaWJyYXJ5KGlubGFicnUpCmxpYnJhcnkoclNQREUpCmxpYnJhcnkoTWV0cmljR3JhcGgpCmxpYnJhcnkoZ3JhdGVmdWwpCgpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkocmVzaGFwZTIpCmxpYnJhcnkocGxvdGx5KQpgYGAKCgoKCgpgYGB7cn0KIyBUaGlzIGZpbGUgY29udGFpbnMgZnVuY3Rpb25zIHRoYXQgYXJlIHVzZWQgaW4gdGhlIHZpZ25ldHRlcwojIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQojIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQojIEZvciBlYWNoIHJhdGlvbmFsIG9yZGVyIG0gKDEsMiwzLDQpIGFuZCBzbW9vdGhuZXNzIHBhcmFtZXRlciBiZXRhICg9IGFscGhhLzIgd2l0aCBhbHBoYSBiZXR3ZWVuIDAuNSBhbmQgMiksIEZ1bmN0aW9uIG15LmdldC5yb290cygpIChhZGFwdGVkIGZyb20gdGhlIHJTUERFIHBhY2thZ2UpIHJldHVybnMgY19tL2Jfe20rMX0gYW5kIHRoZSByb290cyBvZiBwX1xlbGwgYW5kIHBfci4gCiMgU2VlIERhdmlkIEJvbGluICYgS3Jpc3RpbiBLaXJjaG5lciAoMjAyMCkgVGhlIFJhdGlvbmFsIFNQREUgQXBwcm9hY2ggZm9yIEdhdXNzaWFuIFJhbmRvbSBGaWVsZHMgV2l0aCBHZW5lcmFsIFNtb290aG5lc3MsIEpvdXJuYWwgb2YgQ29tcHV0YXRpb25hbCBhbmQgR3JhcGhpY2FsIFN0YXRpc3RpY3MsIDI5OjIsIDI3NC0yODUsIERPSTogMTAuMTA4MC8xMDYxODYwMC4yMDE5LjE2NjU1MzcKIyBmb3IgdGhlIGRlZmluaXRpb24gb2YgY19tL2Jfe20rMX0gYW5kIHBfXGVsbCBhbmQgcF9yLgpteS5nZXQucm9vdHMgPC0gZnVuY3Rpb24obSwgIyByYXRpb25hbCBvcmRlciwgbSA9IDEsIDIsIDMsIG9yIDQKICAgICAgICAgICAgICAgICAgICAgICAgIGJldGEgIyBzbW9vdGhuZXNzIHBhcmFtZXRlciwgYmV0YSA9IGFscGhhLzIgd2l0aCBhbHBoYSBiZXR3ZWVuIDAuNSBhbmQgMgogICAgICAgICAgICAgICAgICAgICAgICAgKSB7CiAgbTF0YWJsZSA8LSByU1BERTo6Om0xdGFibGUKICBtMnRhYmxlIDwtIHJTUERFOjo6bTJ0YWJsZQogIG0zdGFibGUgPC0gclNQREU6OjptM3RhYmxlCiAgbTR0YWJsZSA8LSByU1BERTo6Om00dGFibGUKICBtdCA8LSBnZXQocGFzdGUwKCJtIiwgbSwgInRhYmxlIikpCiAgcmIgPC0gcmVwKDAsIG0gKyAxKQogIHJjIDwtIHJlcCgwLCBtKQogIGlmKG0gPT0gMSkgewogICAgcmMgPSBhcHByb3gobXQkYmV0YSwgbXRbW3Bhc3RlMCgicmMiKV1dLCBiZXRhKSR5CiAgfSBlbHNlIHsKICAgIHJjID0gc2FwcGx5KDE6bSwgZnVuY3Rpb24oaSkgewogICAgICBhcHByb3gobXQkYmV0YSwgbXRbW3Bhc3RlMCgicmMuIiwgaSldXSwgYmV0YSkkeQogICAgfSkKICB9CiAgcmIgPSBzYXBwbHkoMToobSsxKSwgZnVuY3Rpb24oaSkgewogICAgYXBwcm94KG10JGJldGEsIG10W1twYXN0ZTAoInJiLiIsIGkpXV0sIHhvdXQgPSBiZXRhKSR5CiAgfSkKICBmYWN0b3IgPSBhcHByb3gobXQkYmV0YSwgbXQkZmFjdG9yLCB4b3V0ID0gYmV0YSkkeQogIHJldHVybihsaXN0KHJiID0gcmIsICMgcm9vdHMgb2YgcF9cZWxsCiAgICAgICAgICAgICAgcmMgPSByYywgIyByb290cyBvZiBwX3IKICAgICAgICAgICAgICBmYWN0b3IgPSBmYWN0b3IgIyB0aGlzIGlzIGNfbS9iX3ttKzF9CiAgICAgICAgICAgICAgKSkKfQojIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQojIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQojIEZ1bmN0aW9uIHBvbHkuZnJvbS5yb290cygpIGNvbXB1dGVzIHRoZSBjb2VmZmljaWVudHMgb2YgYSBwb2x5bm9taWFsIGZyb20gaXRzIHJvb3RzLgpwb2x5LmZyb20ucm9vdHMgPC0gZnVuY3Rpb24ocm9vdHMpIHsKICBjb2VmIDwtIDEKICBmb3IgKHIgaW4gcm9vdHMpIHtjb2VmIDwtIGNvbnZvbHZlKGNvZWYsIGMoMSwgLXIpLCB0eXBlID0gIm9wZW4iKX0KICByZXR1cm4oY29lZikgIyByZXR1cm5lZCBpbiBpbmNyZWFzaW5nIG9yZGVyIGxpa2UgYStieCtjeF4yKy4uLgp9CiMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiMgRnVuY3Rpb24gY29tcHV0ZS5wYXJ0aWFsLmZyYWN0aW9uLnBhcmFtKCkgY29tcHV0ZXMgdGhlIHBhcmFtZXRlcnMgZm9yIHRoZSBwYXJ0aWFsIGZyYWN0aW9uIGRlY29tcG9zaXRpb24gb2YgdGhlIHJhdGlvbmFsIGZ1bmN0aW9uCiMgXGRmcmFje3Bfcih4KX17cF9yKHgpK1x0YXUgXGthcHBhXnsyXGJldGF9cF9cZWxsKHgpIH0gPSBcc3VtX3trPTF9XnttKzF9YV9rKHgtcF9rKV57LTF9ICsgcgpjb21wdXRlLnBhcnRpYWwuZnJhY3Rpb24ucGFyYW0gPC0gZnVuY3Rpb24oZmFjdG9yLCBwcl9yb290cywgcGxfcm9vdHMsIHRpbWVfc3RlcCwgc2NhbGluZykgewogIHByX2NvZWYgPC0gYygwLCBwb2x5LmZyb20ucm9vdHMocHJfcm9vdHMpKSAKICBwbF9jb2VmIDwtIHBvbHkuZnJvbS5yb290cyhwbF9yb290cykgCiAgZmFjdG9yX3ByX2NvZWYgPC0gcHJfY29lZgogIHByX3BsdXNfcGxfY29lZiA8LSBmYWN0b3JfcHJfY29lZiArICgoc2NhbGluZyAqIHRpbWVfc3RlcCkvZmFjdG9yKSAqIHBsX2NvZWYKICByZXMgPC0gZ3NpZ25hbDo6cmVzaWR1ZShmYWN0b3JfcHJfY29lZiwgcHJfcGx1c19wbF9jb2VmKQogIHJldHVybihsaXN0KHIgPSByZXMkciwgcCA9IHJlcyRwLCBrID0gcmVzJGspKSAKfQpgYGAKCiMjIFJlZmVyZW5jZXMKCmBgYHtyfQpncmF0ZWZ1bDo6Y2l0ZV9wYWNrYWdlcyhvdXRwdXQgPSAicGFyYWdyYXBoIiwgb3V0LmRpciA9ICIuIikKYGBgCgoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiRnVuY3Rpb25hbGl0eSIKZGF0ZTogIkxhc3QgbW9kaWZpZWQ6IGByIGZvcm1hdChTeXMudGltZSgpLCAnJWQtJW0tJVkuJylgIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDoKICAgIG1hdGhqYXg6ICJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL21hdGhqYXhAMy9lczUvdGV4LW1tbC1jaHRtbC5qcyIKICAgIGhpZ2hsaWdodDogcHlnbWVudHMKICAgIHRoZW1lOiBmbGF0bHkKICAgIGNvZGVfZm9sZGluZzogc2hvdyAjIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUiIHRvIGhpZGUgY29kZSBhbmQgYWRkIGEgYnV0dG9uIHRvIHNob3cgaXQKICAgIGRmX3ByaW50OiBwYWdlZAogICAgIyB0b2M6IHRydWUKICAgICMgdG9jX2Zsb2F0OgogICAgIyAgIGNvbGxhcHNlZDogdHJ1ZQogICAgIyAgIHNtb290aF9zY3JvbGw6IHRydWUKICAgIG51bWJlcl9zZWN0aW9uczogZmFsc2UKICAgIGZpZ19jYXB0aW9uOiB0cnVlCiAgICBjb2RlX2Rvd25sb2FkOiB0cnVlCiAgICBjc3M6IHZpc3VhbC5jc3MKYWx3YXlzX2FsbG93X2h0bWw6IHRydWUKYmlibGlvZ3JhcGh5OiAKICAtIHJlZmVyZW5jZXMuYmliCiAgLSBncmF0ZWZ1bC1yZWZzLmJpYgpoZWFkZXItaW5jbHVkZXM6CiAgLSBcbmV3Y29tbWFuZHtcYXJ9e1xtYXRoYmJ7Un19CiAgLSBcbmV3Y29tbWFuZHtcbGxhdn1bMV17XGxlZnRceyMxXHJpZ2h0XH19CiAgLSBcbmV3Y29tbWFuZHtccGFyZX1bMV17XGxlZnQoIzFccmlnaHQpfQogIC0gXG5ld2NvbW1hbmR7XE5jYWx9e1xtYXRoY2Fse059fQogIC0gXG5ld2NvbW1hbmR7XFZjYWx9e1xtYXRoY2Fse1Z9fQogIC0gXG5ld2NvbW1hbmR7XEVjYWx9e1xtYXRoY2Fse0V9fQogIC0gXG5ld2NvbW1hbmR7XFdjYWx9e1xtYXRoY2Fse1d9fQotLS0KCgo8ZGl2IHN0eWxlPSJjb2xvcjogIzJjM2U1MDsgdGV4dC1hbGlnbjogcmlnaHQ7Ij4KKioqKioqKiogIAo8c3Ryb25nPlByZXNzIFNob3cgdG8gcmV2ZWFsIHRoZSBjb2RlIGNodW5rcy48L3N0cm9uZz4gIAoKKioqKioqKioKPC9kaXY+CgoKYGBge3IsIHB1cmwgPSBGQUxTRSwgZWNobyA9IEZBTFNFfQojIENyZWF0ZSBhIGNsaXBib2FyZCBidXR0b24gb24gdGhlIHJlbmRlcmVkIEhUTUwgcGFnZQpzb3VyY2UoaGVyZTo6aGVyZSgiY2xpcGJvYXJkLlIiKSk7IGNsaXBib2FyZApgYGAKCgpgYGB7ciwgcHVybCA9IEZBTFNFLCBjbGFzcy5zb3VyY2UgPSAiZm9sZC1oaWRlIn0KIyBTZXQgc2VlZCBmb3IgcmVwcm9kdWNpYmlsaXR5CnNldC5zZWVkKDE5ODIpIAojIFNldCBnbG9iYWwgb3B0aW9ucyBmb3IgYWxsIGNvZGUgY2h1bmtzCmtuaXRyOjpvcHRzX2NodW5rJHNldCgKICAjIERpc2FibGUgbWVzc2FnZXMgcHJpbnRlZCBieSBSIGNvZGUgY2h1bmtzCiAgbWVzc2FnZSA9IFRSVUUsICAgIAogICMgRGlzYWJsZSB3YXJuaW5ncyBwcmludGVkIGJ5IFIgY29kZSBjaHVua3MKICB3YXJuaW5nID0gVFJVRSwgICAgCiAgIyBTaG93IFIgY29kZSB3aXRoaW4gY29kZSBjaHVua3MgaW4gb3V0cHV0CiAgZWNobyA9IFRSVUUsICAgICAgICAKICAjIEluY2x1ZGUgYm90aCBSIGNvZGUgYW5kIGl0cyByZXN1bHRzIGluIG91dHB1dAogIGluY2x1ZGUgPSBUUlVFLCAgICAgCiAgIyBFdmFsdWF0ZSBSIGNvZGUgY2h1bmtzCiAgZXZhbCA9IFRSVUUsICAgICAgIAogICMgRW5hYmxlIGNhY2hpbmcgb2YgUiBjb2RlIGNodW5rcyBmb3IgZmFzdGVyIHJlbmRlcmluZwogIGNhY2hlID0gRkFMU0UsICAgICAgCiAgIyBBbGlnbiBmaWd1cmVzIGluIHRoZSBjZW50ZXIgb2YgdGhlIG91dHB1dAogIGZpZy5hbGlnbiA9ICJjZW50ZXIiLAogICMgRW5hYmxlIHJldGluYSBkaXNwbGF5IGZvciBoaWdoLXJlc29sdXRpb24gZmlndXJlcwogIHJldGluYSA9IDIsCiAgIyBTaG93IGVycm9ycyBpbiB0aGUgb3V0cHV0IGluc3RlYWQgb2Ygc3RvcHBpbmcgcmVuZGVyaW5nCiAgZXJyb3IgPSBUUlVFLAogICMgRG8gbm90IGNvbGxhcHNlIGNvZGUgYW5kIG91dHB1dCBpbnRvIGEgc2luZ2xlIGJsb2NrCiAgY29sbGFwc2UgPSBGQUxTRQopCiMgU3RhcnQgdGhlIGZpZ3VyZSBjb3VudGVyCmZpZ19jb3VudCA8LSAwCiMgRGVmaW5lIHRoZSBjYXB0aW9uZXIgZnVuY3Rpb24KY2FwdGlvbmVyIDwtIGZ1bmN0aW9uKGNhcHRpb24pIHsKICBmaWdfY291bnQgPDwtIGZpZ19jb3VudCArIDEKICBwYXN0ZTAoIkZpZ3VyZSAiLCBmaWdfY291bnQsICI6ICIsIGNhcHRpb24pCn0KYGBgCgoKCmBgYHtyfQojIHJlbW90ZXM6Omluc3RhbGxfZ2l0aHViKCJkYXZpZGJvbGluL3JzcGRlIiwgcmVmID0gImRldmVsIikKIyByZW1vdGVzOjppbnN0YWxsX2dpdGh1YigiZGF2aWRib2xpbi9tZXRyaWNncmFwaCIsIHJlZiA9ICJkZXZlbCIpCmxpYnJhcnkoclNQREUpCmxpYnJhcnkoTWV0cmljR3JhcGgpCmxpYnJhcnkoZ3JhdGVmdWwpCgpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkocmVzaGFwZTIpCmxpYnJhcnkocGxvdGx5KQpgYGAKCgpHbyBiYWNrIHRvIHRoZSBbQWJvdXQgcGFnZV0oYWJvdXQuaHRtbCkuCgojIyBGcmFjdGlvbmFsIGRpZmZ1c2lvbiBlcXVhdGlvbnMgb24gbWV0cmljIGdyYXBocwoKV2UgYW5hbHl6ZSBhbmQgbnVtZXJpY2FsbHkgYXBwcm94aW1hdGUgc29sdXRpb25zIHRvIGZyYWN0aW9uYWwgZGlmZnVzaW9uIGVxdWF0aW9ucyBvbiBtZXRyaWMgZ3JhcGhzIG9mIHRoZSBmb3JtClxiZWdpbntlcXVhdGlvbn0KXGxhYmVse2VxOm1haW5lcX0KXHRhZ3sxfQpcbGVmdFx7ClxiZWdpbnthbGlnbmVkfQogICAgXHBhcnRpYWxfdCB1KHMsdCkgKyAoXGthcHBhXjIgLSBcRGVsdGFfXEdhbW1hKV57XGFscGhhLzJ9IHUocyx0KSAmPSBmKHMsdCksICYmIFxxdWFkIChzLHQpIFxpbiBcR2FtbWEgXHRpbWVzICgwLCBUKSwgXFwKICAgIHUocywwKSAmPSB1XzAocyksICYmIFxxdWFkIHMgXGluIFxHYW1tYSwKXGVuZHthbGlnbmVkfQpccmlnaHQuClxlbmR7ZXF1YXRpb259CndpdGggJHUoXGNkb3QsdCkkIHNhdGlzZnlpbmcgdGhlIEtpcmNoaG9mZiB2ZXJ0ZXggY29uZGl0aW9ucwpcYmVnaW57ZXF1YXRpb259ClxsYWJlbHtlcTpLY29uZH0KXHRhZ3syfQogICBcbWF0aGNhbHtLfSA9ICBcbGVmdFx7XHBoaVxpbiBDKFxHYW1tYSlcO1xtaWRkbGV8XDsgXGZvcmFsbCB2XGluIFxtYXRoY2Fse1Z9Olw7IFx0ZXh0c3R5bGVcc3VtX3tlXGluXG1hdGhjYWx7RX1fdn1ccGFydGlhbF9lIFxwaGkodik9MCBccmlnaHRcfS4KXGVuZHtlcXVhdGlvbn0KSGVyZSAkXEdhbW1hID0gKFxtYXRoY2Fse1Z9LFxtYXRoY2Fse0V9KSQgaXMgYSBtZXRyaWMgZ3JhcGgsICRca2FwcGE+MCQsICRcYWxwaGFcaW4oMCwyXSQgZGV0ZXJtaW5lcyB0aGUgc21vb3RobmVzcyBvZiAkdShcY2RvdCx0KSQsICRcRGVsdGFfe1xHYW1tYX0kIGlzIHRoZSBzby1jYWxsZWQgS2lyY2hob2ZmLS1MYXBsYWNpYW4sIGFuZCAkZjpcR2FtbWFcdGltZXMgKDAsVClcdG9cbWF0aGJie1J9JCBhbmQgJHVfMDogXEdhbW1hIFx0byBcbWF0aGJie1J9JCBhcmUgZml4ZWQgZnVuY3Rpb25zLCBjYWxsZWQgcmlnaHQtaGFuZCBzaWRlIGFuZCBpbml0aWFsIGNvbmRpdGlvbiwgcmVzcGVjdGl2ZWx5LgoKIyMgTnVtZXJpY2FsIFNjaGVtZQoKTGV0ICRcYWxwaGFcaW4oMCwyXSQgYW5kICRVX2heXHRhdSQgZGVub3RlIHRoZSBzZXF1ZW5jZSBvZiBhcHByb3hpbWF0aW9ucyBvZiB0aGUgc29sdXRpb24gdG8gdGhlIHdlYWsgZm9ybSBvZiBwcm9ibGVtIFxlcXJlZntlcTptYWluZXF9IGF0IGVhY2ggdGltZSBzdGVwIG9uIGEgbWVzaCBpbmRleGVkIGJ5ICRoJC4gTGV0ICRVXjBfaCA9IFBfaHVfMCQuIEZvciAkaz0wLFxkb3RzLCBOLTEkLCAkVV9oXntrKzF9XGluIFZfaCQgc29sdmVzIHRoZSBmb2xsb3dpbmcgc2NoZW1lClxiZWdpbnthbGlnbn0KXGxhYmVse3N5c3RlbTpmdWxseV9kaXNjcmV0ZV9zY2hlbWV9Clx0YWd7M30KICAgICAgICBcbGFuZ2xlXGRlbHRhIFVfaF57aysxfSxccGhpXHJhbmdsZSArIFxtYXRoZnJha3thfShVX2hee2srMX0sXHBoaSkgPSBcbGFuZ2xlIGZee2srMX0sXHBoaVxyYW5nbGUgLFxxdWFkXGZvcmFsbFxwaGlcaW4gVl9oLApcZW5ke2FsaWdufQp3aGVyZSAkZl57aysxfSA9IFxkaXNwbGF5c3R5bGVcZGZyYWN7MX17XHRhdX1caW50X3t0X2t9Xnt0XntrKzF9fWYodClkdCQuIEF0IGVhY2ggdGltZSBzdGVwICR0X2skLCB0aGUgZmluaXRlIGVsZW1lbnQgc29sdXRpb24gJFVfaF5rXGluIFZfaCQgdG8gXGVxcmVme3N5c3RlbTpmdWxseV9kaXNjcmV0ZV9zY2hlbWV9IGNhbiBiZSBleHByZXNzZWQgYXMgYSBsaW5lYXIgY29tYmluYXRpb24gb2YgdGhlIGJhc2lzIGZ1bmN0aW9ucyAgJFx7XHBzaV5pX2hcfV97aT0xfV57Tl9ofSQgaW50cm9kdWNlZCBpbiB0aGUgW1ByZWxpbWluYXJpZXNdKHByZWxpbWluYXJpZXMuaHRtbCNmZW0tYmFzaXMpIHBhZ2UsIG5hbWVseSwgClxiZWdpbnthbGlnbn0KXGxhYmVse251bV9zb2x9Clx0YWd7NH0KICAgIFVfaF5rKHMpID0gIFxzdW1fe2k9MX1ee05faH11X2lea1xwc2leaV9oKHMpLCBcO3NcaW5cR2FtbWEuClxlbmR7YWxpZ259ClJlcGxhY2luZyBcZXFyZWZ7bnVtX3NvbH0gaW50byBcZXFyZWZ7c3lzdGVtOmZ1bGx5X2Rpc2NyZXRlX3NjaGVtZX0geWllbGRzIHRoZSBmb2xsb3dpbmcgbGluZWFyIHN5c3RlbQpcYmVnaW57YWxpZ24qfQogICAgXHN1bV97aj0xfV57Tl9ofXVfal57aysxfVsoXHBzaV9qLFxwc2lfaSlfe0xfMihcR2FtbWEpfSsgXHRhdVxtYXRoZnJha3thfShccHNpX2osXHBzaV9pKV0gPSBcc3VtX3tqPTF9XntOX2h9dV9qXntrfShccHNpX2osXHBzaV9pKV97TF8yKFxHYW1tYSl9K1x0YXUoIGZee2srMX0sXHBzaV9pKV97TF8yKFxHYW1tYSl9LApcZW5ke2FsaWduKn0KZm9yICRpID0gMSxcZG90cywgTl9oJC4gSW4gbWF0cml4IG5vdGF0aW9uLApcYmVnaW57YWxpZ259ClxsYWJlbHtkaWZmX2VxX2Rpc2NyZXRlfQogICAgKFxib2xkc3ltYm9se0N9K1x0YXUgXGJvbGRzeW1ib2x7TH1ee1xhbHBoYS8yfSlcYm9sZHN5bWJvbHtVfV57aysxfSA9IFxib2xkc3ltYm9se0N9XGJvbGRzeW1ib2x7VX1eaytcdGF1IFxib2xkc3ltYm9se0Z9XntrKzF9LApcZW5ke2FsaWdufQpvciBieSBpbnRyb2R1Y2luZyB0aGUgc2NhbGluZyBwYXJhbWV0ZXIgJFxrYXBwYV4yPjAkLApcYmVnaW57YWxpZ259CiAgICAoXGJvbGRzeW1ib2x7Q30rXHRhdSAoXGthcHBhXjIpXntcYWxwaGEvMn0oXGJvbGRzeW1ib2x7TH0vXGthcHBhXjIpXntcYWxwaGEvMn0pXGJvbGRzeW1ib2x7VX1ee2srMX0gPSBcYm9sZHN5bWJvbHtDfVxib2xkc3ltYm9se1V9XmsrXHRhdSBcYm9sZHN5bWJvbHtGfV57aysxfSwKXGVuZHthbGlnbn0Kd2hlcmUgJFxib2xkc3ltYm9se0N9JCBoYXMgZW50cmllcyAkXGJvbGRzeW1ib2x7Q31fe2lqfSA9IChccHNpX2osXHBzaV9pKV97TF8yKFxHYW1tYSl9JCwgJFxib2xkc3ltYm9se0x9XntcYWxwaGEvMn0kIGhhcyBlbnRyaWVzICRcbWF0aGZyYWt7YX0oXHBzaV9qLFxwc2lfaSkkLCAkXGJvbGRzeW1ib2x7VX1eayQgaGFzIGVudHJpZXMgJHVfal5rJCwgYW5kICRcYm9sZHN5bWJvbHtGfV5rJCBoYXMgZW50cmllcyAkKCBmXntrfSxccHNpX2kpX3tMXzIoXEdhbW1hKX0kLiAgVG8gcmVkdWNlIGNvbXB1dGF0aW9uYWwgY29zdCBhbmQgcHJvbW90ZSBzcGFyc2l0eSwgd2UgcmVwbGFjZSB0aGUgbWFzcyBtYXRyaXggJFxib2xkc3ltYm9se0N9JCB3aXRoIGEgbHVtcGVkIG1hc3MgbWF0cml4ICRcdGlsZGV7XGJvbGRzeW1ib2x7Q319JCwgd2hpY2ggaXMgZGlhZ29uYWwgd2l0aCBlbnRyaWVzICRcdGlsZGV7XGJvbGRzeW1ib2x7Q319X3tpaX09XHN1bV97aj0xfV57Tl9ofVxib2xkc3ltYm9se0N9X3tpan0kLiAgRm9yIGNvbnZlbmllbmNlLCB3ZSB3cml0ZSAkXGJvbGRzeW1ib2x7Q30kIGluc3RlYWQgb2YgJFx0aWxkZXtcYm9sZHN5bWJvbHtDfX0kIGluIHRoZSBmb2xsb3dpbmcuIEFwcGx5aW5nICQoXGJvbGRzeW1ib2x7TH0vXGthcHBhXjIpXnstXGFscGhhLzJ9JCB0byBib3RoIHNpZGVzIHlpZWxkcwpcYmVnaW57ZXF1YXRpb259CigoXGJvbGRzeW1ib2x7TH0vXGthcHBhXjIpXnstXGFscGhhLzJ9XGJvbGRzeW1ib2x7Q30rXHRhdSAoXGthcHBhXjIpXntcYWxwaGEvMn1cYm9sZHN5bWJvbHtJfSlcYm9sZHN5bWJvbHtVfV57aysxfSA9IChcYm9sZHN5bWJvbHtMfS9ca2FwcGFeMileey1cYWxwaGEvMn0oXGJvbGRzeW1ib2x7Q31cYm9sZHN5bWJvbHtVfV5rK1x0YXUgXGJvbGRzeW1ib2x7Rn1ee2srMX0pLgpcZW5ke2VxdWF0aW9ufQpGb2xsb3dpbmcgQHJTUERFMjAyMCwgd2UgYXBwcm94aW1hdGUgJChcYm9sZHN5bWJvbHtMfS9ca2FwcGFeMileey1cYWxwaGEvMn0kIGJ5ICRcYm9sZHN5bWJvbHtQfV9cZWxsXnstXHRvcH1cYm9sZHN5bWJvbHtQfV9yXlx0b3AkIHRvIGFycml2ZSBhdApcYmVnaW57ZXF1YXRpb259ClxsYWJlbHtlcTpzY2hlbWUyfQpcdGFnezV9CihcYm9sZHN5bWJvbHtQfV9cZWxsXnstXHRvcH1cYm9sZHN5bWJvbHtQfV9yXlx0b3AgXGJvbGRzeW1ib2x7Q30rXHRhdShca2FwcGFeMilee1xhbHBoYS8yfSBcYm9sZHN5bWJvbHtJfSlcYm9sZHN5bWJvbHtVfV57aysxfSA9IFxib2xkc3ltYm9se1B9X1xlbGxeey1cdG9wfVxib2xkc3ltYm9se1B9X3JeXHRvcChcYm9sZHN5bWJvbHtDfVxib2xkc3ltYm9se1V9XmsrXHRhdSBcYm9sZHN5bWJvbHtGfV57aysxfSkuClxlbmR7ZXF1YXRpb259CndoZXJlClxiZWdpbntlcXVhdGlvbn0KXGxhYmVse2VxOlBMUFJ9Clx0YWd7Nn0KXGJvbGRzeW1ib2x7UH1fciA9IFxwcm9kX3tpPTF9Xm0gXGxlZnQoXGJvbGRzeW1ib2x7SX0tcl97MWl9XGRmcmFje1xib2xkc3ltYm9se0N9XnstMX1cYm9sZHN5bWJvbHtMfX17XGthcHBhXjJ9XHJpZ2h0KVxxdWFkXHRleHR7YW5kfVxxdWFkIFxib2xkc3ltYm9se1B9X1xlbGwgPSBcZGZyYWN7MX17XHRleHR0dHtmYWN0b3J9fVxib2xkc3ltYm9se0N9XHByb2Rfe2o9MX1ee20rMX0gXGxlZnQoXGJvbGRzeW1ib2x7SX0tcl97Mmp9XGRmcmFje1xib2xkc3ltYm9se0N9XnstMX1cYm9sZHN5bWJvbHtMfX17XGthcHBhXjJ9XHJpZ2h0KSwKXGVuZHtlcXVhdGlvbn0KYW5kICRcdGV4dHR0e2ZhY3Rvcn0gPSBcZGZyYWN7Y19tfXtiX3ttKzF9fSQsIGFuZAokXHtyX3sxaX1cfV97aT0xfV5tJCBhbmQgJFx7cl97Mmp9XH1fe2o9MX1ee20rMX0kIGFyZSB0aGUgcm9vdHMgb2YgJHFfMSh4KSA9XHN1bV97aT0wfV5tY19peF57aX0kIGFuZCAgJHFfMih4KT1cc3VtX3tqPTB9XnttKzF9Yl9qeF57an0kLCByZXNwZWN0aXZlbHkuIFRoZSBjb2VmZmljaWVudHMgICRce2NfaVx9X3tpPTB9Xm0kIGFuZCAgJFx7Yl9qXH1fe2o9MH1ee20rMX0kIGFyZSBkZXRlcm1pbmVkIGFzIHRoZSBiZXN0IHJhdGlvbmFsIGFwcHJveGltYXRpb24gJFxoYXR7cn1fbSA9cV8xL3FfMiQgb2YgdGhlIGZ1bmN0aW9uICRcaGF0e2Z9KHgpIDo9IHhee1xhbHBoYS8yLTF9JCBvdmVyIHRoZSBpbnRlcnZhbCAkSl9oOiA9IFtca2FwcGFeezJ9XGxhbWJkYV97Tl9oLGh9XnstMX0sIFxrYXBwYV57Mn1cbGFtYmRhX3sxLGh9XnstMX1dJCwgd2hlcmUgJFxsYW1iZGFfezEsaH0sIFxsYW1iZGFfe05faCxofT4wJCBhcmUgdGhlIHNtYWxsZXN0IGFuZCB0aGUgbGFyZ2VzdCBlaWdlbnZhbHVlIG9mICRMX2gkLCByZXNwZWN0aXZlbHkuCgoKRm9yIHRoZSBzYWtlIG9mIGNsYXJpdHksIHdlIG5vdGUgdGhhdCB0aGUgbnVtZXJpY2FsIGltcGxlbWVudGF0aW9uIG9mIEByU1BERTIwMjAgYWN0dWFsbHkgZGVmaW5lcyAkXGJvbGRzeW1ib2x7UH1fciQgYW5kICRcYm9sZHN5bWJvbHtQfV9cZWxsJCBhcwpcYmVnaW57ZXF1YXRpb259ClxsYWJlbHtlcTpQTFBSYm9saW59Clx0YWd7N30KXGJvbGRzeW1ib2x7UH1fciA9IFxwcm9kX3tpPTF9Xm0gXGxlZnQoXGJvbGRzeW1ib2x7SX0tcl97MWl9XGRmcmFje1xib2xkc3ltYm9se0N9XnstMX1cYm9sZHN5bWJvbHtMfX17XGthcHBhXjJ9XHJpZ2h0KVxxdWFkXHRleHR7YW5kfVxxdWFkIFxib2xkc3ltYm9se1B9X1xlbGwgPSBcZGZyYWN7XGthcHBhXnsyXGJldGF9fXtcdGV4dHR0e2ZhY3Rvcn19XGJvbGRzeW1ib2x7Q31ccHJvZF97aj0xfV57bSsxfSBcbGVmdChcYm9sZHN5bWJvbHtJfS1yX3syan1cZGZyYWN7XGJvbGRzeW1ib2x7Q31eey0xfVxib2xkc3ltYm9se0x9fXtca2FwcGFeMn1ccmlnaHQpLApcZW5ke2VxdWF0aW9ufQp3aGVyZSAkXGJldGEgPSBcYWxwaGEvMiQgYW5kIHRoZSBzY2FsaW5nIGZhY3RvciAkKFxrYXBwYV4yKV57XGFscGhhLzJ9JCBvciAkXGthcHBhXnsyXGJldGF9JCBpcyBhbHJlYWR5IGluY29ycG9yYXRlZCBpbiAkXGJvbGRzeW1ib2x7UH1fXGVsbCQsIGEgY29udmVudGlvbiB3ZSBhZG9wdCBpbiB0aGUgZm9sbG93aW5nLiBXaXRoIHRoaXMgdW5kZXIgY29uc2lkZXJhdGlvbiwgd2UgY2FuIHJld3JpdGUgXGVxcmVme2VxOnNjaGVtZTJ9IGFzClxiZWdpbntlcXVhdGlvbn0KXHRhZ3s4fQooXGJvbGRzeW1ib2x7UH1fcl5cdG9wIFxib2xkc3ltYm9se0N9K1x0YXUgXGJvbGRzeW1ib2x7UH1fXGVsbF5cdG9wKVxib2xkc3ltYm9se1V9XntrKzF9ID0gXGJvbGRzeW1ib2x7UH1fcl5cdG9wKFxib2xkc3ltYm9se0N9XGJvbGRzeW1ib2x7VX1eaytcdGF1IFxib2xkc3ltYm9se0Z9XntrKzF9KSwKXGxhYmVse2VxOnNjaGVtZX0KXGVuZHtlcXVhdGlvbn0Kd2hlcmUgIApcYmVnaW57ZXF1YXRpb259Clxib2xkc3ltYm9se1B9X3JeXHRvcCA9IFxwcm9kX3tpPTF9Xm0gXGxlZnQoXGJvbGRzeW1ib2x7SX0tcl97MWl9XGRmcmFje1xib2xkc3ltYm9se0x9XGJvbGRzeW1ib2x7Q31eey0xfX17XGthcHBhXjJ9XHJpZ2h0KVxxdWFkXHRleHR7YW5kfVxxdWFkIFxib2xkc3ltYm9se1B9X1xlbGxeXHRvcCA9IFxkZnJhY3tca2FwcGFeezJcYmV0YX19e1x0ZXh0dHR7ZmFjdG9yfX1ccHJvZF97aj0xfV57bSsxfSBcbGVmdChcYm9sZHN5bWJvbHtJfS1yX3syan1cZGZyYWN7XGJvbGRzeW1ib2x7TH1cYm9sZHN5bWJvbHtDfV57LTF9fXtca2FwcGFeMn1ccmlnaHQpXGNkb3QgXGJvbGRzeW1ib2x7Q30KXGVuZHtlcXVhdGlvbn0Kc2luY2UgJFxib2xkc3ltYm9se0x9JCBhbmQgJFxib2xkc3ltYm9se0N9XnstMX0kIGFyZSBzeW1tZXRyaWMgYW5kIHRoZSBmYWN0b3JzIGluIHRoZSBwcm9kdWN0IGNvbW11dGUuIFJlcGxhY2luZyB0aGVzZSB0d28gaW50byBcZXFyZWZ7ZXE6c2NoZW1lfSB5aWVsZHMKXGJlZ2lue2VxdWF0aW9ufQpcbGVmdChccHJvZF97aT0xfV5tIFxsZWZ0KFxib2xkc3ltYm9se0l9LXJfezFpfVxkZnJhY3tcYm9sZHN5bWJvbHtMfVxib2xkc3ltYm9se0N9XnstMX19e1xrYXBwYV4yfVxyaWdodCkrXGRmcmFje1x0YXUgXGthcHBhXnsyXGJldGF9fXtcdGV4dHR0e2ZhY3Rvcn19XHByb2Rfe2o9MX1ee20rMX0gXGxlZnQoXGJvbGRzeW1ib2x7SX0tcl97Mmp9XGRmcmFje1xib2xkc3ltYm9se0x9XGJvbGRzeW1ib2x7Q31eey0xfX17XGthcHBhXjJ9XHJpZ2h0KVxyaWdodClcYm9sZHN5bWJvbHtDfVxib2xkc3ltYm9se1V9XntrKzF9ID0gXHByb2Rfe2k9MX1ebSBcbGVmdChcYm9sZHN5bWJvbHtJfS1yX3sxaX1cZGZyYWN7XGJvbGRzeW1ib2x7TH1cYm9sZHN5bWJvbHtDfV57LTF9fXtca2FwcGFeMn1ccmlnaHQpXGNkb3QgKFxib2xkc3ltYm9se0N9XGJvbGRzeW1ib2x7VX1eaytcdGF1IFxib2xkc3ltYm9se0Z9XntrKzF9KSwKXGVuZHtlcXVhdGlvbn0KdGhhdCBpcywKXGJlZ2lue2VxdWF0aW9ufQpcbGFiZWx7ZXE6ZmluYWxfc2NoZW1lfQpcdGFnezl9Clxib2xkc3ltYm9se1V9XntrKzF9ID0gXGJvbGRzeW1ib2x7Q31eey0xfVxsZWZ0KFxwcm9kX3tpPTF9Xm0gXGxlZnQoXGJvbGRzeW1ib2x7SX0tcl97MWl9XGRmcmFje1xib2xkc3ltYm9se0x9XGJvbGRzeW1ib2x7Q31eey0xfX17XGthcHBhXjJ9XHJpZ2h0KStcZGZyYWN7XHRhdSBca2FwcGFeezJcYmV0YX19e1x0ZXh0dHR7ZmFjdG9yfX1ccHJvZF97aj0xfV57bSsxfSBcbGVmdChcYm9sZHN5bWJvbHtJfS1yX3syan1cZGZyYWN7XGJvbGRzeW1ib2x7TH1cYm9sZHN5bWJvbHtDfV57LTF9fXtca2FwcGFeMn1ccmlnaHQpXHJpZ2h0KV57LTF9IFxwcm9kX3tpPTF9Xm0gXGxlZnQoXGJvbGRzeW1ib2x7SX0tcl97MWl9XGRmcmFje1xib2xkc3ltYm9se0x9XGJvbGRzeW1ib2x7Q31eey0xfX17XGthcHBhXjJ9XHJpZ2h0KVxjZG90IChcYm9sZHN5bWJvbHtDfVxib2xkc3ltYm9se1V9XmsrXHRhdSBcYm9sZHN5bWJvbHtGfV57aysxfSkuClxlbmR7ZXF1YXRpb259CkNvbnNpZGVyaW5nIHRoZSBwYXJ0aWFsIGZyYWN0aW9uIGRlY29tcG9zaXRpb24KXGJlZ2lue2VxdWF0aW9ufQpcbGFiZWx7ZXE6cGFydGlhbF9mcmFjdGlvbn0KXHRhZ3sxMH0KXGRmcmFje1xwcm9kX3tpPTF9Xm0gKDEtcl97MWl9eCl9e1xwcm9kX3tpPTF9Xm0gKDEtcl97MWl9eCkrXGRmcmFje1x0YXUgXGthcHBhXnsyXGJldGF9fXtcdGV4dHR0e2ZhY3Rvcn19IFxwcm9kX3tqPTF9XnttKzF9ICgxLXJfezJqfXgpfT1cc3VtX3trPTF9XnttKzF9IGFfayh4LXBfayleey0xfSArIHIsClxlbmR7ZXF1YXRpb259CnNjaGVtZSBcZXFyZWZ7ZXE6ZmluYWxfc2NoZW1lfSBjYW4gYmUgZXhwcmVzc2VkIGFzClxiZWdpbntlcXVhdGlvbn0KXGxhYmVse2VxOmZpbmFsX3NjaGVtZTJ9Clx0YWd7MTF9Clxib2xkc3ltYm9se1V9XntrKzF9ID0gXGJvbGRzeW1ib2x7Q31eey0xfVxsZWZ0KFxzdW1fe2s9MX1ee20rMX0gYV9rXGxlZnQoIFxkZnJhY3tcYm9sZHN5bWJvbHtMfVxib2xkc3ltYm9se0N9XnstMX19e1xrYXBwYV4yfS1wX2tcYm9sZHN5bWJvbHtJfVxyaWdodCleey0xfSArIHJcYm9sZHN5bWJvbHtJfVxyaWdodCkgKFxib2xkc3ltYm9se0N9XGJvbGRzeW1ib2x7VX1eaytcdGF1IFxib2xkc3ltYm9se0Z9XntrKzF9KQpcZW5ke2VxdWF0aW9ufQoKIyMgTnVtZXJpY2FsIGltcGxlbWVudGF0aW9uCgojIyMjIEZ1bmN0aW9uIGBteS5nZXQucm9vdHMoKWAKCkZvciBlYWNoIHJhdGlvbmFsIG9yZGVyICRtJCAoMSwyLDMsNCkgYW5kIHNtb290aG5lc3MgcGFyYW1ldGVyICRcYmV0YSQgKD0gJFxhbHBoYS8yJCB3aXRoICRcYWxwaGEkIGJldHdlZW4gMC41IGFuZCAyKSwgZnVuY3Rpb24gYG15LmdldC5yb290cygpYCAoYWRhcHRlZCBmcm9tIHRoZSBgclNQREVgIHBhY2thZ2UpIHJldHVybnMgJFx0ZXh0dHR7ZmFjdG9yfSA9IFxkZnJhY3tjX219e2Jfe20rMX19JCwgYW5kIHRoZSByb290cyAkXHtyX3sxaX1cfV97aT0xfV5tJCBhbmQgJFx7cl97Mmp9XH1fe2o9MX1ee20rMX0kLgoKYGBge3J9Cm15LmdldC5yb290cyA8LSBmdW5jdGlvbihtLCAjIHJhdGlvbmFsIG9yZGVyLCBtID0gMSwgMiwgMywgb3IgNAogICAgICAgICAgICAgICAgICAgICAgICAgYmV0YSAjIHNtb290aG5lc3MgcGFyYW1ldGVyLCBiZXRhID0gYWxwaGEvMiB3aXRoIGFscGhhIGJldHdlZW4gMC41IGFuZCAyCiAgICAgICAgICAgICAgICAgICAgICAgICApIHsKICBtMXRhYmxlIDwtIHJTUERFOjo6bTF0YWJsZQogIG0ydGFibGUgPC0gclNQREU6OjptMnRhYmxlCiAgbTN0YWJsZSA8LSByU1BERTo6Om0zdGFibGUKICBtNHRhYmxlIDwtIHJTUERFOjo6bTR0YWJsZQogIG10IDwtIGdldChwYXN0ZTAoIm0iLCBtLCAidGFibGUiKSkKICByYiA8LSByZXAoMCwgbSArIDEpCiAgcmMgPC0gcmVwKDAsIG0pCiAgaWYobSA9PSAxKSB7CiAgICByYyA9IGFwcHJveChtdCRiZXRhLCBtdFtbcGFzdGUwKCJyYyIpXV0sIGJldGEpJHkKICB9IGVsc2UgewogICAgcmMgPSBzYXBwbHkoMTptLCBmdW5jdGlvbihpKSB7CiAgICAgIGFwcHJveChtdCRiZXRhLCBtdFtbcGFzdGUwKCJyYy4iLCBpKV1dLCBiZXRhKSR5CiAgICB9KQogIH0KICByYiA9IHNhcHBseSgxOihtKzEpLCBmdW5jdGlvbihpKSB7CiAgICBhcHByb3gobXQkYmV0YSwgbXRbW3Bhc3RlMCgicmIuIiwgaSldXSwgeG91dCA9IGJldGEpJHkKICB9KQogIGZhY3RvciA9IGFwcHJveChtdCRiZXRhLCBtdCRmYWN0b3IsIHhvdXQgPSBiZXRhKSR5CiAgcmV0dXJuKGxpc3QocGxfcm9vdHMgPSByYiwgIyByb290cyBce3JfezJqfVx9X3tqPTF9XnttKzF9CiAgICAgICAgICAgICAgcHJfcm9vdHMgPSByYywgIyByb290cyBce3JfezFpfVx9X3tpPTF9Xm0KICAgICAgICAgICAgICBmYWN0b3IgPSBmYWN0b3IgIyB0aGlzIGlzIGNfbS9iX3ttKzF9CiAgICAgICAgICAgICAgKSkKfQpgYGAKCiMjIyMgRnVuY3Rpb24gYHBvbHkuZnJvbS5yb290cygpYAoKRnVuY3Rpb24gYHBvbHkuZnJvbS5yb290cygpYCBjb21wdXRlcyB0aGUgY29lZmZpY2llbnRzIG9mIGEgcG9seW5vbWlhbCBmcm9tIGl0cyByb290cy4KCmBgYHtyfQpwb2x5LmZyb20ucm9vdHMgPC0gZnVuY3Rpb24ocm9vdHMpIHsKICBjb2VmIDwtIDEKICBmb3IgKHIgaW4gcm9vdHMpIHtjb2VmIDwtIGNvbnZvbHZlKGNvZWYsIGMoMSwgLXIpLCB0eXBlID0gIm9wZW4iKX0KICByZXR1cm4oY29lZikgIyByZXR1cm5lZCBpbiBpbmNyZWFzaW5nIG9yZGVyIGxpa2UgYStieCtjeF4yKy4uLgp9CmBgYAoKIyMjIyBGdW5jdGlvbiBgY29tcHV0ZS5wYXJ0aWFsLmZyYWN0aW9uLnBhcmFtKClgCgpHaXZlbiBgZmFjdG9yYCQ9XHRleHR0dHtmYWN0b3J9ID0gXGRmcmFje2NfbX17Yl97bSsxfX0kLCBgcHJfcm9vdHNgJD1ce3JfezFpfVx9X3tpPTF9Xm0kLCBgcGxfcm9vdHNgJD1ce3JfezJqfVx9X3tqPTF9XnttKzF9JCwgYHRpbWVfc3RlcGAkPVx0YXUkLCBhbmQgYHNjYWxpbmdgJD1ca2FwcGFeezJcYmV0YX0kLCBmdW5jdGlvbiBgY29tcHV0ZS5wYXJ0aWFsLmZyYWN0aW9uLnBhcmFtKClgIGNvbXB1dGVzIHRoZSBwYXJhbWV0ZXJzIGZvciB0aGUgcGFydGlhbCBmcmFjdGlvbiBkZWNvbXBvc2l0aW9uIFxlcXJlZntlcTpwYXJ0aWFsX2ZyYWN0aW9ufS4KCmBgYHtyfQpjb21wdXRlLnBhcnRpYWwuZnJhY3Rpb24ucGFyYW0gPC0gZnVuY3Rpb24oZmFjdG9yLCAjIGNfbS9iX3ttKzF9CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwcl9yb290cywgIyByb290cyBce3JfezFpfVx9X3tpPTF9Xm0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBsX3Jvb3RzLCAjIHJvb3RzIFx7cl97Mmp9XH1fe2o9MX1ee20rMX0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRpbWVfc3RlcCwgIyBcdGF1CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzY2FsaW5nICMgXGthcHBhXnsyXGJldGF9CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICApIHsKICBwcl9jb2VmIDwtIGMoMCwgcG9seS5mcm9tLnJvb3RzKHByX3Jvb3RzKSkgCiAgcGxfY29lZiA8LSBwb2x5LmZyb20ucm9vdHMocGxfcm9vdHMpIAogIGZhY3Rvcl9wcl9jb2VmIDwtIHByX2NvZWYKICBwcl9wbHVzX3BsX2NvZWYgPC0gZmFjdG9yX3ByX2NvZWYgKyAoKHNjYWxpbmcgKiB0aW1lX3N0ZXApL2ZhY3RvcikgKiBwbF9jb2VmCiAgcmVzIDwtIGdzaWduYWw6OnJlc2lkdWUoZmFjdG9yX3ByX2NvZWYsIHByX3BsdXNfcGxfY29lZikKICByZXR1cm4obGlzdChyID0gcmVzJHIsICMgcmVzaWR1ZXMgXHthX2tcfV97az0xfV57bSsxfQogICAgICAgICAgICAgIHAgPSByZXMkcCwgIyBwb2xlcyBce3Bfa1x9X3trPTF9XnttKzF9CiAgICAgICAgICAgICAgayA9IHJlcyRrICMgcmVtYWluZGVyIHIKICAgICAgICAgICAgICApKSAKfQpgYGAKCiMjIyMgRnVuY3Rpb24gYG15LmZyYWN0aW9uYWwub3BlcmF0b3JzLmZyYWMoKWAKCkdpdmVuIHRoZSBMYXBsYWNpYW4gbWF0cml4IGBMYCwgdGhlIHNtb290aG5lc3MgcGFyYW1ldGVyIGBiZXRhYCwgdGhlIG1hc3MgbWF0cml4IGBDYCAobm90IGx1bXBlZCksIHRoZSBzY2FsaW5nIGZhY3RvciBgc2NhbGUuZmFjdG9yYCQ9XGthcHBhXjIkLCB0aGUgcmF0aW9uYWwgb3JkZXIgYG1gLCBhbmQgdGhlIHRpbWUgc3RlcCBgdGltZV9zdGVwYCQ9XHRhdSQsIGZ1bmN0aW9uIGBteS5mcmFjdGlvbmFsLm9wZXJhdG9ycy5mcmFjKClgIGNvbXB1dGVzIHRoZSBmcmFjdGlvbmFsIG9wZXJhdG9yIGFuZCByZXR1cm5zIGEgbGlzdCBjb250YWluaW5nIHRoZSBuZWNlc3NhcnkgbWF0cmljZXMgYW5kIHBhcmFtZXRlcnMgZm9yIHRoZSBmcmFjdGlvbmFsIGRpZmZ1c2lvbiBlcXVhdGlvbi4KCmBgYHtyfQojIEZ1bmN0aW9uIHRvIGNvbXB1dGUgdGhlIGZyYWN0aW9uYWwgb3BlcmF0b3IKbXkuZnJhY3Rpb25hbC5vcGVyYXRvcnMuZnJhYyA8LSBmdW5jdGlvbihMLCAjIExhcGxhY2lhbiBtYXRyaXgKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBiZXRhLCAjIHNtb290aG5lc3MgcGFyYW1ldGVyIGJldGEKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBDLCAjIG1hc3MgbWF0cml4IChub3QgbHVtcGVkKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNjYWxlLmZhY3RvciwgIyBzY2FsaW5nIHBhcmFtZXRlciA9IGthcHBhXjIKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtID0gMSwgIyByYXRpb25hbCBvcmRlciwgbSA9IDEsIDIsIDMsIG9yIDQKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0aW1lX3N0ZXAgIyB0aW1lIHN0ZXAgPSB0YXUKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICApIHsKICAKICBDIDwtIE1hdHJpeDo6RGlhZ29uYWwoZGltKEMpWzFdLCByb3dTdW1zKEMpKSAKICBDaSA8LSBNYXRyaXg6OkRpYWdvbmFsKGRpbShDKVsxXSwgMSAvIHJvd1N1bXMoQykpIAogIEkgPC0gTWF0cml4OjpEaWFnb25hbChkaW0oQylbMV0pCiAgTCA8LSBMIC8gc2NhbGUuZmFjdG9yIAogIExDaSA8LSBMICUqJSBDaQogIGlmKGJldGEgPT0gMSl7CiAgICBMIDwtIEwgKiBzY2FsZS5mYWN0b3JeYmV0YQogICAgcmV0dXJuKGxpc3QoQ2kgPSBDaSwgIyBpbnZlcnNlIG9mIGx1bXBlZCBtYXNzIG1hdHJpeAogICAgICAgICAgICAgICAgQyA9IEMsICMgbHVtcGVkIG1hc3MgbWF0cml4CiAgICAgICAgICAgICAgICBMQ2kgPSBMQ2ksICMgTGFwbGFjaWFuIG1hdHJpeCB0aW1lcyBpbnZlcnNlIG9mIGx1bXBlZCBtYXNzIG1hdHJpeAogICAgICAgICAgICAgICAgTCA9IEwsICMgTGFwbGFjaWFuIG1hdHJpeCBzY2FsZWQKICAgICAgICAgICAgICAgIG0gPSBtLCAjIHJhdGlvbmFsIG9yZGVyCiAgICAgICAgICAgICAgICBiZXRhID0gYmV0YSwgIyBzbW9vdGhuZXNzIHBhcmFtZXRlcgogICAgICAgICAgICAgICAgTEhTID0gQyArIHRpbWVfc3RlcCAqIEwgIyBsZWZ0LWhhbmQgc2lkZSBvZiB0aGUgbGluZWFyIHN5c3RlbQogICAgICAgICAgICAgICAgKSkKICB9IGVsc2UgewogICAgc2NhbGluZyA8LSBzY2FsZS5mYWN0b3JeYmV0YQogICAgcm9vdHMgPC0gbXkuZ2V0LnJvb3RzKG0sIGJldGEpCiAgICBwb2xlc19yc19rIDwtIGNvbXB1dGUucGFydGlhbC5mcmFjdGlvbi5wYXJhbShyb290cyRmYWN0b3IsIHJvb3RzJHByX3Jvb3RzLCByb290cyRwbF9yb290cywgdGltZV9zdGVwLCBzY2FsaW5nKQoKICAgIHBhcnRpYWxfZnJhY3Rpb25fdGVybXMgPC0gbGlzdCgpCiAgICBmb3IgKGkgaW4gMToobSsxKSkgewogICAgICAjIEhlcmUgaXMgd2hlcmUgdGhlIHRlcm1zIGluIHRoZSBzdW0gZXEgMTEgYXJlIGNvbXB1dGVkCiAgICAgIHBhcnRpYWxfZnJhY3Rpb25fdGVybXNbW2ldXSA8LSAoTENpIC0gcG9sZXNfcnNfayRwW2ldICogSSkvcG9sZXNfcnNfayRyW2ldCiAgICAgIH0KICAgIHBhcnRpYWxfZnJhY3Rpb25fdGVybXNbW20rMl1dIDwtIGlmZWxzZShpcy5udWxsKHBvbGVzX3JzX2skayksIDAsIHBvbGVzX3JzX2skaykgKiBJCiAgICByZXR1cm4obGlzdChDaSA9IENpLCAjIGludmVyc2Ugb2YgbHVtcGVkIG1hc3MgbWF0cml4CiAgICAgICAgICAgICAgICBDID0gQywgIyBsdW1wZWQgbWFzcyBtYXRyaXgKICAgICAgICAgICAgICAgIExDaSA9IExDaSwgIyBMYXBsYWNpYW4gbWF0cml4IHRpbWVzIGludmVyc2Ugb2YgbHVtcGVkIG1hc3MgbWF0cml4CiAgICAgICAgICAgICAgICBMID0gTCwgIyBMYXBsYWNpYW4gbWF0cml4IHNjYWxlZAogICAgICAgICAgICAgICAgbSA9IG0sICMgcmF0aW9uYWwgb3JkZXIKICAgICAgICAgICAgICAgIGJldGEgPSBiZXRhLCAjIHNtb290aG5lc3MgcGFyYW1ldGVyCiAgICAgICAgICAgICAgICBwYXJ0aWFsX2ZyYWN0aW9uX3Rlcm1zID0gcGFydGlhbF9mcmFjdGlvbl90ZXJtcyAjIHBhcnRpYWwgZnJhY3Rpb24gdGVybXMKICAgICAgICAgICAgICAgICkpCiAgfQp9CmBgYAoKIyMjIyBGdW5jdGlvbiBgbXkuc29sdmVyLmZyYWMoKWAKCkdpdmVuIHRoZSBvYmplY3QgcmV0dXJuZWQgYnkgYG15LmZyYWN0aW9uYWwub3BlcmF0b3JzLmZyYWMoKWAgYW5kIGEgdmVjdG9yIGB2YCwgZnVuY3Rpb24gYG15LnNvbHZlci5mcmFjKClgIHNvbHZlcyB0aGUgbGluZWFyIHN5c3RlbSBcZXFyZWZ7ZXE6ZmluYWxfc2NoZW1lMn0gZm9yIHRoZSB2ZWN0b3IgYHZgLiBJZiBgYmV0YSA9IDFgLCBpdCBzb2x2ZXMgdGhlIGxpbmVhciBzeXN0ZW0gZGlyZWN0bHk7IG90aGVyd2lzZSwgaXQgdXNlcyB0aGUgcGFydGlhbCBmcmFjdGlvbiBkZWNvbXBvc2l0aW9uLgoKYGBge3J9CiMgRnVuY3Rpb24gdG8gc29sdmUgdGhlIGl0ZXJhdGlvbgpteS5zb2x2ZXIuZnJhYyA8LSBmdW5jdGlvbihvYmosICMgb2JqZWN0IHJldHVybmVkIGJ5IG15LmZyYWN0aW9uYWwub3BlcmF0b3JzLmZyYWMoKQogICAgICAgICAgICAgICAgICAgICAgICAgICB2ICMgdmVjdG9yIHRvIGJlIHNvbHZlZCBmb3IKICAgICAgICAgICAgICAgICAgICAgICAgICAgKXsKICBiZXRhIDwtIG9iaiRiZXRhCiAgbSA8LSBvYmokbQogIEMgPC0gb2JqJEMKICBDaSA8LSBvYmokQ2kKICBpZiAoYmV0YSA9PSAxKXsKICAgIHJldHVybihzb2x2ZShvYmokTEhTLCB2KSAjIHNvbHZlIHRoZSBsaW5lYXIgc3lzdGVtIGRpcmVjdGx5IGZvciBiZXRhID0gMQogICAgICAgICAgICkKICB9IGVsc2UgewogICAgcGFydGlhbF9mcmFjdGlvbl90ZXJtcyA8LSBvYmokcGFydGlhbF9mcmFjdGlvbl90ZXJtcwogICAgb3V0cHV0IDwtIHBhcnRpYWxfZnJhY3Rpb25fdGVybXNbW20rMl1dICUqJSB2CiAgICBmb3IgKGkgaW4gMToobSsxKSkge291dHB1dCA8LSBvdXRwdXQgKyBzb2x2ZShwYXJ0aWFsX2ZyYWN0aW9uX3Rlcm1zW1tpXV0sIHYpfQogICAgcmV0dXJuKENpICUqJSBvdXRwdXQgIyBzb2x2ZSB0aGUgbGluZWFyIHN5c3RlbSB1c2luZyB0aGUgcGFydGlhbCBmcmFjdGlvbiBkZWNvbXBvc2l0aW9uCiAgICAgICAgICAgKQogIH0KfQpgYGAKCgojIyBBdXhpbGlhcnkgZnVuY3Rpb25zCmQKCmBgYHtyfQojIEZ1bmN0aW9uIHRvIGJ1aWxkIGEgdGFkcG9sZSBncmFwaCBhbmQgY3JlYXRlIGEgbWVzaApnZXRzLmdyYXBoLnRhZHBvbGUgPC0gZnVuY3Rpb24oaCl7CiAgZWRnZTEgPC0gcmJpbmQoYygwLDApLGMoMSwwKSkKICB0aGV0YSA8LSBzZXEoZnJvbT0tcGksdG89cGksbGVuZ3RoLm91dCA9IDEwMDAwKQogIGVkZ2UyIDwtIGNiaW5kKDErMS9waStjb3ModGhldGEpL3BpLHNpbih0aGV0YSkvcGkpCiAgZWRnZXMgPC0gbGlzdChlZGdlMSwgZWRnZTIpCiAgZ3JhcGggPC0gbWV0cmljX2dyYXBoJG5ldyhlZGdlcyA9IGVkZ2VzLCB2ZXJib3NlID0gMCkKICBncmFwaCRzZXRfbWFudWFsX2VkZ2VfbGVuZ3RocyhlZGdlX2xlbmd0aHMgPSBjKDEsMikpCiAgZ3JhcGgkYnVpbGRfbWVzaChoID0gaCkKICByZXR1cm4oZ3JhcGgpCn0KIyBGdW5jdGlvbiB0byBjb21wdXRlIHRoZSBlaWdlbmZ1bmN0aW9ucyAKdGFkcG9sZS5laWcgPC0gZnVuY3Rpb24oayxncmFwaCl7CngxIDwtIGMoMCxncmFwaCRnZXRfZWRnZV9sZW5ndGhzKClbMV0qZ3JhcGgkbWVzaCRQdEVbZ3JhcGgkbWVzaCRQdEVbLDFdPT0xLDJdKSAKeDIgPC0gYygwLGdyYXBoJGdldF9lZGdlX2xlbmd0aHMoKVsyXSpncmFwaCRtZXNoJFB0RVtncmFwaCRtZXNoJFB0RVssMV09PTIsMl0pIAoKaWYoaz09MCl7IAogIGYuZTEgPC0gcmVwKDEsbGVuZ3RoKHgxKSkgCiAgZi5lMiA8LSByZXAoMSxsZW5ndGgoeDIpKSAKICBmMSA9IGMoZi5lMVsxXSxmLmUyWzFdLGYuZTFbLTFdLCBmLmUyWy0xXSkgCiAgZiA9IGxpc3QocGhpPWYxL3NxcnQoMykpIAogIAp9IGVsc2UgewogIGYuZTEgPC0gLTIqc2luKHBpKmsqMS8yKSpjb3MocGkqayp4MS8yKSAKICBmLmUyIDwtIHNpbihwaSprKngyLzIpICAgICAgICAgICAgICAgICAgCiAgCiAgZjEgPSBjKGYuZTFbMV0sZi5lMlsxXSxmLmUxWy0xXSwgZi5lMlstMV0pIAogIAogIGlmKChrICUlIDIpPT0xKXsgCiAgICBmID0gbGlzdChwaGk9ZjEvc3FydCgzKSkgCiAgfSBlbHNlIHsgCiAgICBmLmUxIDwtICgtMSlee2svMn0qY29zKHBpKmsqeDEvMikKICAgIGYuZTIgPC0gY29zKHBpKmsqeDIvMikKICAgIGYyID0gYyhmLmUxWzFdLGYuZTJbMV0sZi5lMVstMV0sZi5lMlstMV0pIAogICAgZiA8LSBsaXN0KHBoaT1mMSxwc2k9ZjIvc3FydCgzLzIpKQogIH0KfQpyZXR1cm4oZikKfQpgYGAKCgojIyBQbG90dGluZyBmdW5jdGlvbnMKCmBgYHtyfQojIEZ1bmN0aW9uIHRvIG9yZGVyIHRoZSB2ZXJ0aWNlcyBmb3IgcGxvdHRpbmcKcGxvdHRpbmcub3JkZXIgPC0gZnVuY3Rpb24odiwgZ3JhcGgpewogIGVkZ2VfbnVtYmVyIDwtIGdyYXBoJG1lc2gkVnRFWywgMV0KICBwb3MgPC0gc3VtKGVkZ2VfbnVtYmVyID09IDEpKzEKICByZXR1cm4oYyh2WzFdLCB2WzM6cG9zXSwgdlsyXSwgdlsocG9zKzEpOmxlbmd0aCh2KV0sIHZbMl0pKQp9CmBgYAoKCiMjIFJlZmVyZW5jZXMKCmBgYHtyfQpncmF0ZWZ1bDo6Y2l0ZV9wYWNrYWdlcyhvdXRwdXQgPSAicGFyYWdyYXBoIiwgb3V0LmRpciA9ICIuIikKYGBgCgoK</div>
 
 
 
@@ -1101,7 +1146,7 @@ $(document).ready(function () {
 <script>
 $(document).ready(function () {
   window.initializeSourceEmbed("functionality.Rmd");
-  window.initializeCodeFolding("hide" === "show");
+  window.initializeCodeFolding("show" === "show");
 });
 </script>
 
