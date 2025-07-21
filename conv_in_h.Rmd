@@ -15,6 +15,7 @@ output:
     number_sections: false
     fig_caption: true
     code_download: true
+    css: visual.css
 always_allow_html: true
 bibliography: 
   - references.bib
@@ -29,56 +30,12 @@ header-includes:
   - \newcommand{\Wcal}{\mathcal{W}}
 ---
 
-```{r xaringanExtra-clipboard, echo = FALSE}
-htmltools::tagList(
-  xaringanExtra::use_clipboard(
-    button_text = "<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"></i>",
-    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
-    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
-  ),
-  rmarkdown::html_dependency_font_awesome()
-)
-```
-
-
-```{css, echo = FALSE}
-body .main-container {
-  max-width: 100% !important;
-  width: 100% !important;
-}
-body {
-  max-width: 100% !important;
-}
-
-body, td {
-   font-size: 16px;
-}
-code.r{
-  font-size: 14px;
-}
-pre {
-  font-size: 14px
-}
-.custom-box {
-  background-color: #f5f7fa; /* Light grey-blue background */
-  border-color: #e1e8ed; /* Light border color */
-  color: #2c3e50; /* Dark text color */
-  padding: 15px; /* Padding inside the box */
-  border-radius: 5px; /* Rounded corners */
-  margin-bottom: 20px; /* Spacing below the box */
-}
-.caption {
-  margin: auto;
-  text-align: center;
-  margin-bottom: 20px; /* Spacing below the box */
-}
-```
-
-
 Let us set some global options for all code chunks in this document.
 
 
 ```{r}
+# Create a clipboard button
+source(here::here("clipboard.R")); clipboard
 # Set seed for reproducibility
 set.seed(1982) 
 # Set global options for all code chunks
@@ -145,42 +102,12 @@ library(plotly)
 # Utilitary functions
 
 ```{r}
-# For each m and beta, this function returns c_m/b_{m+1} and the roots of rb and rc
-my.get.roots <- function(order, beta) {
-  mt <- get(paste0("m", order, "table"))
-  rb <- rep(0, order + 1)
-  rc <- rep(0, order)
-  if(order == 1) {
-      rc = approx(mt$beta, mt[[paste0("rc")]], beta)$y
-    } else {
-      rc = sapply(1:order, function(i) {
-        approx(mt$beta, mt[[paste0("rc.", i)]], beta)$y
-      })
-    }
-    rb = sapply(1:(order+1), function(i) {
-      approx(mt$beta, mt[[paste0("rb.", i)]], xout = beta)$y
-    })
-    factor = approx(mt$beta, mt$factor, xout = beta)$y
-  return(list(rb = rb, rc = rc, factor = factor))
-}
+knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R"))
+source(here::here("functionality.R"))
+```
 
-# Function the polynomial coefficients in increasing order like a+bx+cx^2+...
-poly.from.roots <- function(roots) {
-  
-  coef <- 1
-  for (r in roots) {coef <- convolve(coef, c(1, -r), type = "open")}
-  return(coef)
-}
-# Function to compute the partial fraction parameters
-compute.partial.fraction.param <- function(factor, pr_roots, pl_roots, time_step, scaling) {
-  
-  pr_coef <- c(0, poly.from.roots(pr_roots)) 
-  pl_coef <- poly.from.roots(pl_roots) 
-  factor_pr_coef <- pr_coef
-  pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
-  res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
-  return(list(r = res$r, p = res$p, k = res$k)) 
-}
+
+```{r}
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, beta, C, scale.factor, m = 1, time_step) {
   

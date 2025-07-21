@@ -15,6 +15,7 @@ output:
     number_sections: false
     fig_caption: true
     code_download: true
+    css: visual.css
 always_allow_html: true
 bibliography: 
   - references.bib
@@ -29,56 +30,13 @@ header-includes:
   - \newcommand{\Wcal}{\mathcal{W}}
 ---
 
-```{r xaringanExtra-clipboard, echo = FALSE}
-htmltools::tagList(
-  xaringanExtra::use_clipboard(
-    button_text = "<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"></i>",
-    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
-    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
-  ),
-  rmarkdown::html_dependency_font_awesome()
-)
-```
-
-
-```{css, echo = FALSE}
-body .main-container {
-  max-width: 100% !important;
-  width: 100% !important;
-}
-body {
-  max-width: 100% !important;
-}
-
-body, td {
-   font-size: 16px;
-}
-code.r{
-  font-size: 14px;
-}
-pre {
-  font-size: 14px
-}
-.custom-box {
-  background-color: #f5f7fa; /* Light grey-blue background */
-  border-color: #e1e8ed; /* Light border color */
-  color: #2c3e50; /* Dark text color */
-  padding: 15px; /* Padding inside the box */
-  border-radius: 5px; /* Rounded corners */
-  margin-bottom: 20px; /* Spacing below the box */
-}
-.caption {
-  margin: auto;
-  text-align: center;
-  margin-bottom: 20px; /* Spacing below the box */
-}
-```
-
 
 Let us set some global options for all code chunks in this document.
 
 
 ```{r}
+# Create a clipboard button
+source(here::here("clipboard.R")); clipboard
 # Set seed for reproducibility
 set.seed(1982) 
 # Set global options for all code chunks

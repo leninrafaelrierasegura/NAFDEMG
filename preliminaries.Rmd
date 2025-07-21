@@ -1,0 +1,212 @@
+---
+title: "Preliminaries"
+date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
+    df_print: paged
+    # toc: true
+    # toc_float:
+    #   collapsed: true
+    #   smooth_scroll: true
+    number_sections: false
+    fig_caption: true
+    code_download: true
+    css: visual.css
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+---
+
+<div style="color: blue;">
+********
+**Press the Show buttons to reveal the code chunks.**
+
+********
+</div>
+
+```{r}
+# Create a clipboard button on the rendered HTML page
+source(here::here("clipboard.R")); clipboard
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+```
+
+```{r}
+library(MetricGraph)
+library(ggplot2)
+library(reshape2)
+library(plotly)
+```
+
+## Finite Element Basis Functions on a Metric Graph {#fem-basis}
+
+Let each edge $e\in\Ecal$ be subdivided into $n_{e}\geq 2$ regular segments of length $h_{e}$, and be delimited by the nodes $0 = x_0^{e},x_1^{e},\dots,x_{n_{e}-1}^{e}, x_{n_{e}}^{e} = \ell_{e}$. For each $j = 1,\dots,n_{e}-1$, we consider the following standard hat basis functions 
+\begin{equation*}
+    \varphi_j^{e}(x)=\begin{cases}
+        1-\dfrac{|x_j^{e}-x|}{h_{e}},&\text{ if }x_{j-1}^{e}\leq x\leq x_{j+1}^{e},\\
+        0,&\text{ otherwise}.
+    \end{cases}
+\end{equation*}
+For each $e\in\Ecal$, the set of hat functions $\llav{\varphi_1^{e},\dots,\varphi_{n_{e}-1}^{e}}$ is a basis for the space
+\begin{equation*}
+    V_{h_{e}} = \llav{w\in H_0^1(e)\;\Big|\;\forall j = 0,1,\dots,n_{e}-1:w|_{[x_j^{e}, x_{j+1}^{e}]}\in\mathbb{P}^1},
+\end{equation*}
+where $\mathbb{P}^1$ is the space of linear functions on $[0,\ell_{e}]$. For each vertex $v\in\Vcal$, we define
+\begin{equation*}
+    \Ncal_v = \llav{\bigcup_{e\in\llav{e\in\Ecal_v: v = x_0^e}}[v,x_1^e]}\bigcup\llav{\bigcup_{e\in\llav{e\in\Ecal_v: v = x^e_{n_e}}}[x^e_{n_e-1},v]},
+\end{equation*}
+which is a star-shaped set with center at $v$ and rays made of the segments contiguous to $v$. On $\mathcal{N}_v$, we define the hat functions as
+\begin{equation*}
+    \phi_v(x)=\begin{cases}
+        1-\dfrac{|x_v^{e}-x|}{h_{e}},&\text{ if }x\in\mathcal{N}_v\cap e \text{ and }e\in\Ecal_v,\\
+        0,&\text{ otherwise},
+    \end{cases}
+\end{equation*}
+where $x_v^e$ is either $x_0^e$ or $x_{n_e}^e$ depending on the edge direction and its parameterization. See @arioli2018finite for more details. Figure 1 shows an illustration of the basis function system $\{\varphi_j^e, \phi_v\}$ on the tadpole graph (in black). Standard hat functions associated with internal edge nodes are shown in blue, while special vertex-centered function are highlighted in red.
+
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Illustration of the system of basis functions $\\{\\varphi_j^e, \\phi_v\\}$ on the tadpole graph. Notice that the sets $\\Ncal_{v}$ are depicted in green and their corresponding basis functions are shown in red.")}
+gets.graph.tadpole <- function(h){
+  edge1 <- rbind(c(0,0),c(1,0))
+  theta <- seq(from=-pi,to=pi,length.out = 100)
+  edge2 <- cbind(1+1/pi+cos(theta)/pi,sin(theta)/pi)
+  edges <- list(edge1, edge2)
+  graph <- metric_graph$new(edges = edges)
+  graph$set_manual_edge_lengths(edge_lengths = c(1,2))
+  graph$build_mesh(h = h)
+  return(graph)
+}
+
+graph <- gets.graph.tadpole(h = 1/4)
+graph_to_get_loc <- gets.graph.tadpole(h = 1/40)
+loc <- graph_to_get_loc$get_mesh_locations()
+
+
+global.scene.setter <- function(x_range, y_range, z_range) {
+  return(list(xaxis = list(title = "x", range = x_range),
+              yaxis = list(title = "y", range = y_range),
+              zaxis = list(title = "z", range = z_range),
+              aspectratio = list(x = 2*(1+2/pi), 
+                                 y = 2*(2/pi), 
+                                 z = 1*(2/pi)),
+              camera = list(eye = list(x = (1+2/pi)/2, 
+                                       y = 4, 
+                                       z = 2),
+                            center = list(x = (1+2/pi)/2, 
+                                          y = 0, 
+                                          z = 0))))
+}
+
+plotting.order <- function(v, graph){
+  edge_number <- graph$mesh$VtE[, 1]
+  pos <- sum(edge_number == 1) + 1
+  return(c(v[1], v[3:pos], v[2], v[(pos+1):length(v)], v[2]))
+}
+
+A <- graph$fem_basis(loc)
+A <- cbind(A, A[, 1]*0)  # this plots the graph
+
+x <- graph_to_get_loc$mesh$V[, 1]
+y <- graph_to_get_loc$mesh$V[, 2]
+x <- plotting.order(x, graph_to_get_loc)
+y <- plotting.order(y, graph_to_get_loc)
+
+x_range <- range(x)
+y_range <- range(y)
+z_range <- c(0,1)
+
+# Start plot
+p <- plot_ly()
+
+# Add function lines
+for (i in 1:ncol(A)) {
+  z <- plotting.order(A[, i], graph_to_get_loc)
+  mycolor <- if (i == ncol(A)) "black" else "blue"
+  if (i %in% c(1,2)) mycolor <- "red"
+  # Add basis function trace
+  p <- add_trace(p, x = x, y = y, z = z, type = "scatter3d", mode = "lines",
+                 line = list(color = mycolor, width = 3), showlegend = FALSE)
+  
+  # Add vertical segments from (x, y, 0) to (x, y, z)
+  for (j in 1:length(x)) {
+    p <- add_trace(p,
+      x = rep(x[j], 2),
+      y = rep(y[j], 2),
+      z = c(0, z[j]),
+      type = "scatter3d",
+      mode = "lines",
+      line = list(color = "gray", width = 1),
+      showlegend = FALSE
+    )
+  }
+}
+
+z <- plotting.order(A[, 1], graph_to_get_loc)
+z_new <- rep(NA, length(z))
+z_new[1:11] <- 0
+p <- add_trace(p, x = x, y = y, z = z_new, type = "scatter3d", mode = "lines",
+                 line = list(color = "green", width = 3), showlegend = FALSE)
+
+z <- plotting.order(A[, 2], graph_to_get_loc)
+z_new <- rep(NA, length(z))
+z_new[c(31:51, 111:121)] <- 0
+p <- add_trace(p, x = x, y = y, z = z_new, type = "scatter3d", mode = "lines",
+                 line = list(color = "green", width = 3), showlegend = FALSE)
+# Display plot
+p %>% layout(
+    scene = global.scene.setter(x_range, y_range, z_range))
+
+```
+
+
+Having introduced the system of basis functions $\{\varphi_j^e, \phi_v\}$, which will be referred to as $\{\psi_j\}_{j=1}^{N_h}$, we can now define the finite element space $V_h\subset H^1(\Gamma)$ as $V_h = \pare{\bigoplus_{e\in\Ecal} V_{h_e}}\bigoplus V_v$, where $V_v = \text{span}\pare{\{\phi_v:v\in\Vcal\}}$ and $\dim\pare{V_h}$ is given by $N_h = |\Vcal| + \sum_{e\in\Ecal}n_e$.
+
+## References
+
+```{r}
+grateful::cite_packages(output = "paragraph", out.dir = ".")
+```
+
+

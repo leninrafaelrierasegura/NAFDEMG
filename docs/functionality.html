@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Functionality</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="site_libs/clipboard-2.0.6/clipboard.min.js"></script>
+<link href="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.css" rel="stylesheet" />
+<script src="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.js"></script>
+<script>window.xaringanExtraClipboard(null, {"button":"<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"><\/i>","success":"<i class=\"fa fa-check\" style=\"color: #90BE6D\"><\/i>","error":"<i class=\"fa fa-times-circle\" style=\"color: #F94144\"><\/i>"})</script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+<style type="text/css">
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="visual.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">My Website</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="preliminaries.html">Preliminaries</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Convergence rates
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="conv_in_h.html">Convergence in 𝘩</a>
+    </li>
+    <li>
+      <a href="conv_in_tau.html">Convergence in τ</a>
+    </li>
+    <li>
+      <a href="conv_in_m.html">Convergence in 𝑚</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/leninrafaelrierasegura/NAFDEMG">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Functionality</h1>
+<h4 class="date">Last modified: 21-07-2025.</h4>
+
+</div>
+
+
+<p>Go back to the <a href="about.html">About page</a>.</p>
+<div id="problem-statement" class="section level2">
+<h2>Problem Statement</h2>
+<p>We analyze and numerically approximate solutions to fractional
+diffusion equations on metric graphs of the form <span
+class="math display">\[\begin{equation}
+\label{eq:maineq}
+\tag{1}
+\left\{
+\begin{aligned}
+    \partial_t u(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s,t)
+&amp;= f(s,t), &amp;&amp; \quad (s,t) \in \Gamma \times (0, T), \\
+    u(s,0) &amp;= u_0(s), &amp;&amp; \quad s \in \Gamma,
+\end{aligned}
+\right.
+\end{equation}\]</span> with <span
+class="math inline">\(u(\cdot,t)\)</span> satisfying the Kirchhoff
+vertex conditions <span class="math display">\[\begin{equation}
+\label{eq:Kcond}
+\tag{2}
+   \mathcal{K} =  \left\{\phi\in C(\Gamma)\;\middle|\; \forall v\in
+\mathcal{V}:\; \textstyle\sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0
+\right\}.
+\end{equation}\]</span> Here <span class="math inline">\(\Gamma =
+(\mathcal{V},\mathcal{E})\)</span> is a metric graph, <span
+class="math inline">\(\kappa&gt;0\)</span>, <span
+class="math inline">\(\alpha\in(0,2]\)</span> determines the smoothness
+of <span class="math inline">\(u(\cdot,t)\)</span>, <span
+class="math inline">\(\Delta_{\Gamma}\)</span> is the so-called
+Kirchhoff–Laplacian, and <span class="math inline">\(f:\Gamma\times
+(0,T)\to\mathbb{R}\)</span> and <span class="math inline">\(u_0: \Gamma
+\to \mathbb{R}\)</span> are fixed functions, called right-hand side and
+initial condition, respectively.</p>
+</div>
+<div id="numerical-scheme" class="section level2">
+<h2>Numerical Scheme</h2>
+<p>Let <span class="math inline">\(\alpha\in(0,2]\)</span> and <span
+class="math inline">\(U_h^\tau\)</span> denote the sequence of
+approximations of the solution to the weak form of problem <span
+class="math inline">\(\eqref{eq:maineq}\)</span> at each time step on a
+mesh indexed by <span class="math inline">\(h\)</span>. Let <span
+class="math inline">\(U^0_h = P_hu_0\)</span>. For <span
+class="math inline">\(k=0,\dots, N-1\)</span>, <span
+class="math inline">\(U_h^{k+1}\in V_h\)</span> solves the following
+scheme <span class="math display">\[\begin{align}
+\label{system:fully_discrete_scheme}
+\tag{3}
+        \langle\delta U_h^{k+1},\phi\rangle +
+\mathfrak{a}(U_h^{k+1},\phi) = \langle f^{k+1},\phi\rangle
+,\quad\forall\phi\in V_h,
+\end{align}\]</span> where <span class="math inline">\(f^{k+1} =
+\displaystyle\dfrac{1}{\tau}\int_{t_k}^{t^{k+1}}f(t)dt\)</span>. At each
+time step <span class="math inline">\(t_k\)</span>, the finite element
+solution <span class="math inline">\(U_h^k\in V_h\)</span> to <span
+class="math inline">\(\eqref{system:fully_discrete_scheme}\)</span> can
+be expressed as a linear combination of the basis functions <span
+class="math inline">\(\{\psi^i_h\}_{i=1}^{N_h}\)</span> introduced in
+the <a href="preliminaries.html#fem-basis">Preliminaries</a> page,
+namely, <span class="math display">\[\begin{align}
+\label{num_sol}
+\tag{4}
+    U_h^k(s) =  \sum_{i=1}^{N_h}u_i^k\psi^i_h(s), \;s\in\Gamma.
+\end{align}\]</span> Replacing <span
+class="math inline">\(\eqref{num_sol}\)</span> into <span
+class="math inline">\(\eqref{system:fully_discrete_scheme}\)</span>
+yields the following linear system <span
+class="math display">\[\begin{align*}
+    \sum_{j=1}^{N_h}u_j^{k+1}[(\psi_j,\psi_i)_{L_2(\Gamma)}+
+\tau\mathfrak{a}(\psi_j,\psi_i)] =
+\sum_{j=1}^{N_h}u_j^{k}(\psi_j,\psi_i)_{L_2(\Gamma)}+\tau(
+f^{k+1},\psi_i)_{L_2(\Gamma)},
+\end{align*}\]</span> for <span class="math inline">\(i = 1,\dots,
+N_h\)</span>. In matrix notation, <span
+class="math display">\[\begin{align}
+\label{diff_eq_discrete}
+    (\boldsymbol{C}+\tau \boldsymbol{L}^{\alpha/2})\boldsymbol{U}^{k+1}
+= \boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1},
+\end{align}\]</span> where <span
+class="math inline">\(\boldsymbol{C}\)</span> has entries <span
+class="math inline">\(\boldsymbol{C}_{ij} =
+(\psi_j,\psi_i)_{L_2(\Gamma)}\)</span>, <span
+class="math inline">\(\boldsymbol{L}^{\alpha/2}\)</span> has entries
+<span class="math inline">\(\mathfrak{a}(\psi_j,\psi_i)\)</span>, <span
+class="math inline">\(\boldsymbol{U}^k\)</span> has entries <span
+class="math inline">\(u_j^k\)</span>, and <span
+class="math inline">\(\boldsymbol{F}^k\)</span> has entries <span
+class="math inline">\(( f^{k},\psi_i)_{L_2(\Gamma)}\)</span>. To reduce
+computational cost and promote sparsity, we replace the mass matrix
+<span class="math inline">\(\boldsymbol{C}\)</span> with a lumped mass
+matrix <span class="math inline">\(\tilde{\boldsymbol{C}}\)</span>,
+which is diagonal with entries <span
+class="math inline">\(\tilde{\boldsymbol{C}}_{ii}=\sum_{j=1}^{N_h}\boldsymbol{C}_{ij}\)</span>.
+For convenience, we write <span
+class="math inline">\(\boldsymbol{C}\)</span> instead of <span
+class="math inline">\(\tilde{\boldsymbol{C}}\)</span> in the following.
+Applying <span class="math inline">\(\boldsymbol{L}^{-\alpha/2}\)</span>
+to both sides yields <span class="math display">\[\begin{equation}
+(\boldsymbol{L}^{-\alpha/2}\boldsymbol{C}+\tau
+\boldsymbol{I})\boldsymbol{U}^{k+1} =
+\boldsymbol{L}^{-\alpha/2}(\boldsymbol{C}\boldsymbol{U}^k+\tau
+\boldsymbol{F}^{k+1}).
+\end{equation}\]</span> Following <span class="citation">Bolin and
+Kirchner (2020)</span>, we approximate <span
+class="math inline">\(\boldsymbol{L}^{-\alpha/2}\)</span> by <span
+class="math inline">\(\boldsymbol{P}_r\boldsymbol{P}_l^{-1}\)</span> to
+arrive at <span class="math display">\[\begin{equation}
+(\boldsymbol{P}_r\boldsymbol{P}_l^{-1}\boldsymbol{C}+\tau
+\boldsymbol{I})\boldsymbol{U}^{k+1} =
+\boldsymbol{P}_r\boldsymbol{P}_l^{-1}(\boldsymbol{C}\boldsymbol{U}^k+\tau
+\boldsymbol{F}^{k+1}),
+\end{equation}\]</span> where <span
+class="math display">\[\begin{equation}
+\boldsymbol{P}_r = c_m\prod_{i=1}^m
+(\boldsymbol{I}-r_{1i}\boldsymbol{C}^{-1}\boldsymbol{L})\quad\text{and}\quad
+\boldsymbol{P}_\ell = b_{m+1}\boldsymbol{C}\prod_{j=1}^{m+1}
+(\boldsymbol{I}-r_{2j}\boldsymbol{C}^{-1}\boldsymbol{L})
+\end{equation}\]</span> and <span
+class="math inline">\(\{r_{1i}\}_{i=1}^m\)</span> and <span
+class="math inline">\(\{r_{2j}\}_{j=1}^{m+1}\)</span> are the roots of
+<span class="math inline">\(q_1(x) =\sum_{i=0}^mc_ix^{i}\)</span> and
+<span class="math inline">\(q_2(x)=\sum_{j=0}^{m+1}b_jx^{j}\)</span>,
+respectively. The coefficients <span
+class="math inline">\(\{c_i\}_{i=0}^m\)</span> and <span
+class="math inline">\(\{b_j\}_{j=0}^{m+1}\)</span> are determined as the
+best rational approximation <span class="math inline">\(\hat{r}_m
+=q_1/q_2\)</span> of the function <span class="math inline">\(\hat{f}(x)
+:= x^{\beta-1}\)</span> over the interval <span
+class="math inline">\(J_h: = [\kappa^{2}\lambda_{N_h,h}^{-1},
+\kappa^{2}\lambda_{1,h}^{-1}]\)</span>, where <span
+class="math inline">\(\lambda_{1,h}, \lambda_{N_h,h}&gt;0\)</span> are
+the smallest and the largest eigenvalue of <span
+class="math inline">\(L_h\)</span>, respectively.</p>
+<p>Actually, <span
+class="math inline">\(\boldsymbol{L}^{-\alpha/2}\)</span> should be
+approximated by <span
+class="math inline">\(\boldsymbol{P}_l^{-\top}\boldsymbol{P}_r^\top\)</span>
+(this is like this because we want to use <span
+class="math inline">\(\boldsymbol{P}_r\)</span> and <span
+class="math inline">\(\boldsymbol{P}_l\)</span> the way they were
+actually constructed in <span class="citation">Bolin and Kirchner
+(2020)</span>) and so we can write <span
+class="math display">\[\begin{equation}
+(\boldsymbol{P}_l^{-\top}\boldsymbol{P}_r^\top \boldsymbol{C}+\tau
+\boldsymbol{I})\boldsymbol{U}^{k+1} =
+\boldsymbol{P}_l^{-\top}\boldsymbol{P}_r^\top(\boldsymbol{C}\boldsymbol{U}^k+\tau
+\boldsymbol{F}^{k+1}).
+\end{equation}\]</span> From this, we arrive at the scheme <span
+class="math display">\[\begin{equation}
+(\boldsymbol{P}_r^\top \boldsymbol{C}+\tau
+\boldsymbol{P}_\ell^\top)\boldsymbol{U}^{k+1} =
+\boldsymbol{P}_r^\top(\boldsymbol{C}\boldsymbol{U}^k+\tau
+\boldsymbol{F}^{k+1}),
+\label{eq:scheme}
+\end{equation}\]</span> where<br />
+<span class="math display">\[\begin{equation}
+\boldsymbol{P}_r^\top = c_m\prod_{i=1}^m
+(\boldsymbol{I}-r_{1i}\boldsymbol{L}\boldsymbol{C}^{-1})\quad\text{and}\quad
+\boldsymbol{P}_\ell^\top = b_{m+1}\prod_{j=1}^{m+1}
+(\boldsymbol{I}-r_{2j}\boldsymbol{L}\boldsymbol{C}^{-1})\cdot
+\boldsymbol{C}
+\end{equation}\]</span> since <span
+class="math inline">\(\boldsymbol{L}\)</span> and <span
+class="math inline">\(\boldsymbol{C}^{-1}\)</span> are symmetric and the
+factors in the product commute . Replacing these two in our scheme we
+get <span class="math display">\[\begin{equation}
+\left(\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})+\tau
+\prod_{j=1}^{m+1} (I-r_{2j}LC^{-1})\right)CU^{k+1} =
+\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
+\end{equation}\]</span></p>
+<p>We now need to compute the roots of the polynomial <span
+class="math display">\[\begin{equation}
+R(x) = \dfrac{c_m}{b_{m+1}} \prod_{i=1}^m (1-r_{1i}x)+\tau
+\prod_{j=1}^{m+1} (1-r_{2j}x)
+\end{equation}\]</span> <span class="math inline">\(R\)</span> has
+leading coefficient <span class="math inline">\(\gamma=\tau (-1)^{m+1}
+\prod_{j=1}^{m+1}r_{2j}\)</span> and <span
+class="math inline">\(m+1\)</span> roots <span
+class="math inline">\(R_k\)</span> for <span
+class="math inline">\(k=1,\ldots,m+1\)</span>. That is, <span
+class="math display">\[\begin{equation}
+R(x) = \tau(-1)^{m+1} \prod_{j=1}^{m+1}r_{2j}\prod_{k=1}^{m+1} (x-R_k)=
+\gamma\prod_{k=1}^{m+1} (x-R_k)
+\end{equation}\]</span> We can then write our scheme as <span
+class="math display">\[\begin{equation}
+\left(\gamma\prod_{k=1}^{m+1} (LC^{-1}-R_kI)\right)CU^{k+1} =
+\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
+\end{equation}\]</span> That is, <span
+class="math display">\[\begin{equation}
+U^{k+1} = \dfrac{c_m}{b_{m+1}}\dfrac{1}{\gamma}C^{-1}\prod_{k=1}^{m+1}
+(LC^{-1}-R_kI)^{-1}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
+\end{equation}\]</span></p>
+<p>Roots <span class="math inline">\(r_{1i}\)</span> and <span
+class="math inline">\(r_{2j}\)</span> are real but <span
+class="math inline">\(R_k\)</span> can be complex. In that case, we
+consider the quadratic terms. For example, if <span
+class="math inline">\(m=3\)</span>, and <span
+class="math inline">\(R\)</span> has one real root <span
+class="math inline">\(r\)</span> and two complex conjugate roots <span
+class="math inline">\(z\)</span> and <span
+class="math inline">\(\bar{z}\)</span> such that <span
+class="math inline">\((x-z)(x-\bar{z}) = x^2+ax+b\)</span>, we will work
+with <span class="math display">\[\begin{equation}
+R(x) = \gamma(x^2+ax+b)(x-r)
+\end{equation}\]</span> instead of <span
+class="math display">\[\begin{equation}
+R(x) = \gamma(x-z)(x-\bar{z})(x-r)
+\end{equation}\]</span></p>
+<p>From the scheme</p>
+<p><span class="math display">\[\begin{equation}
+\left(\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})+\tau
+\prod_{j=1}^{m+1} (I-r_{2j}LC^{-1})\right)CU^{k+1} =
+\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
+\end{equation}\]</span></p>
+<p>we write</p>
+<p><span class="math display">\[\begin{equation}
+U^{k+1} = C^{-1}\left(\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m
+(I-r_{1i}LC^{-1})+\tau \prod_{j=1}^{m+1}
+(I-r_{2j}LC^{-1})\right)^{-1}\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m
+(I-r_{1i}LC^{-1})\cdot CU^k
+\end{equation}\]</span></p>
+<p>We want the partial fraction decomposition of</p>
+<p><span class="math display">\[\begin{equation}
+\dfrac{\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m
+(1-r_{1i}x)}{\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (1-r_{1i}x)+\tau
+\prod_{j=1}^{m+1} (1-r_{2j}x)}
+\end{equation}\]</span></p>
+<p>or</p>
+<p><span class="math display">\[\begin{equation}
+\dfrac{\prod_{i=1}^m (1-r_{1i}x)}{\prod_{i=1}^m (1-r_{1i}x)+\tau
+\dfrac{b_{m+1}}{c_m} \prod_{j=1}^{m+1} (1-r_{2j}x)}
+\end{equation}\]</span></p>
+<p>That is</p>
+<p><span class="math display">\[\begin{equation}
+\sum_{k=1}^{m+1} \dfrac{a_k}{x-p_k} + r = \sum_{k=1}^{m+1}
+a_k(x-p_k)^{-1} + r
+\end{equation}\]</span></p>
+<p>Therefore</p>
+<p><span class="math display">\[\begin{equation}
+U^{k+1} = C^{-1}\left(\sum_{k=1}^{m+1} a_k(LC^{-1}-p_kI)^{-1} +
+rI\right) CU^k
+\end{equation}\]</span></p>
+</div>
+<div id="now-with-nonzero-right-hand-side" class="section level1">
+<h1>Now with nonzero right hand side</h1>
+<p>Therefore</p>
+<p><span class="math display">\[\begin{equation}
+U^{k+1} = C^{-1}\left(\sum_{k=1}^{m+1} a_k(LC^{-1}-p_kI)^{-1} +
+rI\right) (CU^k+\tau F^{k+1})
+\end{equation}\]</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Create a clipboard button on the rendered HTML page</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;clipboard.R&quot;</span>)); clipboard</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Set seed for reproducibility</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1982</span>) </span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># Set global options for all code chunks</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="co"># Disable messages printed by R code chunks</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">TRUE</span>,    </span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="co"># Disable warnings printed by R code chunks</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">TRUE</span>,    </span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="co"># Show R code within code chunks in output</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,        </span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="co"># Include both R code and its results in output</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="at">include =</span> <span class="cn">TRUE</span>,     </span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="co"># Evaluate R code chunks</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">TRUE</span>,       </span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="co"># Enable caching of R code chunks for faster rendering</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">FALSE</span>,      </span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="co"># Align figures in the center of the output</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">&quot;center&quot;</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="co"># Enable retina display for high-resolution figures</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="at">retina =</span> <span class="dv">2</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  <span class="co"># Show errors in the output instead of stopping rendering</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="at">error =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="co"># Do not collapse code and output into a single block</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  <span class="at">collapse =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>)</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co"># Start the figure counter</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>fig_count <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co"># Define the captioner function</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>captioner <span class="ot">&lt;-</span> <span class="cf">function</span>(caption) {</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  fig_count <span class="ot">&lt;&lt;-</span> fig_count <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;Figure &quot;</span>, fig_count, <span class="st">&quot;: &quot;</span>, caption)</span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/rspde&quot;, ref = &quot;devel&quot;)</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/metricgraph&quot;, ref = &quot;devel&quot;)</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co"># library(INLA)</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># library(inlabru)</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">library</span>(rSPDE)</span></code></pre></div>
+<pre><code>## Loading required package: Matrix</code></pre>
+<pre><code>## This is rSPDE 2.5.1.9000
+## - See https://davidbolin.github.io/rSPDE for vignettes and manuals.</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">library</span>(MetricGraph)</span></code></pre></div>
+<pre><code>## This is MetricGraph 1.5.0.9000
+## - See https://davidbolin.github.io/MetricGraph for vignettes and manuals.</code></pre>
+<pre><code>## 
+## Attaching package: &#39;MetricGraph&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(grateful)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="fu">library</span>(plotly)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;plotly&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:ggplot2&#39;:
+## 
+##     last_plot</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter</code></pre>
+<pre><code>## The following object is masked from &#39;package:graphics&#39;:
+## 
+##     layout</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># This file contains functions that are used in the vignettes</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co"># For each rational order m (1,2,3,4) and smoothness parameter beta (= alpha/2 with alpha between 0.5 and 2), Function my.get.roots() (adapted from the rSPDE package) returns c_m/b_{m+1} and the roots of p_\ell and p_r. </span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co"># See David Bolin &amp; Kristin Kirchner (2020) The Rational SPDE Approach for Gaussian Random Fields With General Smoothness, Journal of Computational and Graphical Statistics, 29:2, 274-285, DOI: 10.1080/10618600.2019.1665537</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co"># for the definition of c_m/b_{m+1} and p_\ell and p_r.</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>my.get.roots <span class="ot">&lt;-</span> <span class="cf">function</span>(m, <span class="co"># rational order, m = 1, 2, 3, or 4</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>                         beta <span class="co"># smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>                         ) {</span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>  m1table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m1table</span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>  m2table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m2table</span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>  m3table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m3table</span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>  m4table <span class="ot">&lt;-</span> rSPDE<span class="sc">:::</span>m4table</span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>  mt <span class="ot">&lt;-</span> <span class="fu">get</span>(<span class="fu">paste0</span>(<span class="st">&quot;m&quot;</span>, m, <span class="st">&quot;table&quot;</span>))</span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a>  rb <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, m <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a>  rc <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, m)</span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a>  <span class="cf">if</span>(m <span class="sc">==</span> <span class="dv">1</span>) {</span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a>    rc <span class="ot">=</span> <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt[[<span class="fu">paste0</span>(<span class="st">&quot;rc&quot;</span>)]], beta)<span class="sc">$</span>y</span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a>    rc <span class="ot">=</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span>m, <span class="cf">function</span>(i) {</span>
+<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a>      <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt[[<span class="fu">paste0</span>(<span class="st">&quot;rc.&quot;</span>, i)]], beta)<span class="sc">$</span>y</span>
+<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a>    })</span>
+<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a>  }</span>
+<span id="cb15-24"><a href="#cb15-24" tabindex="-1"></a>  rb <span class="ot">=</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span>(m<span class="sc">+</span><span class="dv">1</span>), <span class="cf">function</span>(i) {</span>
+<span id="cb15-25"><a href="#cb15-25" tabindex="-1"></a>    <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt[[<span class="fu">paste0</span>(<span class="st">&quot;rb.&quot;</span>, i)]], <span class="at">xout =</span> beta)<span class="sc">$</span>y</span>
+<span id="cb15-26"><a href="#cb15-26" tabindex="-1"></a>  })</span>
+<span id="cb15-27"><a href="#cb15-27" tabindex="-1"></a>  factor <span class="ot">=</span> <span class="fu">approx</span>(mt<span class="sc">$</span>beta, mt<span class="sc">$</span>factor, <span class="at">xout =</span> beta)<span class="sc">$</span>y</span>
+<span id="cb15-28"><a href="#cb15-28" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">rb =</span> rb, <span class="co"># roots of p_\ell</span></span>
+<span id="cb15-29"><a href="#cb15-29" tabindex="-1"></a>              <span class="at">rc =</span> rc, <span class="co"># roots of p_r</span></span>
+<span id="cb15-30"><a href="#cb15-30" tabindex="-1"></a>              <span class="at">factor =</span> factor <span class="co"># this is c_m/b_{m+1}</span></span>
+<span id="cb15-31"><a href="#cb15-31" tabindex="-1"></a>              ))</span>
+<span id="cb15-32"><a href="#cb15-32" tabindex="-1"></a>}</span>
+<span id="cb15-33"><a href="#cb15-33" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
+<span id="cb15-34"><a href="#cb15-34" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
+<span id="cb15-35"><a href="#cb15-35" tabindex="-1"></a><span class="co"># Function poly.from.roots() computes the coefficients of a polynomial from its roots.</span></span>
+<span id="cb15-36"><a href="#cb15-36" tabindex="-1"></a>poly.from.roots <span class="ot">&lt;-</span> <span class="cf">function</span>(roots) {</span>
+<span id="cb15-37"><a href="#cb15-37" tabindex="-1"></a>  coef <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb15-38"><a href="#cb15-38" tabindex="-1"></a>  <span class="cf">for</span> (r <span class="cf">in</span> roots) {coef <span class="ot">&lt;-</span> <span class="fu">convolve</span>(coef, <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span>r), <span class="at">type =</span> <span class="st">&quot;open&quot;</span>)}</span>
+<span id="cb15-39"><a href="#cb15-39" tabindex="-1"></a>  <span class="fu">return</span>(coef) <span class="co"># returned in increasing order like a+bx+cx^2+...</span></span>
+<span id="cb15-40"><a href="#cb15-40" tabindex="-1"></a>}</span>
+<span id="cb15-41"><a href="#cb15-41" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
+<span id="cb15-42"><a href="#cb15-42" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
+<span id="cb15-43"><a href="#cb15-43" tabindex="-1"></a><span class="co"># Function compute.partial.fraction.param() computes the parameters for the partial fraction decomposition of the rational function</span></span>
+<span id="cb15-44"><a href="#cb15-44" tabindex="-1"></a><span class="co"># \dfrac{p_r(x)}{p_r(x)+\tau \kappa^{2\beta}p_\ell(x) } = \sum_{k=1}^{m+1}a_k(x-p_k)^{-1} + r</span></span>
+<span id="cb15-45"><a href="#cb15-45" tabindex="-1"></a>compute.partial.fraction.param <span class="ot">&lt;-</span> <span class="cf">function</span>(factor, pr_roots, pl_roots, time_step, scaling) {</span>
+<span id="cb15-46"><a href="#cb15-46" tabindex="-1"></a>  pr_coef <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">poly.from.roots</span>(pr_roots)) </span>
+<span id="cb15-47"><a href="#cb15-47" tabindex="-1"></a>  pl_coef <span class="ot">&lt;-</span> <span class="fu">poly.from.roots</span>(pl_roots) </span>
+<span id="cb15-48"><a href="#cb15-48" tabindex="-1"></a>  factor_pr_coef <span class="ot">&lt;-</span> pr_coef</span>
+<span id="cb15-49"><a href="#cb15-49" tabindex="-1"></a>  pr_plus_pl_coef <span class="ot">&lt;-</span> factor_pr_coef <span class="sc">+</span> ((scaling <span class="sc">*</span> time_step)<span class="sc">/</span>factor) <span class="sc">*</span> pl_coef</span>
+<span id="cb15-50"><a href="#cb15-50" tabindex="-1"></a>  res <span class="ot">&lt;-</span> gsignal<span class="sc">::</span><span class="fu">residue</span>(factor_pr_coef, pr_plus_pl_coef)</span>
+<span id="cb15-51"><a href="#cb15-51" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">r =</span> res<span class="sc">$</span>r, <span class="at">p =</span> res<span class="sc">$</span>p, <span class="at">k =</span> res<span class="sc">$</span>k)) </span>
+<span id="cb15-52"><a href="#cb15-52" tabindex="-1"></a>}</span></code></pre></div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>grateful<span class="sc">::</span><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
+<p>We used R version 4.5.0 <span class="citation">(R Core Team
+2025)</span> and the following R packages: gsignal v. 0.3.7 <span
+class="citation">(Van Boxtel, G.J.M., et al. 2021)</span>, here v. 1.0.1
+<span class="citation">(Müller 2020)</span>, htmltools v. 0.5.8.1 <span
+class="citation">(Cheng et al. 2024)</span>, INLA v. 25.5.1 <span
+class="citation">(Rue, Martino, and Chopin 2009; Lindgren, Rue, and
+Lindström 2011; Martins et al. 2013; Lindgren and Rue 2015; De Coninck
+et al. 2016; Rue et al. 2017; Verbosio et al. 2017; Bakka et al. 2018;
+Kourounis, Fuchs, and Schenk 2018)</span>, inlabru v. 2.12.0 <span
+class="citation">(Yuan et al. 2017; Bachl et al. 2019)</span>, knitr v.
+1.50 <span class="citation">(Xie 2014, 2015, 2025)</span>, Matrix v.
+1.7.3 <span class="citation">(Bates, Maechler, and Jagan 2025)</span>,
+MetricGraph v. 1.5.0.9000 <span class="citation">(Bolin, Simas, and
+Wallin 2023a, 2023b, 2024, 2025; Bolin et al. 2024)</span>, plotly v.
+4.10.4 <span class="citation">(Sievert 2020)</span>, renv v. 1.0.7 <span
+class="citation">(Ushey and Wickham 2024)</span>, reshape2 v. 1.4.4
+<span class="citation">(Wickham 2007)</span>, rmarkdown v. 2.29 <span
+class="citation">(Xie, Allaire, and Grolemund 2018; Xie, Dervieux, and
+Riederer 2020; Allaire et al. 2024)</span>, rSPDE v. 2.5.1.9000 <span
+class="citation">(Bolin and Kirchner 2020; Bolin and Simas 2023; Bolin,
+Simas, and Xiong 2024)</span>, scales v. 1.4.0 <span
+class="citation">(Wickham, Pedersen, and Seidel 2025)</span>, tidyverse
+v. 2.0.0 <span class="citation">(Wickham et al. 2019)</span>,
+xaringanExtra v. 0.8.0 <span class="citation">(Aden-Buie and Warkentin
+2024)</span>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
+<div id="ref-xaringanExtra" class="csl-entry">
+Aden-Buie, Garrick, and Matthew T. Warkentin. 2024. <em><span
+class="nocase">xaringanExtra</span>: Extras and Extensions for
+<span>“<span class="nocase">xaringan</span>”</span> Slides</em>. <a
+href="https://doi.org/10.32614/CRAN.package.xaringanExtra">https://doi.org/10.32614/CRAN.package.xaringanExtra</a>.
+</div>
+<div id="ref-rmarkdown2024" class="csl-entry">
+Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier
+Luraschi, Kevin Ushey, Aron Atkins, et al. 2024. <em><span
+class="nocase">rmarkdown</span>: Dynamic Documents for r</em>. <a
+href="https://github.com/rstudio/rmarkdown">https://github.com/rstudio/rmarkdown</a>.
+</div>
+<div id="ref-inlabru2019" class="csl-entry">
+Bachl, Fabian E., Finn Lindgren, David L. Borchers, and Janine B.
+Illian. 2019. <span>“<span class="nocase">inlabru</span>: An
+<span>R</span> Package for <span>Bayesian</span> Spatial Modelling from
+Ecological Survey Data.”</span> <em>Methods in Ecology and
+Evolution</em> 10: 760–66. <a
+href="https://doi.org/10.1111/2041-210X.13168">https://doi.org/10.1111/2041-210X.13168</a>.
+</div>
+<div id="ref-INLA2018f" class="csl-entry">
+Bakka, Haakon, Håvard Rue, Geir-Arne Fuglstad, Andrea I. Riebler, David
+Bolin, Janine Illian, Elias Krainski, Daniel P. Simpson, and Finn K.
+Lindgren. 2018. <span>“Spatial Modelling with <span>INLA</span>:
+<span>A</span> Review.”</span> <em>WIRES (Invited Extended Review)</em>
+xx (Feb): xx–. <a
+href="http://arxiv.org/abs/1802.06350">http://arxiv.org/abs/1802.06350</a>.
+</div>
+<div id="ref-Matrix" class="csl-entry">
+Bates, Douglas, Martin Maechler, and Mikael Jagan. 2025.
+<em><span>Matrix</span>: Sparse and Dense Matrix Classes and
+Methods</em>. <a
+href="https://doi.org/10.32614/CRAN.package.Matrix">https://doi.org/10.32614/CRAN.package.Matrix</a>.
+</div>
+<div id="ref-rSPDE2020" class="csl-entry">
+Bolin, David, and Kristin Kirchner. 2020. <span>“The Rational
+<span>SPDE</span> Approach for <span>Gaussian</span> Random Fields with
+General Smoothness.”</span> <em>Journal of Computational and Graphical
+Statistics</em> 29 (2): 274–85. <a
+href="https://doi.org/10.1080/10618600.2019.1665537">https://doi.org/10.1080/10618600.2019.1665537</a>.
+</div>
+<div id="ref-MetricGraph2024c" class="csl-entry">
+Bolin, David, Mihály Kovács, Vivek Kumar, and Alexandre B. Simas. 2024.
+<span>“Regularity and Numerical Approximation of Fractional Elliptic
+Differential Equations on Compact Metric Graphs.”</span> <em>Mathematics
+of Computation</em> 93 (349): 2439–72. <a
+href="https://doi.org/10.1090/mcom/3929">https://doi.org/10.1090/mcom/3929</a>.
+</div>
+<div id="ref-rSPDE2023" class="csl-entry">
+Bolin, David, and Alexandre B. Simas. 2023. <em><span
+class="nocase">rSPDE</span>: Rational Approximations of Fractional
+Stochastic Partial Differential Equations</em>. <a
+href="https://CRAN.R-project.org/package=rSPDE">https://CRAN.R-project.org/package=rSPDE</a>.
+</div>
+<div id="ref-MetricGraph2023a" class="csl-entry">
+Bolin, David, Alexandre B. Simas, and Jonas Wallin. 2023a.
+<em><span>MetricGraph</span>: Random Fields on Metric Graphs</em>. <a
+href="https://CRAN.R-project.org/package=MetricGraph">https://CRAN.R-project.org/package=MetricGraph</a>.
+</div>
+<div id="ref-MetricGraph2023e" class="csl-entry">
+———. 2023b. <span>“Statistical Inference for Gaussian Whittle-Matérn
+Fields on Metric Graphs.”</span> <em>arXiv Preprint
+arXiv:2304.10372</em>. <a
+href="https://doi.org/10.48550/arXiv.2304.10372">https://doi.org/10.48550/arXiv.2304.10372</a>.
+</div>
+<div id="ref-MetricGraph2024b" class="csl-entry">
+———. 2024. <span>“Gaussian Whittle-Matérn Fields on Metric
+Graphs.”</span> <em>Bernoulli</em> 30 (2): 1611–39. <a
+href="https://doi.org/10.3150/23-BEJ1647">https://doi.org/10.3150/23-BEJ1647</a>.
+</div>
+<div id="ref-MetricGraph2025d" class="csl-entry">
+———. 2025. <span>“Markov Properties of Gaussian Random Fields on Compact
+Metric Graphs.”</span> <em>Bernoulli</em>. <a
+href="https://doi.org/10.48550/arXiv.2304.03190">https://doi.org/10.48550/arXiv.2304.03190</a>.
+</div>
+<div id="ref-rSPDE2024" class="csl-entry">
+Bolin, David, Alexandre B. Simas, and Zhen Xiong. 2024.
+<span>“Covariance-Based Rational Approximations of Fractional SPDEs for
+Computationally Efficient Bayesian Inference.”</span> <em>Journal of
+Computational and Graphical Statistics</em> 33 (1): 64–74. <a
+href="https://doi.org/10.1080/10618600.2023.2231051">https://doi.org/10.1080/10618600.2023.2231051</a>.
+</div>
+<div id="ref-htmltools" class="csl-entry">
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
+and Jeff Allen. 2024. <em><span class="nocase">htmltools</span>: Tools
+for HTML</em>. <a
+href="https://doi.org/10.32614/CRAN.package.htmltools">https://doi.org/10.32614/CRAN.package.htmltools</a>.
+</div>
+<div id="ref-INLA2016g" class="csl-entry">
+De Coninck, Arne, Bernard De Baets, Drosos Kourounis, Fabio Verbosio,
+Olaf Schenk, Steven Maenhout, and Jan Fostier. 2016.
+<span>“<span>Needles</span>: Toward Large-Scale Genomic Prediction with
+Marker-by-Environment Interaction.”</span> <em>Genetics</em> 203 (1):
+543–55. <a
+href="https://doi.org/10.1534/genetics.115.179887">https://doi.org/10.1534/genetics.115.179887</a>.
+</div>
+<div id="ref-INLA2018i" class="csl-entry">
+Kourounis, D., A. Fuchs, and O. Schenk. 2018. <span>“Towards the Next
+Generation of Multiperiod Optimal Power Flow Solvers.”</span> <em>IEEE
+Transactions on Power Systems</em> PP (99): 1–10. <a
+href="https://doi.org/10.1109/TPWRS.2017.2789187">https://doi.org/10.1109/TPWRS.2017.2789187</a>.
+</div>
+<div id="ref-INLA2015d" class="csl-entry">
+Lindgren, Finn, and Håvard Rue. 2015. <span>“Bayesian Spatial Modelling
+with <span>R</span>-<span>INLA</span>.”</span> <em>Journal of
+Statistical Software</em> 63 (19): 1–25. <a
+href="http://www.jstatsoft.org/v63/i19/">http://www.jstatsoft.org/v63/i19/</a>.
+</div>
+<div id="ref-INLA2011c" class="csl-entry">
+Lindgren, Finn, Håvard Rue, and Johan Lindström. 2011. <span>“An
+Explicit Link Between <span>Gaussian</span> Fields and
+<span>Gaussian</span> <span>Markov</span> Random Fields: The Stochastic
+Partial Differential Equation Approach (with Discussion).”</span>
+<em>Journal of the Royal Statistical Society B</em> 73 (4): 423–98.
+</div>
+<div id="ref-INLA2013b" class="csl-entry">
+Martins, Thiago G., Daniel Simpson, Finn Lindgren, and Håvard Rue. 2013.
+<span>“Bayesian Computing with <span>INLA</span>: <span>N</span>ew
+Features.”</span> <em>Computational Statistics and Data Analysis</em>
+67: 68–83.
+</div>
+<div id="ref-here" class="csl-entry">
+Müller, Kirill. 2020. <em><span class="nocase">here</span>: A Simpler
+Way to Find Your Files</em>. <a
+href="https://doi.org/10.32614/CRAN.package.here">https://doi.org/10.32614/CRAN.package.here</a>.
+</div>
+<div id="ref-base" class="csl-entry">
+R Core Team. 2025. <em><span>R</span>: A Language and Environment for
+Statistical Computing</em>. Vienna, Austria: R Foundation for
+Statistical Computing. <a
+href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-INLA2009a" class="csl-entry">
+Rue, Håvard, Sara Martino, and Nicholas Chopin. 2009. <span>“Approximate
+<span>Bayesian</span> Inference for Latent <span>Gaussian</span> Models
+Using Integrated Nested <span>Laplace</span> Approximations (with
+Discussion).”</span> <em>Journal of the Royal Statistical Society B</em>
+71: 319–92.
+</div>
+<div id="ref-INLA2017e" class="csl-entry">
+Rue, Håvard, Andrea I. Riebler, Sigrunn H. Sørbye, Janine B. Illian,
+Daniel P. Simpson, and Finn K. Lindgren. 2017. <span>“Bayesian Computing
+with <span>INLA</span>: <span>A</span> Review.”</span> <em>Annual
+Reviews of Statistics and Its Applications</em> 4 (March): 395–421. <a
+href="http://arxiv.org/abs/1604.00860">http://arxiv.org/abs/1604.00860</a>.
+</div>
+<div id="ref-plotly" class="csl-entry">
+Sievert, Carson. 2020. <em>Interactive Web-Based Data Visualization with
+r, Plotly, and Shiny</em>. Chapman; Hall/CRC. <a
+href="https://plotly-r.com">https://plotly-r.com</a>.
+</div>
+<div id="ref-renv" class="csl-entry">
+Ushey, Kevin, and Hadley Wickham. 2024. <em><span
+class="nocase">renv</span>: Project Environments</em>. <a
+href="https://doi.org/10.32614/CRAN.package.renv">https://doi.org/10.32614/CRAN.package.renv</a>.
+</div>
+<div id="ref-gsignal" class="csl-entry">
+Van Boxtel, G.J.M., et al. 2021. <em><span
+class="nocase">gsignal</span>: Signal Processing</em>. <a
+href="https://github.com/gjmvanboxtel/gsignal">https://github.com/gjmvanboxtel/gsignal</a>.
+</div>
+<div id="ref-INLA2017h" class="csl-entry">
+Verbosio, Fabio, Arne De Coninck, Drosos Kourounis, and Olaf Schenk.
+2017. <span>“Enhancing the Scalability of Selected Inversion
+Factorization Algorithms in Genomic Prediction.”</span> <em>Journal of
+Computational Science</em> 22 (Supplement C): 99–108. <a
+href="https://doi.org/10.1016/j.jocs.2017.08.013">https://doi.org/10.1016/j.jocs.2017.08.013</a>.
+</div>
+<div id="ref-reshape2" class="csl-entry">
+Wickham, Hadley. 2007. <span>“Reshaping Data with the <span
+class="nocase">reshape</span> Package.”</span> <em>Journal of
+Statistical Software</em> 21 (12): 1–20. <a
+href="http://www.jstatsoft.org/v21/i12/">http://www.jstatsoft.org/v21/i12/</a>.
+</div>
+<div id="ref-tidyverse" class="csl-entry">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+<span>“Welcome to the <span class="nocase">tidyverse</span>.”</span>
+<em>Journal of Open Source Software</em> 4 (43): 1686. <a
+href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-scales" class="csl-entry">
+Wickham, Hadley, Thomas Lin Pedersen, and Dana Seidel. 2025. <em><span
+class="nocase">scales</span>: Scale Functions for Visualization</em>. <a
+href="https://doi.org/10.32614/CRAN.package.scales">https://doi.org/10.32614/CRAN.package.scales</a>.
+</div>
+<div id="ref-knitr2014" class="csl-entry">
+Xie, Yihui. 2014. <span>“<span class="nocase">knitr</span>: A
+Comprehensive Tool for Reproducible Research in <span>R</span>.”</span>
+In <em>Implementing Reproducible Computational Research</em>, edited by
+Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman;
+Hall/CRC.
+</div>
+<div id="ref-knitr2015" class="csl-entry">
+———. 2015. <em>Dynamic Documents with <span>R</span> and Knitr</em>. 2nd
+ed. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-knitr2025" class="csl-entry">
+———. 2025. <em><span class="nocase">knitr</span>: A General-Purpose
+Package for Dynamic Report Generation in <span>R</span></em>. <a
+href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-rmarkdown2018" class="csl-entry">
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. <em>R Markdown:
+The Definitive Guide</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://bookdown.org/yihui/rmarkdown">https://bookdown.org/yihui/rmarkdown</a>.
+</div>
+<div id="ref-rmarkdown2020" class="csl-entry">
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R
+Markdown Cookbook</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook">https://bookdown.org/yihui/rmarkdown-cookbook</a>.
+</div>
+<div id="ref-inlabru2017" class="csl-entry">
+Yuan, Yuan, Bachl, Fabian E., Lindgren, Finn, Borchers, et al. 2017.
+<span>“Point Process Models for Spatio-Temporal Distance Sampling Data
+from a Large-Scale Survey of Blue Whales.”</span> <em>Ann. Appl.
+Stat.</em> 11 (4): 2270–97. <a
+href="https://doi.org/10.1214/17-AOAS1078">https://doi.org/10.1214/17-AOAS1078</a>.
+</div>
+</div>
+</div>
+</div>
+
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiRnVuY3Rpb25hbGl0eSIKZGF0ZTogIkxhc3QgbW9kaWZpZWQ6IGByIGZvcm1hdChTeXMudGltZSgpLCAnJWQtJW0tJVkuJylgIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDoKICAgIG1hdGhqYXg6ICJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL21hdGhqYXhAMy9lczUvdGV4LW1tbC1jaHRtbC5qcyIKICAgIGhpZ2hsaWdodDogcHlnbWVudHMKICAgIHRoZW1lOiBmbGF0bHkKICAgIGNvZGVfZm9sZGluZzogaGlkZSAjIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUiIHRvIGhpZGUgY29kZSBhbmQgYWRkIGEgYnV0dG9uIHRvIHNob3cgaXQKICAgIGRmX3ByaW50OiBwYWdlZAogICAgIyB0b2M6IHRydWUKICAgICMgdG9jX2Zsb2F0OgogICAgIyAgIGNvbGxhcHNlZDogdHJ1ZQogICAgIyAgIHNtb290aF9zY3JvbGw6IHRydWUKICAgIG51bWJlcl9zZWN0aW9uczogZmFsc2UKICAgIGZpZ19jYXB0aW9uOiB0cnVlCiAgICBjb2RlX2Rvd25sb2FkOiB0cnVlCiAgICBjc3M6IHZpc3VhbC5jc3MKYWx3YXlzX2FsbG93X2h0bWw6IHRydWUKYmlibGlvZ3JhcGh5OiAKICAtIHJlZmVyZW5jZXMuYmliCiAgLSBncmF0ZWZ1bC1yZWZzLmJpYgpoZWFkZXItaW5jbHVkZXM6CiAgLSBcbmV3Y29tbWFuZHtcYXJ9e1xtYXRoYmJ7Un19CiAgLSBcbmV3Y29tbWFuZHtcbGxhdn1bMV17XGxlZnRceyMxXHJpZ2h0XH19CiAgLSBcbmV3Y29tbWFuZHtccGFyZX1bMV17XGxlZnQoIzFccmlnaHQpfQogIC0gXG5ld2NvbW1hbmR7XE5jYWx9e1xtYXRoY2Fse059fQogIC0gXG5ld2NvbW1hbmR7XFZjYWx9e1xtYXRoY2Fse1Z9fQogIC0gXG5ld2NvbW1hbmR7XEVjYWx9e1xtYXRoY2Fse0V9fQogIC0gXG5ld2NvbW1hbmR7XFdjYWx9e1xtYXRoY2Fse1d9fQotLS0KCkdvIGJhY2sgdG8gdGhlIFtBYm91dCBwYWdlXShhYm91dC5odG1sKS4KCiMjIFByb2JsZW0gU3RhdGVtZW50CgpXZSBhbmFseXplIGFuZCBudW1lcmljYWxseSBhcHByb3hpbWF0ZSBzb2x1dGlvbnMgdG8gZnJhY3Rpb25hbCBkaWZmdXNpb24gZXF1YXRpb25zIG9uIG1ldHJpYyBncmFwaHMgb2YgdGhlIGZvcm0KXGJlZ2lue2VxdWF0aW9ufQpcbGFiZWx7ZXE6bWFpbmVxfQpcdGFnezF9ClxsZWZ0XHsKXGJlZ2lue2FsaWduZWR9CiAgICBccGFydGlhbF90IHUocyx0KSArIChca2FwcGFeMiAtIFxEZWx0YV9cR2FtbWEpXntcYWxwaGEvMn0gdShzLHQpICY9IGYocyx0KSwgJiYgXHF1YWQgKHMsdCkgXGluIFxHYW1tYSBcdGltZXMgKDAsIFQpLCBcXAogICAgdShzLDApICY9IHVfMChzKSwgJiYgXHF1YWQgcyBcaW4gXEdhbW1hLApcZW5ke2FsaWduZWR9ClxyaWdodC4KXGVuZHtlcXVhdGlvbn0Kd2l0aCAkdShcY2RvdCx0KSQgc2F0aXNmeWluZyB0aGUgS2lyY2hob2ZmIHZlcnRleCBjb25kaXRpb25zClxiZWdpbntlcXVhdGlvbn0KXGxhYmVse2VxOktjb25kfQpcdGFnezJ9CiAgIFxtYXRoY2Fse0t9ID0gIFxsZWZ0XHtccGhpXGluIEMoXEdhbW1hKVw7XG1pZGRsZXxcOyBcZm9yYWxsIHZcaW4gXG1hdGhjYWx7Vn06XDsgXHRleHRzdHlsZVxzdW1fe2VcaW5cbWF0aGNhbHtFfV92fVxwYXJ0aWFsX2UgXHBoaSh2KT0wIFxyaWdodFx9LgpcZW5ke2VxdWF0aW9ufQpIZXJlICRcR2FtbWEgPSAoXG1hdGhjYWx7Vn0sXG1hdGhjYWx7RX0pJCBpcyBhIG1ldHJpYyBncmFwaCwgJFxrYXBwYT4wJCwgJFxhbHBoYVxpbigwLDJdJCBkZXRlcm1pbmVzIHRoZSBzbW9vdGhuZXNzIG9mICR1KFxjZG90LHQpJCwgJFxEZWx0YV97XEdhbW1hfSQgaXMgdGhlIHNvLWNhbGxlZCBLaXJjaGhvZmYtLUxhcGxhY2lhbiwgYW5kICRmOlxHYW1tYVx0aW1lcyAoMCxUKVx0b1xtYXRoYmJ7Un0kIGFuZCAkdV8wOiBcR2FtbWEgXHRvIFxtYXRoYmJ7Un0kIGFyZSBmaXhlZCBmdW5jdGlvbnMsIGNhbGxlZCByaWdodC1oYW5kIHNpZGUgYW5kIGluaXRpYWwgY29uZGl0aW9uLCByZXNwZWN0aXZlbHkuCgojIyBOdW1lcmljYWwgU2NoZW1lCgpMZXQgJFxhbHBoYVxpbigwLDJdJCBhbmQgJFVfaF5cdGF1JCBkZW5vdGUgdGhlIHNlcXVlbmNlIG9mIGFwcHJveGltYXRpb25zIG9mIHRoZSBzb2x1dGlvbiB0byB0aGUgd2VhayBmb3JtIG9mIHByb2JsZW0gXGVxcmVme2VxOm1haW5lcX0gYXQgZWFjaCB0aW1lIHN0ZXAgb24gYSBtZXNoIGluZGV4ZWQgYnkgJGgkLiBMZXQgJFVeMF9oID0gUF9odV8wJC4gRm9yICRrPTAsXGRvdHMsIE4tMSQsICRVX2hee2srMX1caW4gVl9oJCBzb2x2ZXMgdGhlIGZvbGxvd2luZyBzY2hlbWUKXGJlZ2lue2FsaWdufQpcbGFiZWx7c3lzdGVtOmZ1bGx5X2Rpc2NyZXRlX3NjaGVtZX0KXHRhZ3szfQogICAgICAgIFxsYW5nbGVcZGVsdGEgVV9oXntrKzF9LFxwaGlccmFuZ2xlICsgXG1hdGhmcmFre2F9KFVfaF57aysxfSxccGhpKSA9IFxsYW5nbGUgZl57aysxfSxccGhpXHJhbmdsZSAsXHF1YWRcZm9yYWxsXHBoaVxpbiBWX2gsClxlbmR7YWxpZ259CndoZXJlICRmXntrKzF9ID0gXGRpc3BsYXlzdHlsZVxkZnJhY3sxfXtcdGF1fVxpbnRfe3Rfa31ee3Ree2srMX19Zih0KWR0JC4gQXQgZWFjaCB0aW1lIHN0ZXAgJHRfayQsIHRoZSBmaW5pdGUgZWxlbWVudCBzb2x1dGlvbiAkVV9oXmtcaW4gVl9oJCB0byBcZXFyZWZ7c3lzdGVtOmZ1bGx5X2Rpc2NyZXRlX3NjaGVtZX0gY2FuIGJlIGV4cHJlc3NlZCBhcyBhIGxpbmVhciBjb21iaW5hdGlvbiBvZiB0aGUgYmFzaXMgZnVuY3Rpb25zICAkXHtccHNpXmlfaFx9X3tpPTF9XntOX2h9JCBpbnRyb2R1Y2VkIGluIHRoZSBbUHJlbGltaW5hcmllc10ocHJlbGltaW5hcmllcy5odG1sI2ZlbS1iYXNpcykgcGFnZSwgbmFtZWx5LCAKXGJlZ2lue2FsaWdufQpcbGFiZWx7bnVtX3NvbH0KXHRhZ3s0fQogICAgVV9oXmsocykgPSAgXHN1bV97aT0xfV57Tl9ofXVfaV5rXHBzaV5pX2gocyksIFw7c1xpblxHYW1tYS4KXGVuZHthbGlnbn0KUmVwbGFjaW5nIFxlcXJlZntudW1fc29sfSBpbnRvIFxlcXJlZntzeXN0ZW06ZnVsbHlfZGlzY3JldGVfc2NoZW1lfSB5aWVsZHMgdGhlIGZvbGxvd2luZyBsaW5lYXIgc3lzdGVtClxiZWdpbnthbGlnbip9CiAgICBcc3VtX3tqPTF9XntOX2h9dV9qXntrKzF9WyhccHNpX2osXHBzaV9pKV97TF8yKFxHYW1tYSl9KyBcdGF1XG1hdGhmcmFre2F9KFxwc2lfaixccHNpX2kpXSA9IFxzdW1fe2o9MX1ee05faH11X2pee2t9KFxwc2lfaixccHNpX2kpX3tMXzIoXEdhbW1hKX0rXHRhdSggZl57aysxfSxccHNpX2kpX3tMXzIoXEdhbW1hKX0sClxlbmR7YWxpZ24qfQpmb3IgJGkgPSAxLFxkb3RzLCBOX2gkLiBJbiBtYXRyaXggbm90YXRpb24sClxiZWdpbnthbGlnbn0KXGxhYmVse2RpZmZfZXFfZGlzY3JldGV9CiAgICAoXGJvbGRzeW1ib2x7Q30rXHRhdSBcYm9sZHN5bWJvbHtMfV57XGFscGhhLzJ9KVxib2xkc3ltYm9se1V9XntrKzF9ID0gXGJvbGRzeW1ib2x7Q31cYm9sZHN5bWJvbHtVfV5rK1x0YXUgXGJvbGRzeW1ib2x7Rn1ee2srMX0sClxlbmR7YWxpZ259CndoZXJlICRcYm9sZHN5bWJvbHtDfSQgaGFzIGVudHJpZXMgJFxib2xkc3ltYm9se0N9X3tpan0gPSAoXHBzaV9qLFxwc2lfaSlfe0xfMihcR2FtbWEpfSQsICRcYm9sZHN5bWJvbHtMfV57XGFscGhhLzJ9JCBoYXMgZW50cmllcyAkXG1hdGhmcmFre2F9KFxwc2lfaixccHNpX2kpJCwgJFxib2xkc3ltYm9se1V9XmskIGhhcyBlbnRyaWVzICR1X2peayQsIGFuZCAkXGJvbGRzeW1ib2x7Rn1eayQgaGFzIGVudHJpZXMgJCggZl57a30sXHBzaV9pKV97TF8yKFxHYW1tYSl9JC4gIFRvIHJlZHVjZSBjb21wdXRhdGlvbmFsIGNvc3QgYW5kIHByb21vdGUgc3BhcnNpdHksIHdlIHJlcGxhY2UgdGhlIG1hc3MgbWF0cml4ICRcYm9sZHN5bWJvbHtDfSQgd2l0aCBhIGx1bXBlZCBtYXNzIG1hdHJpeCAkXHRpbGRle1xib2xkc3ltYm9se0N9fSQsIHdoaWNoIGlzIGRpYWdvbmFsIHdpdGggZW50cmllcyAkXHRpbGRle1xib2xkc3ltYm9se0N9fV97aWl9PVxzdW1fe2o9MX1ee05faH1cYm9sZHN5bWJvbHtDfV97aWp9JC4gIEZvciBjb252ZW5pZW5jZSwgd2Ugd3JpdGUgJFxib2xkc3ltYm9se0N9JCBpbnN0ZWFkIG9mICRcdGlsZGV7XGJvbGRzeW1ib2x7Q319JCBpbiB0aGUgZm9sbG93aW5nLiBBcHBseWluZyAkXGJvbGRzeW1ib2x7TH1eey1cYWxwaGEvMn0kIHRvIGJvdGggc2lkZXMgeWllbGRzClxiZWdpbntlcXVhdGlvbn0KKFxib2xkc3ltYm9se0x9XnstXGFscGhhLzJ9XGJvbGRzeW1ib2x7Q30rXHRhdSBcYm9sZHN5bWJvbHtJfSlcYm9sZHN5bWJvbHtVfV57aysxfSA9IFxib2xkc3ltYm9se0x9XnstXGFscGhhLzJ9KFxib2xkc3ltYm9se0N9XGJvbGRzeW1ib2x7VX1eaytcdGF1IFxib2xkc3ltYm9se0Z9XntrKzF9KS4KXGVuZHtlcXVhdGlvbn0KRm9sbG93aW5nIEByU1BERTIwMjAsIHdlIGFwcHJveGltYXRlICRcYm9sZHN5bWJvbHtMfV57LVxhbHBoYS8yfSQgYnkgJFxib2xkc3ltYm9se1B9X3JcYm9sZHN5bWJvbHtQfV9sXnstMX0kIHRvIGFycml2ZSBhdApcYmVnaW57ZXF1YXRpb259CihcYm9sZHN5bWJvbHtQfV9yXGJvbGRzeW1ib2x7UH1fbF57LTF9XGJvbGRzeW1ib2x7Q30rXHRhdSBcYm9sZHN5bWJvbHtJfSlcYm9sZHN5bWJvbHtVfV57aysxfSA9IFxib2xkc3ltYm9se1B9X3JcYm9sZHN5bWJvbHtQfV9sXnstMX0oXGJvbGRzeW1ib2x7Q31cYm9sZHN5bWJvbHtVfV5rK1x0YXUgXGJvbGRzeW1ib2x7Rn1ee2srMX0pLApcZW5ke2VxdWF0aW9ufQp3aGVyZSAKXGJlZ2lue2VxdWF0aW9ufQpcYm9sZHN5bWJvbHtQfV9yID0gY19tXHByb2Rfe2k9MX1ebSAoXGJvbGRzeW1ib2x7SX0tcl97MWl9XGJvbGRzeW1ib2x7Q31eey0xfVxib2xkc3ltYm9se0x9KVxxdWFkXHRleHR7YW5kfVxxdWFkIFxib2xkc3ltYm9se1B9X1xlbGwgPSBiX3ttKzF9XGJvbGRzeW1ib2x7Q31ccHJvZF97aj0xfV57bSsxfSAoXGJvbGRzeW1ib2x7SX0tcl97Mmp9XGJvbGRzeW1ib2x7Q31eey0xfVxib2xkc3ltYm9se0x9KQpcZW5ke2VxdWF0aW9ufQphbmQKJFx7cl97MWl9XH1fe2k9MX1ebSQgYW5kICRce3JfezJqfVx9X3tqPTF9XnttKzF9JCBhcmUgdGhlIHJvb3RzIG9mICRxXzEoeCkgPVxzdW1fe2k9MH1ebWNfaXhee2l9JCBhbmQgICRxXzIoeCk9XHN1bV97aj0wfV57bSsxfWJfanhee2p9JCwgcmVzcGVjdGl2ZWx5LiBUaGUgY29lZmZpY2llbnRzICAkXHtjX2lcfV97aT0wfV5tJCBhbmQgICRce2Jfalx9X3tqPTB9XnttKzF9JCBhcmUgZGV0ZXJtaW5lZCBhcyB0aGUgYmVzdCByYXRpb25hbCBhcHByb3hpbWF0aW9uICRcaGF0e3J9X20gPXFfMS9xXzIkIG9mIHRoZSBmdW5jdGlvbiAkXGhhdHtmfSh4KSA6PSB4XntcYmV0YS0xfSQgb3ZlciB0aGUgaW50ZXJ2YWwgJEpfaDogPSBbXGthcHBhXnsyfVxsYW1iZGFfe05faCxofV57LTF9LCBca2FwcGFeezJ9XGxhbWJkYV97MSxofV57LTF9XSQsIHdoZXJlICRcbGFtYmRhX3sxLGh9LCBcbGFtYmRhX3tOX2gsaH0+MCQgYXJlIHRoZSBzbWFsbGVzdCBhbmQgdGhlIGxhcmdlc3QgZWlnZW52YWx1ZSBvZiAkTF9oJCwgcmVzcGVjdGl2ZWx5LgoKQWN0dWFsbHksICRcYm9sZHN5bWJvbHtMfV57LVxhbHBoYS8yfSQgc2hvdWxkIGJlIGFwcHJveGltYXRlZCBieSAkXGJvbGRzeW1ib2x7UH1fbF57LVx0b3B9XGJvbGRzeW1ib2x7UH1fcl5cdG9wJCAodGhpcyBpcyBsaWtlIHRoaXMgYmVjYXVzZSB3ZSB3YW50IHRvIHVzZSAkXGJvbGRzeW1ib2x7UH1fciQgYW5kICRcYm9sZHN5bWJvbHtQfV9sJCB0aGUgd2F5IHRoZXkgd2VyZSBhY3R1YWxseSBjb25zdHJ1Y3RlZCBpbiBAclNQREUyMDIwKSBhbmQgc28gd2UgY2FuIHdyaXRlClxiZWdpbntlcXVhdGlvbn0KKFxib2xkc3ltYm9se1B9X2xeey1cdG9wfVxib2xkc3ltYm9se1B9X3JeXHRvcCBcYm9sZHN5bWJvbHtDfStcdGF1IFxib2xkc3ltYm9se0l9KVxib2xkc3ltYm9se1V9XntrKzF9ID0gXGJvbGRzeW1ib2x7UH1fbF57LVx0b3B9XGJvbGRzeW1ib2x7UH1fcl5cdG9wKFxib2xkc3ltYm9se0N9XGJvbGRzeW1ib2x7VX1eaytcdGF1IFxib2xkc3ltYm9se0Z9XntrKzF9KS4KXGVuZHtlcXVhdGlvbn0KRnJvbSB0aGlzLCB3ZSBhcnJpdmUgYXQgdGhlIHNjaGVtZQpcYmVnaW57ZXF1YXRpb259CihcYm9sZHN5bWJvbHtQfV9yXlx0b3AgXGJvbGRzeW1ib2x7Q30rXHRhdSBcYm9sZHN5bWJvbHtQfV9cZWxsXlx0b3ApXGJvbGRzeW1ib2x7VX1ee2srMX0gPSBcYm9sZHN5bWJvbHtQfV9yXlx0b3AoXGJvbGRzeW1ib2x7Q31cYm9sZHN5bWJvbHtVfV5rK1x0YXUgXGJvbGRzeW1ib2x7Rn1ee2srMX0pLApcbGFiZWx7ZXE6c2NoZW1lfQpcZW5ke2VxdWF0aW9ufQp3aGVyZSAgClxiZWdpbntlcXVhdGlvbn0KXGJvbGRzeW1ib2x7UH1fcl5cdG9wID0gY19tXHByb2Rfe2k9MX1ebSAoXGJvbGRzeW1ib2x7SX0tcl97MWl9XGJvbGRzeW1ib2x7TH1cYm9sZHN5bWJvbHtDfV57LTF9KVxxdWFkXHRleHR7YW5kfVxxdWFkIFxib2xkc3ltYm9se1B9X1xlbGxeXHRvcCA9IGJfe20rMX1ccHJvZF97aj0xfV57bSsxfSAoXGJvbGRzeW1ib2x7SX0tcl97Mmp9XGJvbGRzeW1ib2x7TH1cYm9sZHN5bWJvbHtDfV57LTF9KVxjZG90IFxib2xkc3ltYm9se0N9ClxlbmR7ZXF1YXRpb259CnNpbmNlICRcYm9sZHN5bWJvbHtMfSQgYW5kICRcYm9sZHN5bWJvbHtDfV57LTF9JCBhcmUgc3ltbWV0cmljIGFuZCB0aGUgZmFjdG9ycyBpbiB0aGUgcHJvZHVjdCBjb21tdXRlIC4gUmVwbGFjaW5nIHRoZXNlIHR3byBpbiBvdXIgc2NoZW1lIHdlIGdldApcYmVnaW57ZXF1YXRpb259ClxsZWZ0KFxkZnJhY3tjX219e2Jfe20rMX19XHByb2Rfe2k9MX1ebSAoSS1yX3sxaX1MQ157LTF9KStcdGF1IFxwcm9kX3tqPTF9XnttKzF9IChJLXJfezJqfUxDXnstMX0pXHJpZ2h0KUNVXntrKzF9ID0gXGRmcmFje2NfbX17Yl97bSsxfX1ccHJvZF97aT0xfV5tIChJLXJfezFpfUxDXnstMX0pXGNkb3QgQ1VeawpcZW5ke2VxdWF0aW9ufQoKV2Ugbm93IG5lZWQgdG8gY29tcHV0ZSB0aGUgcm9vdHMgb2YgdGhlIHBvbHlub21pYWwKXGJlZ2lue2VxdWF0aW9ufQpSKHgpID0gXGRmcmFje2NfbX17Yl97bSsxfX0gXHByb2Rfe2k9MX1ebSAoMS1yX3sxaX14KStcdGF1IFxwcm9kX3tqPTF9XnttKzF9ICgxLXJfezJqfXgpIApcZW5ke2VxdWF0aW9ufQokUiQgaGFzIGxlYWRpbmcgY29lZmZpY2llbnQgJFxnYW1tYT1cdGF1ICgtMSlee20rMX0gXHByb2Rfe2o9MX1ee20rMX1yX3syan0kIGFuZCAkbSsxJCByb290cyAkUl9rJCBmb3IgJGs9MSxcbGRvdHMsbSsxJC4gVGhhdCBpcywKXGJlZ2lue2VxdWF0aW9ufQpSKHgpID0gXHRhdSgtMSlee20rMX0gXHByb2Rfe2o9MX1ee20rMX1yX3syan1ccHJvZF97az0xfV57bSsxfSAoeC1SX2spPSBcZ2FtbWFccHJvZF97az0xfV57bSsxfSAoeC1SX2spClxlbmR7ZXF1YXRpb259CldlIGNhbiB0aGVuIHdyaXRlIG91ciBzY2hlbWUgYXMgClxiZWdpbntlcXVhdGlvbn0KXGxlZnQoXGdhbW1hXHByb2Rfe2s9MX1ee20rMX0gKExDXnstMX0tUl9rSSlccmlnaHQpQ1Vee2srMX0gPSBcZGZyYWN7Y19tfXtiX3ttKzF9fVxwcm9kX3tpPTF9Xm0gKEktcl97MWl9TENeey0xfSlcY2RvdCBDVV5rClxlbmR7ZXF1YXRpb259ClRoYXQgaXMsClxiZWdpbntlcXVhdGlvbn0KVV57aysxfSA9IFxkZnJhY3tjX219e2Jfe20rMX19XGRmcmFjezF9e1xnYW1tYX1DXnstMX1ccHJvZF97az0xfV57bSsxfSAoTENeey0xfS1SX2tJKV57LTF9XHByb2Rfe2k9MX1ebSAoSS1yX3sxaX1MQ157LTF9KVxjZG90IENVXmsKXGVuZHtlcXVhdGlvbn0KCgpSb290cyAkcl97MWl9JCBhbmQgJHJfezJqfSQgYXJlIHJlYWwgYnV0ICRSX2skIGNhbiBiZSBjb21wbGV4LiBJbiB0aGF0IGNhc2UsIHdlIGNvbnNpZGVyIHRoZSBxdWFkcmF0aWMgdGVybXMuIEZvciBleGFtcGxlLCBpZiAkbT0zJCwgYW5kICRSJCBoYXMgb25lIHJlYWwgcm9vdCAkciQgYW5kIHR3byBjb21wbGV4IGNvbmp1Z2F0ZSByb290cyAkeiQgYW5kICRcYmFye3p9JCBzdWNoIHRoYXQgJCh4LXopKHgtXGJhcnt6fSkgPSB4XjIrYXgrYiQsIHdlIHdpbGwgd29yayB3aXRoIApcYmVnaW57ZXF1YXRpb259ClIoeCkgPSBcZ2FtbWEoeF4yK2F4K2IpKHgtcikKXGVuZHtlcXVhdGlvbn0KaW5zdGVhZCBvZiAKXGJlZ2lue2VxdWF0aW9ufQpSKHgpID0gXGdhbW1hKHgteikoeC1cYmFye3p9KSh4LXIpClxlbmR7ZXF1YXRpb259CgpGcm9tIHRoZSBzY2hlbWUKClxiZWdpbntlcXVhdGlvbn0KXGxlZnQoXGRmcmFje2NfbX17Yl97bSsxfX1ccHJvZF97aT0xfV5tIChJLXJfezFpfUxDXnstMX0pK1x0YXUgXHByb2Rfe2o9MX1ee20rMX0gKEktcl97Mmp9TENeey0xfSlccmlnaHQpQ1Vee2srMX0gPSBcZGZyYWN7Y19tfXtiX3ttKzF9fVxwcm9kX3tpPTF9Xm0gKEktcl97MWl9TENeey0xfSlcY2RvdCBDVV5rClxlbmR7ZXF1YXRpb259Cgp3ZSB3cml0ZSAKClxiZWdpbntlcXVhdGlvbn0KVV57aysxfSA9IENeey0xfVxsZWZ0KFxkZnJhY3tjX219e2Jfe20rMX19XHByb2Rfe2k9MX1ebSAoSS1yX3sxaX1MQ157LTF9KStcdGF1IFxwcm9kX3tqPTF9XnttKzF9IChJLXJfezJqfUxDXnstMX0pXHJpZ2h0KV57LTF9XGRmcmFje2NfbX17Yl97bSsxfX1ccHJvZF97aT0xfV5tIChJLXJfezFpfUxDXnstMX0pXGNkb3QgQ1VeawpcZW5ke2VxdWF0aW9ufQoKV2Ugd2FudCB0aGUgcGFydGlhbCBmcmFjdGlvbiBkZWNvbXBvc2l0aW9uIG9mIAoKClxiZWdpbntlcXVhdGlvbn0KXGRmcmFje1xkZnJhY3tjX219e2Jfe20rMX19XHByb2Rfe2k9MX1ebSAoMS1yX3sxaX14KX17XGRmcmFje2NfbX17Yl97bSsxfX1ccHJvZF97aT0xfV5tICgxLXJfezFpfXgpK1x0YXUgXHByb2Rfe2o9MX1ee20rMX0gKDEtcl97Mmp9eCl9ClxlbmR7ZXF1YXRpb259CgpvcgoKXGJlZ2lue2VxdWF0aW9ufQpcZGZyYWN7XHByb2Rfe2k9MX1ebSAoMS1yX3sxaX14KX17XHByb2Rfe2k9MX1ebSAoMS1yX3sxaX14KStcdGF1IFxkZnJhY3tiX3ttKzF9fXtjX219IFxwcm9kX3tqPTF9XnttKzF9ICgxLXJfezJqfXgpfQpcZW5ke2VxdWF0aW9ufQoKVGhhdCBpcwoKXGJlZ2lue2VxdWF0aW9ufQpcc3VtX3trPTF9XnttKzF9IFxkZnJhY3thX2t9e3gtcF9rfSArIHIgPSBcc3VtX3trPTF9XnttKzF9IGFfayh4LXBfayleey0xfSArIHIKXGVuZHtlcXVhdGlvbn0KClRoZXJlZm9yZQoKXGJlZ2lue2VxdWF0aW9ufQpVXntrKzF9ID0gQ157LTF9XGxlZnQoXHN1bV97az0xfV57bSsxfSBhX2soTENeey0xfS1wX2tJKV57LTF9ICsgcklccmlnaHQpIENVXmsKXGVuZHtlcXVhdGlvbn0KCgojIE5vdyB3aXRoIG5vbnplcm8gcmlnaHQgaGFuZCBzaWRlCgpUaGVyZWZvcmUKClxiZWdpbntlcXVhdGlvbn0KVV57aysxfSA9IENeey0xfVxsZWZ0KFxzdW1fe2s9MX1ee20rMX0gYV9rKExDXnstMX0tcF9rSSleey0xfSArIHJJXHJpZ2h0KSAoQ1VeaytcdGF1IEZee2srMX0pClxlbmR7ZXF1YXRpb259CgoKYGBge3J9CiMgQ3JlYXRlIGEgY2xpcGJvYXJkIGJ1dHRvbiBvbiB0aGUgcmVuZGVyZWQgSFRNTCBwYWdlCnNvdXJjZShoZXJlOjpoZXJlKCJjbGlwYm9hcmQuUiIpKTsgY2xpcGJvYXJkCiMgU2V0IHNlZWQgZm9yIHJlcHJvZHVjaWJpbGl0eQpzZXQuc2VlZCgxOTgyKSAKIyBTZXQgZ2xvYmFsIG9wdGlvbnMgZm9yIGFsbCBjb2RlIGNodW5rcwprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgIyBEaXNhYmxlIG1lc3NhZ2VzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIG1lc3NhZ2UgPSBUUlVFLCAgICAKICAjIERpc2FibGUgd2FybmluZ3MgcHJpbnRlZCBieSBSIGNvZGUgY2h1bmtzCiAgd2FybmluZyA9IFRSVUUsICAgIAogICMgU2hvdyBSIGNvZGUgd2l0aGluIGNvZGUgY2h1bmtzIGluIG91dHB1dAogIGVjaG8gPSBUUlVFLCAgICAgICAgCiAgIyBJbmNsdWRlIGJvdGggUiBjb2RlIGFuZCBpdHMgcmVzdWx0cyBpbiBvdXRwdXQKICBpbmNsdWRlID0gVFJVRSwgICAgIAogICMgRXZhbHVhdGUgUiBjb2RlIGNodW5rcwogIGV2YWwgPSBUUlVFLCAgICAgICAKICAjIEVuYWJsZSBjYWNoaW5nIG9mIFIgY29kZSBjaHVua3MgZm9yIGZhc3RlciByZW5kZXJpbmcKICBjYWNoZSA9IEZBTFNFLCAgICAgIAogICMgQWxpZ24gZmlndXJlcyBpbiB0aGUgY2VudGVyIG9mIHRoZSBvdXRwdXQKICBmaWcuYWxpZ24gPSAiY2VudGVyIiwKICAjIEVuYWJsZSByZXRpbmEgZGlzcGxheSBmb3IgaGlnaC1yZXNvbHV0aW9uIGZpZ3VyZXMKICByZXRpbmEgPSAyLAogICMgU2hvdyBlcnJvcnMgaW4gdGhlIG91dHB1dCBpbnN0ZWFkIG9mIHN0b3BwaW5nIHJlbmRlcmluZwogIGVycm9yID0gVFJVRSwKICAjIERvIG5vdCBjb2xsYXBzZSBjb2RlIGFuZCBvdXRwdXQgaW50byBhIHNpbmdsZSBibG9jawogIGNvbGxhcHNlID0gRkFMU0UKKQojIFN0YXJ0IHRoZSBmaWd1cmUgY291bnRlcgpmaWdfY291bnQgPC0gMAojIERlZmluZSB0aGUgY2FwdGlvbmVyIGZ1bmN0aW9uCmNhcHRpb25lciA8LSBmdW5jdGlvbihjYXB0aW9uKSB7CiAgZmlnX2NvdW50IDw8LSBmaWdfY291bnQgKyAxCiAgcGFzdGUwKCJGaWd1cmUgIiwgZmlnX2NvdW50LCAiOiAiLCBjYXB0aW9uKQp9CmBgYAoKCgpgYGB7cn0KIyByZW1vdGVzOjppbnN0YWxsX2dpdGh1YigiZGF2aWRib2xpbi9yc3BkZSIsIHJlZiA9ICJkZXZlbCIpCiMgcmVtb3Rlczo6aW5zdGFsbF9naXRodWIoImRhdmlkYm9saW4vbWV0cmljZ3JhcGgiLCByZWYgPSAiZGV2ZWwiKQojIGxpYnJhcnkoSU5MQSkKIyBsaWJyYXJ5KGlubGFicnUpCmxpYnJhcnkoclNQREUpCmxpYnJhcnkoTWV0cmljR3JhcGgpCmxpYnJhcnkoZ3JhdGVmdWwpCgpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkocmVzaGFwZTIpCmxpYnJhcnkocGxvdGx5KQpgYGAKCgoKCgpgYGB7cn0KIyBUaGlzIGZpbGUgY29udGFpbnMgZnVuY3Rpb25zIHRoYXQgYXJlIHVzZWQgaW4gdGhlIHZpZ25ldHRlcwojIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQojIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQojIEZvciBlYWNoIHJhdGlvbmFsIG9yZGVyIG0gKDEsMiwzLDQpIGFuZCBzbW9vdGhuZXNzIHBhcmFtZXRlciBiZXRhICg9IGFscGhhLzIgd2l0aCBhbHBoYSBiZXR3ZWVuIDAuNSBhbmQgMiksIEZ1bmN0aW9uIG15LmdldC5yb290cygpIChhZGFwdGVkIGZyb20gdGhlIHJTUERFIHBhY2thZ2UpIHJldHVybnMgY19tL2Jfe20rMX0gYW5kIHRoZSByb290cyBvZiBwX1xlbGwgYW5kIHBfci4gCiMgU2VlIERhdmlkIEJvbGluICYgS3Jpc3RpbiBLaXJjaG5lciAoMjAyMCkgVGhlIFJhdGlvbmFsIFNQREUgQXBwcm9hY2ggZm9yIEdhdXNzaWFuIFJhbmRvbSBGaWVsZHMgV2l0aCBHZW5lcmFsIFNtb290aG5lc3MsIEpvdXJuYWwgb2YgQ29tcHV0YXRpb25hbCBhbmQgR3JhcGhpY2FsIFN0YXRpc3RpY3MsIDI5OjIsIDI3NC0yODUsIERPSTogMTAuMTA4MC8xMDYxODYwMC4yMDE5LjE2NjU1MzcKIyBmb3IgdGhlIGRlZmluaXRpb24gb2YgY19tL2Jfe20rMX0gYW5kIHBfXGVsbCBhbmQgcF9yLgpteS5nZXQucm9vdHMgPC0gZnVuY3Rpb24obSwgIyByYXRpb25hbCBvcmRlciwgbSA9IDEsIDIsIDMsIG9yIDQKICAgICAgICAgICAgICAgICAgICAgICAgIGJldGEgIyBzbW9vdGhuZXNzIHBhcmFtZXRlciwgYmV0YSA9IGFscGhhLzIgd2l0aCBhbHBoYSBiZXR3ZWVuIDAuNSBhbmQgMgogICAgICAgICAgICAgICAgICAgICAgICAgKSB7CiAgbTF0YWJsZSA8LSByU1BERTo6Om0xdGFibGUKICBtMnRhYmxlIDwtIHJTUERFOjo6bTJ0YWJsZQogIG0zdGFibGUgPC0gclNQREU6OjptM3RhYmxlCiAgbTR0YWJsZSA8LSByU1BERTo6Om00dGFibGUKICBtdCA8LSBnZXQocGFzdGUwKCJtIiwgbSwgInRhYmxlIikpCiAgcmIgPC0gcmVwKDAsIG0gKyAxKQogIHJjIDwtIHJlcCgwLCBtKQogIGlmKG0gPT0gMSkgewogICAgcmMgPSBhcHByb3gobXQkYmV0YSwgbXRbW3Bhc3RlMCgicmMiKV1dLCBiZXRhKSR5CiAgfSBlbHNlIHsKICAgIHJjID0gc2FwcGx5KDE6bSwgZnVuY3Rpb24oaSkgewogICAgICBhcHByb3gobXQkYmV0YSwgbXRbW3Bhc3RlMCgicmMuIiwgaSldXSwgYmV0YSkkeQogICAgfSkKICB9CiAgcmIgPSBzYXBwbHkoMToobSsxKSwgZnVuY3Rpb24oaSkgewogICAgYXBwcm94KG10JGJldGEsIG10W1twYXN0ZTAoInJiLiIsIGkpXV0sIHhvdXQgPSBiZXRhKSR5CiAgfSkKICBmYWN0b3IgPSBhcHByb3gobXQkYmV0YSwgbXQkZmFjdG9yLCB4b3V0ID0gYmV0YSkkeQogIHJldHVybihsaXN0KHJiID0gcmIsICMgcm9vdHMgb2YgcF9cZWxsCiAgICAgICAgICAgICAgcmMgPSByYywgIyByb290cyBvZiBwX3IKICAgICAgICAgICAgICBmYWN0b3IgPSBmYWN0b3IgIyB0aGlzIGlzIGNfbS9iX3ttKzF9CiAgICAgICAgICAgICAgKSkKfQojIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQojIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQojIEZ1bmN0aW9uIHBvbHkuZnJvbS5yb290cygpIGNvbXB1dGVzIHRoZSBjb2VmZmljaWVudHMgb2YgYSBwb2x5bm9taWFsIGZyb20gaXRzIHJvb3RzLgpwb2x5LmZyb20ucm9vdHMgPC0gZnVuY3Rpb24ocm9vdHMpIHsKICBjb2VmIDwtIDEKICBmb3IgKHIgaW4gcm9vdHMpIHtjb2VmIDwtIGNvbnZvbHZlKGNvZWYsIGMoMSwgLXIpLCB0eXBlID0gIm9wZW4iKX0KICByZXR1cm4oY29lZikgIyByZXR1cm5lZCBpbiBpbmNyZWFzaW5nIG9yZGVyIGxpa2UgYStieCtjeF4yKy4uLgp9CiMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiMgRnVuY3Rpb24gY29tcHV0ZS5wYXJ0aWFsLmZyYWN0aW9uLnBhcmFtKCkgY29tcHV0ZXMgdGhlIHBhcmFtZXRlcnMgZm9yIHRoZSBwYXJ0aWFsIGZyYWN0aW9uIGRlY29tcG9zaXRpb24gb2YgdGhlIHJhdGlvbmFsIGZ1bmN0aW9uCiMgXGRmcmFje3Bfcih4KX17cF9yKHgpK1x0YXUgXGthcHBhXnsyXGJldGF9cF9cZWxsKHgpIH0gPSBcc3VtX3trPTF9XnttKzF9YV9rKHgtcF9rKV57LTF9ICsgcgpjb21wdXRlLnBhcnRpYWwuZnJhY3Rpb24ucGFyYW0gPC0gZnVuY3Rpb24oZmFjdG9yLCBwcl9yb290cywgcGxfcm9vdHMsIHRpbWVfc3RlcCwgc2NhbGluZykgewogIHByX2NvZWYgPC0gYygwLCBwb2x5LmZyb20ucm9vdHMocHJfcm9vdHMpKSAKICBwbF9jb2VmIDwtIHBvbHkuZnJvbS5yb290cyhwbF9yb290cykgCiAgZmFjdG9yX3ByX2NvZWYgPC0gcHJfY29lZgogIHByX3BsdXNfcGxfY29lZiA8LSBmYWN0b3JfcHJfY29lZiArICgoc2NhbGluZyAqIHRpbWVfc3RlcCkvZmFjdG9yKSAqIHBsX2NvZWYKICByZXMgPC0gZ3NpZ25hbDo6cmVzaWR1ZShmYWN0b3JfcHJfY29lZiwgcHJfcGx1c19wbF9jb2VmKQogIHJldHVybihsaXN0KHIgPSByZXMkciwgcCA9IHJlcyRwLCBrID0gcmVzJGspKSAKfQpgYGAKCiMjIFJlZmVyZW5jZXMKCmBgYHtyfQpncmF0ZWZ1bDo6Y2l0ZV9wYWNrYWdlcyhvdXRwdXQgPSAicGFyYWdyYXBoIiwgb3V0LmRpciA9ICIuIikKYGBgCgoK</div>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("functionality.Rmd");
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

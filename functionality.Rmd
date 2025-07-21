@@ -1,0 +1,304 @@
+---
+title: "Functionality"
+date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
+    df_print: paged
+    # toc: true
+    # toc_float:
+    #   collapsed: true
+    #   smooth_scroll: true
+    number_sections: false
+    fig_caption: true
+    code_download: true
+    css: visual.css
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+---
+
+Go back to the [About page](about.html).
+
+## Problem Statement
+
+We analyze and numerically approximate solutions to fractional diffusion equations on metric graphs of the form
+\begin{equation}
+\label{eq:maineq}
+\tag{1}
+\left\{
+\begin{aligned}
+    \partial_t u(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s,t) &= f(s,t), && \quad (s,t) \in \Gamma \times (0, T), \\
+    u(s,0) &= u_0(s), && \quad s \in \Gamma,
+\end{aligned}
+\right.
+\end{equation}
+with $u(\cdot,t)$ satisfying the Kirchhoff vertex conditions
+\begin{equation}
+\label{eq:Kcond}
+\tag{2}
+   \mathcal{K} =  \left\{\phi\in C(\Gamma)\;\middle|\; \forall v\in \mathcal{V}:\; \textstyle\sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}.
+\end{equation}
+Here $\Gamma = (\mathcal{V},\mathcal{E})$ is a metric graph, $\kappa>0$, $\alpha\in(0,2]$ determines the smoothness of $u(\cdot,t)$, $\Delta_{\Gamma}$ is the so-called Kirchhoff--Laplacian, and $f:\Gamma\times (0,T)\to\mathbb{R}$ and $u_0: \Gamma \to \mathbb{R}$ are fixed functions, called right-hand side and initial condition, respectively.
+
+## Numerical Scheme
+
+Let $\alpha\in(0,2]$ and $U_h^\tau$ denote the sequence of approximations of the solution to the weak form of problem \eqref{eq:maineq} at each time step on a mesh indexed by $h$. Let $U^0_h = P_hu_0$. For $k=0,\dots, N-1$, $U_h^{k+1}\in V_h$ solves the following scheme
+\begin{align}
+\label{system:fully_discrete_scheme}
+\tag{3}
+        \langle\delta U_h^{k+1},\phi\rangle + \mathfrak{a}(U_h^{k+1},\phi) = \langle f^{k+1},\phi\rangle ,\quad\forall\phi\in V_h,
+\end{align}
+where $f^{k+1} = \displaystyle\dfrac{1}{\tau}\int_{t_k}^{t^{k+1}}f(t)dt$. At each time step $t_k$, the finite element solution $U_h^k\in V_h$ to \eqref{system:fully_discrete_scheme} can be expressed as a linear combination of the basis functions  $\{\psi^i_h\}_{i=1}^{N_h}$ introduced in the [Preliminaries](preliminaries.html#fem-basis) page, namely, 
+\begin{align}
+\label{num_sol}
+\tag{4}
+    U_h^k(s) =  \sum_{i=1}^{N_h}u_i^k\psi^i_h(s), \;s\in\Gamma.
+\end{align}
+Replacing \eqref{num_sol} into \eqref{system:fully_discrete_scheme} yields the following linear system
+\begin{align*}
+    \sum_{j=1}^{N_h}u_j^{k+1}[(\psi_j,\psi_i)_{L_2(\Gamma)}+ \tau\mathfrak{a}(\psi_j,\psi_i)] = \sum_{j=1}^{N_h}u_j^{k}(\psi_j,\psi_i)_{L_2(\Gamma)}+\tau( f^{k+1},\psi_i)_{L_2(\Gamma)},
+\end{align*}
+for $i = 1,\dots, N_h$. In matrix notation,
+\begin{align}
+\label{diff_eq_discrete}
+    (\boldsymbol{C}+\tau \boldsymbol{L}^{\alpha/2})\boldsymbol{U}^{k+1} = \boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1},
+\end{align}
+where $\boldsymbol{C}$ has entries $\boldsymbol{C}_{ij} = (\psi_j,\psi_i)_{L_2(\Gamma)}$, $\boldsymbol{L}^{\alpha/2}$ has entries $\mathfrak{a}(\psi_j,\psi_i)$, $\boldsymbol{U}^k$ has entries $u_j^k$, and $\boldsymbol{F}^k$ has entries $( f^{k},\psi_i)_{L_2(\Gamma)}$.  To reduce computational cost and promote sparsity, we replace the mass matrix $\boldsymbol{C}$ with a lumped mass matrix $\tilde{\boldsymbol{C}}$, which is diagonal with entries $\tilde{\boldsymbol{C}}_{ii}=\sum_{j=1}^{N_h}\boldsymbol{C}_{ij}$.  For convenience, we write $\boldsymbol{C}$ instead of $\tilde{\boldsymbol{C}}$ in the following. Applying $\boldsymbol{L}^{-\alpha/2}$ to both sides yields
+\begin{equation}
+(\boldsymbol{L}^{-\alpha/2}\boldsymbol{C}+\tau \boldsymbol{I})\boldsymbol{U}^{k+1} = \boldsymbol{L}^{-\alpha/2}(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}).
+\end{equation}
+Following @rSPDE2020, we approximate $\boldsymbol{L}^{-\alpha/2}$ by $\boldsymbol{P}_r\boldsymbol{P}_l^{-1}$ to arrive at
+\begin{equation}
+(\boldsymbol{P}_r\boldsymbol{P}_l^{-1}\boldsymbol{C}+\tau \boldsymbol{I})\boldsymbol{U}^{k+1} = \boldsymbol{P}_r\boldsymbol{P}_l^{-1}(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}),
+\end{equation}
+where 
+\begin{equation}
+\boldsymbol{P}_r = c_m\prod_{i=1}^m (\boldsymbol{I}-r_{1i}\boldsymbol{C}^{-1}\boldsymbol{L})\quad\text{and}\quad \boldsymbol{P}_\ell = b_{m+1}\boldsymbol{C}\prod_{j=1}^{m+1} (\boldsymbol{I}-r_{2j}\boldsymbol{C}^{-1}\boldsymbol{L})
+\end{equation}
+and
+$\{r_{1i}\}_{i=1}^m$ and $\{r_{2j}\}_{j=1}^{m+1}$ are the roots of $q_1(x) =\sum_{i=0}^mc_ix^{i}$ and  $q_2(x)=\sum_{j=0}^{m+1}b_jx^{j}$, respectively. The coefficients  $\{c_i\}_{i=0}^m$ and  $\{b_j\}_{j=0}^{m+1}$ are determined as the best rational approximation $\hat{r}_m =q_1/q_2$ of the function $\hat{f}(x) := x^{\beta-1}$ over the interval $J_h: = [\kappa^{2}\lambda_{N_h,h}^{-1}, \kappa^{2}\lambda_{1,h}^{-1}]$, where $\lambda_{1,h}, \lambda_{N_h,h}>0$ are the smallest and the largest eigenvalue of $L_h$, respectively.
+
+Actually, $\boldsymbol{L}^{-\alpha/2}$ should be approximated by $\boldsymbol{P}_l^{-\top}\boldsymbol{P}_r^\top$ (this is like this because we want to use $\boldsymbol{P}_r$ and $\boldsymbol{P}_l$ the way they were actually constructed in @rSPDE2020) and so we can write
+\begin{equation}
+(\boldsymbol{P}_l^{-\top}\boldsymbol{P}_r^\top \boldsymbol{C}+\tau \boldsymbol{I})\boldsymbol{U}^{k+1} = \boldsymbol{P}_l^{-\top}\boldsymbol{P}_r^\top(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}).
+\end{equation}
+From this, we arrive at the scheme
+\begin{equation}
+(\boldsymbol{P}_r^\top \boldsymbol{C}+\tau \boldsymbol{P}_\ell^\top)\boldsymbol{U}^{k+1} = \boldsymbol{P}_r^\top(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}),
+\label{eq:scheme}
+\end{equation}
+where  
+\begin{equation}
+\boldsymbol{P}_r^\top = c_m\prod_{i=1}^m (\boldsymbol{I}-r_{1i}\boldsymbol{L}\boldsymbol{C}^{-1})\quad\text{and}\quad \boldsymbol{P}_\ell^\top = b_{m+1}\prod_{j=1}^{m+1} (\boldsymbol{I}-r_{2j}\boldsymbol{L}\boldsymbol{C}^{-1})\cdot \boldsymbol{C}
+\end{equation}
+since $\boldsymbol{L}$ and $\boldsymbol{C}^{-1}$ are symmetric and the factors in the product commute . Replacing these two in our scheme we get
+\begin{equation}
+\left(\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})+\tau \prod_{j=1}^{m+1} (I-r_{2j}LC^{-1})\right)CU^{k+1} = \dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
+\end{equation}
+
+We now need to compute the roots of the polynomial
+\begin{equation}
+R(x) = \dfrac{c_m}{b_{m+1}} \prod_{i=1}^m (1-r_{1i}x)+\tau \prod_{j=1}^{m+1} (1-r_{2j}x) 
+\end{equation}
+$R$ has leading coefficient $\gamma=\tau (-1)^{m+1} \prod_{j=1}^{m+1}r_{2j}$ and $m+1$ roots $R_k$ for $k=1,\ldots,m+1$. That is,
+\begin{equation}
+R(x) = \tau(-1)^{m+1} \prod_{j=1}^{m+1}r_{2j}\prod_{k=1}^{m+1} (x-R_k)= \gamma\prod_{k=1}^{m+1} (x-R_k)
+\end{equation}
+We can then write our scheme as 
+\begin{equation}
+\left(\gamma\prod_{k=1}^{m+1} (LC^{-1}-R_kI)\right)CU^{k+1} = \dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
+\end{equation}
+That is,
+\begin{equation}
+U^{k+1} = \dfrac{c_m}{b_{m+1}}\dfrac{1}{\gamma}C^{-1}\prod_{k=1}^{m+1} (LC^{-1}-R_kI)^{-1}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
+\end{equation}
+
+
+Roots $r_{1i}$ and $r_{2j}$ are real but $R_k$ can be complex. In that case, we consider the quadratic terms. For example, if $m=3$, and $R$ has one real root $r$ and two complex conjugate roots $z$ and $\bar{z}$ such that $(x-z)(x-\bar{z}) = x^2+ax+b$, we will work with 
+\begin{equation}
+R(x) = \gamma(x^2+ax+b)(x-r)
+\end{equation}
+instead of 
+\begin{equation}
+R(x) = \gamma(x-z)(x-\bar{z})(x-r)
+\end{equation}
+
+From the scheme
+
+\begin{equation}
+\left(\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})+\tau \prod_{j=1}^{m+1} (I-r_{2j}LC^{-1})\right)CU^{k+1} = \dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
+\end{equation}
+
+we write 
+
+\begin{equation}
+U^{k+1} = C^{-1}\left(\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})+\tau \prod_{j=1}^{m+1} (I-r_{2j}LC^{-1})\right)^{-1}\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (I-r_{1i}LC^{-1})\cdot CU^k
+\end{equation}
+
+We want the partial fraction decomposition of 
+
+
+\begin{equation}
+\dfrac{\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (1-r_{1i}x)}{\dfrac{c_m}{b_{m+1}}\prod_{i=1}^m (1-r_{1i}x)+\tau \prod_{j=1}^{m+1} (1-r_{2j}x)}
+\end{equation}
+
+or
+
+\begin{equation}
+\dfrac{\prod_{i=1}^m (1-r_{1i}x)}{\prod_{i=1}^m (1-r_{1i}x)+\tau \dfrac{b_{m+1}}{c_m} \prod_{j=1}^{m+1} (1-r_{2j}x)}
+\end{equation}
+
+That is
+
+\begin{equation}
+\sum_{k=1}^{m+1} \dfrac{a_k}{x-p_k} + r = \sum_{k=1}^{m+1} a_k(x-p_k)^{-1} + r
+\end{equation}
+
+Therefore
+
+\begin{equation}
+U^{k+1} = C^{-1}\left(\sum_{k=1}^{m+1} a_k(LC^{-1}-p_kI)^{-1} + rI\right) CU^k
+\end{equation}
+
+
+# Now with nonzero right hand side
+
+Therefore
+
+\begin{equation}
+U^{k+1} = C^{-1}\left(\sum_{k=1}^{m+1} a_k(LC^{-1}-p_kI)^{-1} + rI\right) (CU^k+\tau F^{k+1})
+\end{equation}
+
+
+```{r}
+# Create a clipboard button on the rendered HTML page
+source(here::here("clipboard.R")); clipboard
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = TRUE,    
+  # Disable warnings printed by R code chunks
+  warning = TRUE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+```
+
+
+
+```{r}
+# remotes::install_github("davidbolin/rspde", ref = "devel")
+# remotes::install_github("davidbolin/metricgraph", ref = "devel")
+# library(INLA)
+# library(inlabru)
+library(rSPDE)
+library(MetricGraph)
+library(grateful)
+
+library(ggplot2)
+library(reshape2)
+library(plotly)
+```
+
+
+
+
+
+```{r}
+# This file contains functions that are used in the vignettes
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# For each rational order m (1,2,3,4) and smoothness parameter beta (= alpha/2 with alpha between 0.5 and 2), Function my.get.roots() (adapted from the rSPDE package) returns c_m/b_{m+1} and the roots of p_\ell and p_r. 
+# See David Bolin & Kristin Kirchner (2020) The Rational SPDE Approach for Gaussian Random Fields With General Smoothness, Journal of Computational and Graphical Statistics, 29:2, 274-285, DOI: 10.1080/10618600.2019.1665537
+# for the definition of c_m/b_{m+1} and p_\ell and p_r.
+my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
+                         beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
+                         ) {
+  m1table <- rSPDE:::m1table
+  m2table <- rSPDE:::m2table
+  m3table <- rSPDE:::m3table
+  m4table <- rSPDE:::m4table
+  mt <- get(paste0("m", m, "table"))
+  rb <- rep(0, m + 1)
+  rc <- rep(0, m)
+  if(m == 1) {
+    rc = approx(mt$beta, mt[[paste0("rc")]], beta)$y
+  } else {
+    rc = sapply(1:m, function(i) {
+      approx(mt$beta, mt[[paste0("rc.", i)]], beta)$y
+    })
+  }
+  rb = sapply(1:(m+1), function(i) {
+    approx(mt$beta, mt[[paste0("rb.", i)]], xout = beta)$y
+  })
+  factor = approx(mt$beta, mt$factor, xout = beta)$y
+  return(list(rb = rb, # roots of p_\ell
+              rc = rc, # roots of p_r
+              factor = factor # this is c_m/b_{m+1}
+              ))
+}
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# Function poly.from.roots() computes the coefficients of a polynomial from its roots.
+poly.from.roots <- function(roots) {
+  coef <- 1
+  for (r in roots) {coef <- convolve(coef, c(1, -r), type = "open")}
+  return(coef) # returned in increasing order like a+bx+cx^2+...
+}
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# Function compute.partial.fraction.param() computes the parameters for the partial fraction decomposition of the rational function
+# \dfrac{p_r(x)}{p_r(x)+\tau \kappa^{2\beta}p_\ell(x) } = \sum_{k=1}^{m+1}a_k(x-p_k)^{-1} + r
+compute.partial.fraction.param <- function(factor, pr_roots, pl_roots, time_step, scaling) {
+  pr_coef <- c(0, poly.from.roots(pr_roots)) 
+  pl_coef <- poly.from.roots(pl_roots) 
+  factor_pr_coef <- pr_coef
+  pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
+  res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
+  return(list(r = res$r, p = res$p, k = res$k)) 
+}
+```
+
+## References
+
+```{r}
+grateful::cite_packages(output = "paragraph", out.dir = ".")
+```
+
+

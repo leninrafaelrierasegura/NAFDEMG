@@ -1,3 +1,55 @@
+## -----------------------------------------------------------------------------
+# Create a clipboard button on the rendered HTML page
+source(here::here("clipboard.R")); clipboard
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = TRUE,    
+  # Disable warnings printed by R code chunks
+  warning = TRUE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+
+
+## -----------------------------------------------------------------------------
+# remotes::install_github("davidbolin/rspde", ref = "devel")
+# remotes::install_github("davidbolin/metricgraph", ref = "devel")
+# library(INLA)
+# library(inlabru)
+library(rSPDE)
+library(MetricGraph)
+library(grateful)
+
+library(ggplot2)
+library(reshape2)
+library(plotly)
+
+
+## -----------------------------------------------------------------------------
 # This file contains functions that are used in the vignettes
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -50,3 +102,4 @@ compute.partial.fraction.param <- function(factor, pr_roots, pl_roots, time_step
   res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
   return(list(r = res$r, p = res$p, k = res$k)) 
 }
+
