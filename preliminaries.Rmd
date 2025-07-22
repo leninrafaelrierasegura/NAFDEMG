@@ -85,7 +85,10 @@ library(plotly)
 
 
 ```{r}
-knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R"))
+capture.output(
+  knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R")),
+  file = here::here("purl_log.txt")
+)
 source(here::here("functionality.R"))
 ```
 
@@ -121,27 +124,6 @@ graph <- gets.graph.tadpole(h = 1/4)
 graph_to_get_loc <- gets.graph.tadpole(h = 1/40)
 loc <- graph_to_get_loc$get_mesh_locations()
 
-
-global.scene.setter <- function(x_range, y_range, z_range) {
-  return(list(xaxis = list(title = "x", range = x_range),
-              yaxis = list(title = "y", range = y_range),
-              zaxis = list(title = "z", range = z_range),
-              aspectratio = list(x = 2*(1+2/pi), 
-                                 y = 2*(2/pi), 
-                                 z = 1*(2/pi)),
-              camera = list(eye = list(x = (1+2/pi)/2, 
-                                       y = 4, 
-                                       z = 2),
-                            center = list(x = (1+2/pi)/2, 
-                                          y = 0, 
-                                          z = 0))))
-}
-
-plotting.order <- function(v, graph){
-  edge_number <- graph$mesh$VtE[, 1]
-  pos <- sum(edge_number == 1) + 1
-  return(c(v[1], v[3:pos], v[2], v[(pos+1):length(v)], v[2]))
-}
 
 A <- graph$fem_basis(loc)
 A <- cbind(A, A[, 1]*0)  # this plots the graph
@@ -194,12 +176,42 @@ p <- add_trace(p, x = x, y = y, z = z_new, type = "scatter3d", mode = "lines",
                  line = list(color = "green", width = 3), showlegend = FALSE)
 # Display plot
 p %>% layout(
-    scene = global.scene.setter(x_range, y_range, z_range))
+    scene = global.scene.setter(x_range, y_range, z_range, z_aspectratio = 1))
 
 ```
 
 
 Having introduced the system of basis functions $\{\varphi_j^e, \phi_v\}$, which will be referred to as $\{\psi_j\}_{j=1}^{N_h}$, we can now define the finite element space $V_h\subset H^1(\Gamma)$ as $V_h = \pare{\bigoplus_{e\in\Ecal} V_{h_e}}\bigoplus V_v$, where $V_v = \text{span}\pare{\{\phi_v:v\in\Vcal\}}$ and $\dim\pare{V_h}$ is given by $N_h = |\Vcal| + \sum_{e\in\Ecal}n_e$.
+
+## Eigenfunctions and eigenvalues on the tadpole graph {#eigenfunctions}
+
+Let $\Gamma_T = (\Vcal,\Ecal)$ characterize the tadpole graph with $\Vcal = \{v_1,v_2\}$ and $\Ecal = \{e_1,e_2\}$. The left edge $e_1$ has length 1 and the circular edge $e_2$ has length 2. As discussed before, a point on $e_1$ is parameterized via $s=\left(e_1, t\right)$ for $t \in[0,1]$ and a point on $e_2$ via $s=\left(e_2, t\right)$ for $t\in[0,2]$. One can verify that $-\Delta_\Gamma$ has eigenvalues $0,\left\{(i \pi / 2)^2\right\}_{i \in \mathbb{N}}$ and $\left\{(i \pi / 2)^2\right\}_{2 i \in \mathbb{N}}$ with corresponding eigenfunctions $\phi_0$, $\left\{\phi_i\right\}_{i \in \mathbb{N}}$, and $\left\{\psi_i\right\}_{2 i \in \mathbb{N}}$ given by $\phi_0(s)=1 / \sqrt{3}$ and 
+\begin{equation*}
+    \phi_i(s)=C_{\phi, i}\begin{cases}
+        -2 \sin (\frac{i\pi}{2}) \cos (\frac{i \pi t}{2}), & s \in e_1, \\
+\sin (i \pi t / 2), & s \in e_2,
+    \end{cases},
+\quad 
+    \psi_i(s)=\frac{\sqrt{3}}{\sqrt{2}} \begin{cases}
+    (-1)^{i / 2} \cos (\frac{i \pi t}{2}), & s \in e_1, \\
+\cos (\frac{i \pi t}{2}), & s \in e_2,
+\end{cases},
+\end{equation*}
+where $C_{\phi, i}=1$ if $i$ is even and $C_{\phi, i}=1 / \sqrt{3}$ otherwise. Moreover, these functions form an orthonormal basis for $L_2(\Gamma_T)$.
+
+
+```{r}
+graph <- gets.graph.tadpole(h = 0.01)
+eigenpairs <- gets.eigen.params(N_finite = 25, kappa = 1, alpha = 0.5, graph)
+EIGENFUN <- eigenpairs$EIGENFUN
+EIGENVAL <- eigenpairs$EIGENVAL
+INDEX <- eigenpairs$INDEX
+```
+
+
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Illustration of the eigenfunctions on the tadpole graph")}
+graph.plotter.3d(graph, INDEX, EIGENVAL, EIGENFUN)
+```
 
 ## References
 

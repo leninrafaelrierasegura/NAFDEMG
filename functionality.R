@@ -11,6 +11,7 @@ library(plotly)
 
 
 ## -----------------------------------------------------------------------------
+# Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
                          ) {
@@ -40,6 +41,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
 
 
 ## -----------------------------------------------------------------------------
+# Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
   for (r in roots) {coef <- convolve(coef, c(1, -r), type = "open")}
@@ -48,6 +50,7 @@ poly.from.roots <- function(roots) {
 
 
 ## -----------------------------------------------------------------------------
+# Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
@@ -98,7 +101,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 
     partial_fraction_terms <- list()
     for (i in 1:(m+1)) {
-      # Here is where the terms in the sum eq 11 are computed
+      # Here is where the terms in the sum in eq 11 are computed
       partial_fraction_terms[[i]] <- (LCi - poles_rs_k$p[i] * I)/poles_rs_k$r[i]
       }
     partial_fraction_terms[[m+2]] <- ifelse(is.null(poles_rs_k$k), 0, poles_rs_k$k) * I
@@ -148,7 +151,10 @@ gets.graph.tadpole <- function(h){
   graph$build_mesh(h = h)
   return(graph)
 }
-# Function to compute the eigenfunctions 
+
+
+## -----------------------------------------------------------------------------
+# Function to compute the eigenfunctions of the tadpole graph
 tadpole.eig <- function(k,graph){
 x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
 x2 <- c(0,graph$get_edge_lengths()[2]*graph$mesh$PtE[graph$mesh$PtE[,1]==2,2]) 
@@ -179,6 +185,144 @@ return(f)
 
 
 ## -----------------------------------------------------------------------------
+# Function to compute the eigenpairs of the tadpole graph
+gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
+  EIGENVAL <- NULL
+  EIGENVAL_ALPHA <- NULL
+  EIGENVAL_MINUS_ALPHA <- NULL
+  EIGENFUN <- NULL
+  INDEX <- NULL
+  for (j in 0:N_finite) {
+    lambda_j <- kappa^2 + (j*pi/2)^2
+    lambda_j_alpha_half <- lambda_j^(alpha/2)
+    lambda_j_minus_alpha_half <- lambda_j^(-alpha/2)
+    e_j <- tadpole.eig(j,graph)$phi
+    EIGENVAL <- c(EIGENVAL, lambda_j)
+    EIGENVAL_ALPHA <- c(EIGENVAL_ALPHA, lambda_j_alpha_half)  
+    EIGENVAL_MINUS_ALPHA <- c(EIGENVAL_MINUS_ALPHA, lambda_j_minus_alpha_half)
+    EIGENFUN <- cbind(EIGENFUN, e_j)
+    INDEX <- c(INDEX, j)
+    if (j>0 && (j %% 2 == 0)) {
+      lambda_j <- kappa^2 + (j*pi/2)^2
+      lambda_j_alpha_half <- lambda_j^(alpha/2)
+      lambda_j_minus_alpha_half <- lambda_j^(-alpha/2)
+      e_j <- tadpole.eig(j,graph)$psi
+      EIGENVAL <- c(EIGENVAL, lambda_j)
+      EIGENVAL_ALPHA <- c(EIGENVAL_ALPHA, lambda_j_alpha_half)    
+      EIGENVAL_MINUS_ALPHA <- c(EIGENVAL_MINUS_ALPHA, lambda_j_minus_alpha_half)
+      EIGENFUN <- cbind(EIGENFUN, e_j)
+      INDEX <- c(INDEX, j+0.1)
+      }
+    }
+  return(list(EIGENVAL = EIGENVAL,
+              EIGENVAL_ALPHA = EIGENVAL_ALPHA, 
+              EIGENVAL_MINUS_ALPHA = EIGENVAL_MINUS_ALPHA,
+              EIGENFUN = EIGENFUN,
+              INDEX = INDEX))
+}
+
+
+## -----------------------------------------------------------------------------
+# Function to construct a piecewise constant projection of approximated values
+construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
+  projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
+  
+  # Assign value at t = 0
+  projected_U_piecewise[, which(overkill_time_seq == 0)] <- projected_U_approx[, 1]
+  
+  # Assign values for intervals (t_{k-1}, t_k]
+  for (k in 2:length(time_seq)) {
+    idxs <- which(overkill_time_seq > time_seq[k - 1] & overkill_time_seq <= time_seq[k])
+    projected_U_piecewise[, idxs] <- projected_U_approx[, k]
+  }
+  
+  return(projected_U_piecewise)
+}
+
+
+## -----------------------------------------------------------------------------
+loglog_line_equation <- function(x1, y1, slope) {
+  b <- log10(y1 / (x1 ^ slope))
+  
+  function(x) {
+    (x ^ slope) * (10 ^ b)
+  }
+}
+exp_line_equation <- function(x1, y1, slope) {
+  lnC <- log(y1) - slope * x1
+  
+  function(x) {
+    exp(lnC + slope * x)
+  }
+}
+compute_guiding_lines <- function(x_axis_vector, errors, theoretical_rates, line_equation_fun) {
+  guiding_lines <- matrix(NA, nrow = length(x_axis_vector), ncol = length(theoretical_rates))
+  
+  for (j in seq_along(theoretical_rates)) {
+    guiding_lines_aux <- matrix(NA, nrow = length(x_axis_vector), ncol = length(x_axis_vector))
+    
+    for (k in seq_along(x_axis_vector)) {
+      point_x1 <- x_axis_vector[k]
+      point_y1 <- errors[k, j]
+      slope <- theoretical_rates[j]
+      
+      line <- line_equation_fun(x1 = point_x1, y1 = point_y1, slope = slope)
+      guiding_lines_aux[, k] <- line(x_axis_vector)
+    }
+    
+    guiding_lines[, j] <- rowMeans(guiding_lines_aux)
+  }
+  
+  return(guiding_lines)
+}
+
+
+## -----------------------------------------------------------------------------
+# Functions to compute the exact solution to the fractional diffusion equation
+g_linear <- function(r, A, lambda_j_alpha_half) {
+  return(A * exp(-lambda_j_alpha_half * r))
+  }
+G_linear <- function(t, A) {
+  return(A * t)
+  }
+g_exp <- function(r, A, mu) {
+  return(A * exp(mu * r))
+  }
+G_exp <- function(t, A, lambda_j_alpha_half, mu) {
+  exponent <- lambda_j_alpha_half + mu
+  return(A * (exp(exponent * t) - 1) / exponent)
+  }
+g_poly <- function(r, A, n) {
+  return(A * r^n)
+}
+G_poly <- function(t, A, lambda_j_alpha_half, n) {
+  t <- as.vector(t)
+  k_vals <- 0:n
+  sum_term <- sapply(t, function(tt) {
+    sum(((-lambda_j_alpha_half * tt)^k_vals) / factorial(k_vals))
+  })
+  coeff <- ((-1)^(n + 1)) * factorial(n) / (lambda_j_alpha_half^(n + 1))
+  return(A * coeff * (1 - exp(lambda_j_alpha_half * t) * sum_term))
+}
+g_sin <- function(r, A, omega) {
+  return(A * sin(omega * r))
+}
+G_sin <- function(t, A, lambda_j_alpha_half, omega) {
+  denom <- lambda_j_alpha_half^2 + omega^2
+  numerator <- exp(lambda_j_alpha_half * t) * (lambda_j_alpha_half * sin(omega * t) - omega * cos(omega * t)) + omega
+  return(A * numerator / denom)
+}
+g_cos <- function(r, A, theta) {
+  return(A * cos(theta * r)) 
+}
+G_cos <- function(t, A, lambda_j_alpha_half, theta) {
+  denom <- lambda_j_alpha_half^2 + theta^2
+  numerator <- exp(lambda_j_alpha_half * t) * (lambda_j_alpha_half * cos(theta * t) + theta * sin(theta * t)) - lambda_j_alpha_half
+  return(A * numerator / denom)
+}
+
+
+## -----------------------------------------------------------------------------
 # Function to order the vertices for plotting
 plotting.order <- function(v, graph){
   edge_number <- graph$mesh$VtE[, 1]
@@ -188,5 +332,120 @@ plotting.order <- function(v, graph){
 
 
 ## -----------------------------------------------------------------------------
-grateful::cite_packages(output = "paragraph", out.dir = ".")
+# Function to set the scene for 3D plots
+global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
+  
+  return(list(xaxis = list(title = "x", range = x_range),
+              yaxis = list(title = "y", range = y_range),
+              zaxis = list(title = "z", range = z_range),
+              aspectratio = list(x = 2*(1+2/pi), 
+                                 y = 2*(2/pi), 
+                                 z = z_aspectratio*(2/pi)),
+              camera = list(eye = list(x = (1+2/pi)/2, 
+                                       y = 4, 
+                                       z = 2),
+                            center = list(x = (1+2/pi)/2, 
+                                          y = 0, 
+                                          z = 0))))
+}
+
+
+## -----------------------------------------------------------------------------
+# Function to plot in 3D
+graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, ...) {
+  U_list <- list(...)
+  U_names <- sapply(substitute(list(...))[-1], deparse)
+
+  # Spatial coordinates
+  x <- plotting.order(graph$mesh$V[, 1], graph)
+  y <- plotting.order(graph$mesh$V[, 2], graph)
+  weights <- graph$mesh$weights
+
+  # Apply plotting.order to each U
+  U_list <- lapply(U_list, function(U) apply(U, 2, plotting.order, graph = graph))
+  n_vars <- length(U_list)
+
+  # Create plot_data frame with time and position replicated
+  n_time <- ncol(U_list[[1]])
+  base_data <- data.frame(
+    x = rep(x, times = n_time),
+    y = rep(y, times = n_time),
+    the_graph = 0,
+    frame = rep(time_seq, each = length(x))
+  )
+
+  # Add U columns to plot_data
+  for (i in seq_along(U_list)) {
+    base_data[[paste0("u", i)]] <- as.vector(U_list[[i]])
+  }
+
+  plot_data <- base_data
+
+  # Generate vertical lines
+  vertical_lines_list <- lapply(seq_along(U_list), function(i) {
+    do.call(rbind, lapply(time_seq, function(t) {
+      idx <- which(plot_data$frame == t)
+      z_vals <- plot_data[[paste0("u", i)]][idx]
+      data.frame(
+        x = rep(plot_data$x[idx], each = 3),
+        y = rep(plot_data$y[idx], each = 3),
+        z = as.vector(t(cbind(0, z_vals, NA))),
+        frame = rep(t, each = length(idx) * 3)
+      )
+    }))
+  })
+
+  # Set axis ranges
+  z_range <- range(unlist(U_list))
+  x_range <- range(x)
+  y_range <- range(y)
+
+  # Create plot
+  p <- plot_ly(plot_data, frame = ~frame) %>%
+    add_trace(x = ~x, y = ~y, z = ~the_graph, type = "scatter3d", mode = "lines",
+              name = "", showlegend = FALSE,
+              line = list(color = "black", width = 3))
+
+  # Add traces for each variable
+  colors <- RColorBrewer::brewer.pal(min(n_vars, 8), "Set1")
+  for (i in seq_along(U_list)) {
+    p <- add_trace(p,
+      x = ~x, y = ~y, z = as.formula(paste0("~u", i)),
+      type = "scatter3d", mode = "lines", name = U_names[i],
+      line = list(color = colors[i], width = 3))
+  }
+
+  # Add vertical lines
+  for (i in seq_along(vertical_lines_list)) {
+    p <- add_trace(p,
+      data = vertical_lines_list[[i]],
+      x = ~x, y = ~y, z = ~z, frame = ~frame,
+      type = "scatter3d", mode = "lines",
+      line = list(color = "gray", width = 0.5),
+      name = "Vertical lines",
+      showlegend = FALSE)
+  }
+  frame_name <- deparse(substitute(frame_val_to_display))
+  # Layout and animation controls
+  p <- p %>%
+    layout(
+      scene = global.scene.setter(x_range, y_range, z_range),
+      updatemenus = list(list(type = "buttons", showactive = FALSE,
+                              buttons = list(
+                                list(label = "Play", method = "animate",
+                                     args = list(NULL, list(frame = list(duration = 2000 / length(time_seq), redraw = TRUE), fromcurrent = TRUE))),
+                                list(label = "Pause", method = "animate",
+                                     args = list(NULL, list(mode = "immediate", frame = list(duration = 0), redraw = FALSE)))
+                              )
+      )),
+      title = paste0(frame_name,": ", formatC(frame_val_to_display[1], format = "f", digits = 4))
+    ) %>%
+    plotly_build()
+
+  for (i in seq_along(p$x$frames)) {
+    p$x$frames[[i]]$layout <- list(title = paste0(frame_name,": ", formatC(frame_val_to_display[i], format = "f", digits = 4)))
+  }
+
+  return(p)
+}
 

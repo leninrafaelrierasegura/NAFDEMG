@@ -50,9 +50,9 @@ set.seed(1982)
 # Set global options for all code chunks
 knitr::opts_chunk$set(
   # Disable messages printed by R code chunks
-  message = TRUE,    
+  message = FALSE,    
   # Disable warnings printed by R code chunks
-  warning = TRUE,    
+  warning = FALSE,    
   # Show R code within code chunks in output
   echo = TRUE,        
   # Include both R code and its results in output
@@ -101,169 +101,13 @@ library(plotly)
 # Utilitary functions
 
 ```{r}
-knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R"))
+capture.output(
+  knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R")),
+  file = here::here("purl_log.txt")
+)
 source(here::here("functionality.R"))
 ```
 
-
-```{r}
-# Function to compute the eigenvalues and eigenfunctions
-gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
-  EIGENVAL_ALPHA <- NULL
-  EIGENFUN <- NULL
-  for (j in 0:N_finite) {
-      lambda_j_alpha <- (kappa^2 + (j*pi/2)^2)^(alpha/2)
-      e_j <- tadpole.eig(j,graph)$phi
-      EIGENVAL_ALPHA <- c(EIGENVAL_ALPHA, lambda_j_alpha)         
-      EIGENFUN <- cbind(EIGENFUN, e_j)
-      if (j>0 && (j %% 2 == 0)) {
-        lambda_j_alpha <- (kappa^2 + (j*pi/2)^2)^(alpha/2)
-        e_j <- tadpole.eig(j,graph)$psi
-        EIGENVAL_ALPHA <- c(EIGENVAL_ALPHA, lambda_j_alpha)         
-        EIGENFUN <- cbind(EIGENFUN, e_j)
-      }
-  }
-  return(list(EIGENVAL_ALPHA = EIGENVAL_ALPHA,
-              EIGENFUN = EIGENFUN))
-}
-
-g_linear <- function(r, A, lambda_j_alpha_half) {
-  return(A * exp(-lambda_j_alpha_half * r))
-  }
-G_linear <- function(t, A) {
-  return(A * t)
-  }
-g_exp <- function(r, A, mu) {
-  return(A * exp(mu * r))
-  }
-G_exp <- function(t, A, lambda_j_alpha_half, mu) {
-  exponent <- lambda_j_alpha_half + mu
-  return(A * (exp(exponent * t) - 1) / exponent)
-  }
-g_poly <- function(r, A, n) {
-  return(A * r^n)
-}
-G_poly <- function(t, A, lambda_j_alpha_half, n) {
-  t <- as.vector(t)
-  k_vals <- 0:n
-  sum_term <- sapply(t, function(tt) {
-    sum(((-lambda_j_alpha_half * tt)^k_vals) / factorial(k_vals))
-  })
-  coeff <- ((-1)^(n + 1)) * factorial(n) / (lambda_j_alpha_half^(n + 1))
-  return(A * coeff * (1 - exp(lambda_j_alpha_half * t) * sum_term))
-}
-g_sin <- function(r, A, omega) {
-  return(A * sin(omega * r))
-}
-G_sin <- function(t, A, lambda_j_alpha_half, omega) {
-  denom <- lambda_j_alpha_half^2 + omega^2
-  numerator <- exp(lambda_j_alpha_half * t) * (lambda_j_alpha_half * sin(omega * t) - omega * cos(omega * t)) + omega
-  return(A * numerator / denom)
-}
-g_cos <- function(r, A, theta) {
-  return(A * cos(theta * r)) 
-}
-G_cos <- function(t, A, lambda_j_alpha_half, theta) {
-  denom <- lambda_j_alpha_half^2 + theta^2
-  numerator <- exp(lambda_j_alpha_half * t) * (lambda_j_alpha_half * cos(theta * t) + theta * sin(theta * t)) - lambda_j_alpha_half
-  return(A * numerator / denom)
-}
-construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
-  projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
-  
-  # Assign value at t = 0
-  projected_U_piecewise[, which(overkill_time_seq == 0)] <- projected_U_approx[, 1]
-  
-  # Assign values for intervals (t_{k-1}, t_k]
-  for (k in 2:length(time_seq)) {
-    idxs <- which(overkill_time_seq > time_seq[k - 1] & overkill_time_seq <= time_seq[k])
-    projected_U_piecewise[, idxs] <- projected_U_approx[, k]
-  }
-  
-  return(projected_U_piecewise)
-}
-loglog_line_equation <- function(x1, y1, slope) {
-  b <- log10(y1 / (x1 ^ slope))
-  
-  function(x) {
-    (x ^ slope) * (10 ^ b)
-  }
-}
-compute_guiding_lines <- function(h_vector, alpha_vector, errors_projected, theoretical_rate) {
-  guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
-  
-  for (j in seq_along(alpha_vector)) {
-    guiding_lines_aux <- matrix(NA, nrow = length(h_vector), ncol = length(h_vector))
-    
-    for (k in seq_along(h_vector)) {
-      point_x1 <- h_vector[k]
-      point_y1 <- errors_projected[k, j]
-      slope <- theoretical_rate[j]
-      
-      line <- loglog_line_equation(x1 = point_x1, y1 = point_y1, slope = slope)
-      guiding_lines_aux[, k] <- line(h_vector)
-    }
-    
-    guiding_lines[, j] <- rowMeans(guiding_lines_aux)
-  }
-  
-  return(guiding_lines)
-}
-
-```
-
-
-We want to solve the fractional diffusion equation
-\begin{equation}
-\label{eq:maineq}
-    \partial_t u+(\kappa^2-\Delta_\Gamma)^{\alpha/2} u=f \text { on } \Gamma \times(0, T), \quad u(0)=u_0 \text { on } \Gamma,
-\end{equation}
-where $u$ satisfies the Kirchhoff vertex conditions
-\begin{equation}
-\label{eq:Kcond}
-    \left\{\phi\in C(\Gamma)\;\Big|\; \forall v\in V: \sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}
-\end{equation}
-The solution is given by
-\begin{equation}
-\label{eq:sol_reprentation}
-        u(s,t) = \displaystyle\sum_{j\in\mathbb{N}}e^{-\lambda^{\alpha/2}_jt}\left(u_0, e_j\right)_{L_2(\Gamma)}e_j(s) + \int_0^t \displaystyle\sum_{j\in\mathbb{N}}e^{-\lambda^{\alpha/2}_j(t-r)}\left(f(\cdot, r), e_j\right)_{L_2(\Gamma)}e_j(s)dr.
-\end{equation}
-
-If we choose $w_j$ and $v_j$ and take the initial condition and the right hand side funciton as 
-
-\begin{equation}
-    u_0(s) = \sum_{j=0}^{N} w_j e_j(s) \text{ and so } \left(u_0, e_j\right)_{L_2(\Gamma)} = w_j,
-\end{equation}
-\begin{equation}
-   \text{In matrix notation: } \quad\boldsymbol{U}_0 = \boldsymbol{E}_h\boldsymbol{c}, \quad  \boldsymbol{E}_h = \left[e_0, e_1, \ldots, e_{N}\right], \quad \boldsymbol{w} = \left[w_0, w_1, \ldots, w_{N}\right]^\top,
-\end{equation}
-\begin{equation}
-   \text{In } \texttt{R}: \texttt{U_0 <- EIGENFUN %*% coeff_U_0}
-\end{equation}
-and
-\begin{equation}
-    f(s,t) = \sum_{j=0}^{N} v_j e^{-\lambda^{\alpha/2}_jt} e_j(s) \text{ and so } \left(f(\cdot,r), e_j\right)_{L_2(\Gamma)} = v_j e^{-\lambda^{\alpha/2}_jr},
-\end{equation}
-\begin{equation}
-   \text{In matrix notation: } \quad\boldsymbol{f} = \boldsymbol{E}_h \boldsymbol{V}, \quad \boldsymbol{V}_{ji} = v_je^{-\lambda^{\alpha/2}_jt_i}
-\end{equation}
-\begin{equation}
-   \text{In } \texttt{R}: \texttt{FF <- EIGENFUN %*% (coeff_FF * exp(-outer(EIGENVAL_ALPHA, time_seq)))}
-\end{equation}
-then the solution is given by
-\begin{align}
-        u(s,t) &= \displaystyle\sum_{j=0}^{N}w_je^{-\lambda^{\alpha/2}_jt}e_j(s) + \int_0^t \displaystyle\sum_{j=0}^Ne^{-\lambda^{\alpha/2}_j(t-r)}v_j e^{-\lambda^{\alpha/2}_jr}e_j(s)dr\\
-        &= \displaystyle\sum_{j=0}^{N}w_je^{-\lambda^{\alpha/2}_jt}e_j(s) + t \displaystyle\sum_{j=0}^Nv_j e^{-\lambda^{\alpha/2}_jt}e_j(s)\\
-        &= \displaystyle\sum_{j=0}^{N}w_je^{-\lambda^{\alpha/2}_jt}e_j(s) + tf(s,t)\\
-        &= \displaystyle\sum_{j=0}^{N}(w_j+tv_j)e^{-\lambda^{\alpha/2}_jt}e_j(s) 
-\end{align}
-
-\begin{equation}
-   \text{In matrix notation: } \quad\boldsymbol{U} =\boldsymbol{E}_h \boldsymbol{W} + (\boldsymbol{t}\boldsymbol{f}^\top)^\top, \quad \boldsymbol{W}_{ji} = w_je^{-\lambda^{\alpha/2}_jt_i},\quad \boldsymbol{t} = \left[t_0, t_1, \ldots, t_{K}\right]^\top
-\end{equation}
-\begin{equation}
-   \text{In } \texttt{R}: \texttt{U_true <- EIGENFUN %*% (coeff_U_0 * exp(-outer(EIGENVAL_ALPHA, time_seq)))+ t(time_seq * t(FF))}
-\end{equation}
 
 ```{r}
 # Parameters
@@ -307,8 +151,7 @@ alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
-```
-{r}
+```{r, eval = FALSE}
 errors_projected <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {
   alpha <- alpha_vector[j] # from 0.5 to 2
@@ -360,7 +203,6 @@ for (j in 1:length(alpha_vector)) {
     errors_projected[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_U_true - projected_U_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
   }
 }
-print(m_values)
 save(errors_projected, file = here::here("data_files/errors_projected_h.RData"))
 ```
 
@@ -379,7 +221,10 @@ for (u in 1:length(alpha_vector)) {
 
 theoretical_rates <- alpha_vector
 
-guiding_lines <- compute_guiding_lines(h_vector, alpha_vector, errors_projected, theoretical_rate = alpha_vector)
+guiding_lines <- compute_guiding_lines(x_axis_vector = h_vector, 
+                                       errors = errors_projected, 
+                                       theoretical_rates = alpha_vector, 
+                                       line_equation_fun = loglog_line_equation)
 default_colors <- scales::hue_pal()(length(alpha_vector))
 plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
   geom_line(
@@ -410,8 +255,8 @@ p <- ggplot() +
   plot_lines +
   labs(
     title = expression("Convergence in " * italic(h)),
-    x = expression(italic(h)~(log[10]~scale)),
-    y = expression(Error~(log[10]~scale)),
+    x = expression(italic(h)),
+    y = expression(Error),
     color = "          α  | theo  | obs"
   ) +
   scale_x_log10(breaks = h_vector, labels = round(h_vector, 4)) +

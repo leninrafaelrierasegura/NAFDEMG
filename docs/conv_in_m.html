@@ -171,6 +171,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 }
 </style>
 
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 <link rel="stylesheet" href="visual.css" type="text/css" />
 
@@ -418,7 +441,7 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Convergence in 𝑚</h1>
-<h4 class="date">Last modified: 21-07-2025.</h4>
+<h4 class="date">Last modified: 22-07-2025.</h4>
 
 </div>
 
@@ -437,9 +460,9 @@ document.</p>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># Set global options for all code chunks</span></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="co"># Disable messages printed by R code chunks</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">TRUE</span>,    </span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">FALSE</span>,    </span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="co"># Disable warnings printed by R code chunks</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">TRUE</span>,    </span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">FALSE</span>,    </span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="co"># Show R code within code chunks in output</span></span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,        </span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="co"># Include both R code and its results in output</span></span>
@@ -479,329 +502,338 @@ document.</p>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="fu">library</span>(plotly)</span></code></pre></div>
 <div id="utilitary-functions" class="section level1">
 <h1>Utilitary functions</h1>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">purl</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.Rmd&quot;</span>), <span class="at">output =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.R&quot;</span>))</span></code></pre></div>
-<pre><code>## [1] &quot;/home/rierasl/Desktop/NAFDEMG/functionality.R&quot;</code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.R&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Function to compute the eigenvalues and eigenfunctions</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>gets.eigen.params <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">N_finite =</span> <span class="dv">4</span>, <span class="at">kappa =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, graph){</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  EIGENVAL_ALPHA <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  EIGENFUN <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span>N_finite) {</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>      lambda_j_alpha <span class="ot">&lt;-</span> (kappa<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (j<span class="sc">*</span>pi<span class="sc">/</span><span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span>)<span class="sc">^</span>(alpha<span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>      e_j <span class="ot">&lt;-</span> <span class="fu">tadpole.eig</span>(j,graph)<span class="sc">$</span>phi</span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>      EIGENVAL_ALPHA <span class="ot">&lt;-</span> <span class="fu">c</span>(EIGENVAL_ALPHA, lambda_j_alpha)         </span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>      EIGENFUN <span class="ot">&lt;-</span> <span class="fu">cbind</span>(EIGENFUN, e_j)</span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>      <span class="cf">if</span> (j<span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;&amp;</span> (j <span class="sc">%%</span> <span class="dv">2</span> <span class="sc">==</span> <span class="dv">0</span>)) {</span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>        lambda_j_alpha <span class="ot">&lt;-</span> (kappa<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (j<span class="sc">*</span>pi<span class="sc">/</span><span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span>)<span class="sc">^</span>(alpha<span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>        e_j <span class="ot">&lt;-</span> <span class="fu">tadpole.eig</span>(j,graph)<span class="sc">$</span>psi</span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>        EIGENVAL_ALPHA <span class="ot">&lt;-</span> <span class="fu">c</span>(EIGENVAL_ALPHA, lambda_j_alpha)         </span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>        EIGENFUN <span class="ot">&lt;-</span> <span class="fu">cbind</span>(EIGENFUN, e_j)</span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>      }</span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>  }</span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">EIGENVAL_ALPHA =</span> EIGENVAL_ALPHA,</span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>              <span class="at">EIGENFUN =</span> EIGENFUN))</span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>}</span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a></span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>g_linear <span class="ot">&lt;-</span> <span class="cf">function</span>(r, A, lambda_j_alpha_half) {</span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>  <span class="fu">return</span>(A <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda_j_alpha_half <span class="sc">*</span> r))</span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>  }</span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>G_linear <span class="ot">&lt;-</span> <span class="cf">function</span>(t, A) {</span>
-<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a>  <span class="fu">return</span>(A <span class="sc">*</span> t)</span>
-<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>  }</span>
-<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>g_exp <span class="ot">&lt;-</span> <span class="cf">function</span>(r, A, mu) {</span>
-<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a>  <span class="fu">return</span>(A <span class="sc">*</span> <span class="fu">exp</span>(mu <span class="sc">*</span> r))</span>
-<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a>  }</span>
-<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a>G_exp <span class="ot">&lt;-</span> <span class="cf">function</span>(t, A, lambda_j_alpha_half, mu) {</span>
-<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a>  exponent <span class="ot">&lt;-</span> lambda_j_alpha_half <span class="sc">+</span> mu</span>
-<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a>  <span class="fu">return</span>(A <span class="sc">*</span> (<span class="fu">exp</span>(exponent <span class="sc">*</span> t) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> exponent)</span>
-<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a>  }</span>
-<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a>g_poly <span class="ot">&lt;-</span> <span class="cf">function</span>(r, A, n) {</span>
-<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a>  <span class="fu">return</span>(A <span class="sc">*</span> r<span class="sc">^</span>n)</span>
-<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a>}</span>
-<span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a>G_poly <span class="ot">&lt;-</span> <span class="cf">function</span>(t, A, lambda_j_alpha_half, n) {</span>
-<span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a>  t <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(t)</span>
-<span id="cb7-39"><a href="#cb7-39" tabindex="-1"></a>  k_vals <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span>n</span>
-<span id="cb7-40"><a href="#cb7-40" tabindex="-1"></a>  sum_term <span class="ot">&lt;-</span> <span class="fu">sapply</span>(t, <span class="cf">function</span>(tt) {</span>
-<span id="cb7-41"><a href="#cb7-41" tabindex="-1"></a>    <span class="fu">sum</span>(((<span class="sc">-</span>lambda_j_alpha_half <span class="sc">*</span> tt)<span class="sc">^</span>k_vals) <span class="sc">/</span> <span class="fu">factorial</span>(k_vals))</span>
-<span id="cb7-42"><a href="#cb7-42" tabindex="-1"></a>  })</span>
-<span id="cb7-43"><a href="#cb7-43" tabindex="-1"></a>  coeff <span class="ot">&lt;-</span> ((<span class="sc">-</span><span class="dv">1</span>)<span class="sc">^</span>(n <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">*</span> <span class="fu">factorial</span>(n) <span class="sc">/</span> (lambda_j_alpha_half<span class="sc">^</span>(n <span class="sc">+</span> <span class="dv">1</span>))</span>
-<span id="cb7-44"><a href="#cb7-44" tabindex="-1"></a>  <span class="fu">return</span>(A <span class="sc">*</span> coeff <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(lambda_j_alpha_half <span class="sc">*</span> t) <span class="sc">*</span> sum_term))</span>
-<span id="cb7-45"><a href="#cb7-45" tabindex="-1"></a>}</span>
-<span id="cb7-46"><a href="#cb7-46" tabindex="-1"></a>g_sin <span class="ot">&lt;-</span> <span class="cf">function</span>(r, A, omega) {</span>
-<span id="cb7-47"><a href="#cb7-47" tabindex="-1"></a>  <span class="fu">return</span>(A <span class="sc">*</span> <span class="fu">sin</span>(omega <span class="sc">*</span> r))</span>
-<span id="cb7-48"><a href="#cb7-48" tabindex="-1"></a>}</span>
-<span id="cb7-49"><a href="#cb7-49" tabindex="-1"></a>G_sin <span class="ot">&lt;-</span> <span class="cf">function</span>(t, A, lambda_j_alpha_half, omega) {</span>
-<span id="cb7-50"><a href="#cb7-50" tabindex="-1"></a>  denom <span class="ot">&lt;-</span> lambda_j_alpha_half<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> omega<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb7-51"><a href="#cb7-51" tabindex="-1"></a>  numerator <span class="ot">&lt;-</span> <span class="fu">exp</span>(lambda_j_alpha_half <span class="sc">*</span> t) <span class="sc">*</span> (lambda_j_alpha_half <span class="sc">*</span> <span class="fu">sin</span>(omega <span class="sc">*</span> t) <span class="sc">-</span> omega <span class="sc">*</span> <span class="fu">cos</span>(omega <span class="sc">*</span> t)) <span class="sc">+</span> omega</span>
-<span id="cb7-52"><a href="#cb7-52" tabindex="-1"></a>  <span class="fu">return</span>(A <span class="sc">*</span> numerator <span class="sc">/</span> denom)</span>
-<span id="cb7-53"><a href="#cb7-53" tabindex="-1"></a>}</span>
-<span id="cb7-54"><a href="#cb7-54" tabindex="-1"></a>g_cos <span class="ot">&lt;-</span> <span class="cf">function</span>(r, A, theta) {</span>
-<span id="cb7-55"><a href="#cb7-55" tabindex="-1"></a>  <span class="fu">return</span>(A <span class="sc">*</span> <span class="fu">cos</span>(theta <span class="sc">*</span> r)) </span>
-<span id="cb7-56"><a href="#cb7-56" tabindex="-1"></a>}</span>
-<span id="cb7-57"><a href="#cb7-57" tabindex="-1"></a>G_cos <span class="ot">&lt;-</span> <span class="cf">function</span>(t, A, lambda_j_alpha_half, theta) {</span>
-<span id="cb7-58"><a href="#cb7-58" tabindex="-1"></a>  denom <span class="ot">&lt;-</span> lambda_j_alpha_half<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> theta<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb7-59"><a href="#cb7-59" tabindex="-1"></a>  numerator <span class="ot">&lt;-</span> <span class="fu">exp</span>(lambda_j_alpha_half <span class="sc">*</span> t) <span class="sc">*</span> (lambda_j_alpha_half <span class="sc">*</span> <span class="fu">cos</span>(theta <span class="sc">*</span> t) <span class="sc">+</span> theta <span class="sc">*</span> <span class="fu">sin</span>(theta <span class="sc">*</span> t)) <span class="sc">-</span> lambda_j_alpha_half</span>
-<span id="cb7-60"><a href="#cb7-60" tabindex="-1"></a>  <span class="fu">return</span>(A <span class="sc">*</span> numerator <span class="sc">/</span> denom)</span>
-<span id="cb7-61"><a href="#cb7-61" tabindex="-1"></a>}</span>
-<span id="cb7-62"><a href="#cb7-62" tabindex="-1"></a>construct_piecewise_projection <span class="ot">&lt;-</span> <span class="cf">function</span>(projected_U_approx, time_seq, overkill_time_seq) {</span>
-<span id="cb7-63"><a href="#cb7-63" tabindex="-1"></a>  projected_U_piecewise <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="fu">nrow</span>(projected_U_approx), <span class="at">ncol =</span> <span class="fu">length</span>(overkill_time_seq))</span>
-<span id="cb7-64"><a href="#cb7-64" tabindex="-1"></a>  </span>
-<span id="cb7-65"><a href="#cb7-65" tabindex="-1"></a>  <span class="co"># Assign value at t = 0</span></span>
-<span id="cb7-66"><a href="#cb7-66" tabindex="-1"></a>  projected_U_piecewise[, <span class="fu">which</span>(overkill_time_seq <span class="sc">==</span> <span class="dv">0</span>)] <span class="ot">&lt;-</span> projected_U_approx[, <span class="dv">1</span>]</span>
-<span id="cb7-67"><a href="#cb7-67" tabindex="-1"></a>  </span>
-<span id="cb7-68"><a href="#cb7-68" tabindex="-1"></a>  <span class="co"># Assign values for intervals (t_{k-1}, t_k]</span></span>
-<span id="cb7-69"><a href="#cb7-69" tabindex="-1"></a>  <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span><span class="fu">length</span>(time_seq)) {</span>
-<span id="cb7-70"><a href="#cb7-70" tabindex="-1"></a>    idxs <span class="ot">&lt;-</span> <span class="fu">which</span>(overkill_time_seq <span class="sc">&gt;</span> time_seq[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">&amp;</span> overkill_time_seq <span class="sc">&lt;=</span> time_seq[k])</span>
-<span id="cb7-71"><a href="#cb7-71" tabindex="-1"></a>    projected_U_piecewise[, idxs] <span class="ot">&lt;-</span> projected_U_approx[, k]</span>
-<span id="cb7-72"><a href="#cb7-72" tabindex="-1"></a>  }</span>
-<span id="cb7-73"><a href="#cb7-73" tabindex="-1"></a>  </span>
-<span id="cb7-74"><a href="#cb7-74" tabindex="-1"></a>  <span class="fu">return</span>(projected_U_piecewise)</span>
-<span id="cb7-75"><a href="#cb7-75" tabindex="-1"></a>}</span>
-<span id="cb7-76"><a href="#cb7-76" tabindex="-1"></a>exp_line_equation <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, y1, rate) {</span>
-<span id="cb7-77"><a href="#cb7-77" tabindex="-1"></a>  lnC <span class="ot">&lt;-</span> <span class="fu">log</span>(y1) <span class="sc">-</span> rate <span class="sc">*</span> x1</span>
-<span id="cb7-78"><a href="#cb7-78" tabindex="-1"></a>  </span>
-<span id="cb7-79"><a href="#cb7-79" tabindex="-1"></a>  <span class="cf">function</span>(x) {</span>
-<span id="cb7-80"><a href="#cb7-80" tabindex="-1"></a>    <span class="fu">exp</span>(lnC <span class="sc">+</span> rate <span class="sc">*</span> x)</span>
-<span id="cb7-81"><a href="#cb7-81" tabindex="-1"></a>  }</span>
-<span id="cb7-82"><a href="#cb7-82" tabindex="-1"></a>}</span>
-<span id="cb7-83"><a href="#cb7-83" tabindex="-1"></a>compute_guiding_lines_exp <span class="ot">&lt;-</span> <span class="cf">function</span>(sqrt_m_vector, rate_vector, errors_projected) {</span>
-<span id="cb7-84"><a href="#cb7-84" tabindex="-1"></a>  guiding_lines <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="fu">length</span>(sqrt_m_vector), <span class="at">ncol =</span> <span class="fu">length</span>(rate_vector))</span>
-<span id="cb7-85"><a href="#cb7-85" tabindex="-1"></a>  </span>
-<span id="cb7-86"><a href="#cb7-86" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_along</span>(rate_vector)) {</span>
-<span id="cb7-87"><a href="#cb7-87" tabindex="-1"></a>    guiding_lines_aux <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="fu">length</span>(sqrt_m_vector), <span class="at">ncol =</span> <span class="fu">length</span>(sqrt_m_vector))</span>
-<span id="cb7-88"><a href="#cb7-88" tabindex="-1"></a>    </span>
-<span id="cb7-89"><a href="#cb7-89" tabindex="-1"></a>    <span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">seq_along</span>(sqrt_m_vector)) {</span>
-<span id="cb7-90"><a href="#cb7-90" tabindex="-1"></a>      x1 <span class="ot">&lt;-</span> sqrt_m_vector[k]</span>
-<span id="cb7-91"><a href="#cb7-91" tabindex="-1"></a>      y1 <span class="ot">&lt;-</span> errors_projected[k, j]</span>
-<span id="cb7-92"><a href="#cb7-92" tabindex="-1"></a>      rate <span class="ot">&lt;-</span> rate_vector[j]</span>
-<span id="cb7-93"><a href="#cb7-93" tabindex="-1"></a>      </span>
-<span id="cb7-94"><a href="#cb7-94" tabindex="-1"></a>      line <span class="ot">&lt;-</span> <span class="fu">exp_line_equation</span>(x1, y1, rate)</span>
-<span id="cb7-95"><a href="#cb7-95" tabindex="-1"></a>      guiding_lines_aux[, k] <span class="ot">&lt;-</span> <span class="fu">line</span>(sqrt_m_vector)</span>
-<span id="cb7-96"><a href="#cb7-96" tabindex="-1"></a>    }</span>
-<span id="cb7-97"><a href="#cb7-97" tabindex="-1"></a>    </span>
-<span id="cb7-98"><a href="#cb7-98" tabindex="-1"></a>    guiding_lines[, j] <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(guiding_lines_aux)</span>
-<span id="cb7-99"><a href="#cb7-99" tabindex="-1"></a>  }</span>
-<span id="cb7-100"><a href="#cb7-100" tabindex="-1"></a>  </span>
-<span id="cb7-101"><a href="#cb7-101" tabindex="-1"></a>  <span class="fu">return</span>(guiding_lines)</span>
-<span id="cb7-102"><a href="#cb7-102" tabindex="-1"></a>}</span></code></pre></div>
-<p>We want to solve the fractional diffusion equation <span
-class="math display">\[\begin{equation}
-\label{eq:maineq}
-    \partial_t u+(\kappa^2-\Delta_\Gamma)^{\alpha/2} u=f \text { on }
-\Gamma \times(0, T), \quad u(0)=u_0 \text { on } \Gamma,
-\end{equation}\]</span> where <span class="math inline">\(u\)</span>
-satisfies the Kirchhoff vertex conditions <span
-class="math display">\[\begin{equation}
-\label{eq:Kcond}
-    \left\{\phi\in C(\Gamma)\;\Big|\; \forall v\in V:
-\sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}
-\end{equation}\]</span> The solution is given by <span
-class="math display">\[\begin{equation}
-\label{eq:sol_reprentation}
-        u(s,t) =
-\displaystyle\sum_{j\in\mathbb{N}}e^{-\lambda^{\alpha/2}_jt}\left(u_0,
-e_j\right)_{L_2(\Gamma)}e_j(s) + \int_0^t
-\displaystyle\sum_{j\in\mathbb{N}}e^{-\lambda^{\alpha/2}_j(t-r)}\left(f(\cdot,
-r), e_j\right)_{L_2(\Gamma)}e_j(s)dr.
-\end{equation}\]</span></p>
-<p>If we choose <span class="math inline">\(w_j\)</span> and <span
-class="math inline">\(v_j\)</span> and take the initial condition and
-the right hand side funciton as</p>
-<p><span class="math display">\[\begin{equation}
-    u_0(s) = \sum_{j=0}^{N} w_j e_j(s) \text{ and so } \left(u_0,
-e_j\right)_{L_2(\Gamma)} = w_j,
-\end{equation}\]</span> <span class="math display">\[\begin{equation}
-   \text{In matrix notation: } \quad\boldsymbol{U}_0 =
-\boldsymbol{E}_h\boldsymbol{c}, \quad  \boldsymbol{E}_h = \left[e_0,
-e_1, \ldots, e_{N}\right], \quad \boldsymbol{w} = \left[w_0, w_1,
-\ldots, w_{N}\right]^\top,
-\end{equation}\]</span> <span class="math display">\[\begin{equation}
-   \text{In } \texttt{R}: \texttt{U_0 &lt;- EIGENFUN %*% coeff_U_0}
-\end{equation}\]</span> and <span
-class="math display">\[\begin{equation}
-    f(s,t) = \sum_{j=0}^{N} v_j e^{-\lambda^{\alpha/2}_jt} e_j(s) \text{
-and so } \left(f(\cdot,r), e_j\right)_{L_2(\Gamma)} = v_j
-e^{-\lambda^{\alpha/2}_jr},
-\end{equation}\]</span> <span class="math display">\[\begin{equation}
-   \text{In matrix notation: } \quad\boldsymbol{f} = \boldsymbol{E}_h
-\boldsymbol{V}, \quad \boldsymbol{V}_{ji} =
-v_je^{-\lambda^{\alpha/2}_jt_i}
-\end{equation}\]</span> <span class="math display">\[\begin{equation}
-   \text{In } \texttt{R}: \texttt{FF &lt;- EIGENFUN %*% (coeff_FF *
-exp(-outer(EIGENVAL_ALPHA, time_seq)))}
-\end{equation}\]</span> then the solution is given by <span
-class="math display">\[\begin{align}
-        u(s,t) &amp;=
-\displaystyle\sum_{j=0}^{N}w_je^{-\lambda^{\alpha/2}_jt}e_j(s) +
-\int_0^t \displaystyle\sum_{j=0}^Ne^{-\lambda^{\alpha/2}_j(t-r)}v_j
-e^{-\lambda^{\alpha/2}_jr}e_j(s)dr\\
-        &amp;=
-\displaystyle\sum_{j=0}^{N}w_je^{-\lambda^{\alpha/2}_jt}e_j(s) + t
-\displaystyle\sum_{j=0}^Nv_j e^{-\lambda^{\alpha/2}_jt}e_j(s)\\
-        &amp;=
-\displaystyle\sum_{j=0}^{N}w_je^{-\lambda^{\alpha/2}_jt}e_j(s) +
-tf(s,t)\\
-        &amp;=
-\displaystyle\sum_{j=0}^{N}(w_j+tv_j)e^{-\lambda^{\alpha/2}_jt}e_j(s)
-\end{align}\]</span></p>
-<p><span class="math display">\[\begin{equation}
-   \text{In matrix notation: } \quad\boldsymbol{U} =\boldsymbol{E}_h
-\boldsymbol{W} + (\boldsymbol{t}\boldsymbol{f}^\top)^\top, \quad
-\boldsymbol{W}_{ji} = w_je^{-\lambda^{\alpha/2}_jt_i},\quad
-\boldsymbol{t} = \left[t_0, t_1, \ldots, t_{K}\right]^\top
-\end{equation}\]</span> <span class="math display">\[\begin{equation}
-   \text{In } \texttt{R}: \texttt{U_true &lt;- EIGENFUN %*% (coeff_U_0 *
-exp(-outer(EIGENVAL_ALPHA, time_seq)))+ t(time_seq * t(FF))}
-\end{equation}\]</span></p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Parameters</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>T_final <span class="ot">&lt;-</span> <span class="dv">2</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="dv">15</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>N_finite <span class="ot">=</span> <span class="dv">4</span> <span class="co"># choose even</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>adjusted_N_finite <span class="ot">&lt;-</span> N_finite <span class="sc">+</span> N_finite<span class="sc">/</span><span class="dv">2</span> <span class="sc">+</span> <span class="dv">1</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co"># Coefficients for u_0 and f</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>coeff_U_0 <span class="ot">&lt;-</span> <span class="dv">50</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">:</span>adjusted_N_finite)<span class="sc">^-</span><span class="dv">1</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>coeff_U_0[<span class="sc">-</span><span class="dv">5</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>coeff_FF <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, adjusted_N_finite)</span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>coeff_FF[<span class="dv">7</span>] <span class="ot">&lt;-</span> <span class="dv">10</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>AAA <span class="ot">=</span> <span class="dv">1</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>MU <span class="ot">=</span> <span class="fl">0.3</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>NNN <span class="ot">=</span> <span class="dv">2</span></span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>OMEGA <span class="ot">=</span> pi</span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>THETA <span class="ot">=</span> pi</span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a></span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co"># Time step and mesh size</span></span>
-<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>m_vector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>)</span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>    </span>
-<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co"># Overkill parameters</span></span>
-<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>overkill_time_step <span class="ot">&lt;-</span> <span class="fl">0.1</span> <span class="sc">*</span> <span class="dv">2</span><span class="sc">^-</span><span class="dv">14</span></span>
-<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>overkill_h <span class="ot">&lt;-</span> (<span class="fl">0.1</span> <span class="sc">*</span> <span class="dv">2</span><span class="sc">^-</span><span class="dv">14</span>)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a></span>
-<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co"># Finest time and space mesh</span></span>
-<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>overkill_time_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, T_final, <span class="at">length.out =</span> ((T_final <span class="sc">-</span> <span class="dv">0</span>) <span class="sc">/</span> overkill_time_step <span class="sc">+</span> <span class="dv">1</span>))</span>
-<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a>overkill_graph <span class="ot">&lt;-</span> <span class="fu">gets.graph.tadpole</span>(<span class="at">h =</span> overkill_h)</span>
-<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a></span>
-<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a><span class="co"># Compute the weights on the finest mesh</span></span>
-<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a>overkill_graph<span class="sc">$</span><span class="fu">compute_fem</span>() <span class="co"># This is needed to compute the weights</span></span>
-<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a>overkill_weights <span class="ot">&lt;-</span> overkill_graph<span class="sc">$</span>mesh<span class="sc">$</span>weights</span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">capture.output</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">purl</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.Rmd&quot;</span>), <span class="at">output =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.R&quot;</span>)),</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">file =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;purl_log.txt&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.R&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Parameters</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>T_final <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="dv">15</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>N_finite <span class="ot">=</span> <span class="dv">4</span> <span class="co"># choose even</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>adjusted_N_finite <span class="ot">&lt;-</span> N_finite <span class="sc">+</span> N_finite<span class="sc">/</span><span class="dv">2</span> <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co"># Coefficients for u_0 and f</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>coeff_U_0 <span class="ot">&lt;-</span> <span class="dv">50</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">:</span>adjusted_N_finite)<span class="sc">^-</span><span class="dv">1</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>coeff_U_0[<span class="sc">-</span><span class="dv">5</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>coeff_FF <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, adjusted_N_finite)</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>coeff_FF[<span class="dv">7</span>] <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>AAA <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>MU <span class="ot">=</span> <span class="fl">0.3</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>NNN <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>OMEGA <span class="ot">=</span> pi</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>THETA <span class="ot">=</span> pi</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co"># Time step and mesh size</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>m_vector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>    </span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co"># Overkill parameters</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>overkill_time_step <span class="ot">&lt;-</span> <span class="fl">0.1</span> <span class="sc">*</span> <span class="dv">2</span><span class="sc">^-</span><span class="dv">14</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>overkill_h <span class="ot">&lt;-</span> (<span class="fl">0.1</span> <span class="sc">*</span> <span class="dv">2</span><span class="sc">^-</span><span class="dv">14</span>)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co"># Finest time and space mesh</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>overkill_time_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, T_final, <span class="at">length.out =</span> ((T_final <span class="sc">-</span> <span class="dv">0</span>) <span class="sc">/</span> overkill_time_step <span class="sc">+</span> <span class="dv">1</span>))</span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>overkill_graph <span class="ot">&lt;-</span> <span class="fu">gets.graph.tadpole</span>(<span class="at">h =</span> overkill_h)</span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co"># Compute the weights on the finest mesh</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a>overkill_graph<span class="sc">$</span><span class="fu">compute_fem</span>() <span class="co"># This is needed to compute the weights</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a>overkill_weights <span class="ot">&lt;-</span> overkill_graph<span class="sc">$</span>mesh<span class="sc">$</span>weights</span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a>alpha_vector <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">1</span>, <span class="fl">1.8</span>, <span class="at">by =</span> <span class="fl">0.2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Create a matrix to store the errors</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>errors_projected <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="fu">length</span>(m_vector), <span class="at">ncol =</span> <span class="fu">length</span>(alpha_vector))</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(alpha_vector)) {</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> alpha_vector[j] <span class="co"># from 0.5 to 2</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> alpha <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="co"># Compute the eigenvalues and eigenfunctions on the finest mesh</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  overkill_eigen_params <span class="ot">&lt;-</span> <span class="fu">gets.eigen.params</span>(<span class="at">N_finite =</span> N_finite, <span class="at">kappa =</span> kappa, <span class="at">alpha =</span> alpha, <span class="at">graph =</span> overkill_graph)</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  EIGENVAL_ALPHA <span class="ot">&lt;-</span> overkill_eigen_params<span class="sc">$</span>EIGENVAL_ALPHA <span class="co"># Eigenvalues (they are independent of the meshes)</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  overkill_EIGENFUN <span class="ot">&lt;-</span> overkill_eigen_params<span class="sc">$</span>EIGENFUN <span class="co"># Eigenfunctions on the finest mesh</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>  </span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  <span class="co"># Compute the true solution on the finest mesh</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  overkill_U_true <span class="ot">&lt;-</span> overkill_EIGENFUN <span class="sc">%*%</span> </span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>    <span class="fu">outer</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(coeff_U_0), </span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>          <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(overkill_time_seq), </span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>          <span class="cf">function</span>(i, j) (coeff_U_0[i] <span class="sc">+</span> coeff_FF[i] <span class="sc">*</span> <span class="fu">G_sin</span>(<span class="at">t =</span> overkill_time_seq[j], <span class="at">A =</span> AAA, <span class="at">lambda_j_alpha_half =</span> EIGENVAL_ALPHA[i], <span class="at">omega =</span> OMEGA)) <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>EIGENVAL_ALPHA[i] <span class="sc">*</span> overkill_time_seq[j]))</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>  </span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(m_vector)) {</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>    m <span class="ot">&lt;-</span> m_vector[i]</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>    h <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span> (<span class="dv">4</span> <span class="sc">*</span> pi <span class="sc">/</span> <span class="dv">5</span>) <span class="sc">*</span> <span class="fu">sqrt</span>((<span class="dv">1</span> <span class="sc">-</span> alpha <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">*</span> m))<span class="sc">/</span><span class="dv">10</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>    time_step <span class="ot">&lt;-</span> (h<span class="sc">^</span>alpha)<span class="sc">/</span><span class="dv">10</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>    graph <span class="ot">&lt;-</span> <span class="fu">gets.graph.tadpole</span>(<span class="at">h =</span> h)</span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>    graph<span class="sc">$</span><span class="fu">compute_fem</span>()</span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>    G <span class="ot">&lt;-</span> graph<span class="sc">$</span>mesh<span class="sc">$</span>G</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>    C <span class="ot">&lt;-</span> graph<span class="sc">$</span>mesh<span class="sc">$</span>C</span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>    L <span class="ot">&lt;-</span> kappa<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>C <span class="sc">+</span> G</span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>    eigen_params <span class="ot">&lt;-</span> <span class="fu">gets.eigen.params</span>(<span class="at">N_finite =</span> N_finite, <span class="at">kappa =</span> kappa, <span class="at">alpha =</span> alpha, <span class="at">graph =</span> graph)</span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>    EIGENFUN <span class="ot">&lt;-</span> eigen_params<span class="sc">$</span>EIGENFUN</span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a>    U_0 <span class="ot">&lt;-</span> EIGENFUN <span class="sc">%*%</span> coeff_U_0 <span class="co"># Compute U_0 on the current mesh</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a>    A <span class="ot">&lt;-</span> graph<span class="sc">$</span><span class="fu">fem_basis</span>(overkill_graph<span class="sc">$</span><span class="fu">get_mesh_locations</span>())</span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a>  </span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a>    time_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, T_final, <span class="at">length.out =</span> ((T_final <span class="sc">-</span> <span class="dv">0</span>) <span class="sc">/</span> time_step <span class="sc">+</span> <span class="dv">1</span>))</span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a>    my_op_frac <span class="ot">&lt;-</span> <span class="fu">my.fractional.operators.frac</span>(L, beta, C, <span class="at">scale.factor =</span> kappa<span class="sc">^</span><span class="dv">2</span>, <span class="at">m =</span> m, time_step)</span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a>    INT_BASIS_EIGEN <span class="ot">&lt;-</span> <span class="fu">t</span>(overkill_EIGENFUN) <span class="sc">%*%</span> overkill_graph<span class="sc">$</span>mesh<span class="sc">$</span>C <span class="sc">%*%</span> A</span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a>    <span class="co"># Compute matrix F with columns F^k</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a>    FF_approx <span class="ot">&lt;-</span> <span class="fu">t</span>(INT_BASIS_EIGEN) <span class="sc">%*%</span> </span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a>      <span class="fu">outer</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(coeff_FF), </span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a>            <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(time_seq), </span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a>        <span class="cf">function</span>(i, j) coeff_FF[i] <span class="sc">*</span> <span class="fu">g_sin</span>(<span class="at">r =</span> time_seq[j], <span class="at">A =</span> AAA, <span class="at">omega =</span> OMEGA))</span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a>    </span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a>    U_approx <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="fu">nrow</span>(C), <span class="at">ncol =</span> <span class="fu">length</span>(time_seq))</span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a>    U_approx[, <span class="dv">1</span>] <span class="ot">&lt;-</span> U_0</span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a>    <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(<span class="fu">length</span>(time_seq) <span class="sc">-</span> <span class="dv">1</span>)) {</span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a>      U_approx[, k <span class="sc">+</span> <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">my.solver.frac</span>(my_op_frac, my_op_frac<span class="sc">$</span>C <span class="sc">%*%</span> U_approx[, k] <span class="sc">+</span> time_step <span class="sc">*</span> FF_approx[, k <span class="sc">+</span> <span class="dv">1</span>]))</span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a>    }</span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a>    </span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a>    projected_U_approx <span class="ot">&lt;-</span> A <span class="sc">%*%</span> U_approx</span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a>    projected_U_piecewise <span class="ot">&lt;-</span> <span class="fu">construct_piecewise_projection</span>(projected_U_approx, time_seq, overkill_time_seq)</span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a>    errors_projected[i,j] <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.double</span>(<span class="fu">t</span>(overkill_weights) <span class="sc">%*%</span> (overkill_U_true <span class="sc">-</span> projected_U_piecewise)<span class="sc">^</span><span class="dv">2</span> <span class="sc">%*%</span> <span class="fu">rep</span>(overkill_time_step, <span class="fu">length</span>(overkill_time_seq))))</span>
+<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a>  }</span>
+<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a>}</span>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="fu">save</span>(errors_projected, <span class="at">file =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/errors_projected_m.RData&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">load</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/errors_projected_m.RData&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>observed_rates <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(alpha_vector))</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="cf">for</span> (u <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(alpha_vector)) {</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  observed_rates[u] <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">lm</span>(<span class="fu">log</span>(errors_projected[, u]) <span class="sc">~</span> <span class="fu">sqrt</span>(m_vector)))[<span class="dv">2</span>]</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>}</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>theoretical_rates <span class="ot">&lt;-</span> <span class="sc">-</span> (<span class="dv">4</span> <span class="sc">*</span> pi <span class="sc">*</span> alpha_vector <span class="sc">/</span> <span class="dv">5</span>) <span class="sc">*</span> <span class="fu">sqrt</span>((<span class="dv">1</span> <span class="sc">-</span> alpha_vector <span class="sc">/</span> <span class="dv">2</span>))</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>guiding_lines <span class="ot">&lt;-</span> <span class="fu">compute_guiding_lines</span>(<span class="at">x_axis_vector =</span> <span class="fu">sqrt</span>(m_vector), </span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>                                       <span class="at">errors =</span> errors_projected, </span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>                                       <span class="at">theoretical_rates =</span> theoretical_rates, </span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>                                       <span class="at">line_equation_fun =</span> exp_line_equation)</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>default_colors <span class="ot">&lt;-</span> scales<span class="sc">::</span><span class="fu">hue_pal</span>()(<span class="fu">length</span>(alpha_vector))</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>plot_lines <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(guiding_lines), <span class="cf">function</span>(i) {</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>  <span class="fu">geom_line</span>(</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>    <span class="at">data =</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">sqrt</span>(m_vector), <span class="at">y =</span> guiding_lines[, i]),</span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y),</span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>    <span class="at">color =</span> default_colors[i],</span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>,</span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>    <span class="at">show.legend =</span> <span class="cn">FALSE</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>  )</span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>})</span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(<span class="fu">sqrt</span>(m_vector), errors_projected))</span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;m_vector&quot;</span>, alpha_vector)</span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>df_melted <span class="ot">&lt;-</span> <span class="fu">melt</span>(df, <span class="at">id.vars =</span> <span class="st">&quot;m_vector&quot;</span>, <span class="at">variable.name =</span> <span class="st">&quot;column&quot;</span>, <span class="at">value.name =</span> <span class="st">&quot;value&quot;</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>alpha_formatted <span class="ot">&lt;-</span> <span class="fu">formatC</span>(alpha_vector, <span class="at">format =</span> <span class="st">&quot;f&quot;</span>, <span class="at">digits =</span> <span class="dv">2</span>)</span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a>custom_labels <span class="ot">&lt;-</span> <span class="fu">paste0</span>(alpha_formatted, </span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>                        <span class="st">&quot; | &quot;</span>, </span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>                        <span class="fu">formatC</span>(theoretical_rates, <span class="at">format =</span> <span class="st">&quot;f&quot;</span>, <span class="at">digits =</span> <span class="dv">4</span>), </span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a>                        <span class="st">&quot; | &quot;</span>, </span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a>                        <span class="fu">formatC</span>(observed_rates, <span class="at">format =</span> <span class="st">&quot;f&quot;</span>, <span class="at">digits =</span> <span class="dv">4</span>))</span>
 <span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a></span>
-<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a>alpha_vector <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">1</span>, <span class="fl">1.8</span>, <span class="at">by =</span> <span class="fl">0.2</span>)<span class="co">#c(0.5, 1, 1.5, 2)</span></span></code></pre></div>
-<pre><code>{r}
-# Create a matrix to store the errors
-errors_projected &lt;- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
-for (j in 1:length(alpha_vector)) {
-  alpha &lt;- alpha_vector[j] # from 0.5 to 2
-  beta &lt;- alpha / 2
-
-  # Compute the eigenvalues and eigenfunctions on the finest mesh
-  overkill_eigen_params &lt;- gets.eigen.params(N_finite = N_finite, kappa = kappa, alpha = alpha, graph = overkill_graph)
-  EIGENVAL_ALPHA &lt;- overkill_eigen_params$EIGENVAL_ALPHA # Eigenvalues (they are independent of the meshes)
-  overkill_EIGENFUN &lt;- overkill_eigen_params$EIGENFUN # Eigenfunctions on the finest mesh
-  
-  # Compute the true solution on the finest mesh
-  overkill_U_true &lt;- overkill_EIGENFUN %*% 
-    outer(1:length(coeff_U_0), 
-          1:length(overkill_time_seq), 
-          function(i, j) (coeff_U_0[i] + coeff_FF[i] * G_sin(t = overkill_time_seq[j], A = AAA, lambda_j_alpha_half = EIGENVAL_ALPHA[i], omega = OMEGA)) * exp(-EIGENVAL_ALPHA[i] * overkill_time_seq[j]))
-  
-  for (i in 1:length(m_vector)) {
-    m &lt;- m_vector[i]
-    h &lt;- exp(- (4 * pi / 5) * sqrt((1 - alpha / 2) * m))/10
-    time_step &lt;- (h^alpha)/10
-    graph &lt;- gets.graph.tadpole(h = h)
-    graph$compute_fem()
-    G &lt;- graph$mesh$G
-    C &lt;- graph$mesh$C
-    L &lt;- kappa^2*C + G
-    eigen_params &lt;- gets.eigen.params(N_finite = N_finite, kappa = kappa, alpha = alpha, graph = graph)
-    EIGENFUN &lt;- eigen_params$EIGENFUN
-    U_0 &lt;- EIGENFUN %*% coeff_U_0 # Compute U_0 on the current mesh
-    A &lt;- graph$fem_basis(overkill_graph$get_mesh_locations())
-  
-    time_seq &lt;- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
-    my_op_frac &lt;- my.fractional.operators.frac(L, beta, C, scale.factor = kappa^2, m = m, time_step)
-    INT_BASIS_EIGEN &lt;- t(overkill_EIGENFUN) %*% overkill_graph$mesh$C %*% A
-    # Compute matrix F with columns F^k
-    FF_approx &lt;- t(INT_BASIS_EIGEN) %*% 
-      outer(1:length(coeff_FF), 
-            1:length(time_seq), 
-        function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))
-    
-    U_approx &lt;- matrix(NA, nrow = nrow(C), ncol = length(time_seq))
-    U_approx[, 1] &lt;- U_0
-    for (k in 1:(length(time_seq) - 1)) {
-      U_approx[, k + 1] &lt;- as.matrix(my.solver.frac(my_op_frac, my_op_frac$C %*% U_approx[, k] + time_step * FF_approx[, k + 1]))
-    }
-    
-    projected_U_approx &lt;- A %*% U_approx
-    projected_U_piecewise &lt;- construct_piecewise_projection(projected_U_approx, time_seq, overkill_time_seq)
-    errors_projected[i,j] &lt;- sqrt(as.double(t(overkill_weights) %*% (overkill_U_true - projected_U_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
-  }
-}
-save(errors_projected, file = here::here(&quot;data_files/errors_projected_m.RData&quot;))</code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">load</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/errors_projected_m.RData&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>observed_rates <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(alpha_vector))</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="cf">for</span> (u <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(alpha_vector)) {</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  observed_rates[u] <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">lm</span>(<span class="fu">log</span>(errors_projected[, u]) <span class="sc">~</span> <span class="fu">sqrt</span>(m_vector)))[<span class="dv">2</span>]</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>}</span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>theoretical_rates <span class="ot">&lt;-</span> <span class="sc">-</span> (<span class="dv">4</span> <span class="sc">*</span> pi <span class="sc">*</span> alpha_vector <span class="sc">/</span> <span class="dv">5</span>) <span class="sc">*</span> <span class="fu">sqrt</span>((<span class="dv">1</span> <span class="sc">-</span> alpha_vector <span class="sc">/</span> <span class="dv">2</span>))</span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>guiding_lines <span class="ot">&lt;-</span> <span class="fu">compute_guiding_lines_exp</span>(<span class="fu">sqrt</span>(m_vector), theoretical_rates, errors_projected)</span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>default_colors <span class="ot">&lt;-</span> scales<span class="sc">::</span><span class="fu">hue_pal</span>()(<span class="fu">length</span>(alpha_vector))</span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>plot_lines <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(guiding_lines), <span class="cf">function</span>(i) {</span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  <span class="fu">geom_line</span>(</span>
-<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>    <span class="at">data =</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">sqrt</span>(m_vector), <span class="at">y =</span> guiding_lines[, i]),</span>
-<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y),</span>
-<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>    <span class="at">color =</span> default_colors[i],</span>
-<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>,</span>
-<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>    <span class="at">show.legend =</span> <span class="cn">FALSE</span></span>
-<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>  )</span>
-<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>})</span>
-<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a></span>
-<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(<span class="fu">sqrt</span>(m_vector), errors_projected))</span>
-<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a><span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;m_vector&quot;</span>, alpha_vector)</span>
-<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a>df_melted <span class="ot">&lt;-</span> <span class="fu">melt</span>(df, <span class="at">id.vars =</span> <span class="st">&quot;m_vector&quot;</span>, <span class="at">variable.name =</span> <span class="st">&quot;column&quot;</span>, <span class="at">value.name =</span> <span class="st">&quot;value&quot;</span>)</span>
-<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a>alpha_formatted <span class="ot">&lt;-</span> <span class="fu">formatC</span>(alpha_vector, <span class="at">format =</span> <span class="st">&quot;f&quot;</span>, <span class="at">digits =</span> <span class="dv">2</span>)</span>
-<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a>custom_labels <span class="ot">&lt;-</span> <span class="fu">paste0</span>(alpha_formatted, </span>
-<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a>                        <span class="st">&quot; | &quot;</span>, </span>
-<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a>                        <span class="fu">formatC</span>(theoretical_rates, <span class="at">format =</span> <span class="st">&quot;f&quot;</span>, <span class="at">digits =</span> <span class="dv">4</span>), </span>
-<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a>                        <span class="st">&quot; | &quot;</span>, </span>
-<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a>                        <span class="fu">formatC</span>(observed_rates, <span class="at">format =</span> <span class="st">&quot;f&quot;</span>, <span class="at">digits =</span> <span class="dv">4</span>))</span>
-<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a></span>
-<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a>df_melted<span class="sc">$</span>column <span class="ot">&lt;-</span> <span class="fu">factor</span>(df_melted<span class="sc">$</span>column, <span class="at">levels =</span> alpha_vector, <span class="at">labels =</span> custom_labels)</span>
-<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a></span>
-<span id="cb11-32"><a href="#cb11-32" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb11-33"><a href="#cb11-33" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> df_melted, <span class="fu">aes</span>(<span class="at">x =</span> m_vector, <span class="at">y =</span> value, <span class="at">color =</span> column)) <span class="sc">+</span></span>
-<span id="cb11-34"><a href="#cb11-34" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> df_melted, <span class="fu">aes</span>(<span class="at">x =</span> m_vector, <span class="at">y =</span> value, <span class="at">color =</span> column)) <span class="sc">+</span></span>
-<span id="cb11-35"><a href="#cb11-35" tabindex="-1"></a>  plot_lines <span class="sc">+</span></span>
-<span id="cb11-36"><a href="#cb11-36" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb11-37"><a href="#cb11-37" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">expression</span>(<span class="st">&quot;Convergence in &quot;</span> <span class="sc">*</span> <span class="fu">italic</span>(m)),</span>
-<span id="cb11-38"><a href="#cb11-38" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(m)<span class="sc">~</span>(sqrt<span class="sc">~</span>scale)),</span>
-<span id="cb11-39"><a href="#cb11-39" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">expression</span>(Error<span class="sc">~</span>(log[e]<span class="sc">~</span>scale)),</span>
-<span id="cb11-40"><a href="#cb11-40" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">&quot;          α  | theo  | obs&quot;</span></span>
-<span id="cb11-41"><a href="#cb11-41" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb11-42"><a href="#cb11-42" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">sqrt</span>(m_vector), <span class="at">labels =</span> <span class="fu">round</span>(m_vector, <span class="dv">4</span>)) <span class="sc">+</span></span>
-<span id="cb11-43"><a href="#cb11-43" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
-<span id="cb11-44"><a href="#cb11-44" tabindex="-1"></a>  <span class="at">trans =</span> <span class="st">&quot;log&quot;</span>,</span>
-<span id="cb11-45"><a href="#cb11-45" tabindex="-1"></a>  <span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">formatC</span>(x, <span class="at">format =</span> <span class="st">&quot;f&quot;</span>, <span class="at">digits =</span> <span class="dv">4</span>)) <span class="sc">+</span></span>
-<span id="cb11-46"><a href="#cb11-46" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb11-47"><a href="#cb11-47" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>),</span>
-<span id="cb11-48"><a href="#cb11-48" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
-<span id="cb11-49"><a href="#cb11-49" tabindex="-1"></a>        <span class="at">legend.direction =</span> <span class="st">&quot;vertical&quot;</span>,</span>
-<span id="cb11-50"><a href="#cb11-50" tabindex="-1"></a>        <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
-<span id="cb11-51"><a href="#cb11-51" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">18</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>))</span>
-<span id="cb11-52"><a href="#cb11-52" tabindex="-1"></a>p</span></code></pre></div>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a>df_melted<span class="sc">$</span>column <span class="ot">&lt;-</span> <span class="fu">factor</span>(df_melted<span class="sc">$</span>column, <span class="at">levels =</span> alpha_vector, <span class="at">labels =</span> custom_labels)</span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a></span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> df_melted, <span class="fu">aes</span>(<span class="at">x =</span> m_vector, <span class="at">y =</span> value, <span class="at">color =</span> column)) <span class="sc">+</span></span>
+<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> df_melted, <span class="fu">aes</span>(<span class="at">x =</span> m_vector, <span class="at">y =</span> value, <span class="at">color =</span> column)) <span class="sc">+</span></span>
+<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a>  plot_lines <span class="sc">+</span></span>
+<span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-40"><a href="#cb8-40" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">expression</span>(<span class="st">&quot;Convergence in &quot;</span> <span class="sc">*</span> <span class="fu">italic</span>(m)),</span>
+<span id="cb8-41"><a href="#cb8-41" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(m)),</span>
+<span id="cb8-42"><a href="#cb8-42" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">expression</span>(Error),</span>
+<span id="cb8-43"><a href="#cb8-43" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">&quot;          α  | theo  | obs&quot;</span></span>
+<span id="cb8-44"><a href="#cb8-44" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-45"><a href="#cb8-45" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">sqrt</span>(m_vector), <span class="at">labels =</span> <span class="fu">round</span>(m_vector, <span class="dv">4</span>)) <span class="sc">+</span></span>
+<span id="cb8-46"><a href="#cb8-46" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb8-47"><a href="#cb8-47" tabindex="-1"></a>  <span class="at">trans =</span> <span class="st">&quot;log&quot;</span>,</span>
+<span id="cb8-48"><a href="#cb8-48" tabindex="-1"></a>  <span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">formatC</span>(x, <span class="at">format =</span> <span class="st">&quot;f&quot;</span>, <span class="at">digits =</span> <span class="dv">4</span>)) <span class="sc">+</span></span>
+<span id="cb8-49"><a href="#cb8-49" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb8-50"><a href="#cb8-50" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>),</span>
+<span id="cb8-51"><a href="#cb8-51" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
+<span id="cb8-52"><a href="#cb8-52" tabindex="-1"></a>        <span class="at">legend.direction =</span> <span class="st">&quot;vertical&quot;</span>,</span>
+<span id="cb8-53"><a href="#cb8-53" tabindex="-1"></a>        <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb8-54"><a href="#cb8-54" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">18</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>))</span>
+<span id="cb8-55"><a href="#cb8-55" tabindex="-1"></a>p</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="conv_in_m_files/figure-html/unnamed-chunk-7-1.png" alt="Figure 1: Caption" width="384" />
 <p class="caption">
 Figure 1: Caption
 </p>
 </div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">ggsave</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/conv_rates_m.png&quot;</span>), <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> <span class="dv">5</span>, <span class="at">plot =</span> p, <span class="at">dpi =</span> <span class="dv">300</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">ggsave</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/conv_rates_m.png&quot;</span>), <span class="at">width =</span> <span class="dv">4</span>, <span class="at">height =</span> <span class="dv">5</span>, <span class="at">plot =</span> p, <span class="at">dpi =</span> <span class="dv">300</span>)</span></code></pre></div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
+<p>We used R version 4.5.0 <span class="citation">(R Core Team
+2025)</span> and the following R packages: gsignal v. 0.3.7 <span
+class="citation">(Van Boxtel, G.J.M., et al. 2021)</span>, here v. 1.0.1
+<span class="citation">(Müller 2020)</span>, htmltools v. 0.5.8.1 <span
+class="citation">(Cheng et al. 2024)</span>, knitr v. 1.50 <span
+class="citation">(Xie 2014, 2015, 2025)</span>, Matrix v. 1.7.3 <span
+class="citation">(Bates, Maechler, and Jagan 2025)</span>, MetricGraph
+v. 1.5.0.9000 <span class="citation">(Bolin, Simas, and Wallin 2023a,
+2023b, 2024, 2025; Bolin et al. 2024)</span>, plotly v. 4.10.4 <span
+class="citation">(Sievert 2020)</span>, RColorBrewer v. 1.1.3 <span
+class="citation">(Neuwirth 2022)</span>, renv v. 1.0.7 <span
+class="citation">(Ushey and Wickham 2024)</span>, reshape2 v. 1.4.4
+<span class="citation">(Wickham 2007)</span>, rmarkdown v. 2.29 <span
+class="citation">(Xie, Allaire, and Grolemund 2018; Xie, Dervieux, and
+Riederer 2020; Allaire et al. 2024)</span>, rSPDE v. 2.5.1.9000 <span
+class="citation">(Bolin and Kirchner 2020; Bolin and Simas 2023; Bolin,
+Simas, and Xiong 2024)</span>, scales v. 1.4.0 <span
+class="citation">(Wickham, Pedersen, and Seidel 2025)</span>, tidyverse
+v. 2.0.0 <span class="citation">(Wickham et al. 2019)</span>,
+xaringanExtra v. 0.8.0 <span class="citation">(Aden-Buie and Warkentin
+2024)</span>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
+<div id="ref-xaringanExtra" class="csl-entry">
+Aden-Buie, Garrick, and Matthew T. Warkentin. 2024. <em><span
+class="nocase">xaringanExtra</span>: Extras and Extensions for
+<span>“<span class="nocase">xaringan</span>”</span> Slides</em>. <a
+href="https://doi.org/10.32614/CRAN.package.xaringanExtra">https://doi.org/10.32614/CRAN.package.xaringanExtra</a>.
+</div>
+<div id="ref-rmarkdown2024" class="csl-entry">
+Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier
+Luraschi, Kevin Ushey, Aron Atkins, et al. 2024. <em><span
+class="nocase">rmarkdown</span>: Dynamic Documents for r</em>. <a
+href="https://github.com/rstudio/rmarkdown">https://github.com/rstudio/rmarkdown</a>.
+</div>
+<div id="ref-Matrix" class="csl-entry">
+Bates, Douglas, Martin Maechler, and Mikael Jagan. 2025.
+<em><span>Matrix</span>: Sparse and Dense Matrix Classes and
+Methods</em>. <a
+href="https://doi.org/10.32614/CRAN.package.Matrix">https://doi.org/10.32614/CRAN.package.Matrix</a>.
+</div>
+<div id="ref-rSPDE2020" class="csl-entry">
+Bolin, David, and Kristin Kirchner. 2020. <span>“The Rational
+<span>SPDE</span> Approach for <span>Gaussian</span> Random Fields with
+General Smoothness.”</span> <em>Journal of Computational and Graphical
+Statistics</em> 29 (2): 274–85. <a
+href="https://doi.org/10.1080/10618600.2019.1665537">https://doi.org/10.1080/10618600.2019.1665537</a>.
+</div>
+<div id="ref-MetricGraph2024c" class="csl-entry">
+Bolin, David, Mihály Kovács, Vivek Kumar, and Alexandre B. Simas. 2024.
+<span>“Regularity and Numerical Approximation of Fractional Elliptic
+Differential Equations on Compact Metric Graphs.”</span> <em>Mathematics
+of Computation</em> 93 (349): 2439–72. <a
+href="https://doi.org/10.1090/mcom/3929">https://doi.org/10.1090/mcom/3929</a>.
+</div>
+<div id="ref-rSPDE2023" class="csl-entry">
+Bolin, David, and Alexandre B. Simas. 2023. <em><span
+class="nocase">rSPDE</span>: Rational Approximations of Fractional
+Stochastic Partial Differential Equations</em>. <a
+href="https://CRAN.R-project.org/package=rSPDE">https://CRAN.R-project.org/package=rSPDE</a>.
+</div>
+<div id="ref-MetricGraph2023a" class="csl-entry">
+Bolin, David, Alexandre B. Simas, and Jonas Wallin. 2023a.
+<em><span>MetricGraph</span>: Random Fields on Metric Graphs</em>. <a
+href="https://CRAN.R-project.org/package=MetricGraph">https://CRAN.R-project.org/package=MetricGraph</a>.
+</div>
+<div id="ref-MetricGraph2023e" class="csl-entry">
+———. 2023b. <span>“Statistical Inference for Gaussian Whittle-Matérn
+Fields on Metric Graphs.”</span> <em>arXiv Preprint
+arXiv:2304.10372</em>. <a
+href="https://doi.org/10.48550/arXiv.2304.10372">https://doi.org/10.48550/arXiv.2304.10372</a>.
+</div>
+<div id="ref-MetricGraph2024b" class="csl-entry">
+———. 2024. <span>“Gaussian Whittle-Matérn Fields on Metric
+Graphs.”</span> <em>Bernoulli</em> 30 (2): 1611–39. <a
+href="https://doi.org/10.3150/23-BEJ1647">https://doi.org/10.3150/23-BEJ1647</a>.
+</div>
+<div id="ref-MetricGraph2025d" class="csl-entry">
+———. 2025. <span>“Markov Properties of Gaussian Random Fields on Compact
+Metric Graphs.”</span> <em>Bernoulli</em>. <a
+href="https://doi.org/10.48550/arXiv.2304.03190">https://doi.org/10.48550/arXiv.2304.03190</a>.
+</div>
+<div id="ref-rSPDE2024" class="csl-entry">
+Bolin, David, Alexandre B. Simas, and Zhen Xiong. 2024.
+<span>“Covariance-Based Rational Approximations of Fractional SPDEs for
+Computationally Efficient Bayesian Inference.”</span> <em>Journal of
+Computational and Graphical Statistics</em> 33 (1): 64–74. <a
+href="https://doi.org/10.1080/10618600.2023.2231051">https://doi.org/10.1080/10618600.2023.2231051</a>.
+</div>
+<div id="ref-htmltools" class="csl-entry">
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
+and Jeff Allen. 2024. <em><span class="nocase">htmltools</span>: Tools
+for HTML</em>. <a
+href="https://doi.org/10.32614/CRAN.package.htmltools">https://doi.org/10.32614/CRAN.package.htmltools</a>.
+</div>
+<div id="ref-here" class="csl-entry">
+Müller, Kirill. 2020. <em><span class="nocase">here</span>: A Simpler
+Way to Find Your Files</em>. <a
+href="https://doi.org/10.32614/CRAN.package.here">https://doi.org/10.32614/CRAN.package.here</a>.
+</div>
+<div id="ref-RColorBrewer" class="csl-entry">
+Neuwirth, Erich. 2022. <em><span>RColorBrewer</span>: ColorBrewer
+Palettes</em>. <a
+href="https://doi.org/10.32614/CRAN.package.RColorBrewer">https://doi.org/10.32614/CRAN.package.RColorBrewer</a>.
+</div>
+<div id="ref-base" class="csl-entry">
+R Core Team. 2025. <em><span>R</span>: A Language and Environment for
+Statistical Computing</em>. Vienna, Austria: R Foundation for
+Statistical Computing. <a
+href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-plotly" class="csl-entry">
+Sievert, Carson. 2020. <em>Interactive Web-Based Data Visualization with
+r, Plotly, and Shiny</em>. Chapman; Hall/CRC. <a
+href="https://plotly-r.com">https://plotly-r.com</a>.
+</div>
+<div id="ref-renv" class="csl-entry">
+Ushey, Kevin, and Hadley Wickham. 2024. <em><span
+class="nocase">renv</span>: Project Environments</em>. <a
+href="https://doi.org/10.32614/CRAN.package.renv">https://doi.org/10.32614/CRAN.package.renv</a>.
+</div>
+<div id="ref-gsignal" class="csl-entry">
+Van Boxtel, G.J.M., et al. 2021. <em><span
+class="nocase">gsignal</span>: Signal Processing</em>. <a
+href="https://github.com/gjmvanboxtel/gsignal">https://github.com/gjmvanboxtel/gsignal</a>.
+</div>
+<div id="ref-reshape2" class="csl-entry">
+Wickham, Hadley. 2007. <span>“Reshaping Data with the <span
+class="nocase">reshape</span> Package.”</span> <em>Journal of
+Statistical Software</em> 21 (12): 1–20. <a
+href="http://www.jstatsoft.org/v21/i12/">http://www.jstatsoft.org/v21/i12/</a>.
+</div>
+<div id="ref-tidyverse" class="csl-entry">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+<span>“Welcome to the <span class="nocase">tidyverse</span>.”</span>
+<em>Journal of Open Source Software</em> 4 (43): 1686. <a
+href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-scales" class="csl-entry">
+Wickham, Hadley, Thomas Lin Pedersen, and Dana Seidel. 2025. <em><span
+class="nocase">scales</span>: Scale Functions for Visualization</em>. <a
+href="https://doi.org/10.32614/CRAN.package.scales">https://doi.org/10.32614/CRAN.package.scales</a>.
+</div>
+<div id="ref-knitr2014" class="csl-entry">
+Xie, Yihui. 2014. <span>“<span class="nocase">knitr</span>: A
+Comprehensive Tool for Reproducible Research in <span>R</span>.”</span>
+In <em>Implementing Reproducible Computational Research</em>, edited by
+Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman;
+Hall/CRC.
+</div>
+<div id="ref-knitr2015" class="csl-entry">
+———. 2015. <em>Dynamic Documents with <span>R</span> and Knitr</em>. 2nd
+ed. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-knitr2025" class="csl-entry">
+———. 2025. <em><span class="nocase">knitr</span>: A General-Purpose
+Package for Dynamic Report Generation in <span>R</span></em>. <a
+href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-rmarkdown2018" class="csl-entry">
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. <em>R Markdown:
+The Definitive Guide</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://bookdown.org/yihui/rmarkdown">https://bookdown.org/yihui/rmarkdown</a>.
+</div>
+<div id="ref-rmarkdown2020" class="csl-entry">
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R
+Markdown Cookbook</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook">https://bookdown.org/yihui/rmarkdown-cookbook</a>.
+</div>
+</div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ29udmVyZ2VuY2UgaW4g8J2RmiIKZGF0ZTogIkxhc3QgbW9kaWZpZWQ6IGByIGZvcm1hdChTeXMudGltZSgpLCAnJWQtJW0tJVkuJylgIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDoKICAgIG1hdGhqYXg6ICJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL21hdGhqYXhAMy9lczUvdGV4LW1tbC1jaHRtbC5qcyIKICAgIGhpZ2hsaWdodDogcHlnbWVudHMKICAgIHRoZW1lOiBmbGF0bHkKICAgIGNvZGVfZm9sZGluZzogaGlkZSAjIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUiIHRvIGhpZGUgY29kZSBhbmQgYWRkIGEgYnV0dG9uIHRvIHNob3cgaXQKICAgIGRmX3ByaW50OiBwYWdlZAogICAgIyB0b2M6IHRydWUKICAgICMgdG9jX2Zsb2F0OgogICAgIyAgIGNvbGxhcHNlZDogdHJ1ZQogICAgIyAgIHNtb290aF9zY3JvbGw6IHRydWUKICAgIG51bWJlcl9zZWN0aW9uczogZmFsc2UKICAgIGZpZ19jYXB0aW9uOiB0cnVlCiAgICBjb2RlX2Rvd25sb2FkOiB0cnVlCiAgICBjc3M6IHZpc3VhbC5jc3MKYWx3YXlzX2FsbG93X2h0bWw6IHRydWUKYmlibGlvZ3JhcGh5OiAKICAtIHJlZmVyZW5jZXMuYmliCiAgLSBncmF0ZWZ1bC1yZWZzLmJpYgpoZWFkZXItaW5jbHVkZXM6CiAgLSBcbmV3Y29tbWFuZHtcYXJ9e1xtYXRoYmJ7Un19CiAgLSBcbmV3Y29tbWFuZHtcbGxhdn1bMV17XGxlZnRceyMxXHJpZ2h0XH19CiAgLSBcbmV3Y29tbWFuZHtccGFyZX1bMV17XGxlZnQoIzFccmlnaHQpfQogIC0gXG5ld2NvbW1hbmR7XE5jYWx9e1xtYXRoY2Fse059fQogIC0gXG5ld2NvbW1hbmR7XFZjYWx9e1xtYXRoY2Fse1Z9fQogIC0gXG5ld2NvbW1hbmR7XEVjYWx9e1xtYXRoY2Fse0V9fQogIC0gXG5ld2NvbW1hbmR7XFdjYWx9e1xtYXRoY2Fse1d9fQotLS0KCgo8ZGl2IHN0eWxlPSJjb2xvcjogIzJjM2U1MDsgdGV4dC1hbGlnbjogcmlnaHQ7Ij4KKioqKioqKiogIAo8c3Ryb25nPlByZXNzIFNob3cgdG8gcmV2ZWFsIHRoZSBjb2RlIGNodW5rcy48L3N0cm9uZz4gIAoKKioqKioqKioKPC9kaXY+CgoKTGV0IHVzIHNldCBzb21lIGdsb2JhbCBvcHRpb25zIGZvciBhbGwgY29kZSBjaHVua3MgaW4gdGhpcyBkb2N1bWVudC4KCgpgYGB7cn0KIyBDcmVhdGUgYSBjbGlwYm9hcmQgYnV0dG9uCnNvdXJjZShoZXJlOjpoZXJlKCJjbGlwYm9hcmQuUiIpKTsgY2xpcGJvYXJkCiMgU2V0IHNlZWQgZm9yIHJlcHJvZHVjaWJpbGl0eQpzZXQuc2VlZCgxOTgyKSAKIyBTZXQgZ2xvYmFsIG9wdGlvbnMgZm9yIGFsbCBjb2RlIGNodW5rcwprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgIyBEaXNhYmxlIG1lc3NhZ2VzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIG1lc3NhZ2UgPSBUUlVFLCAgICAKICAjIERpc2FibGUgd2FybmluZ3MgcHJpbnRlZCBieSBSIGNvZGUgY2h1bmtzCiAgd2FybmluZyA9IFRSVUUsICAgIAogICMgU2hvdyBSIGNvZGUgd2l0aGluIGNvZGUgY2h1bmtzIGluIG91dHB1dAogIGVjaG8gPSBUUlVFLCAgICAgICAgCiAgIyBJbmNsdWRlIGJvdGggUiBjb2RlIGFuZCBpdHMgcmVzdWx0cyBpbiBvdXRwdXQKICBpbmNsdWRlID0gVFJVRSwgICAgIAogICMgRXZhbHVhdGUgUiBjb2RlIGNodW5rcwogIGV2YWwgPSBUUlVFLCAgICAgICAKICAjIEVuYWJsZSBjYWNoaW5nIG9mIFIgY29kZSBjaHVua3MgZm9yIGZhc3RlciByZW5kZXJpbmcKICBjYWNoZSA9IEZBTFNFLCAgICAgIAogICMgQWxpZ24gZmlndXJlcyBpbiB0aGUgY2VudGVyIG9mIHRoZSBvdXRwdXQKICBmaWcuYWxpZ24gPSAiY2VudGVyIiwKICAjIEVuYWJsZSByZXRpbmEgZGlzcGxheSBmb3IgaGlnaC1yZXNvbHV0aW9uIGZpZ3VyZXMKICByZXRpbmEgPSAyLAogICMgU2hvdyBlcnJvcnMgaW4gdGhlIG91dHB1dCBpbnN0ZWFkIG9mIHN0b3BwaW5nIHJlbmRlcmluZwogIGVycm9yID0gVFJVRSwKICAjIERvIG5vdCBjb2xsYXBzZSBjb2RlIGFuZCBvdXRwdXQgaW50byBhIHNpbmdsZSBibG9jawogIGNvbGxhcHNlID0gRkFMU0UKKQojIFN0YXJ0IHRoZSBmaWd1cmUgY291bnRlcgpmaWdfY291bnQgPC0gMAojIERlZmluZSB0aGUgY2FwdGlvbmVyIGZ1bmN0aW9uCmNhcHRpb25lciA8LSBmdW5jdGlvbihjYXB0aW9uKSB7CiAgZmlnX2NvdW50IDw8LSBmaWdfY291bnQgKyAxCiAgcGFzdGUwKCJGaWd1cmUgIiwgZmlnX2NvdW50LCAiOiAiLCBjYXB0aW9uKQp9CiMgRGVmaW5lIHRoZSBmdW5jdGlvbiB0byB0cnVuY2F0ZSBhIG51bWJlciB0byB0d28gZGVjaW1hbCBwbGFjZXMKdHJ1bmNhdGVfdG9fdHdvIDwtIGZ1bmN0aW9uKHgpIHsKICBmbG9vcih4ICogMTAwMDApIC8gMTAwMDAKfQpgYGAKCgoKYGBge3J9CiMgcmVtb3Rlczo6aW5zdGFsbF9naXRodWIoImRhdmlkYm9saW4vcnNwZGUiLCByZWYgPSAiZGV2ZWwiKQojIHJlbW90ZXM6Omluc3RhbGxfZ2l0aHViKCJkYXZpZGJvbGluL21ldHJpY2dyYXBoIiwgcmVmID0gImRldmVsIikKbGlicmFyeShyU1BERSkKbGlicmFyeShNZXRyaWNHcmFwaCkKbGlicmFyeShncmF0ZWZ1bCkKCmxpYnJhcnkoZ2dwbG90MikKbGlicmFyeShyZXNoYXBlMikKbGlicmFyeShwbG90bHkpCmBgYAoKCiMgVXRpbGl0YXJ5IGZ1bmN0aW9ucwoKYGBge3J9CmtuaXRyOjpwdXJsKGhlcmU6OmhlcmUoImZ1bmN0aW9uYWxpdHkuUm1kIiksIG91dHB1dCA9IGhlcmU6OmhlcmUoImZ1bmN0aW9uYWxpdHkuUiIpKQpzb3VyY2UoaGVyZTo6aGVyZSgiZnVuY3Rpb25hbGl0eS5SIikpCmBgYAoKYGBge3J9CiMgRnVuY3Rpb24gdG8gY29tcHV0ZSB0aGUgZWlnZW52YWx1ZXMgYW5kIGVpZ2VuZnVuY3Rpb25zCmdldHMuZWlnZW4ucGFyYW1zIDwtIGZ1bmN0aW9uKE5fZmluaXRlID0gNCwga2FwcGEgPSAxLCBhbHBoYSA9IDAuNSwgZ3JhcGgpewogIEVJR0VOVkFMX0FMUEhBIDwtIE5VTEwKICBFSUdFTkZVTiA8LSBOVUxMCiAgZm9yIChqIGluIDA6Tl9maW5pdGUpIHsKICAgICAgbGFtYmRhX2pfYWxwaGEgPC0gKGthcHBhXjIgKyAoaipwaS8yKV4yKV4oYWxwaGEvMikKICAgICAgZV9qIDwtIHRhZHBvbGUuZWlnKGosZ3JhcGgpJHBoaQogICAgICBFSUdFTlZBTF9BTFBIQSA8LSBjKEVJR0VOVkFMX0FMUEhBLCBsYW1iZGFfal9hbHBoYSkgICAgICAgICAKICAgICAgRUlHRU5GVU4gPC0gY2JpbmQoRUlHRU5GVU4sIGVfaikKICAgICAgaWYgKGo+MCAmJiAoaiAlJSAyID09IDApKSB7CiAgICAgICAgbGFtYmRhX2pfYWxwaGEgPC0gKGthcHBhXjIgKyAoaipwaS8yKV4yKV4oYWxwaGEvMikKICAgICAgICBlX2ogPC0gdGFkcG9sZS5laWcoaixncmFwaCkkcHNpCiAgICAgICAgRUlHRU5WQUxfQUxQSEEgPC0gYyhFSUdFTlZBTF9BTFBIQSwgbGFtYmRhX2pfYWxwaGEpICAgICAgICAgCiAgICAgICAgRUlHRU5GVU4gPC0gY2JpbmQoRUlHRU5GVU4sIGVfaikKICAgICAgfQogIH0KICByZXR1cm4obGlzdChFSUdFTlZBTF9BTFBIQSA9IEVJR0VOVkFMX0FMUEhBLAogICAgICAgICAgICAgIEVJR0VORlVOID0gRUlHRU5GVU4pKQp9CgpnX2xpbmVhciA8LSBmdW5jdGlvbihyLCBBLCBsYW1iZGFfal9hbHBoYV9oYWxmKSB7CiAgcmV0dXJuKEEgKiBleHAoLWxhbWJkYV9qX2FscGhhX2hhbGYgKiByKSkKICB9CkdfbGluZWFyIDwtIGZ1bmN0aW9uKHQsIEEpIHsKICByZXR1cm4oQSAqIHQpCiAgfQpnX2V4cCA8LSBmdW5jdGlvbihyLCBBLCBtdSkgewogIHJldHVybihBICogZXhwKG11ICogcikpCiAgfQpHX2V4cCA8LSBmdW5jdGlvbih0LCBBLCBsYW1iZGFfal9hbHBoYV9oYWxmLCBtdSkgewogIGV4cG9uZW50IDwtIGxhbWJkYV9qX2FscGhhX2hhbGYgKyBtdQogIHJldHVybihBICogKGV4cChleHBvbmVudCAqIHQpIC0gMSkgLyBleHBvbmVudCkKICB9CmdfcG9seSA8LSBmdW5jdGlvbihyLCBBLCBuKSB7CiAgcmV0dXJuKEEgKiByXm4pCn0KR19wb2x5IDwtIGZ1bmN0aW9uKHQsIEEsIGxhbWJkYV9qX2FscGhhX2hhbGYsIG4pIHsKICB0IDwtIGFzLnZlY3Rvcih0KQogIGtfdmFscyA8LSAwOm4KICBzdW1fdGVybSA8LSBzYXBwbHkodCwgZnVuY3Rpb24odHQpIHsKICAgIHN1bSgoKC1sYW1iZGFfal9hbHBoYV9oYWxmICogdHQpXmtfdmFscykgLyBmYWN0b3JpYWwoa192YWxzKSkKICB9KQogIGNvZWZmIDwtICgoLTEpXihuICsgMSkpICogZmFjdG9yaWFsKG4pIC8gKGxhbWJkYV9qX2FscGhhX2hhbGZeKG4gKyAxKSkKICByZXR1cm4oQSAqIGNvZWZmICogKDEgLSBleHAobGFtYmRhX2pfYWxwaGFfaGFsZiAqIHQpICogc3VtX3Rlcm0pKQp9Cmdfc2luIDwtIGZ1bmN0aW9uKHIsIEEsIG9tZWdhKSB7CiAgcmV0dXJuKEEgKiBzaW4ob21lZ2EgKiByKSkKfQpHX3NpbiA8LSBmdW5jdGlvbih0LCBBLCBsYW1iZGFfal9hbHBoYV9oYWxmLCBvbWVnYSkgewogIGRlbm9tIDwtIGxhbWJkYV9qX2FscGhhX2hhbGZeMiArIG9tZWdhXjIKICBudW1lcmF0b3IgPC0gZXhwKGxhbWJkYV9qX2FscGhhX2hhbGYgKiB0KSAqIChsYW1iZGFfal9hbHBoYV9oYWxmICogc2luKG9tZWdhICogdCkgLSBvbWVnYSAqIGNvcyhvbWVnYSAqIHQpKSArIG9tZWdhCiAgcmV0dXJuKEEgKiBudW1lcmF0b3IgLyBkZW5vbSkKfQpnX2NvcyA8LSBmdW5jdGlvbihyLCBBLCB0aGV0YSkgewogIHJldHVybihBICogY29zKHRoZXRhICogcikpIAp9CkdfY29zIDwtIGZ1bmN0aW9uKHQsIEEsIGxhbWJkYV9qX2FscGhhX2hhbGYsIHRoZXRhKSB7CiAgZGVub20gPC0gbGFtYmRhX2pfYWxwaGFfaGFsZl4yICsgdGhldGFeMgogIG51bWVyYXRvciA8LSBleHAobGFtYmRhX2pfYWxwaGFfaGFsZiAqIHQpICogKGxhbWJkYV9qX2FscGhhX2hhbGYgKiBjb3ModGhldGEgKiB0KSArIHRoZXRhICogc2luKHRoZXRhICogdCkpIC0gbGFtYmRhX2pfYWxwaGFfaGFsZgogIHJldHVybihBICogbnVtZXJhdG9yIC8gZGVub20pCn0KY29uc3RydWN0X3BpZWNld2lzZV9wcm9qZWN0aW9uIDwtIGZ1bmN0aW9uKHByb2plY3RlZF9VX2FwcHJveCwgdGltZV9zZXEsIG92ZXJraWxsX3RpbWVfc2VxKSB7CiAgcHJvamVjdGVkX1VfcGllY2V3aXNlIDwtIG1hdHJpeChOQSwgbnJvdyA9IG5yb3cocHJvamVjdGVkX1VfYXBwcm94KSwgbmNvbCA9IGxlbmd0aChvdmVya2lsbF90aW1lX3NlcSkpCiAgCiAgIyBBc3NpZ24gdmFsdWUgYXQgdCA9IDAKICBwcm9qZWN0ZWRfVV9waWVjZXdpc2VbLCB3aGljaChvdmVya2lsbF90aW1lX3NlcSA9PSAwKV0gPC0gcHJvamVjdGVkX1VfYXBwcm94WywgMV0KICAKICAjIEFzc2lnbiB2YWx1ZXMgZm9yIGludGVydmFscyAodF97ay0xfSwgdF9rXQogIGZvciAoayBpbiAyOmxlbmd0aCh0aW1lX3NlcSkpIHsKICAgIGlkeHMgPC0gd2hpY2gob3ZlcmtpbGxfdGltZV9zZXEgPiB0aW1lX3NlcVtrIC0gMV0gJiBvdmVya2lsbF90aW1lX3NlcSA8PSB0aW1lX3NlcVtrXSkKICAgIHByb2plY3RlZF9VX3BpZWNld2lzZVssIGlkeHNdIDwtIHByb2plY3RlZF9VX2FwcHJveFssIGtdCiAgfQogIAogIHJldHVybihwcm9qZWN0ZWRfVV9waWVjZXdpc2UpCn0KZXhwX2xpbmVfZXF1YXRpb24gPC0gZnVuY3Rpb24oeDEsIHkxLCByYXRlKSB7CiAgbG5DIDwtIGxvZyh5MSkgLSByYXRlICogeDEKICAKICBmdW5jdGlvbih4KSB7CiAgICBleHAobG5DICsgcmF0ZSAqIHgpCiAgfQp9CmNvbXB1dGVfZ3VpZGluZ19saW5lc19leHAgPC0gZnVuY3Rpb24oc3FydF9tX3ZlY3RvciwgcmF0ZV92ZWN0b3IsIGVycm9yc19wcm9qZWN0ZWQpIHsKICBndWlkaW5nX2xpbmVzIDwtIG1hdHJpeChOQSwgbnJvdyA9IGxlbmd0aChzcXJ0X21fdmVjdG9yKSwgbmNvbCA9IGxlbmd0aChyYXRlX3ZlY3RvcikpCiAgCiAgZm9yIChqIGluIHNlcV9hbG9uZyhyYXRlX3ZlY3RvcikpIHsKICAgIGd1aWRpbmdfbGluZXNfYXV4IDwtIG1hdHJpeChOQSwgbnJvdyA9IGxlbmd0aChzcXJ0X21fdmVjdG9yKSwgbmNvbCA9IGxlbmd0aChzcXJ0X21fdmVjdG9yKSkKICAgIAogICAgZm9yIChrIGluIHNlcV9hbG9uZyhzcXJ0X21fdmVjdG9yKSkgewogICAgICB4MSA8LSBzcXJ0X21fdmVjdG9yW2tdCiAgICAgIHkxIDwtIGVycm9yc19wcm9qZWN0ZWRbaywgal0KICAgICAgcmF0ZSA8LSByYXRlX3ZlY3RvcltqXQogICAgICAKICAgICAgbGluZSA8LSBleHBfbGluZV9lcXVhdGlvbih4MSwgeTEsIHJhdGUpCiAgICAgIGd1aWRpbmdfbGluZXNfYXV4Wywga10gPC0gbGluZShzcXJ0X21fdmVjdG9yKQogICAgfQogICAgCiAgICBndWlkaW5nX2xpbmVzWywgal0gPC0gcm93TWVhbnMoZ3VpZGluZ19saW5lc19hdXgpCiAgfQogIAogIHJldHVybihndWlkaW5nX2xpbmVzKQp9CmBgYAoKCldlIHdhbnQgdG8gc29sdmUgdGhlIGZyYWN0aW9uYWwgZGlmZnVzaW9uIGVxdWF0aW9uClxiZWdpbntlcXVhdGlvbn0KXGxhYmVse2VxOm1haW5lcX0KICAgIFxwYXJ0aWFsX3QgdSsoXGthcHBhXjItXERlbHRhX1xHYW1tYSlee1xhbHBoYS8yfSB1PWYgXHRleHQgeyBvbiB9IFxHYW1tYSBcdGltZXMoMCwgVCksIFxxdWFkIHUoMCk9dV8wIFx0ZXh0IHsgb24gfSBcR2FtbWEsClxlbmR7ZXF1YXRpb259CndoZXJlICR1JCBzYXRpc2ZpZXMgdGhlIEtpcmNoaG9mZiB2ZXJ0ZXggY29uZGl0aW9ucwpcYmVnaW57ZXF1YXRpb259ClxsYWJlbHtlcTpLY29uZH0KICAgIFxsZWZ0XHtccGhpXGluIEMoXEdhbW1hKVw7XEJpZ3xcOyBcZm9yYWxsIHZcaW4gVjogXHN1bV97ZVxpblxtYXRoY2Fse0V9X3Z9XHBhcnRpYWxfZSBccGhpKHYpPTAgXHJpZ2h0XH0KXGVuZHtlcXVhdGlvbn0KVGhlIHNvbHV0aW9uIGlzIGdpdmVuIGJ5ClxiZWdpbntlcXVhdGlvbn0KXGxhYmVse2VxOnNvbF9yZXByZW50YXRpb259CiAgICAgICAgdShzLHQpID0gXGRpc3BsYXlzdHlsZVxzdW1fe2pcaW5cbWF0aGJie059fWVeey1cbGFtYmRhXntcYWxwaGEvMn1fanR9XGxlZnQodV8wLCBlX2pccmlnaHQpX3tMXzIoXEdhbW1hKX1lX2oocykgKyBcaW50XzBedCBcZGlzcGxheXN0eWxlXHN1bV97alxpblxtYXRoYmJ7Tn19ZV57LVxsYW1iZGFee1xhbHBoYS8yfV9qKHQtcil9XGxlZnQoZihcY2RvdCwgciksIGVfalxyaWdodClfe0xfMihcR2FtbWEpfWVfaihzKWRyLgpcZW5ke2VxdWF0aW9ufQoKSWYgd2UgY2hvb3NlICR3X2okIGFuZCAkdl9qJCBhbmQgdGFrZSB0aGUgaW5pdGlhbCBjb25kaXRpb24gYW5kIHRoZSByaWdodCBoYW5kIHNpZGUgZnVuY2l0b24gYXMgCgpcYmVnaW57ZXF1YXRpb259CiAgICB1XzAocykgPSBcc3VtX3tqPTB9XntOfSB3X2ogZV9qKHMpIFx0ZXh0eyBhbmQgc28gfSBcbGVmdCh1XzAsIGVfalxyaWdodClfe0xfMihcR2FtbWEpfSA9IHdfaiwKXGVuZHtlcXVhdGlvbn0KXGJlZ2lue2VxdWF0aW9ufQogICBcdGV4dHtJbiBtYXRyaXggbm90YXRpb246IH0gXHF1YWRcYm9sZHN5bWJvbHtVfV8wID0gXGJvbGRzeW1ib2x7RX1faFxib2xkc3ltYm9se2N9LCBccXVhZCAgXGJvbGRzeW1ib2x7RX1faCA9IFxsZWZ0W2VfMCwgZV8xLCBcbGRvdHMsIGVfe059XHJpZ2h0XSwgXHF1YWQgXGJvbGRzeW1ib2x7d30gPSBcbGVmdFt3XzAsIHdfMSwgXGxkb3RzLCB3X3tOfVxyaWdodF1eXHRvcCwKXGVuZHtlcXVhdGlvbn0KXGJlZ2lue2VxdWF0aW9ufQogICBcdGV4dHtJbiB9IFx0ZXh0dHR7Un06IFx0ZXh0dHR7VV8wIDwtIEVJR0VORlVOICUqJSBjb2VmZl9VXzB9ClxlbmR7ZXF1YXRpb259CmFuZApcYmVnaW57ZXF1YXRpb259CiAgICBmKHMsdCkgPSBcc3VtX3tqPTB9XntOfSB2X2ogZV57LVxsYW1iZGFee1xhbHBoYS8yfV9qdH0gZV9qKHMpIFx0ZXh0eyBhbmQgc28gfSBcbGVmdChmKFxjZG90LHIpLCBlX2pccmlnaHQpX3tMXzIoXEdhbW1hKX0gPSB2X2ogZV57LVxsYW1iZGFee1xhbHBoYS8yfV9qcn0sClxlbmR7ZXF1YXRpb259ClxiZWdpbntlcXVhdGlvbn0KICAgXHRleHR7SW4gbWF0cml4IG5vdGF0aW9uOiB9IFxxdWFkXGJvbGRzeW1ib2x7Zn0gPSBcYm9sZHN5bWJvbHtFfV9oIFxib2xkc3ltYm9se1Z9LCBccXVhZCBcYm9sZHN5bWJvbHtWfV97aml9ID0gdl9qZV57LVxsYW1iZGFee1xhbHBoYS8yfV9qdF9pfQpcZW5ke2VxdWF0aW9ufQpcYmVnaW57ZXF1YXRpb259CiAgIFx0ZXh0e0luIH0gXHRleHR0dHtSfTogXHRleHR0dHtGRiA8LSBFSUdFTkZVTiAlKiUgKGNvZWZmX0ZGICogZXhwKC1vdXRlcihFSUdFTlZBTF9BTFBIQSwgdGltZV9zZXEpKSl9ClxlbmR7ZXF1YXRpb259CnRoZW4gdGhlIHNvbHV0aW9uIGlzIGdpdmVuIGJ5ClxiZWdpbnthbGlnbn0KICAgICAgICB1KHMsdCkgJj0gXGRpc3BsYXlzdHlsZVxzdW1fe2o9MH1ee059d19qZV57LVxsYW1iZGFee1xhbHBoYS8yfV9qdH1lX2oocykgKyBcaW50XzBedCBcZGlzcGxheXN0eWxlXHN1bV97aj0wfV5OZV57LVxsYW1iZGFee1xhbHBoYS8yfV9qKHQtcil9dl9qIGVeey1cbGFtYmRhXntcYWxwaGEvMn1fanJ9ZV9qKHMpZHJcXAogICAgICAgICY9IFxkaXNwbGF5c3R5bGVcc3VtX3tqPTB9XntOfXdfamVeey1cbGFtYmRhXntcYWxwaGEvMn1fanR9ZV9qKHMpICsgdCBcZGlzcGxheXN0eWxlXHN1bV97aj0wfV5Odl9qIGVeey1cbGFtYmRhXntcYWxwaGEvMn1fanR9ZV9qKHMpXFwKICAgICAgICAmPSBcZGlzcGxheXN0eWxlXHN1bV97aj0wfV57Tn13X2plXnstXGxhbWJkYV57XGFscGhhLzJ9X2p0fWVfaihzKSArIHRmKHMsdClcXAogICAgICAgICY9IFxkaXNwbGF5c3R5bGVcc3VtX3tqPTB9XntOfSh3X2ordHZfaillXnstXGxhbWJkYV57XGFscGhhLzJ9X2p0fWVfaihzKSAKXGVuZHthbGlnbn0KClxiZWdpbntlcXVhdGlvbn0KICAgXHRleHR7SW4gbWF0cml4IG5vdGF0aW9uOiB9IFxxdWFkXGJvbGRzeW1ib2x7VX0gPVxib2xkc3ltYm9se0V9X2ggXGJvbGRzeW1ib2x7V30gKyAoXGJvbGRzeW1ib2x7dH1cYm9sZHN5bWJvbHtmfV5cdG9wKV5cdG9wLCBccXVhZCBcYm9sZHN5bWJvbHtXfV97aml9ID0gd19qZV57LVxsYW1iZGFee1xhbHBoYS8yfV9qdF9pfSxccXVhZCBcYm9sZHN5bWJvbHt0fSA9IFxsZWZ0W3RfMCwgdF8xLCBcbGRvdHMsIHRfe0t9XHJpZ2h0XV5cdG9wClxlbmR7ZXF1YXRpb259ClxiZWdpbntlcXVhdGlvbn0KICAgXHRleHR7SW4gfSBcdGV4dHR0e1J9OiBcdGV4dHR0e1VfdHJ1ZSA8LSBFSUdFTkZVTiAlKiUgKGNvZWZmX1VfMCAqIGV4cCgtb3V0ZXIoRUlHRU5WQUxfQUxQSEEsIHRpbWVfc2VxKSkpKyB0KHRpbWVfc2VxICogdChGRikpfQpcZW5ke2VxdWF0aW9ufQoKYGBge3J9CiMgUGFyYW1ldGVycwpUX2ZpbmFsIDwtIDIKa2FwcGEgPC0gMTUKTl9maW5pdGUgPSA0ICMgY2hvb3NlIGV2ZW4KYWRqdXN0ZWRfTl9maW5pdGUgPC0gTl9maW5pdGUgKyBOX2Zpbml0ZS8yICsgMQojIENvZWZmaWNpZW50cyBmb3IgdV8wIGFuZCBmCmNvZWZmX1VfMCA8LSA1MCooMTphZGp1c3RlZF9OX2Zpbml0ZSleLTEKY29lZmZfVV8wWy01XSA8LSAwCmNvZWZmX0ZGIDwtIHJlcCgwLCBhZGp1c3RlZF9OX2Zpbml0ZSkKY29lZmZfRkZbN10gPC0gMTAKCkFBQSA9IDEKTVUgPSAwLjMKTk5OID0gMgpPTUVHQSA9IHBpClRIRVRBID0gcGkKCiMgVGltZSBzdGVwIGFuZCBtZXNoIHNpemUKbV92ZWN0b3IgPC0gYygxLCAyLCAzLCA0KQogICAgCiMgT3ZlcmtpbGwgcGFyYW1ldGVycwpvdmVya2lsbF90aW1lX3N0ZXAgPC0gMC4xICogMl4tMTQKb3ZlcmtpbGxfaCA8LSAoMC4xICogMl4tMTQpXigxLzIpCgojIEZpbmVzdCB0aW1lIGFuZCBzcGFjZSBtZXNoCm92ZXJraWxsX3RpbWVfc2VxIDwtIHNlcSgwLCBUX2ZpbmFsLCBsZW5ndGgub3V0ID0gKChUX2ZpbmFsIC0gMCkgLyBvdmVya2lsbF90aW1lX3N0ZXAgKyAxKSkKb3ZlcmtpbGxfZ3JhcGggPC0gZ2V0cy5ncmFwaC50YWRwb2xlKGggPSBvdmVya2lsbF9oKQoKIyBDb21wdXRlIHRoZSB3ZWlnaHRzIG9uIHRoZSBmaW5lc3QgbWVzaApvdmVya2lsbF9ncmFwaCRjb21wdXRlX2ZlbSgpICMgVGhpcyBpcyBuZWVkZWQgdG8gY29tcHV0ZSB0aGUgd2VpZ2h0cwpvdmVya2lsbF93ZWlnaHRzIDwtIG92ZXJraWxsX2dyYXBoJG1lc2gkd2VpZ2h0cwoKYWxwaGFfdmVjdG9yIDwtIHNlcSgxLCAxLjgsIGJ5ID0gMC4yKSNjKDAuNSwgMSwgMS41LCAyKQpgYGAKCgpgYGAKe3J9CiMgQ3JlYXRlIGEgbWF0cml4IHRvIHN0b3JlIHRoZSBlcnJvcnMKZXJyb3JzX3Byb2plY3RlZCA8LSBtYXRyaXgoTkEsIG5yb3cgPSBsZW5ndGgobV92ZWN0b3IpLCBuY29sID0gbGVuZ3RoKGFscGhhX3ZlY3RvcikpCmZvciAoaiBpbiAxOmxlbmd0aChhbHBoYV92ZWN0b3IpKSB7CiAgYWxwaGEgPC0gYWxwaGFfdmVjdG9yW2pdICMgZnJvbSAwLjUgdG8gMgogIGJldGEgPC0gYWxwaGEgLyAyCgogICMgQ29tcHV0ZSB0aGUgZWlnZW52YWx1ZXMgYW5kIGVpZ2VuZnVuY3Rpb25zIG9uIHRoZSBmaW5lc3QgbWVzaAogIG92ZXJraWxsX2VpZ2VuX3BhcmFtcyA8LSBnZXRzLmVpZ2VuLnBhcmFtcyhOX2Zpbml0ZSA9IE5fZmluaXRlLCBrYXBwYSA9IGthcHBhLCBhbHBoYSA9IGFscGhhLCBncmFwaCA9IG92ZXJraWxsX2dyYXBoKQogIEVJR0VOVkFMX0FMUEhBIDwtIG92ZXJraWxsX2VpZ2VuX3BhcmFtcyRFSUdFTlZBTF9BTFBIQSAjIEVpZ2VudmFsdWVzICh0aGV5IGFyZSBpbmRlcGVuZGVudCBvZiB0aGUgbWVzaGVzKQogIG92ZXJraWxsX0VJR0VORlVOIDwtIG92ZXJraWxsX2VpZ2VuX3BhcmFtcyRFSUdFTkZVTiAjIEVpZ2VuZnVuY3Rpb25zIG9uIHRoZSBmaW5lc3QgbWVzaAogIAogICMgQ29tcHV0ZSB0aGUgdHJ1ZSBzb2x1dGlvbiBvbiB0aGUgZmluZXN0IG1lc2gKICBvdmVya2lsbF9VX3RydWUgPC0gb3ZlcmtpbGxfRUlHRU5GVU4gJSolIAogICAgb3V0ZXIoMTpsZW5ndGgoY29lZmZfVV8wKSwgCiAgICAgICAgICAxOmxlbmd0aChvdmVya2lsbF90aW1lX3NlcSksIAogICAgICAgICAgZnVuY3Rpb24oaSwgaikgKGNvZWZmX1VfMFtpXSArIGNvZWZmX0ZGW2ldICogR19zaW4odCA9IG92ZXJraWxsX3RpbWVfc2VxW2pdLCBBID0gQUFBLCBsYW1iZGFfal9hbHBoYV9oYWxmID0gRUlHRU5WQUxfQUxQSEFbaV0sIG9tZWdhID0gT01FR0EpKSAqIGV4cCgtRUlHRU5WQUxfQUxQSEFbaV0gKiBvdmVya2lsbF90aW1lX3NlcVtqXSkpCiAgCiAgZm9yIChpIGluIDE6bGVuZ3RoKG1fdmVjdG9yKSkgewogICAgbSA8LSBtX3ZlY3RvcltpXQogICAgaCA8LSBleHAoLSAoNCAqIHBpIC8gNSkgKiBzcXJ0KCgxIC0gYWxwaGEgLyAyKSAqIG0pKS8xMAogICAgdGltZV9zdGVwIDwtIChoXmFscGhhKS8xMAogICAgZ3JhcGggPC0gZ2V0cy5ncmFwaC50YWRwb2xlKGggPSBoKQogICAgZ3JhcGgkY29tcHV0ZV9mZW0oKQogICAgRyA8LSBncmFwaCRtZXNoJEcKICAgIEMgPC0gZ3JhcGgkbWVzaCRDCiAgICBMIDwtIGthcHBhXjIqQyArIEcKICAgIGVpZ2VuX3BhcmFtcyA8LSBnZXRzLmVpZ2VuLnBhcmFtcyhOX2Zpbml0ZSA9IE5fZmluaXRlLCBrYXBwYSA9IGthcHBhLCBhbHBoYSA9IGFscGhhLCBncmFwaCA9IGdyYXBoKQogICAgRUlHRU5GVU4gPC0gZWlnZW5fcGFyYW1zJEVJR0VORlVOCiAgICBVXzAgPC0gRUlHRU5GVU4gJSolIGNvZWZmX1VfMCAjIENvbXB1dGUgVV8wIG9uIHRoZSBjdXJyZW50IG1lc2gKICAgIEEgPC0gZ3JhcGgkZmVtX2Jhc2lzKG92ZXJraWxsX2dyYXBoJGdldF9tZXNoX2xvY2F0aW9ucygpKQogIAogICAgdGltZV9zZXEgPC0gc2VxKDAsIFRfZmluYWwsIGxlbmd0aC5vdXQgPSAoKFRfZmluYWwgLSAwKSAvIHRpbWVfc3RlcCArIDEpKQogICAgbXlfb3BfZnJhYyA8LSBteS5mcmFjdGlvbmFsLm9wZXJhdG9ycy5mcmFjKEwsIGJldGEsIEMsIHNjYWxlLmZhY3RvciA9IGthcHBhXjIsIG0gPSBtLCB0aW1lX3N0ZXApCiAgICBJTlRfQkFTSVNfRUlHRU4gPC0gdChvdmVya2lsbF9FSUdFTkZVTikgJSolIG92ZXJraWxsX2dyYXBoJG1lc2gkQyAlKiUgQQogICAgIyBDb21wdXRlIG1hdHJpeCBGIHdpdGggY29sdW1ucyBGXmsKICAgIEZGX2FwcHJveCA8LSB0KElOVF9CQVNJU19FSUdFTikgJSolIAogICAgICBvdXRlcigxOmxlbmd0aChjb2VmZl9GRiksIAogICAgICAgICAgICAxOmxlbmd0aCh0aW1lX3NlcSksIAogICAgICAgIGZ1bmN0aW9uKGksIGopIGNvZWZmX0ZGW2ldICogZ19zaW4ociA9IHRpbWVfc2VxW2pdLCBBID0gQUFBLCBvbWVnYSA9IE9NRUdBKSkKICAgIAogICAgVV9hcHByb3ggPC0gbWF0cml4KE5BLCBucm93ID0gbnJvdyhDKSwgbmNvbCA9IGxlbmd0aCh0aW1lX3NlcSkpCiAgICBVX2FwcHJveFssIDFdIDwtIFVfMAogICAgZm9yIChrIGluIDE6KGxlbmd0aCh0aW1lX3NlcSkgLSAxKSkgewogICAgICBVX2FwcHJveFssIGsgKyAxXSA8LSBhcy5tYXRyaXgobXkuc29sdmVyLmZyYWMobXlfb3BfZnJhYywgbXlfb3BfZnJhYyRDICUqJSBVX2FwcHJveFssIGtdICsgdGltZV9zdGVwICogRkZfYXBwcm94WywgayArIDFdKSkKICAgIH0KICAgIAogICAgcHJvamVjdGVkX1VfYXBwcm94IDwtIEEgJSolIFVfYXBwcm94CiAgICBwcm9qZWN0ZWRfVV9waWVjZXdpc2UgPC0gY29uc3RydWN0X3BpZWNld2lzZV9wcm9qZWN0aW9uKHByb2plY3RlZF9VX2FwcHJveCwgdGltZV9zZXEsIG92ZXJraWxsX3RpbWVfc2VxKQogICAgZXJyb3JzX3Byb2plY3RlZFtpLGpdIDwtIHNxcnQoYXMuZG91YmxlKHQob3ZlcmtpbGxfd2VpZ2h0cykgJSolIChvdmVya2lsbF9VX3RydWUgLSBwcm9qZWN0ZWRfVV9waWVjZXdpc2UpXjIgJSolIHJlcChvdmVya2lsbF90aW1lX3N0ZXAsIGxlbmd0aChvdmVya2lsbF90aW1lX3NlcSkpKSkKICB9Cn0Kc2F2ZShlcnJvcnNfcHJvamVjdGVkLCBmaWxlID0gaGVyZTo6aGVyZSgiZGF0YV9maWxlcy9lcnJvcnNfcHJvamVjdGVkX20uUkRhdGEiKSkKYGBgCgpgYGB7cn0KbG9hZChoZXJlOjpoZXJlKCJkYXRhX2ZpbGVzL2Vycm9yc19wcm9qZWN0ZWRfbS5SRGF0YSIpKQpgYGAKCgpgYGB7ciwgZmlnLmFsaWduPSdjZW50ZXInLCBmaWcuZGltPSBjKDQsNSksIGZpZy5jYXAgPSBjYXB0aW9uZXIoIkNhcHRpb24iKX0Kb2JzZXJ2ZWRfcmF0ZXMgPC0gbnVtZXJpYyhsZW5ndGgoYWxwaGFfdmVjdG9yKSkKZm9yICh1IGluIDE6bGVuZ3RoKGFscGhhX3ZlY3RvcikpIHsKICBvYnNlcnZlZF9yYXRlc1t1XSA8LSBjb2VmKGxtKGxvZyhlcnJvcnNfcHJvamVjdGVkWywgdV0pIH4gc3FydChtX3ZlY3RvcikpKVsyXQp9Cgp0aGVvcmV0aWNhbF9yYXRlcyA8LSAtICg0ICogcGkgKiBhbHBoYV92ZWN0b3IgLyA1KSAqIHNxcnQoKDEgLSBhbHBoYV92ZWN0b3IgLyAyKSkKCmd1aWRpbmdfbGluZXMgPC0gY29tcHV0ZV9ndWlkaW5nX2xpbmVzX2V4cChzcXJ0KG1fdmVjdG9yKSwgdGhlb3JldGljYWxfcmF0ZXMsIGVycm9yc19wcm9qZWN0ZWQpCmRlZmF1bHRfY29sb3JzIDwtIHNjYWxlczo6aHVlX3BhbCgpKGxlbmd0aChhbHBoYV92ZWN0b3IpKQpwbG90X2xpbmVzIDwtIGxhcHBseSgxOm5jb2woZ3VpZGluZ19saW5lcyksIGZ1bmN0aW9uKGkpIHsKICBnZW9tX2xpbmUoCiAgICBkYXRhID0gZGF0YS5mcmFtZSh4ID0gc3FydChtX3ZlY3RvciksIHkgPSBndWlkaW5nX2xpbmVzWywgaV0pLAogICAgYWVzKHggPSB4LCB5ID0geSksCiAgICBjb2xvciA9IGRlZmF1bHRfY29sb3JzW2ldLAogICAgbGluZXR5cGUgPSAiZGFzaGVkIiwKICAgIHNob3cubGVnZW5kID0gRkFMU0UKICApCn0pCgpkZiA8LSBhcy5kYXRhLmZyYW1lKGNiaW5kKHNxcnQobV92ZWN0b3IpLCBlcnJvcnNfcHJvamVjdGVkKSkKY29sbmFtZXMoZGYpIDwtIGMoIm1fdmVjdG9yIiwgYWxwaGFfdmVjdG9yKQpkZl9tZWx0ZWQgPC0gbWVsdChkZiwgaWQudmFycyA9ICJtX3ZlY3RvciIsIHZhcmlhYmxlLm5hbWUgPSAiY29sdW1uIiwgdmFsdWUubmFtZSA9ICJ2YWx1ZSIpCmFscGhhX2Zvcm1hdHRlZCA8LSBmb3JtYXRDKGFscGhhX3ZlY3RvciwgZm9ybWF0ID0gImYiLCBkaWdpdHMgPSAyKQpjdXN0b21fbGFiZWxzIDwtIHBhc3RlMChhbHBoYV9mb3JtYXR0ZWQsIAogICAgICAgICAgICAgICAgICAgICAgICAiIHwgIiwgCiAgICAgICAgICAgICAgICAgICAgICAgIGZvcm1hdEModGhlb3JldGljYWxfcmF0ZXMsIGZvcm1hdCA9ICJmIiwgZGlnaXRzID0gNCksIAogICAgICAgICAgICAgICAgICAgICAgICAiIHwgIiwgCiAgICAgICAgICAgICAgICAgICAgICAgIGZvcm1hdEMob2JzZXJ2ZWRfcmF0ZXMsIGZvcm1hdCA9ICJmIiwgZGlnaXRzID0gNCkpCgpkZl9tZWx0ZWQkY29sdW1uIDwtIGZhY3RvcihkZl9tZWx0ZWQkY29sdW1uLCBsZXZlbHMgPSBhbHBoYV92ZWN0b3IsIGxhYmVscyA9IGN1c3RvbV9sYWJlbHMpCgpwIDwtIGdncGxvdCgpICsKICBnZW9tX2xpbmUoZGF0YSA9IGRmX21lbHRlZCwgYWVzKHggPSBtX3ZlY3RvciwgeSA9IHZhbHVlLCBjb2xvciA9IGNvbHVtbikpICsKICBnZW9tX3BvaW50KGRhdGEgPSBkZl9tZWx0ZWQsIGFlcyh4ID0gbV92ZWN0b3IsIHkgPSB2YWx1ZSwgY29sb3IgPSBjb2x1bW4pKSArCiAgcGxvdF9saW5lcyArCiAgbGFicygKICAgIHRpdGxlID0gZXhwcmVzc2lvbigiQ29udmVyZ2VuY2UgaW4gIiAqIGl0YWxpYyhtKSksCiAgICB4ID0gZXhwcmVzc2lvbihpdGFsaWMobSl+KHNxcnR+c2NhbGUpKSwKICAgIHkgPSBleHByZXNzaW9uKEVycm9yfihsb2dbZV1+c2NhbGUpKSwKICAgIGNvbG9yID0gIiAgICAgICAgICDOsSAgfCB0aGVvICB8IG9icyIKICApICsKICBzY2FsZV94X2NvbnRpbnVvdXMoYnJlYWtzID0gc3FydChtX3ZlY3RvciksIGxhYmVscyA9IHJvdW5kKG1fdmVjdG9yLCA0KSkgKwogIHNjYWxlX3lfY29udGludW91cygKICB0cmFucyA9ICJsb2ciLAogIGxhYmVscyA9IGZ1bmN0aW9uKHgpIGZvcm1hdEMoeCwgZm9ybWF0ID0gImYiLCBkaWdpdHMgPSA0KSkgKwogIHRoZW1lX21pbmltYWwoKSArCiAgdGhlbWUodGV4dCA9IGVsZW1lbnRfdGV4dChmYW1pbHkgPSAiUGFsYXRpbm8iKSwKICAgICAgICBsZWdlbmQucG9zaXRpb24gPSAiYm90dG9tIiwKICAgICAgICBsZWdlbmQuZGlyZWN0aW9uID0gInZlcnRpY2FsIiwKICAgICAgICBwbG90Lm1hcmdpbiA9IG1hcmdpbigwLCAwLCAwLCAwKSwKICAgICAgICBwbG90LnRpdGxlID0gZWxlbWVudF90ZXh0KGhqdXN0ID0gMC41LCBzaXplID0gMTgsIGZhY2UgPSAiYm9sZCIpKQpwCmBgYAoKCmBgYHtyfQpnZ3NhdmUoaGVyZTo6aGVyZSgiZGF0YV9maWxlcy9jb252X3JhdGVzX20ucG5nIiksIHdpZHRoID0gNCwgaGVpZ2h0ID0gNSwgcGxvdCA9IHAsIGRwaSA9IDMwMCkKYGBgCgoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ29udmVyZ2VuY2UgaW4g8J2RmiIKZGF0ZTogIkxhc3QgbW9kaWZpZWQ6IGByIGZvcm1hdChTeXMudGltZSgpLCAnJWQtJW0tJVkuJylgIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDoKICAgIG1hdGhqYXg6ICJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL21hdGhqYXhAMy9lczUvdGV4LW1tbC1jaHRtbC5qcyIKICAgIGhpZ2hsaWdodDogcHlnbWVudHMKICAgIHRoZW1lOiBmbGF0bHkKICAgIGNvZGVfZm9sZGluZzogaGlkZSAjIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUiIHRvIGhpZGUgY29kZSBhbmQgYWRkIGEgYnV0dG9uIHRvIHNob3cgaXQKICAgIGRmX3ByaW50OiBwYWdlZAogICAgIyB0b2M6IHRydWUKICAgICMgdG9jX2Zsb2F0OgogICAgIyAgIGNvbGxhcHNlZDogdHJ1ZQogICAgIyAgIHNtb290aF9zY3JvbGw6IHRydWUKICAgIG51bWJlcl9zZWN0aW9uczogZmFsc2UKICAgIGZpZ19jYXB0aW9uOiB0cnVlCiAgICBjb2RlX2Rvd25sb2FkOiB0cnVlCiAgICBjc3M6IHZpc3VhbC5jc3MKYWx3YXlzX2FsbG93X2h0bWw6IHRydWUKYmlibGlvZ3JhcGh5OiAKICAtIHJlZmVyZW5jZXMuYmliCiAgLSBncmF0ZWZ1bC1yZWZzLmJpYgpoZWFkZXItaW5jbHVkZXM6CiAgLSBcbmV3Y29tbWFuZHtcYXJ9e1xtYXRoYmJ7Un19CiAgLSBcbmV3Y29tbWFuZHtcbGxhdn1bMV17XGxlZnRceyMxXHJpZ2h0XH19CiAgLSBcbmV3Y29tbWFuZHtccGFyZX1bMV17XGxlZnQoIzFccmlnaHQpfQogIC0gXG5ld2NvbW1hbmR7XE5jYWx9e1xtYXRoY2Fse059fQogIC0gXG5ld2NvbW1hbmR7XFZjYWx9e1xtYXRoY2Fse1Z9fQogIC0gXG5ld2NvbW1hbmR7XEVjYWx9e1xtYXRoY2Fse0V9fQogIC0gXG5ld2NvbW1hbmR7XFdjYWx9e1xtYXRoY2Fse1d9fQotLS0KCgo8ZGl2IHN0eWxlPSJjb2xvcjogIzJjM2U1MDsgdGV4dC1hbGlnbjogcmlnaHQ7Ij4KKioqKioqKiogIAo8c3Ryb25nPlByZXNzIFNob3cgdG8gcmV2ZWFsIHRoZSBjb2RlIGNodW5rcy48L3N0cm9uZz4gIAoKKioqKioqKioKPC9kaXY+CgoKTGV0IHVzIHNldCBzb21lIGdsb2JhbCBvcHRpb25zIGZvciBhbGwgY29kZSBjaHVua3MgaW4gdGhpcyBkb2N1bWVudC4KCgpgYGB7cn0KIyBDcmVhdGUgYSBjbGlwYm9hcmQgYnV0dG9uCnNvdXJjZShoZXJlOjpoZXJlKCJjbGlwYm9hcmQuUiIpKTsgY2xpcGJvYXJkCiMgU2V0IHNlZWQgZm9yIHJlcHJvZHVjaWJpbGl0eQpzZXQuc2VlZCgxOTgyKSAKIyBTZXQgZ2xvYmFsIG9wdGlvbnMgZm9yIGFsbCBjb2RlIGNodW5rcwprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgIyBEaXNhYmxlIG1lc3NhZ2VzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIG1lc3NhZ2UgPSBGQUxTRSwgICAgCiAgIyBEaXNhYmxlIHdhcm5pbmdzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIHdhcm5pbmcgPSBGQUxTRSwgICAgCiAgIyBTaG93IFIgY29kZSB3aXRoaW4gY29kZSBjaHVua3MgaW4gb3V0cHV0CiAgZWNobyA9IFRSVUUsICAgICAgICAKICAjIEluY2x1ZGUgYm90aCBSIGNvZGUgYW5kIGl0cyByZXN1bHRzIGluIG91dHB1dAogIGluY2x1ZGUgPSBUUlVFLCAgICAgCiAgIyBFdmFsdWF0ZSBSIGNvZGUgY2h1bmtzCiAgZXZhbCA9IFRSVUUsICAgICAgIAogICMgRW5hYmxlIGNhY2hpbmcgb2YgUiBjb2RlIGNodW5rcyBmb3IgZmFzdGVyIHJlbmRlcmluZwogIGNhY2hlID0gRkFMU0UsICAgICAgCiAgIyBBbGlnbiBmaWd1cmVzIGluIHRoZSBjZW50ZXIgb2YgdGhlIG91dHB1dAogIGZpZy5hbGlnbiA9ICJjZW50ZXIiLAogICMgRW5hYmxlIHJldGluYSBkaXNwbGF5IGZvciBoaWdoLXJlc29sdXRpb24gZmlndXJlcwogIHJldGluYSA9IDIsCiAgIyBTaG93IGVycm9ycyBpbiB0aGUgb3V0cHV0IGluc3RlYWQgb2Ygc3RvcHBpbmcgcmVuZGVyaW5nCiAgZXJyb3IgPSBUUlVFLAogICMgRG8gbm90IGNvbGxhcHNlIGNvZGUgYW5kIG91dHB1dCBpbnRvIGEgc2luZ2xlIGJsb2NrCiAgY29sbGFwc2UgPSBGQUxTRQopCiMgU3RhcnQgdGhlIGZpZ3VyZSBjb3VudGVyCmZpZ19jb3VudCA8LSAwCiMgRGVmaW5lIHRoZSBjYXB0aW9uZXIgZnVuY3Rpb24KY2FwdGlvbmVyIDwtIGZ1bmN0aW9uKGNhcHRpb24pIHsKICBmaWdfY291bnQgPDwtIGZpZ19jb3VudCArIDEKICBwYXN0ZTAoIkZpZ3VyZSAiLCBmaWdfY291bnQsICI6ICIsIGNhcHRpb24pCn0KIyBEZWZpbmUgdGhlIGZ1bmN0aW9uIHRvIHRydW5jYXRlIGEgbnVtYmVyIHRvIHR3byBkZWNpbWFsIHBsYWNlcwp0cnVuY2F0ZV90b190d28gPC0gZnVuY3Rpb24oeCkgewogIGZsb29yKHggKiAxMDAwMCkgLyAxMDAwMAp9CmBgYAoKCgpgYGB7cn0KIyByZW1vdGVzOjppbnN0YWxsX2dpdGh1YigiZGF2aWRib2xpbi9yc3BkZSIsIHJlZiA9ICJkZXZlbCIpCiMgcmVtb3Rlczo6aW5zdGFsbF9naXRodWIoImRhdmlkYm9saW4vbWV0cmljZ3JhcGgiLCByZWYgPSAiZGV2ZWwiKQpsaWJyYXJ5KHJTUERFKQpsaWJyYXJ5KE1ldHJpY0dyYXBoKQpsaWJyYXJ5KGdyYXRlZnVsKQoKbGlicmFyeShnZ3Bsb3QyKQpsaWJyYXJ5KHJlc2hhcGUyKQpsaWJyYXJ5KHBsb3RseSkKYGBgCgoKIyBVdGlsaXRhcnkgZnVuY3Rpb25zCgpgYGB7cn0KY2FwdHVyZS5vdXRwdXQoCiAga25pdHI6OnB1cmwoaGVyZTo6aGVyZSgiZnVuY3Rpb25hbGl0eS5SbWQiKSwgb3V0cHV0ID0gaGVyZTo6aGVyZSgiZnVuY3Rpb25hbGl0eS5SIikpLAogIGZpbGUgPSBoZXJlOjpoZXJlKCJwdXJsX2xvZy50eHQiKQopCnNvdXJjZShoZXJlOjpoZXJlKCJmdW5jdGlvbmFsaXR5LlIiKSkKYGBgCgoKYGBge3J9CiMgUGFyYW1ldGVycwpUX2ZpbmFsIDwtIDIKa2FwcGEgPC0gMTUKTl9maW5pdGUgPSA0ICMgY2hvb3NlIGV2ZW4KYWRqdXN0ZWRfTl9maW5pdGUgPC0gTl9maW5pdGUgKyBOX2Zpbml0ZS8yICsgMQojIENvZWZmaWNpZW50cyBmb3IgdV8wIGFuZCBmCmNvZWZmX1VfMCA8LSA1MCooMTphZGp1c3RlZF9OX2Zpbml0ZSleLTEKY29lZmZfVV8wWy01XSA8LSAwCmNvZWZmX0ZGIDwtIHJlcCgwLCBhZGp1c3RlZF9OX2Zpbml0ZSkKY29lZmZfRkZbN10gPC0gMTAKCkFBQSA9IDEKTVUgPSAwLjMKTk5OID0gMgpPTUVHQSA9IHBpClRIRVRBID0gcGkKCiMgVGltZSBzdGVwIGFuZCBtZXNoIHNpemUKbV92ZWN0b3IgPC0gYygxLCAyLCAzLCA0KQogICAgCiMgT3ZlcmtpbGwgcGFyYW1ldGVycwpvdmVya2lsbF90aW1lX3N0ZXAgPC0gMC4xICogMl4tMTQKb3ZlcmtpbGxfaCA8LSAoMC4xICogMl4tMTQpXigxLzIpCgojIEZpbmVzdCB0aW1lIGFuZCBzcGFjZSBtZXNoCm92ZXJraWxsX3RpbWVfc2VxIDwtIHNlcSgwLCBUX2ZpbmFsLCBsZW5ndGgub3V0ID0gKChUX2ZpbmFsIC0gMCkgLyBvdmVya2lsbF90aW1lX3N0ZXAgKyAxKSkKb3ZlcmtpbGxfZ3JhcGggPC0gZ2V0cy5ncmFwaC50YWRwb2xlKGggPSBvdmVya2lsbF9oKQoKIyBDb21wdXRlIHRoZSB3ZWlnaHRzIG9uIHRoZSBmaW5lc3QgbWVzaApvdmVya2lsbF9ncmFwaCRjb21wdXRlX2ZlbSgpICMgVGhpcyBpcyBuZWVkZWQgdG8gY29tcHV0ZSB0aGUgd2VpZ2h0cwpvdmVya2lsbF93ZWlnaHRzIDwtIG92ZXJraWxsX2dyYXBoJG1lc2gkd2VpZ2h0cwoKYWxwaGFfdmVjdG9yIDwtIHNlcSgxLCAxLjgsIGJ5ID0gMC4yKQpgYGAKCgpgYGB7ciwgZXZhbCA9IEZBTFNFfQojIENyZWF0ZSBhIG1hdHJpeCB0byBzdG9yZSB0aGUgZXJyb3JzCmVycm9yc19wcm9qZWN0ZWQgPC0gbWF0cml4KE5BLCBucm93ID0gbGVuZ3RoKG1fdmVjdG9yKSwgbmNvbCA9IGxlbmd0aChhbHBoYV92ZWN0b3IpKQpmb3IgKGogaW4gMTpsZW5ndGgoYWxwaGFfdmVjdG9yKSkgewogIGFscGhhIDwtIGFscGhhX3ZlY3RvcltqXSAjIGZyb20gMC41IHRvIDIKICBiZXRhIDwtIGFscGhhIC8gMgoKICAjIENvbXB1dGUgdGhlIGVpZ2VudmFsdWVzIGFuZCBlaWdlbmZ1bmN0aW9ucyBvbiB0aGUgZmluZXN0IG1lc2gKICBvdmVya2lsbF9laWdlbl9wYXJhbXMgPC0gZ2V0cy5laWdlbi5wYXJhbXMoTl9maW5pdGUgPSBOX2Zpbml0ZSwga2FwcGEgPSBrYXBwYSwgYWxwaGEgPSBhbHBoYSwgZ3JhcGggPSBvdmVya2lsbF9ncmFwaCkKICBFSUdFTlZBTF9BTFBIQSA8LSBvdmVya2lsbF9laWdlbl9wYXJhbXMkRUlHRU5WQUxfQUxQSEEgIyBFaWdlbnZhbHVlcyAodGhleSBhcmUgaW5kZXBlbmRlbnQgb2YgdGhlIG1lc2hlcykKICBvdmVya2lsbF9FSUdFTkZVTiA8LSBvdmVya2lsbF9laWdlbl9wYXJhbXMkRUlHRU5GVU4gIyBFaWdlbmZ1bmN0aW9ucyBvbiB0aGUgZmluZXN0IG1lc2gKICAKICAjIENvbXB1dGUgdGhlIHRydWUgc29sdXRpb24gb24gdGhlIGZpbmVzdCBtZXNoCiAgb3ZlcmtpbGxfVV90cnVlIDwtIG92ZXJraWxsX0VJR0VORlVOICUqJSAKICAgIG91dGVyKDE6bGVuZ3RoKGNvZWZmX1VfMCksIAogICAgICAgICAgMTpsZW5ndGgob3ZlcmtpbGxfdGltZV9zZXEpLCAKICAgICAgICAgIGZ1bmN0aW9uKGksIGopIChjb2VmZl9VXzBbaV0gKyBjb2VmZl9GRltpXSAqIEdfc2luKHQgPSBvdmVya2lsbF90aW1lX3NlcVtqXSwgQSA9IEFBQSwgbGFtYmRhX2pfYWxwaGFfaGFsZiA9IEVJR0VOVkFMX0FMUEhBW2ldLCBvbWVnYSA9IE9NRUdBKSkgKiBleHAoLUVJR0VOVkFMX0FMUEhBW2ldICogb3ZlcmtpbGxfdGltZV9zZXFbal0pKQogIAogIGZvciAoaSBpbiAxOmxlbmd0aChtX3ZlY3RvcikpIHsKICAgIG0gPC0gbV92ZWN0b3JbaV0KICAgIGggPC0gZXhwKC0gKDQgKiBwaSAvIDUpICogc3FydCgoMSAtIGFscGhhIC8gMikgKiBtKSkvMTAKICAgIHRpbWVfc3RlcCA8LSAoaF5hbHBoYSkvMTAKICAgIGdyYXBoIDwtIGdldHMuZ3JhcGgudGFkcG9sZShoID0gaCkKICAgIGdyYXBoJGNvbXB1dGVfZmVtKCkKICAgIEcgPC0gZ3JhcGgkbWVzaCRHCiAgICBDIDwtIGdyYXBoJG1lc2gkQwogICAgTCA8LSBrYXBwYV4yKkMgKyBHCiAgICBlaWdlbl9wYXJhbXMgPC0gZ2V0cy5laWdlbi5wYXJhbXMoTl9maW5pdGUgPSBOX2Zpbml0ZSwga2FwcGEgPSBrYXBwYSwgYWxwaGEgPSBhbHBoYSwgZ3JhcGggPSBncmFwaCkKICAgIEVJR0VORlVOIDwtIGVpZ2VuX3BhcmFtcyRFSUdFTkZVTgogICAgVV8wIDwtIEVJR0VORlVOICUqJSBjb2VmZl9VXzAgIyBDb21wdXRlIFVfMCBvbiB0aGUgY3VycmVudCBtZXNoCiAgICBBIDwtIGdyYXBoJGZlbV9iYXNpcyhvdmVya2lsbF9ncmFwaCRnZXRfbWVzaF9sb2NhdGlvbnMoKSkKICAKICAgIHRpbWVfc2VxIDwtIHNlcSgwLCBUX2ZpbmFsLCBsZW5ndGgub3V0ID0gKChUX2ZpbmFsIC0gMCkgLyB0aW1lX3N0ZXAgKyAxKSkKICAgIG15X29wX2ZyYWMgPC0gbXkuZnJhY3Rpb25hbC5vcGVyYXRvcnMuZnJhYyhMLCBiZXRhLCBDLCBzY2FsZS5mYWN0b3IgPSBrYXBwYV4yLCBtID0gbSwgdGltZV9zdGVwKQogICAgSU5UX0JBU0lTX0VJR0VOIDwtIHQob3ZlcmtpbGxfRUlHRU5GVU4pICUqJSBvdmVya2lsbF9ncmFwaCRtZXNoJEMgJSolIEEKICAgICMgQ29tcHV0ZSBtYXRyaXggRiB3aXRoIGNvbHVtbnMgRl5rCiAgICBGRl9hcHByb3ggPC0gdChJTlRfQkFTSVNfRUlHRU4pICUqJSAKICAgICAgb3V0ZXIoMTpsZW5ndGgoY29lZmZfRkYpLCAKICAgICAgICAgICAgMTpsZW5ndGgodGltZV9zZXEpLCAKICAgICAgICBmdW5jdGlvbihpLCBqKSBjb2VmZl9GRltpXSAqIGdfc2luKHIgPSB0aW1lX3NlcVtqXSwgQSA9IEFBQSwgb21lZ2EgPSBPTUVHQSkpCiAgICAKICAgIFVfYXBwcm94IDwtIG1hdHJpeChOQSwgbnJvdyA9IG5yb3coQyksIG5jb2wgPSBsZW5ndGgodGltZV9zZXEpKQogICAgVV9hcHByb3hbLCAxXSA8LSBVXzAKICAgIGZvciAoayBpbiAxOihsZW5ndGgodGltZV9zZXEpIC0gMSkpIHsKICAgICAgVV9hcHByb3hbLCBrICsgMV0gPC0gYXMubWF0cml4KG15LnNvbHZlci5mcmFjKG15X29wX2ZyYWMsIG15X29wX2ZyYWMkQyAlKiUgVV9hcHByb3hbLCBrXSArIHRpbWVfc3RlcCAqIEZGX2FwcHJveFssIGsgKyAxXSkpCiAgICB9CiAgICAKICAgIHByb2plY3RlZF9VX2FwcHJveCA8LSBBICUqJSBVX2FwcHJveAogICAgcHJvamVjdGVkX1VfcGllY2V3aXNlIDwtIGNvbnN0cnVjdF9waWVjZXdpc2VfcHJvamVjdGlvbihwcm9qZWN0ZWRfVV9hcHByb3gsIHRpbWVfc2VxLCBvdmVya2lsbF90aW1lX3NlcSkKICAgIGVycm9yc19wcm9qZWN0ZWRbaSxqXSA8LSBzcXJ0KGFzLmRvdWJsZSh0KG92ZXJraWxsX3dlaWdodHMpICUqJSAob3ZlcmtpbGxfVV90cnVlIC0gcHJvamVjdGVkX1VfcGllY2V3aXNlKV4yICUqJSByZXAob3ZlcmtpbGxfdGltZV9zdGVwLCBsZW5ndGgob3ZlcmtpbGxfdGltZV9zZXEpKSkpCiAgfQp9CnNhdmUoZXJyb3JzX3Byb2plY3RlZCwgZmlsZSA9IGhlcmU6OmhlcmUoImRhdGFfZmlsZXMvZXJyb3JzX3Byb2plY3RlZF9tLlJEYXRhIikpCmBgYAoKCmBgYHtyfQpsb2FkKGhlcmU6OmhlcmUoImRhdGFfZmlsZXMvZXJyb3JzX3Byb2plY3RlZF9tLlJEYXRhIikpCmBgYAoKCmBgYHtyLCBmaWcuYWxpZ249J2NlbnRlcicsIGZpZy5kaW09IGMoNCw1KSwgZmlnLmNhcCA9IGNhcHRpb25lcigiQ2FwdGlvbiIpfQpvYnNlcnZlZF9yYXRlcyA8LSBudW1lcmljKGxlbmd0aChhbHBoYV92ZWN0b3IpKQpmb3IgKHUgaW4gMTpsZW5ndGgoYWxwaGFfdmVjdG9yKSkgewogIG9ic2VydmVkX3JhdGVzW3VdIDwtIGNvZWYobG0obG9nKGVycm9yc19wcm9qZWN0ZWRbLCB1XSkgfiBzcXJ0KG1fdmVjdG9yKSkpWzJdCn0KCnRoZW9yZXRpY2FsX3JhdGVzIDwtIC0gKDQgKiBwaSAqIGFscGhhX3ZlY3RvciAvIDUpICogc3FydCgoMSAtIGFscGhhX3ZlY3RvciAvIDIpKQoKZ3VpZGluZ19saW5lcyA8LSBjb21wdXRlX2d1aWRpbmdfbGluZXMoeF9heGlzX3ZlY3RvciA9IHNxcnQobV92ZWN0b3IpLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZXJyb3JzID0gZXJyb3JzX3Byb2plY3RlZCwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRoZW9yZXRpY2FsX3JhdGVzID0gdGhlb3JldGljYWxfcmF0ZXMsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsaW5lX2VxdWF0aW9uX2Z1biA9IGV4cF9saW5lX2VxdWF0aW9uKQpkZWZhdWx0X2NvbG9ycyA8LSBzY2FsZXM6Omh1ZV9wYWwoKShsZW5ndGgoYWxwaGFfdmVjdG9yKSkKcGxvdF9saW5lcyA8LSBsYXBwbHkoMTpuY29sKGd1aWRpbmdfbGluZXMpLCBmdW5jdGlvbihpKSB7CiAgZ2VvbV9saW5lKAogICAgZGF0YSA9IGRhdGEuZnJhbWUoeCA9IHNxcnQobV92ZWN0b3IpLCB5ID0gZ3VpZGluZ19saW5lc1ssIGldKSwKICAgIGFlcyh4ID0geCwgeSA9IHkpLAogICAgY29sb3IgPSBkZWZhdWx0X2NvbG9yc1tpXSwKICAgIGxpbmV0eXBlID0gImRhc2hlZCIsCiAgICBzaG93LmxlZ2VuZCA9IEZBTFNFCiAgKQp9KQoKZGYgPC0gYXMuZGF0YS5mcmFtZShjYmluZChzcXJ0KG1fdmVjdG9yKSwgZXJyb3JzX3Byb2plY3RlZCkpCmNvbG5hbWVzKGRmKSA8LSBjKCJtX3ZlY3RvciIsIGFscGhhX3ZlY3RvcikKZGZfbWVsdGVkIDwtIG1lbHQoZGYsIGlkLnZhcnMgPSAibV92ZWN0b3IiLCB2YXJpYWJsZS5uYW1lID0gImNvbHVtbiIsIHZhbHVlLm5hbWUgPSAidmFsdWUiKQphbHBoYV9mb3JtYXR0ZWQgPC0gZm9ybWF0QyhhbHBoYV92ZWN0b3IsIGZvcm1hdCA9ICJmIiwgZGlnaXRzID0gMikKY3VzdG9tX2xhYmVscyA8LSBwYXN0ZTAoYWxwaGFfZm9ybWF0dGVkLCAKICAgICAgICAgICAgICAgICAgICAgICAgIiB8ICIsIAogICAgICAgICAgICAgICAgICAgICAgICBmb3JtYXRDKHRoZW9yZXRpY2FsX3JhdGVzLCBmb3JtYXQgPSAiZiIsIGRpZ2l0cyA9IDQpLCAKICAgICAgICAgICAgICAgICAgICAgICAgIiB8ICIsIAogICAgICAgICAgICAgICAgICAgICAgICBmb3JtYXRDKG9ic2VydmVkX3JhdGVzLCBmb3JtYXQgPSAiZiIsIGRpZ2l0cyA9IDQpKQoKZGZfbWVsdGVkJGNvbHVtbiA8LSBmYWN0b3IoZGZfbWVsdGVkJGNvbHVtbiwgbGV2ZWxzID0gYWxwaGFfdmVjdG9yLCBsYWJlbHMgPSBjdXN0b21fbGFiZWxzKQoKcCA8LSBnZ3Bsb3QoKSArCiAgZ2VvbV9saW5lKGRhdGEgPSBkZl9tZWx0ZWQsIGFlcyh4ID0gbV92ZWN0b3IsIHkgPSB2YWx1ZSwgY29sb3IgPSBjb2x1bW4pKSArCiAgZ2VvbV9wb2ludChkYXRhID0gZGZfbWVsdGVkLCBhZXMoeCA9IG1fdmVjdG9yLCB5ID0gdmFsdWUsIGNvbG9yID0gY29sdW1uKSkgKwogIHBsb3RfbGluZXMgKwogIGxhYnMoCiAgICB0aXRsZSA9IGV4cHJlc3Npb24oIkNvbnZlcmdlbmNlIGluICIgKiBpdGFsaWMobSkpLAogICAgeCA9IGV4cHJlc3Npb24oaXRhbGljKG0pKSwKICAgIHkgPSBleHByZXNzaW9uKEVycm9yKSwKICAgIGNvbG9yID0gIiAgICAgICAgICDOsSAgfCB0aGVvICB8IG9icyIKICApICsKICBzY2FsZV94X2NvbnRpbnVvdXMoYnJlYWtzID0gc3FydChtX3ZlY3RvciksIGxhYmVscyA9IHJvdW5kKG1fdmVjdG9yLCA0KSkgKwogIHNjYWxlX3lfY29udGludW91cygKICB0cmFucyA9ICJsb2ciLAogIGxhYmVscyA9IGZ1bmN0aW9uKHgpIGZvcm1hdEMoeCwgZm9ybWF0ID0gImYiLCBkaWdpdHMgPSA0KSkgKwogIHRoZW1lX21pbmltYWwoKSArCiAgdGhlbWUodGV4dCA9IGVsZW1lbnRfdGV4dChmYW1pbHkgPSAiUGFsYXRpbm8iKSwKICAgICAgICBsZWdlbmQucG9zaXRpb24gPSAiYm90dG9tIiwKICAgICAgICBsZWdlbmQuZGlyZWN0aW9uID0gInZlcnRpY2FsIiwKICAgICAgICBwbG90Lm1hcmdpbiA9IG1hcmdpbigwLCAwLCAwLCAwKSwKICAgICAgICBwbG90LnRpdGxlID0gZWxlbWVudF90ZXh0KGhqdXN0ID0gMC41LCBzaXplID0gMTgsIGZhY2UgPSAiYm9sZCIpKQpwCmBgYAoKCmBgYHtyfQpnZ3NhdmUoaGVyZTo6aGVyZSgiZGF0YV9maWxlcy9jb252X3JhdGVzX20ucG5nIiksIHdpZHRoID0gNCwgaGVpZ2h0ID0gNSwgcGxvdCA9IHAsIGRwaSA9IDMwMCkKYGBgCgoKIyBSZWZlcmVuY2VzCgpgYGB7cn0KY2l0ZV9wYWNrYWdlcyhvdXRwdXQgPSAicGFyYWdyYXBoIiwgb3V0LmRpciA9ICIuIikKYGBgCg==</div>
 
 
 
