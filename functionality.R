@@ -449,3 +449,244 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, ...) {
   return(p)
 }
 
+
+## -----------------------------------------------------------------------------
+# Function to plot the error at each time step
+error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_step) {
+  weights <- graph$mesh$weights
+  error_at_each_time <- t(weights) %*% (U_true - U_approx)^2
+  error <- sqrt(as.double(t(weights) %*% (U_true - U_approx)^2 %*% rep(time_step, ncol(U_true))))
+  p <- plot_ly() %>% 
+  add_trace(
+  x = ~time_seq, y = ~error_at_each_time, type = 'scatter', mode = 'lines+markers',
+  line = list(color = 'blue', width = 2),
+  marker = list(color = 'blue', size = 4),
+  name = "",
+  showlegend = TRUE
+) %>% 
+  layout(
+  title = paste0("Error at Each Time Step (Total error = ", formatC(error, format = "f", digits = 9), ")"),
+  xaxis = list(title = "t"),
+  yaxis = list(title = "Error"),
+  legend = list(x = 0.1, y = 0.9)
+)
+  return(p)
+}
+
+
+## -----------------------------------------------------------------------------
+# Function to plot the 3D comparison of U_true and U_approx
+graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
+  x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
+  x <- plotting.order(x, graph); y <- plotting.order(y, graph)
+
+  U_true <- apply(U_true, 2, plotting.order, graph = graph)
+  U_approx <- apply(U_approx, 2, plotting.order, graph = graph)
+  n_times <- length(time_seq)
+  
+  x_range <- range(x); y_range <- range(y); z_range <- range(c(U_true, U_approx))
+  
+  # Normalize time_seq
+  time_normalized <- (time_seq - min(time_seq)) / (max(time_seq) - min(time_seq))
+  blues <- colorRampPalette(c("lightblue", "blue"))(n_times)
+  reds <- colorRampPalette(c("mistyrose", "red"))(n_times)
+  
+  # Accurate colorscales
+  colorscale_greens <- Map(function(t, col) list(t, col), time_normalized, blues)
+  colorscale_reds <- Map(function(t, col) list(t, col), time_normalized, reds)
+  
+  p <- plot_ly()
+  
+  # Static black graph structure
+  p <- p %>%
+    add_trace(x = x, y = y, z = rep(0, length(x)),
+              type = "scatter3d", mode = "lines",
+              line = list(color = "black", width = 4),
+              name = "Graph", showlegend = FALSE)
+  
+  # U_true traces (green)
+  for (i in seq_len(n_times)) {
+    z <- U_true[, i]
+    p <- add_trace(
+      p,
+      type = "scatter3d",
+      mode = "lines",
+      x = x, y = y, z = z,
+      line = list(color = blues[i], width = 4),
+      showlegend = FALSE,
+      scene = "scene"
+    )
+  }
+  
+  # U_approx traces (dashed red)
+  for (i in seq_len(n_times)) {
+    z <- U_approx[, i]
+    p <- add_trace(
+      p,
+      type = "scatter3d",
+      mode = "lines",
+      x = x, y = y, z = z,
+      line = list(color = reds[i], width = 4, dash = "dot"),
+      showlegend = FALSE,
+      scene = "scene"
+    )
+  }
+  
+  # Dummy green colorbar (True) – with ticks
+  p <- add_trace(
+    p,
+    type = "heatmap",
+    z = matrix(time_seq, nrow = 1),
+    showscale = TRUE,
+    colorscale = colorscale_greens,
+    colorbar = list(
+      title = list(font = list(size = 12, color = "black"), text = "Time", side = "top"),
+      len = 0.9,
+      thickness = 15,
+      x = 1.02,
+      xanchor = "left",
+      y = 0.5,
+      yanchor = "middle",
+      tickvals = NULL,   # hide tick values
+      ticktext = NULL,
+      ticks = ""         # also hides tick marks
+    ),
+    x = matrix(time_seq, nrow = 1),
+    y = matrix(1, nrow = 1),
+    hoverinfo = "skip",
+    opacity = 0
+  )
+
+# Dummy red colorbar (Approx) – no ticks
+  p <- add_trace(
+    p,
+    type = "heatmap",
+    z = matrix(time_seq, nrow = 1),
+    showscale = TRUE,
+    colorscale = colorscale_reds,
+    colorbar = list(
+      title = list(font = list(size = 12, color = "black"), text = ".", side = "top"),
+      len = 0.9,
+      thickness = 15,
+      x = 1.05,
+      xanchor = "left",
+      y = 0.5,
+      yanchor = "middle"
+    ),
+    x = matrix(time_seq, nrow = 1),
+    y = matrix(1, nrow = 1),
+    hoverinfo = "skip",
+    opacity = 0
+  )
+  p <- p %>%
+    add_trace(x = x, y = y, z = rep(0, length(x)),
+              type = "scatter3d", mode = "lines",
+              line = list(color = "black", width = 4),
+              name = "Graph", showlegend = FALSE)
+  p <- layout(p,
+            scene = global.scene.setter(x_range, y_range, z_range),
+            xaxis = list(visible = FALSE),
+            yaxis = list(visible = FALSE),
+            annotations = list(
+  list(
+    text = "Exact",
+    x = 1.045,
+    y = 0.5,
+    xref = "paper",
+    yref = "paper",
+    showarrow = FALSE,
+    font = list(size = 12, color = "black"),
+    textangle = -90
+  ),
+  list(
+    text = "Approx",
+    x = 1.075,
+    y = 0.5,
+    xref = "paper",
+    yref = "paper",
+    showarrow = FALSE,
+    font = list(size = 12, color = "black"),
+    textangle = -90
+  )
+)
+
+)
+
+  
+  return(p)
+}
+
+
+## -----------------------------------------------------------------------------
+# Function to plot a single 3D line for 
+graph.plotter.3d.single <- function(graph, U_true, time_seq) {
+  x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
+  x <- plotting.order(x, graph); y <- plotting.order(y, graph)
+
+  U_true <- apply(U_true, 2, plotting.order, graph = graph)
+  n_times <- length(time_seq)
+  
+  x_range <- range(x); y_range <- range(y); z_range <- range(U_true)
+  z_range[1] <- z_range[1] - 10^-6
+  viridis_colors <- viridisLite::viridis(100)
+  
+  # Normalize time_seq
+  time_normalized <- (time_seq - min(time_seq)) / (max(time_seq) - min(time_seq))
+  #greens <- colorRampPalette(c("palegreen", "darkgreen"))(n_times)
+  greens <- colorRampPalette(c(viridis_colors[1], viridis_colors[50],  viridis_colors[100]))(n_times)
+  # Accurate colorscales
+  colorscale_greens <- Map(function(t, col) list(t, col), time_normalized, greens)
+  
+  p <- plot_ly()
+  
+  # Add the 3D lines with fading green color
+  for (i in seq_len(n_times)) {
+    z <- U_true[, i]
+    
+    p <- add_trace(
+      p,
+      type = "scatter3d",
+      mode = "lines",
+      x = x,
+      y = y,
+      z = z,
+      line = list(color = greens[i], width = 2),
+      showlegend = FALSE,
+      scene = "scene"
+    )
+  }
+  p <- p %>%
+    add_trace(x = x, y = y, z = rep(0, length(x)),
+              type = "scatter3d", mode = "lines",
+              line = list(color = "black", width = 5),
+              name = "Graph", showlegend = FALSE)
+  # Add dummy heatmap to show colorbar (not part of scene)
+  p <- add_trace(
+    p,
+    type = "heatmap",
+    z = matrix(time_seq, nrow = 1),
+    showscale = TRUE,
+    colorscale = colorscale_greens,
+    colorbar = list(
+    title = list(font = list(size = 12, color = "black"), text = "Time", side = "top"),
+    len = 0.9,         # height (0 to 1)
+    thickness = 15,     # width in pixels
+    x = 1.02,           # shift it slightly right of the plot
+    xanchor = "left",
+    y = 0.5,
+    yanchor = "middle"),
+    x = matrix(time_seq, nrow = 1),
+    y = matrix(1, nrow = 1),
+    hoverinfo = "skip",
+    opacity = 0
+  )
+  
+  p <- layout(p,
+              scene = global.scene.setter(x_range, y_range, z_range),
+              xaxis = list(visible = FALSE),
+              yaxis = list(visible = FALSE)
+  )
+  
+  return(p)
+}
+

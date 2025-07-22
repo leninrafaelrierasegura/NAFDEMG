@@ -209,7 +209,7 @@ INDEX <- eigenpairs$INDEX
 ```
 
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Illustration of the eigenfunctions on the tadpole graph")}
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Illustration of the eigenfunctions on the tadpole graph.")}
 graph.plotter.3d(graph, INDEX, EIGENVAL, EIGENFUN)
 ```
 

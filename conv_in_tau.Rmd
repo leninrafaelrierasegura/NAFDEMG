@@ -77,10 +77,6 @@ captioner <- function(caption) {
   fig_count <<- fig_count + 1
   paste0("Figure ", fig_count, ": ", caption)
 }
-# Define the function to truncate a number to two decimal places
-truncate_to_two <- function(x) {
-  floor(x * 10000) / 10000
-}
 ```
 
 
@@ -97,8 +93,6 @@ library(reshape2)
 library(plotly)
 ```
 
-
-# Utilitary functions
 
 ```{r}
 capture.output(
