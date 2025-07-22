@@ -103,7 +103,73 @@ capture.output(
 source(here::here("functionality.R"))
 ```
 
+Go back to the [About page](about.html).
 
+## Fractional diffusion equations on metric graphs
+
+We analyze and numerically approximate solutions to fractional diffusion equations on metric graphs of the form
+\begin{equation}
+\label{eq:maineq}
+\tag{1}
+\left\{
+\begin{aligned}
+    \partial_t u(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s,t) &= f(s,t), && \quad (s,t) \in \Gamma \times (0, T), \\
+    u(s,0) &= u_0(s), && \quad s \in \Gamma,
+\end{aligned}
+\right.
+\end{equation}
+with $u(\cdot,t)$ satisfying the Kirchhoff vertex conditions
+\begin{equation}
+\label{eq:Kcond}
+\tag{2}
+   \mathcal{K} =  \left\{\phi\in C(\Gamma)\;\middle|\; \forall v\in \mathcal{V}:\; \textstyle\sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}.
+\end{equation}
+Here $\Gamma = (\mathcal{V},\mathcal{E})$ is a metric graph, $\kappa>0$, $\alpha\in(0,2]$ determines the smoothness of $u(\cdot,t)$, $\Delta_{\Gamma}$ is the so-called Kirchhoff--Laplacian, and $f:\Gamma\times (0,T)\to\mathbb{R}$ and $u_0: \Gamma \to \mathbb{R}$ are fixed functions, called right-hand side and initial condition, respectively.
+
+## Eigenfunction-based construction of an exact solution
+
+The exact solution to \eqref{eq:maineq} can be expressed as
+\begin{equation}
+\label{eq:sol_reprentation}
+\tag{3}
+        u(s,t) = \displaystyle\sum_{j\in\mathbb{N}}e^{-\lambda^{\alpha/2}_jt}\left(u_0, e_j\right)_{L_2(\Gamma)}e_j(s) + \int_0^t \displaystyle\sum_{j\in\mathbb{N}}e^{-\lambda^{\alpha/2}_j(t-r)}\left(f(\cdot, r), e_j\right)_{L_2(\Gamma)}e_j(s)dr.
+\end{equation}
+
+To construct an exact solution, we expand both the initial condition and the right-hand side in terms of the eigenfunctions. We choose coefficients $\{x_j\}_{j=1}^{\infty}$ and  $\{y_j\}_{j=1}^{\infty}$ and a scalar function $g(t)$ and set
+\begin{align}
+\tag{4}
+    u_0(s) = \sum_{j=1}^{\infty} x_j e_j(s)\quad \text{ and }\quad
+    f(s,t) = g(t) \sum_{j=1}^{\infty} y_j e_j(s).
+\end{align}
+ Substituting these expressions into the solution formula \eqref{eq:sol_reprentation}, we obtain
+\begin{align}
+\label{sollll}
+\tag{5}
+    u(s,t) = \sum_{j=1}^{\infty}(x_j+y_j G_j(t))e^{-\lambda^{\alpha/2}_jt}e_j(s),\quad G_j(t)= \int_0^t e^{\lambda^{\alpha/2}_jr}g(r)dr,
+\end{align}
+where the integral can be evaluated analytically for some choices of $g(t)$, as shown in the  [Functionality](functionality.html#exact_solution) page. The following list shows how the above expressions are implemented in $\texttt{R}$.
+\begin{aligned}
+\text{expression} \iff&\quad \text{In } \texttt{R}\\
+\{x_j\}_{j=1}^{\infty} \iff&\quad  \texttt{coeff_U_0}\\
+\{y_j\}_{j=1}^{\infty} \iff&\quad  \texttt{coeff_FF}\\
+[e_1 e_2 \dots e_{N_*}] \iff&\quad  \texttt{EIGENFUN}\\
+u_0(s) \iff&\quad  \texttt{U_0 <- EIGENFUN %*% coeff_U_0}\\
+f(s,t) \iff&\quad  \texttt{FF_true <- EIGENFUN %*% outer(1:length(coeff_FF), 1:length(time_seq), function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))}\\
+u(s,t) \iff&\quad  \texttt{U_true <- EIGENFUN %*% outer(1:length(coeff_U_0), 1:length(time_seq), function(i, j) (coeff_U_0[i] + coeff_FF[i] * G_sin(t = time_seq[j], A = AAA, lambda_j_alpha_half = EIGENVAL_ALPHA[i], omega = OMEGA)) * exp(-EIGENVAL_ALPHA[i] * time_seq[j]))}
+\end{aligned}
+
+From the [Functionality](functionality.html#num_scheme) page, we know that the solution to \eqref{eq:maineq} can be approximated by a numerical scheme of the form
+\begin{equation}
+\label{eq:final_scheme2}
+\tag{6}
+\boldsymbol{U}^{k+1} = \boldsymbol{C}^{-1}\left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1} + r\boldsymbol{I}\right) (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1})
+\end{equation}
+Let $\boldsymbol{F}$ be the matrix with columns $\boldsymbol{F}^k$. Then $\boldsymbol{F}$ and $\boldsymbol{U}^{k+1}$ can be implemented in $\texttt{R}$ as
+\begin{aligned}
+\text{expression} \iff&\quad \text{In } \texttt{R}\\
+\boldsymbol{F}\iff&\quad  \texttt{FF_innerprod <- t(graph\$fem_basis(overkill_graph\$get_mesh_locations())) %*% overkill_graph\$mesh\$C %*% overkill_EIGENFUN %*% outer(1:length(coeff_FF), 1:length(time_seq), function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))}\\
+\boldsymbol{U}^{k+1}\iff&\quad \texttt{U_approx[, k + 1] <- as.matrix(my.solver.frac(my_op_frac, my_op_frac\$C %*% U_approx[, k] + time_step * FF_innerprod[, k + 1]))}
+\end{aligned}
 
 ```{r}
 T_final <- 2

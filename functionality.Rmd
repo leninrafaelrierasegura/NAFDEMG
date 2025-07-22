@@ -51,9 +51,9 @@ set.seed(1982)
 # Set global options for all code chunks
 knitr::opts_chunk$set(
   # Disable messages printed by R code chunks
-  message = TRUE,    
+  message = FALSE,    
   # Disable warnings printed by R code chunks
-  warning = TRUE,    
+  warning = FALSE,    
   # Show R code within code chunks in output
   echo = TRUE,        
   # Include both R code and its results in output
@@ -118,7 +118,7 @@ with $u(\cdot,t)$ satisfying the Kirchhoff vertex conditions
 \end{equation}
 Here $\Gamma = (\mathcal{V},\mathcal{E})$ is a metric graph, $\kappa>0$, $\alpha\in(0,2]$ determines the smoothness of $u(\cdot,t)$, $\Delta_{\Gamma}$ is the so-called Kirchhoff--Laplacian, and $f:\Gamma\times (0,T)\to\mathbb{R}$ and $u_0: \Gamma \to \mathbb{R}$ are fixed functions, called right-hand side and initial condition, respectively.
 
-## Numerical Scheme
+## Numerical Scheme {#num_scheme}
 
 Let $\alpha\in(0,2]$ and $U_h^\tau$ denote the sequence of approximations of the solution to the weak form of problem \eqref{eq:maineq} at each time step on a mesh indexed by $h$. Let $U^0_h = P_hu_0$. For $k=0,\dots, N-1$, $U_h^{k+1}\in V_h$ solves the following scheme
 \begin{align}
@@ -521,7 +521,7 @@ compute_guiding_lines <- function(x_axis_vector, errors, theoretical_rates, line
 
 
 
-#### Functions for computing an exact solution to the fractional diffusion equation
+#### Functions for computing an exact solution to the fractional diffusion equation {#exact_solution}
 
 Below we present closed-form expressions for $\displaystyle G_j(t)= \int_0^t e^{\lambda^{\alpha/2}_jr}g(r)dr$ corresponding to some choices of $g(r)$.
 
