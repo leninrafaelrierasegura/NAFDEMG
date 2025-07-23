@@ -458,7 +458,7 @@ gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
 ```
 
 
-#### Function `construct_piecewise_projection()`
+#### Function `construct_piecewise_projection()` {#construct_piecewise_projection}
 
 Given a matrix `projected_U_approx` with approximated values at discrete time points, a sequence of time points `time_seq`, and an extended sequence of time points `overkill_time_seq`, function `construct_piecewise_projection()` constructs a piecewise constant projection of the approximated values over the extended time sequence.
 

@@ -80,6 +80,10 @@ captioner <- function(caption) {
 ```
 
 
+::: {.custom-box}
+To observe convergence in $m$, we fix $m$ and balance the spatial and temporal error contributions by letting  $h \sim e^{-4\pi/5\sqrt{(1-\alpha/2)m}}$ and then $\tau \sim h^{\alpha}$, respectively. With this scaling, the convergence with respect to the rational order $m$ is exponential. That is, $\|u-U_{h,m}^\tau\|_{L_2((0,T);L_2(\Gamma))} \leq C_me^{-4\pi\alpha/5\sqrt{(1-\alpha/2)m}}$. This can be verified by estimating the slope $S_m$ in the regression $\log_e E = S_m\sqrt{m} +\log_e C_m$, where we expect $S_m\sim -4\pi\alpha/5\sqrt{(1-\alpha/2)}$.
+:::
+
 
 ```{r}
 # remotes::install_github("davidbolin/rspde", ref = "devel")
@@ -104,6 +108,7 @@ source(here::here("functionality.R"))
 ```
 
 
+
 ```{r}
 # Parameters
 T_final <- 2
@@ -117,10 +122,7 @@ coeff_FF <- rep(0, adjusted_N_finite)
 coeff_FF[7] <- 10
 
 AAA = 1
-MU = 0.3
-NNN = 2
 OMEGA = pi
-THETA = pi
 
 # Time step and mesh size
 m_vector <- c(1, 2, 3, 4)
@@ -141,7 +143,7 @@ alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
-```{r, eval = FALSE}
+```{r, eval = FALSE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_projected <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {
@@ -202,7 +204,7 @@ load(here::here("data_files/errors_projected_m.RData"))
 ```
 
 
-```{r, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Caption")}
+```{r, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 observed_rates <- numeric(length(alpha_vector))
 for (u in 1:length(alpha_vector)) {
   observed_rates[u] <- coef(lm(log(errors_projected[, u]) ~ sqrt(m_vector)))[2]

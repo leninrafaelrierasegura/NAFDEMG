@@ -80,6 +80,10 @@ captioner <- function(caption) {
 ```
 
 
+::: {.custom-box}
+To observe convergence in $\tau$, we fix $\tau$ and balance the spatial and rational-approx error components by setting $h \sim \tau^{1/\alpha}$ and then $m \sim \lceil25\log_e^2(h)/(16\pi^2(1-\alpha/2))\rceil$, respectively. Under this scaling, the total convergence rate with respect to the time step $\tau$ is of order $1$. That is, $\|u-U_{h,m}^\tau\|_{L_2((0,T);L_2(\Gamma))} \leq C_\tau\tau$. This can be verified by estimating the slope $S_\tau$ in the regression $\log_{10} E = S_\tau\log_{10} \tau + \log_{10} C_\tau$, where we expect $S_\tau\sim1$. 
+:::
+
 
 ```{r}
 # remotes::install_github("davidbolin/rspde", ref = "devel")
@@ -103,6 +107,8 @@ source(here::here("functionality.R"))
 ```
 
 
+
+
 ```{r}
 # Parameters
 T_final <- 2
@@ -116,10 +122,7 @@ coeff_FF <- rep(0, adjusted_N_finite)
 coeff_FF[7] <- 10
 
 AAA = 1
-MU = 0.3
-NNN = 2
 OMEGA = pi
-THETA = pi
 
 # Time step and mesh size
 POWERS <- seq(6.125, 5.625, by = -0.1)
@@ -142,7 +145,7 @@ alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
-```{r, eval = FALSE}
+```{r, eval = FALSE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_projected <- matrix(NA, nrow = length(tau_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {
@@ -205,7 +208,7 @@ load(here::here("data_files/errors_projected_tau.RData"))
 
 
 
-```{r, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Caption")}
+```{r, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 observed_rates <- numeric(length(alpha_vector))
 for (u in 1:length(alpha_vector)) {
   observed_rates[u] <- coef(lm(log10(errors_projected[, u]) ~ log10(tau_vector)))[2]

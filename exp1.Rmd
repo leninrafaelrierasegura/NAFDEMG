@@ -105,7 +105,7 @@ source(here::here("functionality.R"))
 
 Go back to the [About page](about.html).
 
-## Fractional diffusion equations on metric graphs
+## The equation
 
 We analyze and numerically approximate solutions to fractional diffusion equations on metric graphs of the form
 \begin{equation}
@@ -152,11 +152,19 @@ where the integral can be evaluated analytically for some choices of $g(t)$, as 
 \text{expression} \iff&\quad \text{In } \texttt{R}\\
 \{x_j\}_{j=1}^{\infty} \iff&\quad  \texttt{coeff_U_0}\\
 \{y_j\}_{j=1}^{\infty} \iff&\quad  \texttt{coeff_FF}\\
-[e_1 e_2 \dots e_{N_*}] \iff&\quad  \texttt{EIGENFUN}\\
+[e_1 e_2 \dots e_{N_f}] \iff&\quad  \texttt{EIGENFUN}\\
 u_0(s) \iff&\quad  \texttt{U_0 <- EIGENFUN %*% coeff_U_0}\\
-f(s,t) \iff&\quad  \texttt{FF_true <- EIGENFUN %*% outer(1:length(coeff_FF), 1:length(time_seq), function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))}\\
-u(s,t) \iff&\quad  \texttt{U_true <- EIGENFUN %*% outer(1:length(coeff_U_0), 1:length(time_seq), function(i, j) (coeff_U_0[i] + coeff_FF[i] * G_sin(t = time_seq[j], A = AAA, lambda_j_alpha_half = EIGENVAL_ALPHA[i], omega = OMEGA)) * exp(-EIGENVAL_ALPHA[i] * time_seq[j]))}
+f(s,t) \iff&\quad  \texttt{FF_true <- EIGENFUN %*%}\\
+&\quad\texttt{ outer(1:length(coeff_FF),}\\
+&\qquad\qquad\texttt{ 1:length(time_seq),}\\
+&\qquad\qquad\texttt{ function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))}\\
+u(s,t) \iff&\quad  \texttt{U_true <- EIGENFUN %*%}\\
+&\quad\texttt{ outer(1:length(coeff_U_0),}\\
+&\qquad\qquad\texttt{ 1:length(time_seq),}\\
+&\qquad\qquad\texttt{ function(i, j) (coeff_U_0[i] + coeff_FF[i] * G_sin(t = time_seq[j], A = AAA, lambda_j_alpha_half = EIGENVAL_ALPHA[i], omega = OMEGA)) *}\\
+&\qquad\qquad\qquad\qquad\qquad\qquad\quad\texttt{exp(-EIGENVAL_ALPHA[i] * time_seq[j]))}
 \end{aligned}
+
 
 From the [Functionality](functionality.html#num_scheme) page, we know that the solution to \eqref{eq:maineq} can be approximated by a numerical scheme of the form
 \begin{equation}
@@ -164,10 +172,27 @@ From the [Functionality](functionality.html#num_scheme) page, we know that the s
 \tag{6}
 \boldsymbol{U}^{k+1} = \boldsymbol{C}^{-1}\left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1} + r\boldsymbol{I}\right) (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1})
 \end{equation}
-Let $\boldsymbol{F}$ be the matrix with columns $\boldsymbol{F}^k$. Then $\boldsymbol{F}$ and $\boldsymbol{U}^{k+1}$ can be implemented in $\texttt{R}$ as
+Let $\boldsymbol{F}$ be the matrix with columns $\boldsymbol{F}^k$. This matrix has entries $\boldsymbol{F}_{ik}$ given by
+\begin{align}
+\label{eq:innerprod}
+\tag{7}
+    (f^{k},\psi^i_h)_{L_2(\Gamma)} = (f(\cdot,t_k),\psi^i_h)_{L_2(\Gamma)} = \sum_{j=1}^{N_f} y_j g(t_k) (e_j,\psi^i_h)_{L_2(\Gamma)}.
+\end{align}
+To approximate the inner products $(e_j,\psi^i_h)_{L_2(\Gamma)}$, we use the quadrature formula $\boldsymbol{\psi}_i^\top\boldsymbol{C}^{\text{ok}}\boldsymbol{e}_j$, where $\boldsymbol{e}_j=[e_j(s_1)\dots e_j(s_{N_{h_{\text{ok}}}})]^\top$ and $\boldsymbol{\psi}_i=[\psi^i_h(s_1)\dots \psi^i_h(s_{N_{h_{\text{ok}}}})]^\top$  are vectors of function evaluations on a fine spatial mesh with mesh size $h_{\text{ok}}$ and nodes $\{s_\ell\}_{\ell=1}^{N_{h_{\text{ok}}}}$. Matrix $\boldsymbol{C}^{\text{ok}}$ contains the corresponding quadrature weights, with entries $\boldsymbol{C}^{\text{ok}}_{nm} = (\psi_{h_\text{ok}}^n,\psi_{h_\text{ok}}^m)_{L_2(\Gamma)}$ for $n,m = 1,\dots, N_{h_\text{ok}}$. We emphasize that two spatial meshes are involved in this construction. The basis functions $\{\psi^i_h\}_{i=1}^{N_h}$ are defined on a coarse spatial mesh with mesh size $h$, while the quadrature is carried out over a finer mesh with associated basis functions $\{\psi^\ell_{h_\text{ok}}\}_{\ell=1}^{N_{h_\text{ok}}}$ and mesh size $h_\text{ok}$. If $\boldsymbol{N}$ denotes the matrix with entries $\boldsymbol{N}_{jk} = y_j g(t_k)$, then $\boldsymbol{F}$ can be approximated as $[\boldsymbol{\psi}_1\dots \boldsymbol{\psi}_{N_h}]^\top \boldsymbol{C}^{\text{ok}} [\boldsymbol{e}_1\dots \boldsymbol{e}_{N_f}] \boldsymbol{N}$. In $\texttt{R}$,  $\boldsymbol{F}$ and $\boldsymbol{U}^{k+1}$ are implemented as
 \begin{aligned}
 \text{expression} \iff&\quad \text{In } \texttt{R}\\
-\boldsymbol{F}\iff&\quad  \texttt{FF_innerprod <- t(graph\$fem_basis(overkill_graph\$get_mesh_locations())) %*% overkill_graph\$mesh\$C %*% overkill_EIGENFUN %*% outer(1:length(coeff_FF), 1:length(time_seq), function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))}\\
+[\boldsymbol{\psi}_1\dots \boldsymbol{\psi}_{N_h}]^\top \iff&\quad \texttt{t(graph\$fem_basis(overkill_graph\$get_mesh_locations()))}\\
+\boldsymbol{C}^{\text{ok}} \iff&\quad \texttt{overkill_graph\$mesh\$C}\\
+[\boldsymbol{e}_1\dots \boldsymbol{e}_{N_f}] \iff&\quad \texttt{overkill_EIGENFUN}\\
+\boldsymbol{N} \iff&\quad \texttt{outer(1:length(coeff_FF),}\\
+&\qquad\quad\;\;\texttt{ 1:length(time_seq),}\\
+&\qquad\quad\;\;\texttt{ function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))}\\
+\boldsymbol{F}\iff&\quad  \texttt{FF_innerprod <- t(graph\$fem_basis(overkill_graph\$get_mesh_locations())) %*%}\\
+&\quad\texttt{overkill_graph\$mesh\$C %*%}\\
+&\quad\texttt{overkill_EIGENFUN %*%}\\
+&\quad\texttt{outer(1:length(coeff_FF),}\\
+&\qquad\qquad\texttt{1:length(time_seq),}\\
+&\qquad\qquad\texttt{function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))}\\
 \boldsymbol{U}^{k+1}\iff&\quad \texttt{U_approx[, k + 1] <- as.matrix(my.solver.frac(my_op_frac, my_op_frac\$C %*% U_approx[, k] + time_step * FF_innerprod[, k + 1]))}
 \end{aligned}
 

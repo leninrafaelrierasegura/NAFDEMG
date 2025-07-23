@@ -80,6 +80,10 @@ captioner <- function(caption) {
 ```
 
 
+::: {.custom-box}
+To observe convergence in $h$, we fix $h$ and balance the temporal and rational-approx error contributions by taking $\tau \sim h^\alpha$ and then $m \sim \lceil25\log_e^2(h)/(16\pi^2(1-\alpha/2))\rceil$, respectively. This ensures that the total convergence rate with respect to the mesh size $h$ is of order $\alpha$. That is, $\|u-U_{h,m}^\tau\|_{L_2((0,T);L_2(\Gamma))} \leq C_hh^\alpha$. This can be verified by estimating the slope $S_h$ in the regression $\log_{10} E = S_h\log_{10} h+\log_{10} C_h$, where we expect $S_h\sim\alpha$.
+:::
+
 
 ```{r}
 # remotes::install_github("davidbolin/rspde", ref = "devel")
@@ -104,6 +108,8 @@ source(here::here("functionality.R"))
 ```
 
 
+
+
 ```{r}
 # Parameters
 T_final <- 2
@@ -117,10 +123,7 @@ coeff_FF <- rep(0, adjusted_N_finite)
 coeff_FF[7] <- 10
 
 AAA = 1
-MU = 0.3
-NNN = 2
 OMEGA = pi
-THETA = pi
 
 # Time step and mesh size
 POWERS <- seq(14, 9, by = -1)
@@ -146,7 +149,7 @@ alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
-```{r, eval = FALSE}
+```{r, eval = FALSE, class.source = "fold-show"}
 errors_projected <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {
   alpha <- alpha_vector[j] # from 0.5 to 2
@@ -208,7 +211,7 @@ load(here::here("data_files/errors_projected_h.RData"))
 ```
 
 
-```{r, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Caption")}
+```{r, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $h$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 observed_rates <- numeric(length(alpha_vector))
 for (u in 1:length(alpha_vector)) {
   observed_rates[u] <- coef(lm(log10(errors_projected[, u]) ~ log10(h_vector)))[2]
