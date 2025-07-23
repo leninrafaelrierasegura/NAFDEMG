@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Optimal control of fractional diffusion equations on metric graphs</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="site_libs/clipboard-2.0.6/clipboard.min.js"></script>
+<link href="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.css" rel="stylesheet" />
+<script src="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.js"></script>
+<script>window.xaringanExtraClipboard(null, {"button":"<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"><\/i>","success":"<i class=\"fa fa-check\" style=\"color: #90BE6D\"><\/i>","error":"<i class=\"fa fa-times-circle\" style=\"color: #F94144\"><\/i>"})</script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+<style type="text/css">
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="visual.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">NAFDEMG</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="preliminaries.html">Preliminaries</a>
+</li>
+<li>
+  <a href="functionality.html">Functionality</a>
+</li>
+<li>
+  <a href="exp1.html">Experiment</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Convergence rates
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="conv_in_h.html">Convergence in 𝘩</a>
+    </li>
+    <li>
+      <a href="conv_in_tau.html">Convergence in τ</a>
+    </li>
+    <li>
+      <a href="conv_in_m.html">Convergence in 𝑚</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Optimal Control
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="control1.html">Optimal Control 1</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://arxiv.org/abs/0000.00000">
+    <span class="fa fa-file-pdf"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/leninrafaelrierasegura/NAFDEMG">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Optimal control of fractional diffusion
+equations on metric graphs</h1>
+<h4 class="date">Last modified: 23-07-2025.</h4>
+
+</div>
+
+
+<div style="color: #2c3e50; text-align: right;">
+<hr />
+<p><strong>Press Show to reveal the code chunks.</strong></p>
+<hr />
+</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Create a clipboard button on the rendered HTML page</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;clipboard.R&quot;</span>)); clipboard</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Set seed for reproducibility</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1982</span>) </span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># Set global options for all code chunks</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="co"># Disable messages printed by R code chunks</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">FALSE</span>,    </span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="co"># Disable warnings printed by R code chunks</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">FALSE</span>,    </span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="co"># Show R code within code chunks in output</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,        </span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="co"># Include both R code and its results in output</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="at">include =</span> <span class="cn">TRUE</span>,     </span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="co"># Evaluate R code chunks</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">TRUE</span>,       </span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="co"># Enable caching of R code chunks for faster rendering</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">FALSE</span>,      </span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="co"># Align figures in the center of the output</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">&quot;center&quot;</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="co"># Enable retina display for high-resolution figures</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="at">retina =</span> <span class="dv">2</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  <span class="co"># Show errors in the output instead of stopping rendering</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="at">error =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="co"># Do not collapse code and output into a single block</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  <span class="at">collapse =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>)</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co"># Start the figure counter</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>fig_count <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co"># Define the captioner function</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>captioner <span class="ot">&lt;-</span> <span class="cf">function</span>(caption) {</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  fig_count <span class="ot">&lt;&lt;-</span> fig_count <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;Figure &quot;</span>, fig_count, <span class="st">&quot;: &quot;</span>, caption)</span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(MetricGraph)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">library</span>(plotly)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">capture.output</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">purl</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.Rmd&quot;</span>), <span class="at">output =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.R&quot;</span>)),</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">file =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;purl_log.txt&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.R&quot;</span>))</span></code></pre></div>
+<div
+id="optimal-control-of-fractional-diffusion-equations-on-metric-graphs"
+class="section level2">
+<h2>Optimal control of fractional diffusion equations on metric
+graphs</h2>
+<p>Let <span class="math inline">\(\Gamma =
+(\mathcal{V},\mathcal{E})\)</span> be a metric graph. Let <span
+class="math inline">\(u_d: \Gamma \times(0, T) \rightarrow
+\mathbb{R}\)</span> be the desired state and <span
+class="math inline">\(\mu&gt;0\)</span> a regularization parameter. We
+define the cost functional</p>
+<p><span class="math display">\[\begin{equation}
+\label{eq:costfun}
+\tag{1}
+    J(u, z)=\frac{1}{2}
+\int_0^T\left(\left\|u-u_d\right\|_{L_2(\Gamma)}^2+\mu\|z\|_{L_2(\Gamma)}^2\right)
+dt
+\end{equation}\]</span></p>
+<p>Let <span class="math inline">\(f:\Gamma\times
+(0,T)\rightarrow\mathbb{R}\)</span> and <span class="math inline">\(u_0:
+\Gamma \rightarrow \mathbb{R}\)</span> be fixed functions. We will call
+them right-hand side and initial datum, respectively. Let <span
+class="math inline">\(\alpha\in(0,2]\)</span> and <span
+class="math inline">\(z: \Gamma \times(0, T) \rightarrow
+\mathbb{R}\)</span> denote the control variable. We shall be concerned
+with the following PDE-constrained optimization problem: Find</p>
+<p><span class="math display">\[\begin{equation}
+\label{eq:min_pro}
+\tag{2}
+    \min\; J(u, z)
+\end{equation}\]</span> subject to the fractional diffusion equation
+<span class="math display">\[\begin{equation}
+\label{eq:maineq}
+\tag{3}
+\left\{
+\begin{aligned}
+    \partial_t u(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s,t)
+&amp;= f(s,t)+z(s,t), &amp;&amp; \quad (s,t) \in \Gamma \times (0, T),
+\\
+    u(s,0) &amp;= u_0(s), &amp;&amp; \quad s \in \Gamma,
+\end{aligned}
+\right.
+\end{equation}\]</span> with <span
+class="math inline">\(u(\cdot,t)\)</span> satisfying the Kirchhoff
+vertex conditions <span class="math display">\[\begin{equation}
+\label{eq:Kcond}
+\tag{4}
+   \mathcal{K} =  \left\{\phi\in C(\Gamma)\;\middle|\; \forall v\in
+\mathcal{V}:\; \sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}
+\end{equation}\]</span> and the control constraints <span
+class="math display">\[\begin{align}
+\label{control_constraints}
+\tag{5}
+    a(s,t)\leq z(s,t)\leq b(s,t)\;\mathrm{a.e.}\;(s,t)\in\Gamma
+\times(0, T).
+\end{align}\]</span></p>
+</div>
+<div id="numerical-scheme" class="section level2">
+<h2>Numerical scheme</h2>
+<p>The optimal variables <span class="math inline">\((\bar{u}, \bar{p},
+\bar{z})\)</span> satisfy</p>
+<p><span class="math display">\[\begin{equation}
+\label{eq:maineqoptimal}
+\tag{6}
+\left\{
+\begin{aligned}
+    \partial_t \bar{u}(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2}
+\bar{u}(s,t) &amp;= f(s,t)+\bar{z}(s,t), &amp;&amp; \quad (s,t) \in
+\Gamma \times (0, T), \\
+    \bar{u}(s,0) &amp;= u_0(s), &amp;&amp; \quad s \in \Gamma,
+\end{aligned}
+\right.
+\end{equation}\]</span> and <span
+class="math display">\[\begin{equation}
+\label{eq:adjointeq}
+\tag{7}
+\left\{
+\begin{aligned}
+    -\partial_t \bar{p}(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2}
+\bar{p}(s,t) &amp;= \bar{u}(s,t)-u_d(s,t), &amp;&amp; \quad (s,t) \in
+\Gamma \times (0, T), \\
+    \bar{p}(s,T) &amp;= 0, &amp;&amp; \quad s \in \Gamma,
+\end{aligned}
+\right.
+\end{equation}\]</span> with <span class="math display">\[\begin{align}
+\label{zz}
+\tag{8}
+        \bar{z}(s,t) =
+\max\left\{a(s,t),\min\left\{b(s,t),-\dfrac{1}{\mu}\bar{p}(s,t)\right\}\right\}.
+\end{align}\]</span> By considering the change of variable <span
+class="math inline">\(\bar{q}(s,t) = \bar{p}(s,T-t)\)</span>, the
+fractional adjoint problem <span
+class="math inline">\(\eqref{eq:adjointeq}\)</span> becomes a
+forward-in-time problem where the transformed adjoint state <span
+class="math inline">\(\bar{q}\)</span> solves <span
+class="math display">\[\begin{equation}
+\label{transformed_adjoint_state}
+\tag{9}
+\left\{
+\begin{aligned}
+    \partial_t \bar{q}(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2}
+\bar{q}(s,t) &amp;= \bar{v}(s,t)-v_d(s,t), &amp;&amp; \quad (s,t) \in
+\Gamma \times (0, T), \\
+    \bar{q}(s,0) &amp;= 0, &amp;&amp; \quad s \in \Gamma,
+\end{aligned}
+\right.
+\end{equation}\]</span> since <span
+class="math inline">\(\partial_t\bar{q}(s,t) =
+-\partial_t\bar{p}(s,T-t)\)</span> and <span
+class="math inline">\(\bar{q}(s, 0) =\bar{p}(s,T-0)=
+\bar{p}(s,T)=0\)</span>. Here, <span class="math inline">\(\bar{v}(s,t)
+= \bar{u}(s,T-t)\)</span> and <span class="math inline">\(v_d(s,t) =
+u_d(s,T-t)\)</span>.</p>
+<p>Given <span class="math inline">\(\bar{u}\)</span> and <span
+class="math inline">\(u_d\)</span>, we can time-reverse them to obtain
+<span class="math inline">\(\bar{v}\)</span> and <span
+class="math inline">\(v_d\)</span> and then use the same numerical
+scheme we use for the forward problem <span
+class="math inline">\(\eqref{eq:maineqoptimal}\)</span> to solve the
+adjoint problem <span
+class="math inline">\(\eqref{transformed_adjoint_state}\)</span>. The
+control variable <span class="math inline">\(\bar{z}\)</span> is then
+computed using <span class="math inline">\(\eqref{zz}\)</span>.</p>
+<p>The numerical scheme for <span
+class="math inline">\(\eqref{eq:maineqoptimal}\)</span> and <span
+class="math inline">\(\eqref{transformed_adjoint_state}\)</span> are
+given by (see the <a
+href="functionality.html#num_scheme">Functionality</a> page) <span
+class="math display">\[\begin{align}
+\label{numericalscheme1}
+\tag{10}
+\bar{\boldsymbol{U}}^{k+1} = \boldsymbol{C}^{-1}\left(\sum_{k=1}^{m+1}
+a_k\left(\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1}
++ r\boldsymbol{I}\right) (\boldsymbol{C}\bar{\boldsymbol{U}}^k+\tau
+(\boldsymbol{F}^{k+1}+\bar{\boldsymbol{Z}}^{k+1})),
+\end{align}\]</span> and <span class="math display">\[\begin{align}
+\label{thenumericalscheme2}
+\tag{11}
+\bar{\boldsymbol{Q}}^{k+1} = \boldsymbol{C}^{-1}\left(\sum_{k=1}^{m+1}
+a_k\left(\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1}
++ r\boldsymbol{I}\right) (\boldsymbol{C}\bar{\boldsymbol{Q}}^k+\tau
+(\bar{\boldsymbol{V}}^{k+1}-\boldsymbol{V_d}^{k+1})),
+\end{align}\]</span> with initial conditions <span
+class="math inline">\(\bar{\boldsymbol{U}}^0 = \boldsymbol{U}_0\)</span>
+and <span class="math inline">\(\bar{\boldsymbol{Q}}^0 =
+\boldsymbol{0}\)</span>. Observe that <span
+class="math inline">\(\eqref{numericalscheme1}\)</span>-<span
+class="math inline">\(\eqref{thenumericalscheme2}\)</span> is a coupled
+problem.</p>
+<p>For notation convenience, let</p>
+<ul>
+<li><span class="math inline">\(\bar{\boldsymbol{U}}\)</span> be the
+matrix with columns <span
+class="math inline">\(\bar{\boldsymbol{U}}^k\)</span> obtained from the
+numerical scheme <span
+class="math inline">\(\eqref{numericalscheme1}\)</span></li>
+<li><span class="math inline">\(\boldsymbol{F}\)</span> be the matrix
+with columns <span class="math inline">\(\boldsymbol{F}^k\)</span> and
+entries <span
+class="math inline">\(\boldsymbol{F}_{ik}=(\psi^i_h,f(\cdot,t_k))_{L_2(\Gamma)}\)</span></li>
+<li><span class="math inline">\(\bar{\boldsymbol{Z}}\)</span> be the
+matrix with columns <span
+class="math inline">\(\bar{\boldsymbol{Z}}^k\)</span> and entries <span
+class="math inline">\(\bar{\boldsymbol{Z}}_{ik}=(\psi^i_h,\bar{z}(\cdot,t_k))_{L_2(\Gamma)}\)</span></li>
+<li><span class="math inline">\(\bar{\boldsymbol{Q}}\)</span> be the
+matrix with columns <span
+class="math inline">\(\bar{\boldsymbol{Q}}^k\)</span> obtained from the
+numerical scheme <span
+class="math inline">\(\eqref{thenumericalscheme2}\)</span></li>
+<li><span class="math inline">\(\bar{\boldsymbol{V}}\)</span> be the
+matrix with columns <span
+class="math inline">\(\bar{\boldsymbol{V}}^k\)</span> and entries <span
+class="math inline">\(\bar{\boldsymbol{V}}^{ik}=(\psi^i_h,\bar{v}(\cdot,t_k))_{L_2(\Gamma)}
+=(\psi^i_h,\bar{u}(\cdot,T-t_k))_{L_2(\Gamma)}\)</span></li>
+<li><span class="math inline">\(\boldsymbol{V_d}\)</span> be the matrix
+with columns <span class="math inline">\(\boldsymbol{V_d}^k\)</span> and
+entries <span
+class="math inline">\(\boldsymbol{V_d}^{ik}=(\psi^i_h,v_d(\cdot,t_k))_{L_2(\Gamma)}
+=(\psi^i_h,u_d(\cdot,T-t_k))_{L_2(\Gamma)}\)</span></li>
+<li><span class="math inline">\(\boldsymbol{A}\)</span> be the matrices
+with entries <span class="math inline">\(\boldsymbol{A}_{ik} =
+a(s_i,t_k)\)</span></li>
+<li><span class="math inline">\(\boldsymbol{B}\)</span> be the matrices
+with entries <span class="math inline">\(\boldsymbol{B}_{ik} =
+b(s_i,t_k)\)</span></li>
+<li><span class="math inline">\(\bar{\boldsymbol{P}} =
+\text{reversecolumns}(\bar{\boldsymbol{Q}})\)</span></li>
+</ul>
+<p>Observe that the entries of <span
+class="math inline">\(\boldsymbol{F}\)</span> are given by <span
+class="math inline">\(\boldsymbol{F}_{ik}=(\psi^i_h,
+f(\cdot,t_k))_{L_2(\Gamma)}\)</span> where <span
+class="math inline">\(\psi^i_h\)</span> is the <span
+class="math inline">\(i\)</span>-th basis function on a mesh with <span
+class="math inline">\(N_h\)</span> nodes. By introducing a finer
+integration mesh with <span
+class="math inline">\(N_{h_{\text{ok}}}\)</span> nodes, we can
+approximate <span class="math inline">\(\boldsymbol{F}_{ik}\)</span> as
+<span
+class="math inline">\(\boldsymbol{\psi}_i^\top\boldsymbol{C}^{\text{ok}}\boldsymbol{f}_k\)</span>,
+where <span
+class="math inline">\(\boldsymbol{\psi}_i=[\psi^i_h(s_1)\dots
+\psi^i_h(s_{N_{h_{\text{ok}}}})]^\top\)</span> for <span
+class="math inline">\(i=1\dots, N_h\)</span>, <span
+class="math inline">\(\boldsymbol{f}_k = [f(s_1,t_k)\dots
+f(s_{N_{h_{\text{ok}}}},t_k)]\top\)</span> for <span
+class="math inline">\(k= 0,\dots,N\)</span>, and matrix <span
+class="math inline">\(\boldsymbol{C}^{\text{ok}}\)</span> has entries
+<span class="math inline">\(\boldsymbol{C}^{\text{ok}}_{nm} =
+(\psi_{h_\text{ok}}^n,\psi_{h_\text{ok}}^m)_{L_2(\Gamma)}\)</span> for
+<span class="math inline">\(n,m = 1,\dots, N_{h_\text{ok}}\)</span>. Let
+<span class="math inline">\(\boldsymbol{f}\)</span> denote the matrix
+with columns <span class="math inline">\(\boldsymbol{f}_k\)</span> and
+<span class="math inline">\(\boldsymbol{\Psi}\)</span> denote a matrix
+with entries <span
+class="math inline">\(\boldsymbol{\Psi}_{ji}=\psi^i_h(s_j)\)</span> for
+<span class="math inline">\(i=1\dots, N_h\)</span> and <span
+class="math inline">\(j = 1,\dots N_{h_{\text{ok}}}\)</span>. Then <span
+class="math display">\[\begin{equation}
+\boldsymbol{F} \approx \boldsymbol{\Psi}^\top \boldsymbol{C}^{\text{ok}}
+\boldsymbol{f}.
+\end{equation}\]</span> Similarly, if <span
+class="math inline">\(\boldsymbol{U_d}\)</span> is the matrix with
+entries <span class="math inline">\(\boldsymbol{U_d}^{jk} =
+u_d(s_j,t_k)\)</span> for <span class="math inline">\(j = 1,\dots,
+N_{h_{\text{ok}}}\)</span> and <span class="math inline">\(k = 0,\dots,
+N\)</span>, then the matrix <span
+class="math inline">\(\boldsymbol{V_d}\)</span> can be approximated as
+<span class="math display">\[\begin{equation}
+\boldsymbol{V_d} \approx \text{reversecolumns}(\boldsymbol{\Psi}^\top
+\boldsymbol{C}^{\text{ok}} \boldsymbol{U_d}).
+\end{equation}\]</span></p>
+<p>To approximate <span class="math inline">\(\boldsymbol{F}\)</span>
+and <span class="math inline">\(\boldsymbol{V_d}\)</span>, we use the
+values of <span class="math inline">\(f\)</span> and <span
+class="math inline">\(u_d\)</span> on the integration mesh with <span
+class="math inline">\(N_{h_{\text{ok}}}\)</span> nodes. However, to
+approximate <span class="math inline">\(\bar{\boldsymbol{Z}}\)</span>
+and <span class="math inline">\(\bar{\boldsymbol{V}}\)</span>, we do not
+even have access to the values of <span
+class="math inline">\(\bar{z}\)</span> and <span
+class="math inline">\(\bar{v}\)</span> on the coarse mesh, let alone on
+the fine mesh. Instead, we use their approximations on the coarse mesh,
+given by the matrices <span class="math inline">\(\bar{\boldsymbol{z}} =
+\max\{\boldsymbol{A},\min\{\boldsymbol{B},-\bar{\boldsymbol{P}}/\mu\}\}\)</span>
+and <span
+class="math inline">\(\text{reversecolumns}(\bar{\boldsymbol{U}})\)</span>,
+respectively. With these at hand, we can approximate <span
+class="math inline">\(\bar{\boldsymbol{Z}}\)</span> and <span
+class="math inline">\(\bar{\boldsymbol{V}}\)</span> by first projecting
+<span class="math inline">\(\bar{\boldsymbol{z}} =
+\max\{\boldsymbol{A},\min\{\boldsymbol{B},-\bar{\boldsymbol{P}}/\mu\}\}\)</span>
+and <span
+class="math inline">\(\text{reversecolumns}(\bar{\boldsymbol{U}})\)</span>
+onto the fine mesh and then approximating the inner products <span
+class="math inline">\((\psi^i_h,\bar{z}(\cdot,t_k))_{L_2(\Gamma)}\)</span>
+and <span
+class="math inline">\((\psi^i_h,\bar{u}(\cdot,T-t_k))_{L_2(\Gamma)}\)</span>
+as follows <span class="math display">\[\begin{equation}
+\bar{\boldsymbol{Z}} \approx \boldsymbol{\Psi}^\top
+\boldsymbol{C}^{\text{ok}} \boldsymbol{\Psi} \bar{\boldsymbol{z}}\quad
+\text{ and }\quad \bar{\boldsymbol{V}} \approx
+\text{reversecolumns}(\boldsymbol{\Psi}^\top \boldsymbol{C}^{\text{ok}}
+\boldsymbol{\Psi} \bar{\boldsymbol{U}}).
+\end{equation}\]</span></p>
+</div>
+<div
+id="construction-of-an-exact-solution-to-the-optimal-control-problem"
+class="section level2">
+<h2>Construction of an exact solution to the optimal control
+problem</h2>
+<p>We follow the approach in <span class="citation">Glusa and Otárola
+(2021)</span> to construct an exact solution to the optimal control
+problem <span class="math inline">\(\eqref{eq:costfun}\)</span>-<span
+class="math inline">\(\eqref{zz}\)</span>. The solution to the elliptic
+problem <span class="math display">\[\begin{align}
+    \label{eq:elliptic_problem}
+    \tag{12}
+   (\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s)=f(s),\quad s\in\Gamma,
+\end{align}\]</span> where <span class="math inline">\(u(\cdot)\)</span>
+satisfies the Kirchhoff vertex conditions <span
+class="math inline">\(\eqref{eq:Kcond}\)</span>, is given by <span
+class="math display">\[\begin{align*}
+    u(s) =
+\sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}(f,e_j)_{L_2(\Gamma)}e_j(s),\quad
+s\in\Gamma
+\end{align*}\]</span> We choose coefficients <span
+class="math inline">\(\{x_j\}_{j=1}^{\infty}\)</span> and <span
+class="math inline">\(\{y_j\}_{j=1}^{\infty}\)</span> and set <span
+class="math display">\[\begin{align}
+    \label{eq:rhsfunctions}
+    \tag{13}
+   f(s) = \sum_{j=1}^{\infty}x_je_j(s)\quad \text{ and } \quad g(s) =
+\sum_{j=1}^{\infty}y_je_j(s)
+\end{align}\]</span> Hence the corresponding solutions are given by
+<span class="math display">\[\begin{align}
+    \label{eq:sols}
+    \tag{14}
+   u(s) = \sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}x_je_j(s)\quad \text{
+and } \quad v(s) = \sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}y_je_j(s)
+\end{align}\]</span> We also define <span class="math inline">\(\psi(t)
+= \cos(t)\)</span> and <span class="math inline">\(\phi(t)
+=\sin(T-t)\)</span>. Observe that <span
+class="math inline">\(\psi(0)=1\)</span> and <span
+class="math inline">\(\phi(T)=0\)</span>. We also choose <span
+class="math inline">\(\mu =0.1\)</span>, <span
+class="math inline">\(a(s,t) = -0.5\)</span> and <span
+class="math inline">\(b(s,t)=0.5\)</span>. Now we set <span
+class="math display">\[\begin{align*}
+    f(s,t) &amp;= \psi&#39;(t)u(s)+\psi(t)f(s) - \bar{z}(s,t) =
+-\sin(t)\sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}x_je_j(s)+
+\cos(t)\sum_{j=1}^{\infty}x_je_j(s)- \max\{-0.5,\min\{0.5,
+\sin(T-t)\sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}y_je_j(s)\}\}\\
+    u_d(s,t) &amp; = \psi(t)u(s)+\mu\phi&#39;(t)v(s)+\mu\phi(t)g(s) =
+\cos(t)\sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}x_je_j(s)-\mu\cos(T-t)\sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}y_je_j(s)+\mu\sin(T-t)\sum_{j=1}^{\infty}y_je_j(s)\\
+    u_0(s)  &amp; = u(s)=
+\sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}x_je_j(s)
+\end{align*}\]</span> The exact solution to the optimal control problem
+is given by <span class="math display">\[\begin{align*}
+    \bar{u}(s,t)&amp;=\psi(t)u(s) =
+\cos(t)\sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}x_je_j(s)\\
+    \bar{p}(s,t)&amp;=-\mu\phi(t)v(s)= -
+\mu\sin(T-t)\sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}y_je_j(s)\\
+    \bar{z}(s,t)&amp;=\max\{a(s,t),\min\{b(s,t), \phi(t)v(s)\}\}=
+\max\{-0.5,\min\{0.5,
+\sin(T-t)\sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}y_je_j(s)\}\}
+\end{align*}\]</span></p>
+<p>Observe that the choice of <span class="math inline">\(f\)</span>
+decouples the systems <span
+class="math inline">\(\eqref{numericalscheme1}\)</span>-<span
+class="math inline">\(\eqref{thenumericalscheme2}\)</span>.</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
+<p>We used R version 4.5.0 <span class="citation">(R Core Team
+2025)</span> and the following R packages: gsignal v. 0.3.7 <span
+class="citation">(Van Boxtel, G.J.M., et al. 2021)</span>, here v. 1.0.1
+<span class="citation">(Müller 2020)</span>, htmltools v. 0.5.8.1 <span
+class="citation">(Cheng et al. 2024)</span>, knitr v. 1.50 <span
+class="citation">(Xie 2014, 2015, 2025)</span>, Matrix v. 1.7.3 <span
+class="citation">(Bates, Maechler, and Jagan 2025)</span>, MetricGraph
+v. 1.5.0.9000 <span class="citation">(Bolin, Simas, and Wallin 2023a,
+2023b, 2024, 2025; Bolin et al. 2024)</span>, plotly v. 4.10.4 <span
+class="citation">(Sievert 2020)</span>, RColorBrewer v. 1.1.3 <span
+class="citation">(Neuwirth 2022)</span>, renv v. 1.0.7 <span
+class="citation">(Ushey and Wickham 2024)</span>, reshape2 v. 1.4.4
+<span class="citation">(Wickham 2007)</span>, rmarkdown v. 2.29 <span
+class="citation">(Xie, Allaire, and Grolemund 2018; Xie, Dervieux, and
+Riederer 2020; Allaire et al. 2024)</span>, rSPDE v. 2.5.1.9000 <span
+class="citation">(Bolin and Kirchner 2020; Bolin and Simas 2023; Bolin,
+Simas, and Xiong 2024)</span>, scales v. 1.4.0 <span
+class="citation">(Wickham, Pedersen, and Seidel 2025)</span>, tidyverse
+v. 2.0.0 <span class="citation">(Wickham et al. 2019)</span>,
+viridisLite v. 0.4.2 <span class="citation">(Garnier et al.
+2023)</span>, xaringanExtra v. 0.8.0 <span class="citation">(Aden-Buie
+and Warkentin 2024)</span>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
+<div id="ref-xaringanExtra" class="csl-entry">
+Aden-Buie, Garrick, and Matthew T. Warkentin. 2024. <em><span
+class="nocase">xaringanExtra</span>: Extras and Extensions for
+<span>“<span class="nocase">xaringan</span>”</span> Slides</em>. <a
+href="https://doi.org/10.32614/CRAN.package.xaringanExtra">https://doi.org/10.32614/CRAN.package.xaringanExtra</a>.
+</div>
+<div id="ref-rmarkdown2024" class="csl-entry">
+Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier
+Luraschi, Kevin Ushey, Aron Atkins, et al. 2024. <em><span
+class="nocase">rmarkdown</span>: Dynamic Documents for r</em>. <a
+href="https://github.com/rstudio/rmarkdown">https://github.com/rstudio/rmarkdown</a>.
+</div>
+<div id="ref-Matrix" class="csl-entry">
+Bates, Douglas, Martin Maechler, and Mikael Jagan. 2025.
+<em><span>Matrix</span>: Sparse and Dense Matrix Classes and
+Methods</em>. <a
+href="https://doi.org/10.32614/CRAN.package.Matrix">https://doi.org/10.32614/CRAN.package.Matrix</a>.
+</div>
+<div id="ref-rSPDE2020" class="csl-entry">
+Bolin, David, and Kristin Kirchner. 2020. <span>“The Rational
+<span>SPDE</span> Approach for <span>Gaussian</span> Random Fields with
+General Smoothness.”</span> <em>Journal of Computational and Graphical
+Statistics</em> 29 (2): 274–85. <a
+href="https://doi.org/10.1080/10618600.2019.1665537">https://doi.org/10.1080/10618600.2019.1665537</a>.
+</div>
+<div id="ref-MetricGraph2024c" class="csl-entry">
+Bolin, David, Mihály Kovács, Vivek Kumar, and Alexandre B. Simas. 2024.
+<span>“Regularity and Numerical Approximation of Fractional Elliptic
+Differential Equations on Compact Metric Graphs.”</span> <em>Mathematics
+of Computation</em> 93 (349): 2439–72. <a
+href="https://doi.org/10.1090/mcom/3929">https://doi.org/10.1090/mcom/3929</a>.
+</div>
+<div id="ref-rSPDE2023" class="csl-entry">
+Bolin, David, and Alexandre B. Simas. 2023. <em><span
+class="nocase">rSPDE</span>: Rational Approximations of Fractional
+Stochastic Partial Differential Equations</em>. <a
+href="https://CRAN.R-project.org/package=rSPDE">https://CRAN.R-project.org/package=rSPDE</a>.
+</div>
+<div id="ref-MetricGraph2023a" class="csl-entry">
+Bolin, David, Alexandre B. Simas, and Jonas Wallin. 2023a.
+<em><span>MetricGraph</span>: Random Fields on Metric Graphs</em>. <a
+href="https://CRAN.R-project.org/package=MetricGraph">https://CRAN.R-project.org/package=MetricGraph</a>.
+</div>
+<div id="ref-MetricGraph2023e" class="csl-entry">
+———. 2023b. <span>“Statistical Inference for Gaussian Whittle-Matérn
+Fields on Metric Graphs.”</span> <em>arXiv Preprint
+arXiv:2304.10372</em>. <a
+href="https://doi.org/10.48550/arXiv.2304.10372">https://doi.org/10.48550/arXiv.2304.10372</a>.
+</div>
+<div id="ref-MetricGraph2024b" class="csl-entry">
+———. 2024. <span>“Gaussian Whittle-Matérn Fields on Metric
+Graphs.”</span> <em>Bernoulli</em> 30 (2): 1611–39. <a
+href="https://doi.org/10.3150/23-BEJ1647">https://doi.org/10.3150/23-BEJ1647</a>.
+</div>
+<div id="ref-MetricGraph2025d" class="csl-entry">
+———. 2025. <span>“Markov Properties of Gaussian Random Fields on Compact
+Metric Graphs.”</span> <em>Bernoulli</em>. <a
+href="https://doi.org/10.48550/arXiv.2304.03190">https://doi.org/10.48550/arXiv.2304.03190</a>.
+</div>
+<div id="ref-rSPDE2024" class="csl-entry">
+Bolin, David, Alexandre B. Simas, and Zhen Xiong. 2024.
+<span>“Covariance-Based Rational Approximations of Fractional SPDEs for
+Computationally Efficient Bayesian Inference.”</span> <em>Journal of
+Computational and Graphical Statistics</em> 33 (1): 64–74. <a
+href="https://doi.org/10.1080/10618600.2023.2231051">https://doi.org/10.1080/10618600.2023.2231051</a>.
+</div>
+<div id="ref-htmltools" class="csl-entry">
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
+and Jeff Allen. 2024. <em><span class="nocase">htmltools</span>: Tools
+for HTML</em>. <a
+href="https://doi.org/10.32614/CRAN.package.htmltools">https://doi.org/10.32614/CRAN.package.htmltools</a>.
+</div>
+<div id="ref-viridisLite" class="csl-entry">
+Garnier, Simon, Ross, Noam, Rudis, Robert, Camargo, et al. 2023.
+<em><span class="nocase">viridis(Lite)</span> - Colorblind-Friendly
+Color Maps for r</em>. <a
+href="https://doi.org/10.5281/zenodo.4678327">https://doi.org/10.5281/zenodo.4678327</a>.
+</div>
+<div id="ref-Glusa2021errorestimates" class="csl-entry">
+Glusa, Christian, and Enrique Otárola. 2021. <span>“Error Estimates for
+the Optimal Control of a Parabolic Fractional <span>PDE</span>.”</span>
+<em>SIAM J. Numer. Anal.</em> 59 (2): 1140–65. <a
+href="https://doi.org/10.1137/19M1267581">https://doi.org/10.1137/19M1267581</a>.
+</div>
+<div id="ref-here" class="csl-entry">
+Müller, Kirill. 2020. <em><span class="nocase">here</span>: A Simpler
+Way to Find Your Files</em>. <a
+href="https://doi.org/10.32614/CRAN.package.here">https://doi.org/10.32614/CRAN.package.here</a>.
+</div>
+<div id="ref-RColorBrewer" class="csl-entry">
+Neuwirth, Erich. 2022. <em><span>RColorBrewer</span>: ColorBrewer
+Palettes</em>. <a
+href="https://doi.org/10.32614/CRAN.package.RColorBrewer">https://doi.org/10.32614/CRAN.package.RColorBrewer</a>.
+</div>
+<div id="ref-base" class="csl-entry">
+R Core Team. 2025. <em><span>R</span>: A Language and Environment for
+Statistical Computing</em>. Vienna, Austria: R Foundation for
+Statistical Computing. <a
+href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-plotly" class="csl-entry">
+Sievert, Carson. 2020. <em>Interactive Web-Based Data Visualization with
+r, Plotly, and Shiny</em>. Chapman; Hall/CRC. <a
+href="https://plotly-r.com">https://plotly-r.com</a>.
+</div>
+<div id="ref-renv" class="csl-entry">
+Ushey, Kevin, and Hadley Wickham. 2024. <em><span
+class="nocase">renv</span>: Project Environments</em>. <a
+href="https://doi.org/10.32614/CRAN.package.renv">https://doi.org/10.32614/CRAN.package.renv</a>.
+</div>
+<div id="ref-gsignal" class="csl-entry">
+Van Boxtel, G.J.M., et al. 2021. <em><span
+class="nocase">gsignal</span>: Signal Processing</em>. <a
+href="https://github.com/gjmvanboxtel/gsignal">https://github.com/gjmvanboxtel/gsignal</a>.
+</div>
+<div id="ref-reshape2" class="csl-entry">
+Wickham, Hadley. 2007. <span>“Reshaping Data with the <span
+class="nocase">reshape</span> Package.”</span> <em>Journal of
+Statistical Software</em> 21 (12): 1–20. <a
+href="http://www.jstatsoft.org/v21/i12/">http://www.jstatsoft.org/v21/i12/</a>.
+</div>
+<div id="ref-tidyverse" class="csl-entry">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+<span>“Welcome to the <span class="nocase">tidyverse</span>.”</span>
+<em>Journal of Open Source Software</em> 4 (43): 1686. <a
+href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-scales" class="csl-entry">
+Wickham, Hadley, Thomas Lin Pedersen, and Dana Seidel. 2025. <em><span
+class="nocase">scales</span>: Scale Functions for Visualization</em>. <a
+href="https://doi.org/10.32614/CRAN.package.scales">https://doi.org/10.32614/CRAN.package.scales</a>.
+</div>
+<div id="ref-knitr2014" class="csl-entry">
+Xie, Yihui. 2014. <span>“<span class="nocase">knitr</span>: A
+Comprehensive Tool for Reproducible Research in <span>R</span>.”</span>
+In <em>Implementing Reproducible Computational Research</em>, edited by
+Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman;
+Hall/CRC.
+</div>
+<div id="ref-knitr2015" class="csl-entry">
+———. 2015. <em>Dynamic Documents with <span>R</span> and Knitr</em>. 2nd
+ed. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-knitr2025" class="csl-entry">
+———. 2025. <em><span class="nocase">knitr</span>: A General-Purpose
+Package for Dynamic Report Generation in <span>R</span></em>. <a
+href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-rmarkdown2018" class="csl-entry">
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. <em>R Markdown:
+The Definitive Guide</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://bookdown.org/yihui/rmarkdown">https://bookdown.org/yihui/rmarkdown</a>.
+</div>
+<div id="ref-rmarkdown2020" class="csl-entry">
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R
+Markdown Cookbook</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook">https://bookdown.org/yihui/rmarkdown-cookbook</a>.
+</div>
+</div>
+</div>
+
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiT3B0aW1hbCBjb250cm9sIG9mIGZyYWN0aW9uYWwgZGlmZnVzaW9uIGVxdWF0aW9ucyBvbiBtZXRyaWMgZ3JhcGhzIgpkYXRlOiAiTGFzdCBtb2RpZmllZDogYHIgZm9ybWF0KFN5cy50aW1lKCksICclZC0lbS0lWS4nKWAiCm91dHB1dDoKICBodG1sX2RvY3VtZW50OgogICAgbWF0aGpheDogImh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9ucG0vbWF0aGpheEAzL2VzNS90ZXgtbW1sLWNodG1sLmpzIgogICAgaGlnaGxpZ2h0OiBweWdtZW50cwogICAgdGhlbWU6IGZsYXRseQogICAgY29kZV9mb2xkaW5nOiBoaWRlICMgY2xhc3Muc291cmNlID0gImZvbGQtaGlkZSIgdG8gaGlkZSBjb2RlIGFuZCBhZGQgYSBidXR0b24gdG8gc2hvdyBpdAogICAgZGZfcHJpbnQ6IHBhZ2VkCiAgICAjIHRvYzogdHJ1ZQogICAgIyB0b2NfZmxvYXQ6CiAgICAjICAgY29sbGFwc2VkOiB0cnVlCiAgICAjICAgc21vb3RoX3Njcm9sbDogdHJ1ZQogICAgbnVtYmVyX3NlY3Rpb25zOiBmYWxzZQogICAgZmlnX2NhcHRpb246IHRydWUKICAgIGNvZGVfZG93bmxvYWQ6IHRydWUKICAgIGNzczogdmlzdWFsLmNzcwphbHdheXNfYWxsb3dfaHRtbDogdHJ1ZQpiaWJsaW9ncmFwaHk6IAogIC0gcmVmZXJlbmNlcy5iaWIKICAtIGdyYXRlZnVsLXJlZnMuYmliCmhlYWRlci1pbmNsdWRlczoKICAtIFxuZXdjb21tYW5ke1xhcn17XG1hdGhiYntSfX0KICAtIFxuZXdjb21tYW5ke1xsbGF2fVsxXXtcbGVmdFx7IzFccmlnaHRcfX0KICAtIFxuZXdjb21tYW5ke1xwYXJlfVsxXXtcbGVmdCgjMVxyaWdodCl9CiAgLSBcbmV3Y29tbWFuZHtcTmNhbH17XG1hdGhjYWx7Tn19CiAgLSBcbmV3Y29tbWFuZHtcVmNhbH17XG1hdGhjYWx7Vn19CiAgLSBcbmV3Y29tbWFuZHtcRWNhbH17XG1hdGhjYWx7RX19CiAgLSBcbmV3Y29tbWFuZHtcV2NhbH17XG1hdGhjYWx7V319CiAgLSBcbmV3Y29tbWFuZHtcYWxtb3N0ZXZlcnl3aGVyZX17XG1hdGhybXthLmUufVw7fQotLS0KCgo8ZGl2IHN0eWxlPSJjb2xvcjogIzJjM2U1MDsgdGV4dC1hbGlnbjogcmlnaHQ7Ij4KKioqKioqKiogIAo8c3Ryb25nPlByZXNzIFNob3cgdG8gcmV2ZWFsIHRoZSBjb2RlIGNodW5rcy48L3N0cm9uZz4gIAoKKioqKioqKioKPC9kaXY+CgoKYGBge3J9CiMgQ3JlYXRlIGEgY2xpcGJvYXJkIGJ1dHRvbiBvbiB0aGUgcmVuZGVyZWQgSFRNTCBwYWdlCnNvdXJjZShoZXJlOjpoZXJlKCJjbGlwYm9hcmQuUiIpKTsgY2xpcGJvYXJkCiMgU2V0IHNlZWQgZm9yIHJlcHJvZHVjaWJpbGl0eQpzZXQuc2VlZCgxOTgyKSAKIyBTZXQgZ2xvYmFsIG9wdGlvbnMgZm9yIGFsbCBjb2RlIGNodW5rcwprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgIyBEaXNhYmxlIG1lc3NhZ2VzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIG1lc3NhZ2UgPSBGQUxTRSwgICAgCiAgIyBEaXNhYmxlIHdhcm5pbmdzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIHdhcm5pbmcgPSBGQUxTRSwgICAgCiAgIyBTaG93IFIgY29kZSB3aXRoaW4gY29kZSBjaHVua3MgaW4gb3V0cHV0CiAgZWNobyA9IFRSVUUsICAgICAgICAKICAjIEluY2x1ZGUgYm90aCBSIGNvZGUgYW5kIGl0cyByZXN1bHRzIGluIG91dHB1dAogIGluY2x1ZGUgPSBUUlVFLCAgICAgCiAgIyBFdmFsdWF0ZSBSIGNvZGUgY2h1bmtzCiAgZXZhbCA9IFRSVUUsICAgICAgIAogICMgRW5hYmxlIGNhY2hpbmcgb2YgUiBjb2RlIGNodW5rcyBmb3IgZmFzdGVyIHJlbmRlcmluZwogIGNhY2hlID0gRkFMU0UsICAgICAgCiAgIyBBbGlnbiBmaWd1cmVzIGluIHRoZSBjZW50ZXIgb2YgdGhlIG91dHB1dAogIGZpZy5hbGlnbiA9ICJjZW50ZXIiLAogICMgRW5hYmxlIHJldGluYSBkaXNwbGF5IGZvciBoaWdoLXJlc29sdXRpb24gZmlndXJlcwogIHJldGluYSA9IDIsCiAgIyBTaG93IGVycm9ycyBpbiB0aGUgb3V0cHV0IGluc3RlYWQgb2Ygc3RvcHBpbmcgcmVuZGVyaW5nCiAgZXJyb3IgPSBUUlVFLAogICMgRG8gbm90IGNvbGxhcHNlIGNvZGUgYW5kIG91dHB1dCBpbnRvIGEgc2luZ2xlIGJsb2NrCiAgY29sbGFwc2UgPSBGQUxTRQopCiMgU3RhcnQgdGhlIGZpZ3VyZSBjb3VudGVyCmZpZ19jb3VudCA8LSAwCiMgRGVmaW5lIHRoZSBjYXB0aW9uZXIgZnVuY3Rpb24KY2FwdGlvbmVyIDwtIGZ1bmN0aW9uKGNhcHRpb24pIHsKICBmaWdfY291bnQgPDwtIGZpZ19jb3VudCArIDEKICBwYXN0ZTAoIkZpZ3VyZSAiLCBmaWdfY291bnQsICI6ICIsIGNhcHRpb24pCn0KYGBgCgpgYGB7cn0KbGlicmFyeShNZXRyaWNHcmFwaCkKbGlicmFyeShnZ3Bsb3QyKQpsaWJyYXJ5KHJlc2hhcGUyKQpsaWJyYXJ5KHBsb3RseSkKYGBgCgoKYGBge3J9CmNhcHR1cmUub3V0cHV0KAogIGtuaXRyOjpwdXJsKGhlcmU6OmhlcmUoImZ1bmN0aW9uYWxpdHkuUm1kIiksIG91dHB1dCA9IGhlcmU6OmhlcmUoImZ1bmN0aW9uYWxpdHkuUiIpKSwKICBmaWxlID0gaGVyZTo6aGVyZSgicHVybF9sb2cudHh0IikKKQpzb3VyY2UoaGVyZTo6aGVyZSgiZnVuY3Rpb25hbGl0eS5SIikpCmBgYAoKIyMgT3B0aW1hbCBjb250cm9sIG9mIGZyYWN0aW9uYWwgZGlmZnVzaW9uIGVxdWF0aW9ucyBvbiBtZXRyaWMgZ3JhcGhzCgpMZXQgJFxHYW1tYSA9IChcbWF0aGNhbHtWfSxcbWF0aGNhbHtFfSkkIGJlIGEgbWV0cmljIGdyYXBoLiBMZXQgJHVfZDogXEdhbW1hIFx0aW1lcygwLCBUKSBccmlnaHRhcnJvdyBcbWF0aGJie1J9JCBiZSB0aGUgZGVzaXJlZCBzdGF0ZSBhbmQgICRcbXU+MCQgYSByZWd1bGFyaXphdGlvbiBwYXJhbWV0ZXIuIFdlIGRlZmluZSB0aGUgY29zdCBmdW5jdGlvbmFsCgpcYmVnaW57ZXF1YXRpb259ClxsYWJlbHtlcTpjb3N0ZnVufQpcdGFnezF9CiAgICBKKHUsIHopPVxmcmFjezF9ezJ9IFxpbnRfMF5UXGxlZnQoXGxlZnRcfHUtdV9kXHJpZ2h0XHxfe0xfMihcR2FtbWEpfV4yK1xtdVx8elx8X3tMXzIoXEdhbW1hKX1eMlxyaWdodCkgZHQKXGVuZHtlcXVhdGlvbn0KCgpMZXQgJGY6XEdhbW1hXHRpbWVzICgwLFQpXHJpZ2h0YXJyb3dcYXIkIGFuZCAkdV8wOiBcR2FtbWEgXHJpZ2h0YXJyb3cgXG1hdGhiYntSfSQgYmUgZml4ZWQgZnVuY3Rpb25zLiBXZSB3aWxsIGNhbGwgdGhlbSByaWdodC1oYW5kIHNpZGUgYW5kIGluaXRpYWwgZGF0dW0sIHJlc3BlY3RpdmVseS4gTGV0ICRcYWxwaGFcaW4oMCwyXSQgYW5kICR6OiBcR2FtbWEgXHRpbWVzKDAsIFQpIFxyaWdodGFycm93IFxtYXRoYmJ7Un0kIGRlbm90ZSB0aGUgY29udHJvbCB2YXJpYWJsZS4gV2Ugc2hhbGwgYmUgY29uY2VybmVkIHdpdGggdGhlIGZvbGxvd2luZyBQREUtY29uc3RyYWluZWQgb3B0aW1pemF0aW9uIHByb2JsZW06IEZpbmQKClxiZWdpbntlcXVhdGlvbn0KXGxhYmVse2VxOm1pbl9wcm99Clx0YWd7Mn0KICAgIFxtaW5cOyBKKHUsIHopClxlbmR7ZXF1YXRpb259CnN1YmplY3QgdG8gdGhlIGZyYWN0aW9uYWwgZGlmZnVzaW9uIGVxdWF0aW9uClxiZWdpbntlcXVhdGlvbn0KXGxhYmVse2VxOm1haW5lcX0KXHRhZ3szfQpcbGVmdFx7ClxiZWdpbnthbGlnbmVkfQogICAgXHBhcnRpYWxfdCB1KHMsdCkgKyAoXGthcHBhXjIgLSBcRGVsdGFfXEdhbW1hKV57XGFscGhhLzJ9IHUocyx0KSAmPSBmKHMsdCkreihzLHQpLCAmJiBccXVhZCAocyx0KSBcaW4gXEdhbW1hIFx0aW1lcyAoMCwgVCksIFxcCiAgICB1KHMsMCkgJj0gdV8wKHMpLCAmJiBccXVhZCBzIFxpbiBcR2FtbWEsClxlbmR7YWxpZ25lZH0KXHJpZ2h0LgpcZW5ke2VxdWF0aW9ufQp3aXRoICR1KFxjZG90LHQpJCBzYXRpc2Z5aW5nIHRoZSBLaXJjaGhvZmYgdmVydGV4IGNvbmRpdGlvbnMKXGJlZ2lue2VxdWF0aW9ufQpcbGFiZWx7ZXE6S2NvbmR9Clx0YWd7NH0KICAgXG1hdGhjYWx7S30gPSAgXGxlZnRce1xwaGlcaW4gQyhcR2FtbWEpXDtcbWlkZGxlfFw7IFxmb3JhbGwgdlxpbiBcbWF0aGNhbHtWfTpcOyBcc3VtX3tlXGluXG1hdGhjYWx7RX1fdn1ccGFydGlhbF9lIFxwaGkodik9MCBccmlnaHRcfQpcZW5ke2VxdWF0aW9ufQphbmQgdGhlIGNvbnRyb2wgY29uc3RyYWludHMgClxiZWdpbnthbGlnbn0KXGxhYmVse2NvbnRyb2xfY29uc3RyYWludHN9Clx0YWd7NX0KICAgIGEocyx0KVxsZXEgeihzLHQpXGxlcSBiKHMsdClcO1xhbG1vc3RldmVyeXdoZXJlIChzLHQpXGluXEdhbW1hIFx0aW1lcygwLCBUKS4KXGVuZHthbGlnbn0KCgojIyBOdW1lcmljYWwgc2NoZW1lCgpUaGUgb3B0aW1hbCB2YXJpYWJsZXMgJChcYmFye3V9LCBcYmFye3B9LCBcYmFye3p9KSQgc2F0aXNmeQoKXGJlZ2lue2VxdWF0aW9ufQpcbGFiZWx7ZXE6bWFpbmVxb3B0aW1hbH0KXHRhZ3s2fQpcbGVmdFx7ClxiZWdpbnthbGlnbmVkfQogICAgXHBhcnRpYWxfdCBcYmFye3V9KHMsdCkgKyAoXGthcHBhXjIgLSBcRGVsdGFfXEdhbW1hKV57XGFscGhhLzJ9IFxiYXJ7dX0ocyx0KSAmPSBmKHMsdCkrXGJhcnt6fShzLHQpLCAmJiBccXVhZCAocyx0KSBcaW4gXEdhbW1hIFx0aW1lcyAoMCwgVCksIFxcCiAgICBcYmFye3V9KHMsMCkgJj0gdV8wKHMpLCAmJiBccXVhZCBzIFxpbiBcR2FtbWEsClxlbmR7YWxpZ25lZH0KXHJpZ2h0LgpcZW5ke2VxdWF0aW9ufQphbmQKXGJlZ2lue2VxdWF0aW9ufQpcbGFiZWx7ZXE6YWRqb2ludGVxfQpcdGFnezd9ClxsZWZ0XHsKXGJlZ2lue2FsaWduZWR9CiAgICAtXHBhcnRpYWxfdCBcYmFye3B9KHMsdCkgKyAoXGthcHBhXjIgLSBcRGVsdGFfXEdhbW1hKV57XGFscGhhLzJ9IFxiYXJ7cH0ocyx0KSAmPSBcYmFye3V9KHMsdCktdV9kKHMsdCksICYmIFxxdWFkIChzLHQpIFxpbiBcR2FtbWEgXHRpbWVzICgwLCBUKSwgXFwKICAgIFxiYXJ7cH0ocyxUKSAmPSAwLCAmJiBccXVhZCBzIFxpbiBcR2FtbWEsClxlbmR7YWxpZ25lZH0KXHJpZ2h0LgpcZW5ke2VxdWF0aW9ufQp3aXRoIApcYmVnaW57YWxpZ259ClxsYWJlbHt6en0KXHRhZ3s4fQogICAgICAgIFxiYXJ7en0ocyx0KSA9IFxtYXhcbGVmdFx7YShzLHQpLFxtaW5cbGVmdFx7YihzLHQpLC1cZGZyYWN7MX17XG11fVxiYXJ7cH0ocyx0KVxyaWdodFx9XHJpZ2h0XH0uClxlbmR7YWxpZ259CkJ5IGNvbnNpZGVyaW5nIHRoZSBjaGFuZ2Ugb2YgdmFyaWFibGUgJFxiYXJ7cX0ocyx0KSA9IFxiYXJ7cH0ocyxULXQpJCwgdGhlIGZyYWN0aW9uYWwgYWRqb2ludCBwcm9ibGVtIFxlcXJlZntlcTphZGpvaW50ZXF9IGJlY29tZXMgYSBmb3J3YXJkLWluLXRpbWUgcHJvYmxlbSB3aGVyZSB0aGUgdHJhbnNmb3JtZWQgYWRqb2ludCBzdGF0ZSAkXGJhcntxfSQgc29sdmVzClxiZWdpbntlcXVhdGlvbn0KXGxhYmVse3RyYW5zZm9ybWVkX2Fkam9pbnRfc3RhdGV9Clx0YWd7OX0KXGxlZnRcewpcYmVnaW57YWxpZ25lZH0KICAgIFxwYXJ0aWFsX3QgXGJhcntxfShzLHQpICsgKFxrYXBwYV4yIC0gXERlbHRhX1xHYW1tYSlee1xhbHBoYS8yfSBcYmFye3F9KHMsdCkgJj0gXGJhcnt2fShzLHQpLXZfZChzLHQpLCAmJiBccXVhZCAocyx0KSBcaW4gXEdhbW1hIFx0aW1lcyAoMCwgVCksIFxcCiAgICBcYmFye3F9KHMsMCkgJj0gMCwgJiYgXHF1YWQgcyBcaW4gXEdhbW1hLApcZW5ke2FsaWduZWR9ClxyaWdodC4KXGVuZHtlcXVhdGlvbn0Kc2luY2UgJFxwYXJ0aWFsX3RcYmFye3F9KHMsdCkgPSAtXHBhcnRpYWxfdFxiYXJ7cH0ocyxULXQpJCBhbmQgJFxiYXJ7cX0ocywgMCkgPVxiYXJ7cH0ocyxULTApPSBcYmFye3B9KHMsVCk9MCQuIEhlcmUsICRcYmFye3Z9KHMsdCkgPSBcYmFye3V9KHMsVC10KSQgYW5kICR2X2Qocyx0KSA9IHVfZChzLFQtdCkkLiAKCgpHaXZlbiAkXGJhcnt1fSQgYW5kICR1X2QkLCB3ZSBjYW4gdGltZS1yZXZlcnNlIHRoZW0gdG8gb2J0YWluICRcYmFye3Z9JCBhbmQgJHZfZCQgYW5kIHRoZW4gdXNlIHRoZSBzYW1lIG51bWVyaWNhbCBzY2hlbWUgd2UgdXNlIGZvciB0aGUgZm9yd2FyZCBwcm9ibGVtIFxlcXJlZntlcTptYWluZXFvcHRpbWFsfSB0byBzb2x2ZSB0aGUgYWRqb2ludCBwcm9ibGVtIFxlcXJlZnt0cmFuc2Zvcm1lZF9hZGpvaW50X3N0YXRlfS4gVGhlIGNvbnRyb2wgdmFyaWFibGUgJFxiYXJ7en0kIGlzIHRoZW4gY29tcHV0ZWQgdXNpbmcgXGVxcmVme3p6fS4KClRoZSBudW1lcmljYWwgc2NoZW1lIGZvciBcZXFyZWZ7ZXE6bWFpbmVxb3B0aW1hbH0gYW5kIFxlcXJlZnt0cmFuc2Zvcm1lZF9hZGpvaW50X3N0YXRlfSBhcmUgZ2l2ZW4gYnkgKHNlZSB0aGUgW0Z1bmN0aW9uYWxpdHldKGZ1bmN0aW9uYWxpdHkuaHRtbCNudW1fc2NoZW1lKSBwYWdlKQpcYmVnaW57YWxpZ259ClxsYWJlbHtudW1lcmljYWxzY2hlbWUxfQpcdGFnezEwfQpcYmFye1xib2xkc3ltYm9se1V9fV57aysxfSA9IFxib2xkc3ltYm9se0N9XnstMX1cbGVmdChcc3VtX3trPTF9XnttKzF9IGFfa1xsZWZ0KFxkZnJhY3tcYm9sZHN5bWJvbHtMfVxib2xkc3ltYm9se0N9XnstMX19e1xrYXBwYV4yfS1wX2tcYm9sZHN5bWJvbHtJfVxyaWdodCleey0xfSArIHJcYm9sZHN5bWJvbHtJfVxyaWdodCkgKFxib2xkc3ltYm9se0N9XGJhcntcYm9sZHN5bWJvbHtVfX1eaytcdGF1IChcYm9sZHN5bWJvbHtGfV57aysxfStcYmFye1xib2xkc3ltYm9se1p9fV57aysxfSkpLApcZW5ke2FsaWdufQphbmQKXGJlZ2lue2FsaWdufQpcbGFiZWx7dGhlbnVtZXJpY2Fsc2NoZW1lMn0KXHRhZ3sxMX0KXGJhcntcYm9sZHN5bWJvbHtRfX1ee2srMX0gPSBcYm9sZHN5bWJvbHtDfV57LTF9XGxlZnQoXHN1bV97az0xfV57bSsxfSBhX2tcbGVmdChcZGZyYWN7XGJvbGRzeW1ib2x7TH1cYm9sZHN5bWJvbHtDfV57LTF9fXtca2FwcGFeMn0tcF9rXGJvbGRzeW1ib2x7SX1ccmlnaHQpXnstMX0gKyByXGJvbGRzeW1ib2x7SX1ccmlnaHQpIChcYm9sZHN5bWJvbHtDfVxiYXJ7XGJvbGRzeW1ib2x7UX19XmsrXHRhdSAoXGJhcntcYm9sZHN5bWJvbHtWfX1ee2srMX0tXGJvbGRzeW1ib2x7Vl9kfV57aysxfSkpLApcZW5ke2FsaWdufQp3aXRoIGluaXRpYWwgY29uZGl0aW9ucyAkXGJhcntcYm9sZHN5bWJvbHtVfX1eMCA9IFxib2xkc3ltYm9se1V9XzAkIGFuZCAkXGJhcntcYm9sZHN5bWJvbHtRfX1eMCA9IFxib2xkc3ltYm9sezB9JC4gT2JzZXJ2ZSB0aGF0IFxlcXJlZntudW1lcmljYWxzY2hlbWUxfS1cZXFyZWZ7dGhlbnVtZXJpY2Fsc2NoZW1lMn0gaXMgYSBjb3VwbGVkIHByb2JsZW0uCgpGb3Igbm90YXRpb24gY29udmVuaWVuY2UsIGxldAoKIC0gJFxiYXJ7XGJvbGRzeW1ib2x7VX19JCAgYmUgdGhlIG1hdHJpeCB3aXRoIGNvbHVtbnMgJFxiYXJ7XGJvbGRzeW1ib2x7VX19XmskIG9idGFpbmVkIGZyb20gdGhlIG51bWVyaWNhbCBzY2hlbWUgXGVxcmVme251bWVyaWNhbHNjaGVtZTF9IAogLSAkXGJvbGRzeW1ib2x7Rn0kIGJlIHRoZSBtYXRyaXggd2l0aCBjb2x1bW5zICRcYm9sZHN5bWJvbHtGfV5rJCBhbmQgZW50cmllcyAkXGJvbGRzeW1ib2x7Rn1fe2lrfT0oXHBzaV5pX2gsZihcY2RvdCx0X2spKV97TF8yKFxHYW1tYSl9JAogLSAkXGJhcntcYm9sZHN5bWJvbHtafX0kIGJlIHRoZSBtYXRyaXggd2l0aCBjb2x1bW5zICRcYmFye1xib2xkc3ltYm9se1p9fV5rJCBhbmQgZW50cmllcyAkXGJhcntcYm9sZHN5bWJvbHtafX1fe2lrfT0oXHBzaV5pX2gsXGJhcnt6fShcY2RvdCx0X2spKV97TF8yKFxHYW1tYSl9JAogLSAkXGJhcntcYm9sZHN5bWJvbHtRfX0kIGJlIHRoZSBtYXRyaXggd2l0aCBjb2x1bW5zICRcYmFye1xib2xkc3ltYm9se1F9fV5rJCBvYnRhaW5lZCBmcm9tIHRoZSBudW1lcmljYWwgc2NoZW1lIFxlcXJlZnt0aGVudW1lcmljYWxzY2hlbWUyfQogLSAkXGJhcntcYm9sZHN5bWJvbHtWfX0kIGJlIHRoZSBtYXRyaXggd2l0aCBjb2x1bW5zICRcYmFye1xib2xkc3ltYm9se1Z9fV5rJCBhbmQgZW50cmllcyAkXGJhcntcYm9sZHN5bWJvbHtWfX1ee2lrfT0oXHBzaV5pX2gsXGJhcnt2fShcY2RvdCx0X2spKV97TF8yKFxHYW1tYSl9ID0oXHBzaV5pX2gsXGJhcnt1fShcY2RvdCxULXRfaykpX3tMXzIoXEdhbW1hKX0kCiAtICRcYm9sZHN5bWJvbHtWX2R9JCBiZSB0aGUgbWF0cml4IHdpdGggY29sdW1ucyAkXGJvbGRzeW1ib2x7Vl9kfV5rJCBhbmQgZW50cmllcyAkXGJvbGRzeW1ib2x7Vl9kfV57aWt9PShccHNpXmlfaCx2X2QoXGNkb3QsdF9rKSlfe0xfMihcR2FtbWEpfSA9KFxwc2leaV9oLHVfZChcY2RvdCxULXRfaykpX3tMXzIoXEdhbW1hKX0kCiAtICRcYm9sZHN5bWJvbHtBfSQgYmUgdGhlIG1hdHJpY2VzIHdpdGggZW50cmllcyAkXGJvbGRzeW1ib2x7QX1fe2lrfSA9IGEoc19pLHRfaykkCiAtICRcYm9sZHN5bWJvbHtCfSQgYmUgdGhlIG1hdHJpY2VzIHdpdGggZW50cmllcyAkXGJvbGRzeW1ib2x7Qn1fe2lrfSA9IGIoc19pLHRfaykkCiAtICRcYmFye1xib2xkc3ltYm9se1B9fSA9IFx0ZXh0e3JldmVyc2Vjb2x1bW5zfShcYmFye1xib2xkc3ltYm9se1F9fSkkCgoKT2JzZXJ2ZSB0aGF0IHRoZSBlbnRyaWVzIG9mICRcYm9sZHN5bWJvbHtGfSQgYXJlIGdpdmVuIGJ5ICRcYm9sZHN5bWJvbHtGfV97aWt9PShccHNpXmlfaCwgZihcY2RvdCx0X2spKV97TF8yKFxHYW1tYSl9JCB3aGVyZSAkXHBzaV5pX2gkIGlzIHRoZSAkaSQtdGggYmFzaXMgZnVuY3Rpb24gb24gYSBtZXNoIHdpdGggJE5faCQgbm9kZXMuIEJ5IGludHJvZHVjaW5nIGEgZmluZXIgaW50ZWdyYXRpb24gbWVzaCB3aXRoICROX3toX3tcdGV4dHtva319fSQgbm9kZXMsIHdlIGNhbiBhcHByb3hpbWF0ZSAkXGJvbGRzeW1ib2x7Rn1fe2lrfSQgYXMgJFxib2xkc3ltYm9se1xwc2l9X2leXHRvcFxib2xkc3ltYm9se0N9XntcdGV4dHtva319XGJvbGRzeW1ib2x7Zn1fayQsIHdoZXJlICRcYm9sZHN5bWJvbHtccHNpfV9pPVtccHNpXmlfaChzXzEpXGRvdHMgXHBzaV5pX2goc197Tl97aF97XHRleHR7b2t9fX19KV1eXHRvcCQgZm9yICRpPTFcZG90cywgTl9oJCwgJFxib2xkc3ltYm9se2Z9X2sgPSBbZihzXzEsdF9rKVxkb3RzIGYoc197Tl97aF97XHRleHR7b2t9fX19LHRfayldXHRvcCQgZm9yICRrPSAwLFxkb3RzLE4kLCBhbmQgbWF0cml4ICRcYm9sZHN5bWJvbHtDfV57XHRleHR7b2t9fSQgaGFzIGVudHJpZXMgJFxib2xkc3ltYm9se0N9XntcdGV4dHtva319X3tubX0gPSAoXHBzaV97aF9cdGV4dHtva319Xm4sXHBzaV97aF9cdGV4dHtva319Xm0pX3tMXzIoXEdhbW1hKX0kIGZvciAkbixtID0gMSxcZG90cywgTl97aF9cdGV4dHtva319JC4gTGV0ICRcYm9sZHN5bWJvbHtmfSQgZGVub3RlIHRoZSBtYXRyaXggd2l0aCBjb2x1bW5zICRcYm9sZHN5bWJvbHtmfV9rJCBhbmQgJFxib2xkc3ltYm9se1xQc2l9JCBkZW5vdGUgYSBtYXRyaXggd2l0aCBlbnRyaWVzICRcYm9sZHN5bWJvbHtcUHNpfV97aml9PVxwc2leaV9oKHNfaikkIGZvciAkaT0xXGRvdHMsIE5faCQgYW5kICRqID0gMSxcZG90cyBOX3toX3tcdGV4dHtva319fSQuIFRoZW4gClxiZWdpbntlcXVhdGlvbn0KXGJvbGRzeW1ib2x7Rn0gXGFwcHJveCBcYm9sZHN5bWJvbHtcUHNpfV5cdG9wIFxib2xkc3ltYm9se0N9XntcdGV4dHtva319IFxib2xkc3ltYm9se2Z9LgpcZW5ke2VxdWF0aW9ufQpTaW1pbGFybHksIGlmICRcYm9sZHN5bWJvbHtVX2R9JCBpcyB0aGUgbWF0cml4IHdpdGggZW50cmllcyAkXGJvbGRzeW1ib2x7VV9kfV57amt9ID0gdV9kKHNfaix0X2spJCBmb3IgJGogPSAxLFxkb3RzLCBOX3toX3tcdGV4dHtva319fSQgYW5kICRrID0gMCxcZG90cywgTiQsIHRoZW4gdGhlIG1hdHJpeCAkXGJvbGRzeW1ib2x7Vl9kfSQgY2FuIGJlIGFwcHJveGltYXRlZCBhcwpcYmVnaW57ZXF1YXRpb259Clxib2xkc3ltYm9se1ZfZH0gXGFwcHJveCBcdGV4dHtyZXZlcnNlY29sdW1uc30oXGJvbGRzeW1ib2x7XFBzaX1eXHRvcCBcYm9sZHN5bWJvbHtDfV57XHRleHR7b2t9fSBcYm9sZHN5bWJvbHtVX2R9KS4KXGVuZHtlcXVhdGlvbn0KCgpUbyBhcHByb3hpbWF0ZSAkXGJvbGRzeW1ib2x7Rn0kIGFuZCAkXGJvbGRzeW1ib2x7Vl9kfSQsIHdlIHVzZSB0aGUgdmFsdWVzIG9mICRmJCBhbmQgJHVfZCQgb24gdGhlIGludGVncmF0aW9uIG1lc2ggd2l0aCAkTl97aF97XHRleHR7b2t9fX0kIG5vZGVzLiBIb3dldmVyLCB0byBhcHByb3hpbWF0ZSAkXGJhcntcYm9sZHN5bWJvbHtafX0kIGFuZCAkXGJhcntcYm9sZHN5bWJvbHtWfX0kLCB3ZSBkbyBub3QgZXZlbiBoYXZlIGFjY2VzcyB0byB0aGUgdmFsdWVzIG9mICRcYmFye3p9JCBhbmQgJFxiYXJ7dn0kIG9uIHRoZSBjb2Fyc2UgbWVzaCwgbGV0IGFsb25lIG9uIHRoZSBmaW5lIG1lc2guIEluc3RlYWQsIHdlIHVzZSB0aGVpciBhcHByb3hpbWF0aW9ucyBvbiB0aGUgY29hcnNlIG1lc2gsIGdpdmVuIGJ5IHRoZSBtYXRyaWNlcyAkXGJhcntcYm9sZHN5bWJvbHt6fX0gPSBcbWF4XHtcYm9sZHN5bWJvbHtBfSxcbWluXHtcYm9sZHN5bWJvbHtCfSwtXGJhcntcYm9sZHN5bWJvbHtQfX0vXG11XH1cfSQgYW5kICRcdGV4dHtyZXZlcnNlY29sdW1uc30oXGJhcntcYm9sZHN5bWJvbHtVfX0pJCwgcmVzcGVjdGl2ZWx5LiBXaXRoIHRoZXNlIGF0IGhhbmQsIAp3ZSBjYW4gYXBwcm94aW1hdGUgJFxiYXJ7XGJvbGRzeW1ib2x7Wn19JCBhbmQgJFxiYXJ7XGJvbGRzeW1ib2x7Vn19JCBieSBmaXJzdCBwcm9qZWN0aW5nICRcYmFye1xib2xkc3ltYm9se3p9fSA9IFxtYXhce1xib2xkc3ltYm9se0F9LFxtaW5ce1xib2xkc3ltYm9se0J9LC1cYmFye1xib2xkc3ltYm9se1B9fS9cbXVcfVx9JCBhbmQgJFx0ZXh0e3JldmVyc2Vjb2x1bW5zfShcYmFye1xib2xkc3ltYm9se1V9fSkkIG9udG8gdGhlIGZpbmUgbWVzaCBhbmQgdGhlbiBhcHByb3hpbWF0aW5nIHRoZSBpbm5lciBwcm9kdWN0cyAkKFxwc2leaV9oLFxiYXJ7en0oXGNkb3QsdF9rKSlfe0xfMihcR2FtbWEpfSQgYW5kICQoXHBzaV5pX2gsXGJhcnt1fShcY2RvdCxULXRfaykpX3tMXzIoXEdhbW1hKX0kIGFzIGZvbGxvd3MKXGJlZ2lue2VxdWF0aW9ufQpcYmFye1xib2xkc3ltYm9se1p9fSBcYXBwcm94IFxib2xkc3ltYm9se1xQc2l9Xlx0b3AgXGJvbGRzeW1ib2x7Q31ee1x0ZXh0e29rfX0gXGJvbGRzeW1ib2x7XFBzaX0gXGJhcntcYm9sZHN5bWJvbHt6fX1ccXVhZCBcdGV4dHsgYW5kIH1ccXVhZCBcYmFye1xib2xkc3ltYm9se1Z9fSBcYXBwcm94IFx0ZXh0e3JldmVyc2Vjb2x1bW5zfShcYm9sZHN5bWJvbHtcUHNpfV5cdG9wIFxib2xkc3ltYm9se0N9XntcdGV4dHtva319IFxib2xkc3ltYm9se1xQc2l9IFxiYXJ7XGJvbGRzeW1ib2x7VX19KS4KXGVuZHtlcXVhdGlvbn0KCgojIyBDb25zdHJ1Y3Rpb24gb2YgYW4gZXhhY3Qgc29sdXRpb24gdG8gdGhlIG9wdGltYWwgY29udHJvbCBwcm9ibGVtCgpXZSBmb2xsb3cgdGhlIGFwcHJvYWNoIGluIEBHbHVzYTIwMjFlcnJvcmVzdGltYXRlcyB0byBjb25zdHJ1Y3QgYW4gZXhhY3Qgc29sdXRpb24gdG8gdGhlIG9wdGltYWwgY29udHJvbCBwcm9ibGVtIFxlcXJlZntlcTpjb3N0ZnVufS1cZXFyZWZ7enp9LiBUaGUgc29sdXRpb24gdG8gdGhlIGVsbGlwdGljIHByb2JsZW0KXGJlZ2lue2FsaWdufQogICAgXGxhYmVse2VxOmVsbGlwdGljX3Byb2JsZW19CiAgICBcdGFnezEyfQogICAoXGthcHBhXjIgLSBcRGVsdGFfXEdhbW1hKV57XGFscGhhLzJ9IHUocyk9ZihzKSxccXVhZCBzXGluXEdhbW1hLApcZW5ke2FsaWdufQp3aGVyZSAkdShcY2RvdCkkIHNhdGlzZmllcyB0aGUgS2lyY2hob2ZmIHZlcnRleCBjb25kaXRpb25zIFxlcXJlZntlcTpLY29uZH0sIGlzIGdpdmVuIGJ5ClxiZWdpbnthbGlnbip9CiAgICB1KHMpID0gXHN1bV97aj0xfV57XGluZnR5fVxsYW1iZGFfal57LVxhbHBoYS8yfShmLGVfailfe0xfMihcR2FtbWEpfWVfaihzKSxccXVhZCBzXGluXEdhbW1hClxlbmR7YWxpZ24qfQpXZSBjaG9vc2UgY29lZmZpY2llbnRzICRce3hfalx9X3tqPTF9XntcaW5mdHl9JCBhbmQgJFx7eV9qXH1fe2o9MX1ee1xpbmZ0eX0kIGFuZCBzZXQKXGJlZ2lue2FsaWdufQogICAgXGxhYmVse2VxOnJoc2Z1bmN0aW9uc30KICAgIFx0YWd7MTN9CiAgIGYocykgPSBcc3VtX3tqPTF9XntcaW5mdHl9eF9qZV9qKHMpXHF1YWQgXHRleHR7IGFuZCB9IFxxdWFkIGcocykgPSBcc3VtX3tqPTF9XntcaW5mdHl9eV9qZV9qKHMpClxlbmR7YWxpZ259CkhlbmNlIHRoZSBjb3JyZXNwb25kaW5nIHNvbHV0aW9ucyBhcmUgZ2l2ZW4gYnkKXGJlZ2lue2FsaWdufQogICAgXGxhYmVse2VxOnNvbHN9CiAgICBcdGFnezE0fQogICB1KHMpID0gXHN1bV97aj0xfV57XGluZnR5fVxsYW1iZGFfal57LVxhbHBoYS8yfXhfamVfaihzKVxxdWFkIFx0ZXh0eyBhbmQgfSBccXVhZCB2KHMpID0gXHN1bV97aj0xfV57XGluZnR5fVxsYW1iZGFfal57LVxhbHBoYS8yfXlfamVfaihzKQpcZW5ke2FsaWdufQogV2UgYWxzbyBkZWZpbmUgJFxwc2kodCkgPSBcY29zKHQpJCBhbmQgJFxwaGkodCkgPVxzaW4oVC10KSQuIE9ic2VydmUgdGhhdCAkXHBzaSgwKT0xJCBhbmQgJFxwaGkoVCk9MCQuIFdlIGFsc28gY2hvb3NlICRcbXUgPTAuMSQsICRhKHMsdCkgPSAtMC41JCBhbmQgJGIocyx0KT0wLjUkLiBOb3cgd2Ugc2V0ClxiZWdpbnthbGlnbip9CiAgICBmKHMsdCkgJj0gXHBzaScodCl1KHMpK1xwc2kodClmKHMpIC0gXGJhcnt6fShzLHQpID0gLVxzaW4odClcc3VtX3tqPTF9XntcaW5mdHl9XGxhbWJkYV9qXnstXGFscGhhLzJ9eF9qZV9qKHMpKyBcY29zKHQpXHN1bV97aj0xfV57XGluZnR5fXhfamVfaihzKS0gXG1heFx7LTAuNSxcbWluXHswLjUsIFxzaW4oVC10KVxzdW1fe2o9MX1ee1xpbmZ0eX1cbGFtYmRhX2peey1cYWxwaGEvMn15X2plX2oocylcfVx9XFwgCiAgICB1X2Qocyx0KSAmID0gXHBzaSh0KXUocykrXG11XHBoaScodCl2KHMpK1xtdVxwaGkodClnKHMpID0gXGNvcyh0KVxzdW1fe2o9MX1ee1xpbmZ0eX1cbGFtYmRhX2peey1cYWxwaGEvMn14X2plX2oocyktXG11XGNvcyhULXQpXHN1bV97aj0xfV57XGluZnR5fVxsYW1iZGFfal57LVxhbHBoYS8yfXlfamVfaihzKStcbXVcc2luKFQtdClcc3VtX3tqPTF9XntcaW5mdHl9eV9qZV9qKHMpXFwKICAgIHVfMChzKSAgJiA9IHUocyk9IFxzdW1fe2o9MX1ee1xpbmZ0eX1cbGFtYmRhX2peey1cYWxwaGEvMn14X2plX2oocykKXGVuZHthbGlnbip9ClRoZSBleGFjdCBzb2x1dGlvbiB0byB0aGUgb3B0aW1hbCBjb250cm9sIHByb2JsZW0gaXMgZ2l2ZW4gYnkKXGJlZ2lue2FsaWduKn0KICAgIFxiYXJ7dX0ocyx0KSY9XHBzaSh0KXUocykgPSBcY29zKHQpXHN1bV97aj0xfV57XGluZnR5fVxsYW1iZGFfal57LVxhbHBoYS8yfXhfamVfaihzKVxcCiAgICBcYmFye3B9KHMsdCkmPS1cbXVccGhpKHQpdihzKT0gLSBcbXVcc2luKFQtdClcc3VtX3tqPTF9XntcaW5mdHl9XGxhbWJkYV9qXnstXGFscGhhLzJ9eV9qZV9qKHMpXFwKICAgIFxiYXJ7en0ocyx0KSY9XG1heFx7YShzLHQpLFxtaW5ce2Iocyx0KSwgXHBoaSh0KXYocylcfVx9PSBcbWF4XHstMC41LFxtaW5cezAuNSwgXHNpbihULXQpXHN1bV97aj0xfV57XGluZnR5fVxsYW1iZGFfal57LVxhbHBoYS8yfXlfamVfaihzKVx9XH0gClxlbmR7YWxpZ24qfQoKT2JzZXJ2ZSB0aGF0IHRoZSBjaG9pY2Ugb2YgJGYkIGRlY291cGxlcyB0aGUgc3lzdGVtcyBcZXFyZWZ7bnVtZXJpY2Fsc2NoZW1lMX0tXGVxcmVme3RoZW51bWVyaWNhbHNjaGVtZTJ9LgoKIyBSZWZlcmVuY2VzCgpgYGB7cn0KY2l0ZV9wYWNrYWdlcyhvdXRwdXQgPSAicGFyYWdyYXBoIiwgb3V0LmRpciA9ICIuIikKYGBg</div>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("control1.Rmd");
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -114,7 +114,7 @@ with $u(\cdot,t)$ satisfying the Kirchhoff vertex conditions
 \begin{equation}
 \label{eq:Kcond}
 \tag{2}
-   \mathcal{K} =  \left\{\phi\in C(\Gamma)\;\middle|\; \forall v\in \mathcal{V}:\; \textstyle\sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}.
+   \mathcal{K} =  \left\{\phi\in C(\Gamma)\;\middle|\; \forall v\in \mathcal{V}:\; \sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}.
 \end{equation}
 Here $\Gamma = (\mathcal{V},\mathcal{E})$ is a metric graph, $\kappa>0$, $\alpha\in(0,2]$ determines the smoothness of $u(\cdot,t)$, $\Delta_{\Gamma}$ is the so-called Kirchhoff--Laplacian, and $f:\Gamma\times (0,T)\to\mathbb{R}$ and $u_0: \Gamma \to \mathbb{R}$ are fixed functions, called right-hand side and initial condition, respectively.
 

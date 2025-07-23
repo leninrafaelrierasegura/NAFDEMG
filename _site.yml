@@ -21,6 +21,11 @@ navbar:
           href: conv_in_tau.html
         - text: "Convergence in 𝑚"
           href: conv_in_m.html
+    - text: "Optimal Control"
+      menu:
+        - text: "Optimal Control 1"
+          href: control1.html
+          
   right:
     - icon: fa-file-pdf
       href: https://arxiv.org/abs/0000.00000
