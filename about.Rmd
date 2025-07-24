@@ -1,5 +1,43 @@
 ---
-title: "About This Website"
+title: "Contents"
 ---
 
-More about this website.
+1. Contents
+
+    - [Contents](about.html): The current page.
+
+2. Preliminaries
+
+    - [Preliminaries](preliminaries.html): This page shows 
+      - [how the finite element basis functions are constructed on a metric graph,](preliminaries.html#fem-basis)
+      - [how the eigenvalues and eigenfunctions of the shifted Kirchhoff–Laplacian $(\kappa^2-\Delta_\Gamma)$ operator are computed on the tadpole graph,](preliminaries.html#eigenfunctions)
+      - [and how to project onto a fine space-time mesh.](preliminaries.html#piecewise_projection)
+      
+3. Functionality
+
+    - [Functionality](functionality.html): This page shows 
+      - [the derivation of the proposed numerical scheme,](functionality.html#num_scheme)
+      - [the implementation of the numerical scheme,](functionality.html#num_implementation)
+      - [the implementation of some auxiliary functions,](functionality.html#auxiliary_functions)
+      - [the implementation of some plotting functions.](functionality.html#plotting_functions)
+  
+4. Experiment
+
+    - [Experiment](exp1.html): This page shows 
+      - [how to construct an exact solution to the addressed problem for error analysis purposes.](exp1.html#eigensolconst)
+    
+5. Convergence rates
+
+    - [Convergence in 𝘩](conv_in_h.html): This page shows 
+      - [the convergence with respect to the spatial mesh size 𝘩.](conv_in_h.html)
+    - [Convergence in τ](conv_in_tau.html): This page shows 
+      - [the convergence with respect to the temporal mesh size τ.](conv_in_tau.html)
+    - [Convergence in 𝑚](conv_in_m.html): This page shows 
+      - [and the convergence with respect to the order 𝑚 of the rational approximation.](conv_in_m.html)
+      
+6. Optimal control
+
+    - [Optimal control 1](control1.html): This page shows 
+      - [the description of the optimal control problem,](control1.html#optimal_control_problem)
+      - [how to implement a numerical scheme to numerically solve the optimal control problem,](control1.html#num_scheme_optim_control)
+      - [how to construct an exact solution for the optimal control problem for error analysis purposes.](control1.html#exact_sol_for_optim_control_prob)

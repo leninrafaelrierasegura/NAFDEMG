@@ -8,11 +8,11 @@ output:
     theme: flatly
     code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
     df_print: paged
-    # toc: true
-    # toc_float:
-    #   collapsed: true
-    #   smooth_scroll: true
-    number_sections: false
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
     fig_caption: true
     code_download: true
     css: visual.css
@@ -30,6 +30,7 @@ header-includes:
   - \newcommand{\Wcal}{\mathcal{W}}
 ---
 
+Go back to the [Contents](about.html) page.
 
 <div style="color: #2c3e50; text-align: right;">
 ********  
@@ -103,7 +104,6 @@ capture.output(
 source(here::here("functionality.R"))
 ```
 
-Go back to the [About page](about.html).
 
 ## The equation
 
@@ -126,7 +126,7 @@ with $u(\cdot,t)$ satisfying the Kirchhoff vertex conditions
 \end{equation}
 Here $\Gamma = (\mathcal{V},\mathcal{E})$ is a metric graph, $\kappa>0$, $\alpha\in(0,2]$ determines the smoothness of $u(\cdot,t)$, $\Delta_{\Gamma}$ is the so-called Kirchhoff--Laplacian, and $f:\Gamma\times (0,T)\to\mathbb{R}$ and $u_0: \Gamma \to \mathbb{R}$ are fixed functions, called right-hand side and initial condition, respectively.
 
-## Eigenfunction-based construction of an exact solution
+## Eigenfunction-based construction of an exact solution {#eigensolconst}
 
 The exact solution to \eqref{eq:maineq} can be expressed as
 \begin{equation}
@@ -254,17 +254,18 @@ FF_true <- EIGENFUN %*% outer(1:length(coeff_FF),
 # Numerical solution
 my_op_frac <- my.fractional.operators.frac(L, beta, C, scale.factor = kappa^2, m = m, time_step)
 
-U_approx <- matrix(NA, nrow = nrow(C), ncol = length(time_seq))
-U_approx[, 1] <- U_0
-
-# Time-stepping loop
-for (k in 1:(length(time_seq) - 1)) {
-  U_approx[, k + 1] <- as.matrix(my.solver.frac(my_op_frac, my_op_frac$C %*% U_approx[, k] + time_step * FF_innerprod[, k + 1]))
-}
+U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0, RHST = FF_innerprod)
 
 error <- sqrt(as.double(t(graph$mesh$weights) %*% (U_true - U_approx)^2 %*% rep(time_step, ncol(U_true))))
+```
+
+The following is the error reported in the paper for the considered experiment.
+
+```{r}
 print(paste0("Total error = ", formatC(error, format = "f", digits = 9)))
 ```
+
+Because of GitHub storage limits, we project the solution (and all other visualizations) to a coarser mesh as follows.
 
 ```{r}
 aux_graph <- gets.graph.tadpole(h = 0.01)

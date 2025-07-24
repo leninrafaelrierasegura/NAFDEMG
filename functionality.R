@@ -140,6 +140,19 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 
 
 ## -----------------------------------------------------------------------------
+solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0, RHST) {
+  CC <- my_op_frac$C
+  SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
+  SOL[, 1] <- val_at_0
+  for (k in 1:(length(time_seq) - 1)) {
+    rhs <- CC %*% SOL[, k] + time_step * RHST[, k + 1]
+    SOL[, k + 1] <- as.matrix(my.solver.frac(my_op_frac, rhs))
+  }
+  return(SOL)
+}
+
+
+## -----------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(h){
   edge1 <- rbind(c(0,0),c(1,0))

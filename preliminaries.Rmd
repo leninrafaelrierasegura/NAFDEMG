@@ -8,11 +8,11 @@ output:
     theme: flatly
     code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
     df_print: paged
-    # toc: true
-    # toc_float:
-    #   collapsed: true
-    #   smooth_scroll: true
-    number_sections: false
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
     fig_caption: true
     code_download: true
     css: visual.css
@@ -30,6 +30,7 @@ header-includes:
   - \newcommand{\Wcal}{\mathcal{W}}
 ---
 
+Go back to the [Contents](about.html) page.
 
 <div style="color: #2c3e50; text-align: right;">
 ********  
@@ -93,7 +94,7 @@ source(here::here("functionality.R"))
 ```
 
 
-## Finite Element Basis Functions on a Metric Graph {#fem-basis}
+## Finite element basis functions on a metric graph {#fem-basis}
 
 Let each edge $e\in\Ecal$ be subdivided into $n_{e}\geq 2$ regular segments of length $h_{e}$, and be delimited by the nodes $0 = x_0^{e},x_1^{e},\dots,x_{n_{e}-1}^{e}, x_{n_{e}}^{e} = \ell_{e}$. For each $j = 1,\dots,n_{e}-1$, we consider the following standard hat basis functions 
 \begin{equation*}
@@ -234,7 +235,7 @@ See the [Fuctionality](functionality.html#construct_piecewise_projection) page f
 
 ### Spatial projection
 
-A function $U_{\text{coarse}}(s)$ defined on a coarse mesh with $N_{h}$ nodes can be projected onto a fine mesh with $N_{h_{\text{ok}}}$ nodes by doing $U_{\text{fine}}(s) = \boldsymbol{A} U_{\text{coarse}}(s)$, where $\boldsymbol{A}$ is a matrix with entries $\psi^j_h(s_i)$ for $j=1\dots, N_h$ and $i = 1,\dots N_{h_{\text{ok}}}$.
+A function $U_{\text{coarse}}(s)$ defined on a coarse mesh with $N_{h}$ nodes can be projected onto a fine mesh with $N_{h_{\text{ok}}}$ nodes by doing $U_{\text{fine}}(s) = \boldsymbol{\Psi} U_{\text{coarse}}(s)$, where $\boldsymbol{\Psi}$ is a matrix with entries $\boldsymbol{\Psi}_{ij}=\psi^j_h(s_i)$ for $j=1\dots, N_h$ and $i = 1,\dots N_{h_{\text{ok}}}$.
 
 ```{r}
 # Parameters

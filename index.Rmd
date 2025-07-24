@@ -1,11 +1,9 @@
 ---
-title: "NAFDEMG"
+title: "Numerical approximation of fractional diffusion equations on metric graphs"
 ---
 
-Hello, Website!
+This website is a companion to the paper *Numerical approximation of fractional diffusion equations on metric graphs*, available on [arXiv](https://arxiv.org/abs/0000.00000), by David Bolin, Lenin R. Riera-Segura, and Alexandre B. Simas.
 
-For more information about simple R Markdown websites, please read the documentation at https://bookdown.org/yihui/rmarkdown/rmarkdown-site.html.
+Visit this [GitHub](https://github.com/leninrafaelrierasegura/NAFDEMG) repository for all the necessary files to reproduce the results presented in this website and paper.
 
-Please also note that simple R Markdown sites are _not_ based on **blogdown**. They are probably good for websites with only a few Rmd documents. For larger-scale and more sophisticated websites (such as blogs), you may want to use **blogdown** instead: https://github.com/rstudio/blogdown.
-
-Is it now?
+Go to the [Contents](about.html) page for a brief description of the contents of this website.

@@ -8,11 +8,11 @@ output:
     theme: flatly
     code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
     df_print: paged
-    # toc: true
-    # toc_float:
-    #   collapsed: true
-    #   smooth_scroll: true
-    number_sections: false
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
     fig_caption: true
     code_download: true
     css: visual.css
@@ -30,6 +30,7 @@ header-includes:
   - \newcommand{\Wcal}{\mathcal{W}}
 ---
 
+Go back to the [Contents](about.html) page.
 
 <div style="color: #2c3e50; text-align: right;">
 ********  
@@ -94,8 +95,6 @@ library(reshape2)
 library(plotly)
 ```
 
-
-Go back to the [About page](about.html).
 
 ## Fractional diffusion equations on metric graphs
 
@@ -204,9 +203,9 @@ scheme \eqref{eq:final_scheme} can be expressed as
 \boldsymbol{U}^{k+1} = \boldsymbol{C}^{-1}\left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1} + r\boldsymbol{I}\right) (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1})
 \end{equation}
 
-## Numerical implementation
+## Numerical implementation {#num_implementation}
 
-#### Function `my.get.roots()`
+### Function `my.get.roots()`
 
 For each rational order $m$ (1,2,3,4) and smoothness parameter $\beta$ (= $\alpha/2$ with $\alpha$ between 0.5 and 2), function `my.get.roots()` (adapted from the `rSPDE` package) returns $\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, and the roots $\{r_{1i}\}_{i=1}^m$ and $\{r_{2j}\}_{j=1}^{m+1}$.
 
@@ -240,7 +239,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
 }
 ```
 
-#### Function `poly.from.roots()`
+### Function `poly.from.roots()`
 
 Function `poly.from.roots()` computes the coefficients of a polynomial from its roots.
 
@@ -253,7 +252,7 @@ poly.from.roots <- function(roots) {
 }
 ```
 
-#### Function `compute.partial.fraction.param()`
+### Function `compute.partial.fraction.param()`
 
 Given `factor`$=\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, `pr_roots`$=\{r_{1i}\}_{i=1}^m$, `pl_roots`$=\{r_{2j}\}_{j=1}^{m+1}$, `time_step`$=\tau$, and `scaling`$=\kappa^{2\beta}$, function `compute.partial.fraction.param()` computes the parameters for the partial fraction decomposition \eqref{eq:partial_fraction}.
 
@@ -277,7 +276,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
 }
 ```
 
-#### Function `my.fractional.operators.frac()`
+### Function `my.fractional.operators.frac()`
 
 Given the Laplacian matrix `L`, the smoothness parameter `beta`, the mass matrix `C` (not lumped), the scaling factor `scale.factor`$=\kappa^2$, the rational order `m`, and the time step `time_step`$=\tau$, function `my.fractional.operators.frac()` computes the fractional operator and returns a list containing the necessary matrices and parameters for the fractional diffusion equation.
 
@@ -329,7 +328,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 }
 ```
 
-#### Function `my.solver.frac()`
+### Function `my.solver.frac()`
 
 Given the object returned by `my.fractional.operators.frac()` and a vector `v`, function `my.solver.frac()` solves the linear system \eqref{eq:final_scheme2} for the vector `v`. If `beta = 1`, it solves the linear system directly; otherwise, it uses the partial fraction decomposition.
 
@@ -356,9 +355,27 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 ```
 
 
-## Auxiliary functions
+### Function `solve_fractional_evolution()`
 
-#### Function `gets.graph.tadpole()`
+Given the fractional operator object `my_op_frac`, a time step `time_step`, a sequence of time points `time_seq`, an initial value `val_at_0`, and the right-hand side matrix `RHST`, function `solve_fractional_evolution()` computes the solution to the fractional diffusion equation at each time step using scheme \eqref{eq:final_scheme2}.
+
+
+```{r}
+solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0, RHST) {
+  CC <- my_op_frac$C
+  SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
+  SOL[, 1] <- val_at_0
+  for (k in 1:(length(time_seq) - 1)) {
+    rhs <- CC %*% SOL[, k] + time_step * RHST[, k + 1]
+    SOL[, k + 1] <- as.matrix(my.solver.frac(my_op_frac, rhs))
+  }
+  return(SOL)
+}
+```
+
+## Auxiliary functions {#auxiliary_functions}
+
+### Function `gets.graph.tadpole()`
 
 Given a mesh size `h`, function `gets.graph.tadpole()` builds a tadpole graph and creates a mesh.
 
@@ -378,7 +395,7 @@ gets.graph.tadpole <- function(h){
 ```
 
 
-#### Function `tadpole.eig()`
+### Function `tadpole.eig()`
 
 Given a mode number `k` and a tadpole graph `graph`, function `tadpole.eig()` computes the eigenpairs of the tadpole graph.
 
@@ -414,7 +431,7 @@ return(f)
 }
 ```
 
-#### Function `gets.eigen.params()`
+### Function `gets.eigen.params()`
 
 Given a finite number of modes `N_finite`, a scaling parameter `kappa`, a smoothness parameter `alpha`, and a tadpole graph `graph`, function `gets.eigen.params()` computes `EIGENVAL_ALPHA` (a vector with entries $\lambda_j^{\alpha/2}$), `EIGENVAL_MINUS_ALPHA` (a vector with entries $\lambda_j^{-\alpha/2}$), and `EIGENFUN` (a matrix with columns $e_j$ on the mesh of `graph`).
 
@@ -458,7 +475,7 @@ gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
 ```
 
 
-#### Function `construct_piecewise_projection()` {#construct_piecewise_projection}
+### Function `construct_piecewise_projection()` {#construct_piecewise_projection}
 
 Given a matrix `projected_U_approx` with approximated values at discrete time points, a sequence of time points `time_seq`, and an extended sequence of time points `overkill_time_seq`, function `construct_piecewise_projection()` constructs a piecewise constant projection of the approximated values over the extended time sequence.
 
@@ -480,7 +497,7 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
 }
 ```
 
-#### Functions for computing the true line rates
+### Functions for computing the true line rates
 
 ```{r}
 loglog_line_equation <- function(x1, y1, slope) {
@@ -521,7 +538,7 @@ compute_guiding_lines <- function(x_axis_vector, errors, theoretical_rates, line
 
 
 
-#### Functions for computing an exact solution to the fractional diffusion equation {#exact_solution}
+### Functions for computing an exact solution to the fractional diffusion equation {#exact_solution}
 
 Below we present closed-form expressions for $\displaystyle G_j(t)= \int_0^t e^{\lambda^{\alpha/2}_jr}g(r)dr$ corresponding to some choices of $g(r)$.
 
@@ -581,9 +598,9 @@ G_cos <- function(t, A, lambda_j_alpha_half, theta) {
 
 
 
-## Plotting functions
+## Plotting functions {#plotting_functions}
 
-#### Function `plotting.order()`
+### Function `plotting.order()`
 
 Given a vector `v` and a graph object `graph`, function `plotting.order()` orders the mesh values for plotting.
 
@@ -596,7 +613,7 @@ plotting.order <- function(v, graph){
 }
 ```
 
-#### Function `global.scene.setter()`
+### Function `global.scene.setter()`
 
 Given ranges for the `x`, `y`, and `z` axes, and an optional aspect ratio for the `z` axis, function `global.scene.setter()` sets the scene for 3D plots so that all plots have the same aspect ratio and camera position.
 
@@ -619,7 +636,7 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
 }
 ```
 
-#### Function `graph.plotter.3d()`
+### Function `graph.plotter.3d()`
 
 Given a graph object `graph`, a sequence of time points `time_seq`, and one or more matrices `...` representing function values defined on the mesh of `graph` at each time in `time_seq`, the `graph.plotter.3d()` function generates an interactive 3D visualization of these values over time.
 
@@ -724,7 +741,7 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, ...) {
 ```
 
 
-#### Function `error.at.each.time.plotter()`
+### Function `error.at.each.time.plotter()`
 
 Given a graph object `graph`, a matrix `U_true` of true values, a matrix `U_approx` of approximated values, a sequence of time points `time_seq`, and a time step `time_step`, function `error.at.each.time.plotter()` computes the error at each time step and generates a plot showing the error over time.
 
@@ -752,7 +769,7 @@ error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_s
 }
 ```
 
-#### Function `graph.plotter.3d.comparer()`
+### Function `graph.plotter.3d.comparer()`
 
 Given a graph object `graph`, matrices `U_true` and `U_approx` representing true and approximated values, and a sequence of time points `time_seq`, function `graph.plotter.3d.comparer()` generates a 3D plot comparing the true and approximated values over time, with color-coded traces for each time point.
 
@@ -899,7 +916,7 @@ graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
 }
 ```
 
-#### Function `graph.plotter.3d.single()`
+### Function `graph.plotter.3d.single()`
 
 Given a graph object `graph`, a matrix `U_true` representing true values, and a sequence of time points `time_seq`, function `graph.plotter.3d.single()` generates a 3D plot of the true values over time, with color-coded traces for each time point.
 

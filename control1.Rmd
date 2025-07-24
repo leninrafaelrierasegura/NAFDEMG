@@ -8,11 +8,11 @@ output:
     theme: flatly
     code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
     df_print: paged
-    # toc: true
-    # toc_float:
-    #   collapsed: true
-    #   smooth_scroll: true
-    number_sections: false
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
     fig_caption: true
     code_download: true
     css: visual.css
@@ -31,6 +31,7 @@ header-includes:
   - \newcommand{\almosteverywhere}{\mathrm{a.e.}\;}
 ---
 
+Go back to the [Contents](about.html) page.
 
 <div style="color: #2c3e50; text-align: right;">
 ********  
@@ -93,7 +94,7 @@ capture.output(
 source(here::here("functionality.R"))
 ```
 
-## Optimal control of fractional diffusion equations on metric graphs
+## Optimal control of fractional diffusion equations on metric graphs {#optimal_control_problem}
 
 Let $\Gamma = (\mathcal{V},\mathcal{E})$ be a metric graph. Let $u_d: \Gamma \times(0, T) \rightarrow \mathbb{R}$ be the desired state and  $\mu>0$ a regularization parameter. We define the cost functional
 
@@ -136,7 +137,7 @@ and the control constraints
 \end{align}
 
 
-## Numerical scheme
+## Numerical scheme {#num_scheme_optim_control}
 
 The optimal variables $(\bar{u}, \bar{p}, \bar{z})$ satisfy
 
@@ -221,13 +222,13 @@ Similarly, if $\boldsymbol{U_d}$ is the matrix with entries $\boldsymbol{U_d}^{j
 
 
 To approximate $\boldsymbol{F}$ and $\boldsymbol{V_d}$, we use the values of $f$ and $u_d$ on the integration mesh with $N_{h_{\text{ok}}}$ nodes. However, to approximate $\bar{\boldsymbol{Z}}$ and $\bar{\boldsymbol{V}}$, we do not even have access to the values of $\bar{z}$ and $\bar{v}$ on the coarse mesh, let alone on the fine mesh. Instead, we use their approximations on the coarse mesh, given by the matrices $\bar{\boldsymbol{z}} = \max\{\boldsymbol{A},\min\{\boldsymbol{B},-\bar{\boldsymbol{P}}/\mu\}\}$ and $\text{reversecolumns}(\bar{\boldsymbol{U}})$, respectively. With these at hand, 
-we can approximate $\bar{\boldsymbol{Z}}$ and $\bar{\boldsymbol{V}}$ by first projecting $\bar{\boldsymbol{z}} = \max\{\boldsymbol{A},\min\{\boldsymbol{B},-\bar{\boldsymbol{P}}/\mu\}\}$ and $\text{reversecolumns}(\bar{\boldsymbol{U}})$ onto the fine mesh and then approximating the inner products $(\psi^i_h,\bar{z}(\cdot,t_k))_{L_2(\Gamma)}$ and $(\psi^i_h,\bar{u}(\cdot,T-t_k))_{L_2(\Gamma)}$ as follows
+we can approximate $\bar{\boldsymbol{Z}}$ and $\bar{\boldsymbol{V}}$ by first projecting $\bar{\boldsymbol{z}} = \max\{\boldsymbol{A},\min\{\boldsymbol{B},-\bar{\boldsymbol{P}}/\mu\}\}$ and $\text{reversecolumns}(\bar{\boldsymbol{U}})$ onto the fine mesh and then approximating the inner products $(\psi^i_h,\bar{z}(\cdot,t_k))_{L_2(\Gamma)}$ and $(\psi^i_h,\bar{u}(\cdot,T-t_k))_{L_2(\Gamma)}$ as
 \begin{equation}
 \bar{\boldsymbol{Z}} \approx \boldsymbol{\Psi}^\top \boldsymbol{C}^{\text{ok}} \boldsymbol{\Psi} \bar{\boldsymbol{z}}\quad \text{ and }\quad \bar{\boldsymbol{V}} \approx \text{reversecolumns}(\boldsymbol{\Psi}^\top \boldsymbol{C}^{\text{ok}} \boldsymbol{\Psi} \bar{\boldsymbol{U}}).
 \end{equation}
 
 
-## Construction of an exact solution to the optimal control problem
+## Construction of an exact solution to the optimal control problem {#exact_sol_for_optim_control_prob}
 
 We follow the approach in @Glusa2021errorestimates to construct an exact solution to the optimal control problem \eqref{eq:costfun}-\eqref{zz}. The solution to the elliptic problem
 \begin{align}
@@ -237,19 +238,19 @@ We follow the approach in @Glusa2021errorestimates to construct an exact solutio
 \end{align}
 where $u(\cdot)$ satisfies the Kirchhoff vertex conditions \eqref{eq:Kcond}, is given by
 \begin{align*}
-    u(s) = \sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}(f,e_j)_{L_2(\Gamma)}e_j(s),\quad s\in\Gamma
+    u(s) = \sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}(f,e_j)_{L_2(\Gamma)}e_j(s),\quad s\in\Gamma.
 \end{align*}
 We choose coefficients $\{x_j\}_{j=1}^{\infty}$ and $\{y_j\}_{j=1}^{\infty}$ and set
 \begin{align}
     \label{eq:rhsfunctions}
     \tag{13}
-   f(s) = \sum_{j=1}^{\infty}x_je_j(s)\quad \text{ and } \quad g(s) = \sum_{j=1}^{\infty}y_je_j(s)
+   f(s) = \sum_{j=1}^{\infty}x_je_j(s)\quad \text{ and } \quad g(s) = \sum_{j=1}^{\infty}y_je_j(s).
 \end{align}
 Hence the corresponding solutions are given by
 \begin{align}
     \label{eq:sols}
     \tag{14}
-   u(s) = \sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}x_je_j(s)\quad \text{ and } \quad v(s) = \sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}y_je_j(s)
+   u(s) = \sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}x_je_j(s)\quad \text{ and } \quad v(s) = \sum_{j=1}^{\infty}\lambda_j^{-\alpha/2}y_je_j(s).
 \end{align}
  We also define $\psi(t) = \cos(t)$ and $\phi(t) =\sin(T-t)$. Observe that $\psi(0)=1$ and $\phi(T)=0$. We also choose $\mu =0.1$, $a(s,t) = -0.5$ and $b(s,t)=0.5$. Now we set
 \begin{align*}
