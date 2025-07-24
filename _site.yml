@@ -23,8 +23,14 @@ navbar:
           href: conv_in_m.html
     - text: "Optimal Control"
       menu:
-        - text: "Optimal Control 1"
+        - text: "Optimal Control"
           href: control1.html
+        - text: "Convergence in 𝘩"
+          href: control_conv_h.html
+        - text: "Convergence in τ"
+          href: control_conv_tau.html
+        - text: "Convergence in 𝑚"
+          href: control_conv_m.html
           
   right:
     - icon: fa-file-pdf

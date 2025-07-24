@@ -1,0 +1,313 @@
+---
+title: "Convergence in 𝑚 for the optimal control variable"
+date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+    code_download: true
+    css: visual.css
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+  - \newcommand{\almosteverywhere}{\mathrm{a.e.}\;}
+---
+
+Go back to the [Contents](about.html) page.
+
+<div style="color: #2c3e50; text-align: right;">
+********  
+<strong>Press Show to reveal the code chunks.</strong>  
+
+********
+</div>
+
+
+```{r}
+# Create a clipboard button on the rendered HTML page
+source(here::here("clipboard.R")); clipboard
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+```
+
+```{r}
+library(MetricGraph)
+library(ggplot2)
+library(reshape2)
+library(plotly)
+```
+
+
+```{r}
+capture.output(
+  knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R")),
+  file = here::here("purl_log.txt")
+)
+source(here::here("functionality.R"))
+```
+
+
+
+```{r}
+# Parameters
+T_final <- 2
+kappa <- 150
+mu <- 0.1
+a <- - 0.5
+b <- 0.5
+N_finite = 4 # choose even
+adjusted_N_finite <- N_finite + N_finite/2 + 1
+# Coefficients for f and g
+coeff_elliptic_g <- 50*(1:adjusted_N_finite)^-1
+coeff_elliptic_g[-5] <- 0
+coeff_elliptic_f <- rep(0, adjusted_N_finite)
+coeff_elliptic_f[7] <- 10
+
+# Time step and mesh size
+m_vector <- c(1, 2, 3, 4)
+
+# Overkill parameters
+overkill_time_step <- 0.1 * 2^-14
+overkill_h <- (0.1 * 2^-14)^(1/2)
+
+# Finest time and space mesh
+overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
+overkill_graph <- gets.graph.tadpole(h = overkill_h)
+
+# Compute the weights on the finest mesh
+overkill_graph$compute_fem() # This is needed to compute the weights
+overkill_weights <- overkill_graph$mesh$weights
+
+overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
+overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
+
+overkill_psi <- cos(overkill_time_seq)
+overkill_phi <- sin(T_final - overkill_time_seq)
+overkill_psi_prime <- - sin(overkill_time_seq)
+overkill_phi_prime <- - cos(T_final - overkill_time_seq)
+
+alpha_vector <- seq(1, 1.8, by = 0.2)
+# Create a matrix to store the errors
+```
+
+
+```{r, eval = FALSE, class.source = "fold-show"}
+errors <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
+for (j in 1:length(alpha_vector)) {
+  alpha <- alpha_vector[j] 
+  beta <- alpha / 2
+
+  # Compute the eigenvalues and eigenfunctions on the finest mesh
+  overkill_eigen_params <- gets.eigen.params(N_finite = N_finite, 
+                                             kappa = kappa, 
+                                             alpha = alpha, 
+                                             graph = overkill_graph)
+  EIGENVAL_MINUS_ALPHA <- overkill_eigen_params$EIGENVAL_MINUS_ALPHA # Eigenvalues (they are independent of the meshes)
+  overkill_EIGENFUN <- overkill_eigen_params$EIGENFUN # Eigenfunctions on the finest mesh
+  
+  # Compute the true solution on the finest mesh
+  overkill_elliptic_f <- as.vector(overkill_EIGENFUN %*% coeff_elliptic_f)
+  overkill_elliptic_g <- as.vector(overkill_EIGENFUN %*% coeff_elliptic_g)
+  # Construct the corresponding elliptic solution u and v on the integration mesh
+  overkill_elliptic_u <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_f * EIGENVAL_MINUS_ALPHA))
+  overkill_elliptic_v <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
+  overkill_u_bar <- outer(overkill_elliptic_u, overkill_psi)
+  overkill_p_bar <- - mu * outer(overkill_elliptic_v, overkill_phi)
+  overkill_z_bar <- pmax(overkill_A, pmin(overkill_B, - overkill_p_bar / mu))
+  for (i in 1:length(m_vector)) {
+    m <- m_vector[i]
+    h <- exp(- (4 * pi / 5) * sqrt((1 - alpha / 2) * m))/10
+    time_step <- (h^alpha)/10
+    time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
+    graph <- gets.graph.tadpole(h = h)
+    graph$compute_fem()
+    G <- graph$mesh$G
+    C <- graph$mesh$C
+    L <- kappa^2*C + G
+    # Construct the fractional operator, which is shared for the forward and adjoint problems
+    my_op_frac <- my.fractional.operators.frac(L, 
+                                               beta, 
+                                               C, 
+                                               scale.factor = kappa^2, 
+                                               m = m, 
+                                               time_step)
+    eigen_params <- gets.eigen.params(N_finite = N_finite, 
+                                      kappa = kappa, 
+                                      alpha = alpha, 
+                                      graph = graph)
+    EIGENFUN <- eigen_params$EIGENFUN
+    # Construct the right hand side functions f and g for the elliptic problem
+    elliptic_f <- as.vector(EIGENFUN %*% coeff_elliptic_f)
+    elliptic_g <- as.vector(EIGENFUN %*% coeff_elliptic_g)
+    # Construct the corresponding elliptic solution u and v
+    elliptic_u <- as.vector(EIGENFUN %*% (coeff_elliptic_f * EIGENVAL_MINUS_ALPHA))
+    elliptic_v <- as.vector(EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
+    
+    psi <- cos(time_seq)
+    phi <- sin(T_final - time_seq)
+    psi_prime <- - sin(time_seq)
+    phi_prime <- - cos(T_final - time_seq)
+    
+    # Construct the projection matrix
+    Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
+    R <- t(Psi) %*% overkill_graph$mesh$C
+    
+    f_plus_z_bar <- outer(elliptic_u, psi_prime) + outer(elliptic_f, psi)
+    f_plus_z_bar_innerproduct <- R %*% Psi %*% f_plus_z_bar
+    u_0 <- elliptic_u
+    # Solve the forward problem
+    u_bar <- solve_fractional_evolution(my_op_frac, 
+                                        time_step, 
+                                        time_seq, 
+                                        val_at_0 = u_0, 
+                                        RHST = f_plus_z_bar_innerproduct)
+    
+    u_d <- outer(elliptic_u, psi) +
+      mu * outer(elliptic_v, phi_prime) +
+      mu * outer(elliptic_g, phi)
+    v_d <- reversecolumns(R %*% Psi %*% u_d)
+    v_bar <- reversecolumns(R %*% Psi %*% u_bar)
+    # Solve the adjoint problem
+    q_bar <- solve_fractional_evolution(my_op_frac, 
+                                        time_step, 
+                                        time_seq, 
+                                        val_at_0 = u_0*0, 
+                                        RHST = v_bar - v_d)
+    p_bar <- reversecolumns(q_bar)
+    # Compute the control variable
+    A <- matrix(a, nrow = nrow(C), ncol = length(time_seq))
+    B <- matrix(b, nrow = nrow(C), ncol = length(time_seq))
+    z_bar <- pmax(A, pmin(B, - p_bar / mu))
+    
+
+    
+    projected_z_bar <- Psi %*% z_bar
+    projected_z_bar_piecewise <- construct_piecewise_projection(projected_z_bar, time_seq, overkill_time_seq)
+    errors[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_z_bar - projected_z_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
+  }
+}
+save(errors, file = here::here("data_files/control_error_m.RData"))
+```
+
+```{r}
+# Load the errors data
+load(here::here("data_files/control_error_m.RData"))
+```
+
+```{r, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+observed_rates <- numeric(length(alpha_vector))
+for (u in 1:length(alpha_vector)) {
+  observed_rates[u] <- coef(lm(log(errors[, u]) ~ sqrt(m_vector)))[2]
+}
+
+theoretical_rates <- - (4 * pi * alpha_vector / 5) * sqrt((1 - alpha_vector / 2))
+
+guiding_lines <- compute_guiding_lines(x_axis_vector = sqrt(m_vector), 
+                                       errors = errors, 
+                                       theoretical_rates = theoretical_rates, 
+                                       line_equation_fun = exp_line_equation)
+default_colors <- scales::hue_pal()(length(alpha_vector))
+plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
+  geom_line(
+    data = data.frame(x = sqrt(m_vector), y = guiding_lines[, i]),
+    aes(x = x, y = y),
+    color = default_colors[i],
+    linetype = "dashed",
+    show.legend = FALSE
+  )
+})
+
+df <- as.data.frame(cbind(sqrt(m_vector), errors))
+colnames(df) <- c("m_vector", alpha_vector)
+df_melted <- melt(df, id.vars = "m_vector", variable.name = "column", value.name = "value")
+alpha_formatted <- formatC(alpha_vector, format = "f", digits = 2)
+custom_labels <- paste0(alpha_formatted, 
+                        " | ", 
+                        formatC(theoretical_rates, format = "f", digits = 4), 
+                        " | ", 
+                        formatC(observed_rates, format = "f", digits = 4))
+
+df_melted$column <- factor(df_melted$column, levels = alpha_vector, labels = custom_labels)
+
+p <- ggplot() +
+  geom_line(data = df_melted, aes(x = m_vector, y = value, color = column)) +
+  geom_point(data = df_melted, aes(x = m_vector, y = value, color = column)) +
+  plot_lines +
+  labs(
+    title = expression("Convergence in " * italic(m)),
+    x = expression(italic(m)),
+    y = expression(Error),
+    color = "          α  | theo  | obs"
+  ) +
+  scale_x_continuous(breaks = sqrt(m_vector), labels = round(m_vector, 4)) +
+  scale_y_continuous(
+  trans = "log",
+  labels = function(x) formatC(x, format = "f", digits = 4)) +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"),
+        legend.position = "bottom",
+        legend.direction = "vertical",
+        plot.margin = margin(0, 0, 0, 0),
+        plot.title = element_text(hjust = 0.5, size = 18, face = "bold"))
+p
+```
+
+
+```{r}
+ggsave(here::here("data_files/control_conv_rates_m.png"), width = 4, height = 5, plot = p, dpi = 300)
+```
+
+
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
+```

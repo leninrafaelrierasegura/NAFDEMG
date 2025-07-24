@@ -289,10 +289,10 @@ b <- 0.5
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
-coeff_elliptic_f <- 50*(1:adjusted_N_finite)^-1
-coeff_elliptic_f[-5] <- 0
-coeff_elliptic_g <- rep(0, adjusted_N_finite)
-coeff_elliptic_g[7] <- 10
+coeff_elliptic_g <- 50*(1:adjusted_N_finite)^-1
+coeff_elliptic_g[-5] <- 0
+coeff_elliptic_f <- rep(0, adjusted_N_finite)
+coeff_elliptic_f[7] <- 10
 
 # time and spatial mesh 
 time_seq <- seq(0, T_final, by = time_step)
@@ -327,11 +327,11 @@ u_bar <- outer(elliptic_u, psi)
 p_bar <- - mu * outer(elliptic_v, phi)
 z_bar <- pmax(A, pmin(B, - p_bar / mu))
 # Construct the data for the problem
-f <- outer(elliptic_u, psi_prime) + outer(elliptic_f, psi) - z_bar
-f_plus_z_bar <- outer(elliptic_u, psi_prime) + outer(elliptic_f, psi)
-u_d <- outer(elliptic_u, psi) + 
-  mu * outer(elliptic_v, phi_prime) + 
-  mu * outer(elliptic_g, phi) 
+# f <- outer(elliptic_u, psi_prime) + outer(elliptic_f, psi) - z_bar
+# f_plus_z_bar <- outer(elliptic_u, psi_prime) + outer(elliptic_f, psi)
+# u_d <- outer(elliptic_u, psi) + 
+#   mu * outer(elliptic_v, phi_prime) + 
+#   mu * outer(elliptic_g, phi) 
 u_0 <- elliptic_u
 # Construct the fractional operator, which is shared for the forward and adjoint problems
 my_op_frac <- my.fractional.operators.frac(L, beta, C, scale.factor = kappa^2, m = m, time_step)
