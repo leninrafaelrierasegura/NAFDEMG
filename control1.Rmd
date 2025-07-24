@@ -94,7 +94,9 @@ capture.output(
 source(here::here("functionality.R"))
 ```
 
-## Optimal control of fractional diffusion equations on metric graphs {#optimal_control_problem}
+# Optimal control of fractional diffusion equations on metric graphs
+
+## Problem statement {#optimal_control_problem}
 
 Let $\Gamma = (\mathcal{V},\mathcal{E})$ be a metric graph. Let $u_d: \Gamma \times(0, T) \rightarrow \mathbb{R}$ be the desired state and  $\mu>0$ a regularization parameter. We define the cost functional
 
@@ -230,7 +232,7 @@ we can approximate $\bar{\boldsymbol{Z}}$ and $\bar{\boldsymbol{V}}$ by first pr
 
 ## Construction of an exact solution to the optimal control problem {#exact_sol_for_optim_control_prob}
 
-We follow the approach in @Glusa2021errorestimates to construct an exact solution to the optimal control problem \eqref{eq:costfun}-\eqref{zz}. The solution to the elliptic problem
+We follow the approach in @Glusa2021errorestimates to construct an exact solution to the optimal control problem \eqref{eq:costfun}-\eqref{control_constraints}. The solution to the elliptic problem
 \begin{align}
     \label{eq:elliptic_problem}
     \tag{12}
@@ -266,6 +268,136 @@ The exact solution to the optimal control problem is given by
 \end{align*}
 
 Observe that the choice of $f$ decouples the systems \eqref{numericalscheme1}-\eqref{thenumericalscheme2}.
+
+## Numerical implementation {#num_implementation_optimal_control_problem}
+
+In this section, we implement the numerical scheme for the optimal control problem \eqref{eq:costfun}-\eqref{control_constraints} on the tadpole graph. We start by defining the parameters and constructing the exact solution. We them use \eqref{numericalscheme1}-\eqref{thenumericalscheme2} to solve the forward and adjoint problems. Finally, we compute the control variable $\bar{z}$ using \eqref{zz}.
+
+
+```{r}
+# Parameters
+T_final <- 2
+time_step <- 0.01 
+h <- 0.01 
+kappa <- 150
+alpha <- 1.2
+m = 1
+beta <- alpha/2
+mu <- 0.1
+a <- - 0.5
+b <- 0.5
+N_finite = 4 # choose even
+adjusted_N_finite <- N_finite + N_finite/2 + 1
+# Coefficients for f and g
+coeff_elliptic_f <- 50*(1:adjusted_N_finite)^-1
+coeff_elliptic_f[-5] <- 0
+coeff_elliptic_g <- rep(0, adjusted_N_finite)
+coeff_elliptic_g[7] <- 10
+
+# time and spatial mesh 
+time_seq <- seq(0, T_final, by = time_step)
+graph <- gets.graph.tadpole(h = h)
+graph$compute_fem()
+G <- graph$mesh$G
+C <- graph$mesh$C
+L <- kappa^2*C + G
+I <- Matrix::Diagonal(nrow(C))
+# Compute the eigenvalues and eigenfunctions
+eigen_params <- gets.eigen.params(N_finite = N_finite, 
+                                  kappa = kappa, 
+                                  alpha = alpha, 
+                                  graph = graph)
+EIGENVAL_MINUS_ALPHA <- eigen_params$EIGENVAL_MINUS_ALPHA
+EIGENFUN <- eigen_params$EIGENFUN
+# Construct the right hand side functions f and g for the elliptic problem
+elliptic_f <- as.vector(EIGENFUN %*% coeff_elliptic_f)
+elliptic_g <- as.vector(EIGENFUN %*% coeff_elliptic_g)
+# Construct the corresponding elliptic solution u and v
+elliptic_u <- as.vector(EIGENFUN %*% (coeff_elliptic_f * EIGENVAL_MINUS_ALPHA))
+elliptic_v <- as.vector(EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
+
+A <- matrix(a, nrow = nrow(C), ncol = length(time_seq))
+B <- matrix(b, nrow = nrow(C), ncol = length(time_seq))
+# Construct the optimal variables
+psi <- cos(time_seq)
+phi <- sin(T_final - time_seq)
+psi_prime <- - sin(time_seq)
+phi_prime <- - cos(T_final - time_seq)
+u_bar <- outer(elliptic_u, psi)
+p_bar <- - mu * outer(elliptic_v, phi)
+z_bar <- pmax(A, pmin(B, - p_bar / mu))
+# Construct the data for the problem
+f <- outer(elliptic_u, psi_prime) + outer(elliptic_f, psi) - z_bar
+f_plus_z_bar <- outer(elliptic_u, psi_prime) + outer(elliptic_f, psi)
+u_d <- outer(elliptic_u, psi) + 
+  mu * outer(elliptic_v, phi_prime) + 
+  mu * outer(elliptic_g, phi) 
+u_0 <- elliptic_u
+# Construct the fractional operator, which is shared for the forward and adjoint problems
+my_op_frac <- my.fractional.operators.frac(L, beta, C, scale.factor = kappa^2, m = m, time_step)
+# Construct the integration mesh
+overkill_graph <- gets.graph.tadpole(h = 0.001)
+overkill_graph$compute_fem()
+overkill_EIGENFUN <- gets.eigen.params(N_finite = N_finite, 
+                                       kappa = kappa, 
+                                       alpha = alpha, 
+                                       graph = overkill_graph)$EIGENFUN
+# Construct the right hand side functions f and g for the elliptic problem on the integration mesh
+overkill_elliptic_f <- as.vector(overkill_EIGENFUN %*% coeff_elliptic_f)
+overkill_elliptic_g <- as.vector(overkill_EIGENFUN %*% coeff_elliptic_g)
+# Construct the corresponding elliptic solution u and v on the integration mesh
+overkill_elliptic_u <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_f * EIGENVAL_MINUS_ALPHA))
+overkill_elliptic_v <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
+# Construct the projection matrix
+Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
+R <- t(Psi) %*% overkill_graph$mesh$C
+# Construct the right hand side term for the forward problem
+F_plus_Z_bar <- outer(overkill_elliptic_u, psi_prime) + outer(overkill_elliptic_f, psi) 
+F_plus_Z_bar_innerproduct <- R %*% F_plus_Z_bar
+# Solve the forward problem
+U_bar <- solve_fractional_evolution(my_op_frac, 
+                                     time_step, 
+                                     time_seq, 
+                                     val_at_0 = u_0, 
+                                     RHST = F_plus_Z_bar_innerproduct)
+# Construct the right hand side term for the adjoint problem
+U_d <- outer(overkill_elliptic_u, psi) + 
+  mu * outer(overkill_elliptic_v, phi_prime) + 
+  mu * outer(overkill_elliptic_g, phi)
+V_d <- reversecolumns(R %*% U_d)
+V_bar <- reversecolumns(R %*% Psi %*% U_bar)
+# Solve the adjoint problem
+Q_bar <- solve_fractional_evolution(my_op_frac, 
+                                     time_step, 
+                                     time_seq, 
+                                     val_at_0 = u_0*0, 
+                                     RHST = V_bar - V_d)
+P_bar <- reversecolumns(Q_bar)
+# Compute the control variable
+Z_bar <- pmax(A, pmin(B, - P_bar / mu))
+```
+
+
+```{r}
+idx <- seq(1, length(time_seq), by = 1)
+```
+
+## Visualization of the results {#visualization_results}
+
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal state variable.")}
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], u_bar[, idx], U_bar[, idx])
+```
+
+
+
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal adjoint variable.")}
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], p_bar[, idx], P_bar[, idx])
+```
+
+
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal control variable.")}
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], z_bar[, idx], Z_bar[, idx])
+```
 
 # References
 

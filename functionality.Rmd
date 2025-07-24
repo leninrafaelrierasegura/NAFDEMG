@@ -596,6 +596,16 @@ G_cos <- function(t, A, lambda_j_alpha_half, theta) {
 }
 ```
 
+### Function `reversecolumns()`
+
+Given a matrix `mat`, function `reversecolumns()` reverses the order of its columns.
+
+
+```{r}
+reversecolumns <- function(mat) {
+  return(mat[, rev(seq_len(ncol(mat)))])
+}
+```
 
 
 ## Plotting functions {#plotting_functions}
