@@ -7,3 +7,5 @@
 .DS_store
 README.html
 purl_log.txt
+docs/old/**/*.html
+old/**/*.html
