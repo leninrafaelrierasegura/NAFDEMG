@@ -382,6 +382,10 @@ Z_bar <- pmax(A, pmin(B, - P_bar / mu))
 idx <- seq(1, length(time_seq), by = 1)
 ```
 
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Some plots")}
+graph.plotter.3d.static(graph, elliptic_f, elliptic_g)
+```
+
 ## Visualization of the results {#visualization_results}
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal state variable.")}

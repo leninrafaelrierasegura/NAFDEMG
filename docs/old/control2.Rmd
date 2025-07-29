@@ -284,15 +284,15 @@ alpha <- 1.2
 m = 1
 beta <- alpha/2
 mu <- 0.1
-a <- - 0.5
-b <- 0.5
+a <- - 50
+b <- 50
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
-coeff_elliptic_g <- 50*(1:adjusted_N_finite)^-1
+coeff_elliptic_g <- 50000*(1:adjusted_N_finite)^-1
 coeff_elliptic_g[-5] <- 0
 coeff_elliptic_f <- rep(0, adjusted_N_finite)
-coeff_elliptic_f[7] <- 10
+coeff_elliptic_f[7] <- 10000
 
 # time and spatial mesh 
 time_seq <- seq(0, T_final, by = time_step)
@@ -355,10 +355,10 @@ R <- t(Psi) %*% overkill_graph$mesh$C
 F_plus_Z_bar <- outer(overkill_elliptic_u, psi_prime) + outer(overkill_elliptic_f, psi) 
 F_plus_Z_bar_innerproduct <- R %*% F_plus_Z_bar
 # Solve the forward problem
-U_bar <- solve_fractional_evolution(my_op_frac, 
-                                     time_step, 
-                                     time_seq, 
-                                     val_at_0 = u_0, 
+U_bar <- solve_fractional_evolution(my_op_frac,
+                                     time_step,
+                                     time_seq,
+                                     val_at_0 = u_0,
                                      RHST = F_plus_Z_bar_innerproduct)
 # Construct the right hand side term for the adjoint problem
 U_d <- outer(overkill_elliptic_u, psi) + 

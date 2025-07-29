@@ -165,6 +165,24 @@ u(s,t) \iff&\quad  \texttt{U_true <- EIGENFUN %*%}\\
 &\qquad\qquad\qquad\qquad\qquad\qquad\quad\texttt{exp(-EIGENVAL_ALPHA[i] * time_seq[j]))}
 \end{aligned}
 
+Let us check that \eqref{sollll} is a solution of \eqref{eq:maineq}. At $t=0$, we get
+\begin{align*}
+    u(s,0) = \sum_{j=1}^{\infty}(x_j+y_j G_j(0))e^{-\lambda^{\alpha/2}_j0}e_j(s) = \sum_{j=1}^{\infty}x_je_j(s) =u_0(s),
+\end{align*}
+while for $(s,t) \in \Gamma \times (0, T)$, we obtain
+\begin{align*}
+    \partial_t u(s,t) = \sum_{j=1}^{\infty}y_j G'_j(t)e^{-\lambda^{\alpha/2}_jt}e_j(s) - \sum_{j=1}^{\infty}(x_j+y_j G_j(t))e^{-\lambda^{\alpha/2}_jt}\lambda^{\alpha/2}_je_j(s)
+\end{align*}
+and
+\begin{align*}
+    (\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s,t) &= \sum_{j=1}^{\infty}(x_j+y_j G_j(t))e^{-\lambda^{\alpha/2}_jt}(\kappa^2 - \Delta_\Gamma)^{\alpha/2}e_j(s)\\
+    &= \sum_{j=1}^{\infty}(x_j+y_j G_j(t))e^{-\lambda^{\alpha/2}_jt}\lambda^{\alpha/2}_je_j(s).
+\end{align*}
+Adding these two and using the fact that $G'_j(t) = e^{\lambda^{\alpha/2}_jt}g(t)$ yield
+\begin{align*}
+    \partial_t u(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s,t)&= g(t)\sum_{j=1}^{\infty}y_je^{\lambda^{\alpha/2}_jt} e^{-\lambda^{\alpha/2}_jt}e_j(s) = f(s,t).
+\end{align*}
+This shows that \eqref{sollll} is indeed a solution of \eqref{eq:maineq}.
 
 From the [Functionality](functionality.html#num_scheme) page, we know that the solution to \eqref{eq:maineq} can be approximated by a numerical scheme of the form
 \begin{equation}

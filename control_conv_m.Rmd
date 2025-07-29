@@ -83,6 +83,7 @@ library(MetricGraph)
 library(ggplot2)
 library(reshape2)
 library(plotly)
+library(patchwork)
 ```
 
 
@@ -134,13 +135,15 @@ overkill_phi <- sin(T_final - overkill_time_seq)
 overkill_psi_prime <- - sin(overkill_time_seq)
 overkill_phi_prime <- - cos(T_final - overkill_time_seq)
 
-alpha_vector <- seq(1, 1.8, by = 0.2)
-# Create a matrix to store the errors
+alpha_vector <- seq(1, 2, by = 0.2)
 ```
 
 
 ```{r, eval = FALSE, class.source = "fold-show"}
-errors <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
+# Create a matrix to store the errors
+errors_u_bar <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
+errors_p_bar <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
+errors_z_bar <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {
   alpha <- alpha_vector[j] 
   beta <- alpha / 2
@@ -229,80 +232,79 @@ for (j in 1:length(alpha_vector)) {
     
 
     
-    projected_z_bar <- Psi %*% z_bar
-    projected_z_bar_piecewise <- construct_piecewise_projection(projected_z_bar, time_seq, overkill_time_seq)
-    errors[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_z_bar - projected_z_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
+    projected_u_bar_piecewise <- construct_piecewise_projection(Psi %*% u_bar, time_seq, overkill_time_seq)
+    projected_p_bar_piecewise <- construct_piecewise_projection(Psi %*% p_bar, time_seq, overkill_time_seq)
+    projected_z_bar_piecewise <- construct_piecewise_projection(Psi %*% z_bar, time_seq, overkill_time_seq)
+    
+    errors_u_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_u_bar - projected_u_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
+    errors_p_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_p_bar - projected_p_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
+    errors_z_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_z_bar - projected_z_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
   }
 }
-save(errors, file = here::here("data_files/control_error_m.RData"))
+save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_m.RData"))
 ```
 
 ```{r}
 # Load the errors data
 load(here::here("data_files/control_error_m.RData"))
-```
 
-```{r, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
-observed_rates <- numeric(length(alpha_vector))
-for (u in 1:length(alpha_vector)) {
-  observed_rates[u] <- coef(lm(log(errors[, u]) ~ sqrt(m_vector)))[2]
-}
+observed_rates_u_bar <- numeric(length(alpha_vector))
+observed_rates_p_bar <- numeric(length(alpha_vector))
+observed_rates_z_bar <- numeric(length(alpha_vector))
+
+for (i in 1:length(alpha_vector)) {observed_rates_u_bar[i] <- coef(lm(log(errors_u_bar[, i]) ~ sqrt(m_vector)))[2]}
+for (i in 1:length(alpha_vector)) {observed_rates_p_bar[i] <- coef(lm(log(errors_p_bar[, i]) ~ sqrt(m_vector)))[2]}
+for (i in 1:length(alpha_vector)) {observed_rates_z_bar[i] <- coef(lm(log(errors_z_bar[, i]) ~ sqrt(m_vector)))[2]}
 
 theoretical_rates <- - (4 * pi * alpha_vector / 5) * sqrt((1 - alpha_vector / 2))
 
-guiding_lines <- compute_guiding_lines(x_axis_vector = sqrt(m_vector), 
-                                       errors = errors, 
-                                       theoretical_rates = theoretical_rates, 
-                                       line_equation_fun = exp_line_equation)
-default_colors <- scales::hue_pal()(length(alpha_vector))
-plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
-  geom_line(
-    data = data.frame(x = sqrt(m_vector), y = guiding_lines[, i]),
-    aes(x = x, y = y),
-    color = default_colors[i],
-    linetype = "dashed",
-    show.legend = FALSE
+p_u_bar <- error.convergence.plotter(x_axis_vector = m_vector, 
+                               alpha_vector, 
+                               errors_u_bar, 
+                               theoretical_rates, 
+                               observed_rates_u_bar,
+                               line_equation_fun = exp_line_equation,
+                               fig_title = expression(italic(bar(u))),
+                               x_axis_label = expression(italic(m)),
+                               apply_sqrt = TRUE)
+
+p_p_bar <- error.convergence.plotter(x_axis_vector = m_vector, 
+                               alpha_vector, 
+                               errors_p_bar, 
+                               theoretical_rates, 
+                               observed_rates_p_bar,
+                               line_equation_fun = exp_line_equation,
+                               fig_title = expression(italic(bar(p))),
+                               x_axis_label = expression(italic(m)),
+                               apply_sqrt = TRUE)
+
+p_z_bar <- error.convergence.plotter(x_axis_vector = m_vector, 
+                               alpha_vector, 
+                               errors_z_bar, 
+                               theoretical_rates, 
+                               observed_rates_z_bar,
+                               line_equation_fun = exp_line_equation,
+                               fig_title = expression(italic(bar(z))),
+                               x_axis_label = expression(italic(m)),
+                               apply_sqrt = TRUE)
+```
+
+```{r, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+
+p_all <- (p_u_bar | p_p_bar | p_z_bar) + 
+  plot_annotation(
+    title = expression("         Convergence in " * italic(m)),
+    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5))
   )
-})
-
-df <- as.data.frame(cbind(sqrt(m_vector), errors))
-colnames(df) <- c("m_vector", alpha_vector)
-df_melted <- melt(df, id.vars = "m_vector", variable.name = "column", value.name = "value")
-alpha_formatted <- formatC(alpha_vector, format = "f", digits = 2)
-custom_labels <- paste0(alpha_formatted, 
-                        " | ", 
-                        formatC(theoretical_rates, format = "f", digits = 4), 
-                        " | ", 
-                        formatC(observed_rates, format = "f", digits = 4))
-
-df_melted$column <- factor(df_melted$column, levels = alpha_vector, labels = custom_labels)
-
-p <- ggplot() +
-  geom_line(data = df_melted, aes(x = m_vector, y = value, color = column)) +
-  geom_point(data = df_melted, aes(x = m_vector, y = value, color = column)) +
-  plot_lines +
-  labs(
-    title = expression("Convergence in " * italic(m)),
-    x = expression(italic(m)),
-    y = expression(Error),
-    color = "          α  | theo  | obs"
-  ) +
-  scale_x_continuous(breaks = sqrt(m_vector), labels = round(m_vector, 4)) +
-  scale_y_continuous(
-  trans = "log",
-  labels = function(x) formatC(x, format = "f", digits = 4)) +
-  theme_minimal() +
-  theme(text = element_text(family = "Palatino"),
-        legend.position = "bottom",
-        legend.direction = "vertical",
-        plot.margin = margin(0, 0, 0, 0),
-        plot.title = element_text(hjust = 0.5, size = 18, face = "bold"))
-p
+p_all
 ```
 
 
 ```{r}
-ggsave(here::here("data_files/control_conv_rates_m.png"), width = 4, height = 5, plot = p, dpi = 300)
+ggsave(here::here("data_files/control_conv_rates_m_u_bar.png"), width = 4, height = 5, plot = p_u_bar, dpi = 300)
+ggsave(here::here("data_files/control_conv_rates_m_p_bar.png"), width = 4, height = 5, plot = p_p_bar, dpi = 300)
+ggsave(here::here("data_files/control_conv_rates_m_z_bar.png"), width = 4, height = 5, plot = p_z_bar, dpi = 300)
+ggsave(here::here("data_files/control_conv_rates_m_all.png"), width = 12, height = 6, plot = p_all, dpi = 300)
 ```
 
 

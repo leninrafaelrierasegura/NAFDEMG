@@ -213,53 +213,15 @@ for (u in 1:length(alpha_vector)) {
 
 theoretical_rates <- - (4 * pi * alpha_vector / 5) * sqrt((1 - alpha_vector / 2))
 
-guiding_lines <- compute_guiding_lines(x_axis_vector = sqrt(m_vector), 
-                                       errors = errors_projected, 
-                                       theoretical_rates = theoretical_rates, 
-                                       line_equation_fun = exp_line_equation)
-default_colors <- scales::hue_pal()(length(alpha_vector))
-plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
-  geom_line(
-    data = data.frame(x = sqrt(m_vector), y = guiding_lines[, i]),
-    aes(x = x, y = y),
-    color = default_colors[i],
-    linetype = "dashed",
-    show.legend = FALSE
-  )
-})
-
-df <- as.data.frame(cbind(sqrt(m_vector), errors_projected))
-colnames(df) <- c("m_vector", alpha_vector)
-df_melted <- melt(df, id.vars = "m_vector", variable.name = "column", value.name = "value")
-alpha_formatted <- formatC(alpha_vector, format = "f", digits = 2)
-custom_labels <- paste0(alpha_formatted, 
-                        " | ", 
-                        formatC(theoretical_rates, format = "f", digits = 4), 
-                        " | ", 
-                        formatC(observed_rates, format = "f", digits = 4))
-
-df_melted$column <- factor(df_melted$column, levels = alpha_vector, labels = custom_labels)
-
-p <- ggplot() +
-  geom_line(data = df_melted, aes(x = m_vector, y = value, color = column)) +
-  geom_point(data = df_melted, aes(x = m_vector, y = value, color = column)) +
-  plot_lines +
-  labs(
-    title = expression("Convergence in " * italic(m)),
-    x = expression(italic(m)),
-    y = expression(Error),
-    color = "          α  | theo  | obs"
-  ) +
-  scale_x_continuous(breaks = sqrt(m_vector), labels = round(m_vector, 4)) +
-  scale_y_continuous(
-  trans = "log",
-  labels = function(x) formatC(x, format = "f", digits = 4)) +
-  theme_minimal() +
-  theme(text = element_text(family = "Palatino"),
-        legend.position = "bottom",
-        legend.direction = "vertical",
-        plot.margin = margin(0, 0, 0, 0),
-        plot.title = element_text(hjust = 0.5, size = 18, face = "bold"))
+p <- error.convergence.plotter(x_axis_vector = m_vector, 
+                               alpha_vector, 
+                               errors_projected, 
+                               theoretical_rates, 
+                               observed_rates,
+                               line_equation_fun = exp_line_equation,
+                               fig_title = expression("Convergence in " * italic(m)),
+                               x_axis_label = expression(italic(m)),
+                               apply_sqrt = TRUE)
 p
 ```
 
