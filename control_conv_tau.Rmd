@@ -99,7 +99,7 @@ source(here::here("functionality.R"))
 ```{r}
 # Parameters
 T_final <- 2
-kappa <- 150
+kappa <- 1.5
 mu <- 0.1
 a <- - 0.5
 b <- 0.5
@@ -130,10 +130,14 @@ overkill_weights <- overkill_graph$mesh$weights
 overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
 overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
 
-overkill_psi <- cos(overkill_time_seq)
-overkill_phi <- sin(T_final - overkill_time_seq)
-overkill_psi_prime <- - sin(overkill_time_seq)
-overkill_phi_prime <- - cos(T_final - overkill_time_seq)
+# overkill_psi <- cos(overkill_time_seq)
+# overkill_psi_prime <- - sin(overkill_time_seq)
+# overkill_phi <- sin(T_final - overkill_time_seq)
+# overkill_phi_prime <- - cos(T_final - overkill_time_seq)
+overkill_psi <- exp(-3*overkill_time_seq)
+overkill_psi_prime <- -3 * exp(-3*overkill_time_seq)
+overkill_phi <- 10 * exp(-3*overkill_time_seq) - 10*exp(-3*T_final)
+overkill_phi_prime <- -30 * exp(-3*overkill_time_seq)
 
 m_values <- c()
 alpha_vector <- seq(1, 2, by = 0.2)
@@ -196,11 +200,14 @@ for (j in 1:length(alpha_vector)) {
     elliptic_u <- as.vector(EIGENFUN %*% (coeff_elliptic_f * EIGENVAL_MINUS_ALPHA))
     elliptic_v <- as.vector(EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
     
-    psi <- cos(time_seq)
-    phi <- sin(T_final - time_seq)
-    psi_prime <- - sin(time_seq)
-    phi_prime <- - cos(T_final - time_seq)
-    
+    # psi <- cos(time_seq)
+    # psi_prime <- - sin(time_seq)
+    # phi <- sin(T_final - time_seq)
+    # phi_prime <- - cos(T_final - time_seq)
+    psi <- exp(-3*time_seq)
+    psi_prime <- - 3 * exp(-3*time_seq)
+    phi <- 10 * exp(-3*time_seq) - 10 * exp(-3*T_final)
+    phi_prime <- - 30 * exp(-3*time_seq)
     # Construct the projection matrix
     Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
     R <- t(Psi) %*% overkill_graph$mesh$C
@@ -240,6 +247,7 @@ for (j in 1:length(alpha_vector)) {
     errors_u_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_u_bar - projected_u_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
     errors_p_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_p_bar - projected_p_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
     errors_z_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_z_bar - projected_z_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
+    print(paste("i =", i, ", j =", j))
   }
 }
 save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_tau.RData"))

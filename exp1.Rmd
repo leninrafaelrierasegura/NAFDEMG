@@ -297,7 +297,7 @@ U_approx <- A_proj %*% U_approx
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the right-hand side function $f$.")}
 start_idx <- which.min(abs(time_seq - 0.5))
 end_idx <- which.min(abs(time_seq - 1.5))
-idx <- start_idx:end_idx
+idx <- seq(start_idx, end_idx, by = 4)
 graph.plotter.3d.single(aux_graph, FF_true[, idx], time_seq[idx])
 ```
 
@@ -309,7 +309,7 @@ graph.plotter.3d.single(aux_graph, abs_error, time_seq[idx])
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Comparison of the exact and approximate solution at selected time points.")}
-idx2 <- seq(from = start_idx, to = end_idx, by = 10)
+idx2 <- seq(start_idx, end_idx, by = 10)
 graph.plotter.3d.comparer(aux_graph, U_true[,idx2], U_approx[,idx2], time_seq[idx2])
 ```
 

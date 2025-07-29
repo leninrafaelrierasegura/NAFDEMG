@@ -202,7 +202,7 @@ where $C_{\phi, i}=1$ if $i$ is even and $C_{\phi, i}=1 / \sqrt{3}$ otherwise. M
 
 
 ```{r}
-graph <- gets.graph.tadpole(h = 0.01)
+graph <- gets.graph.tadpole(h = 0.02)
 eigenpairs <- gets.eigen.params(N_finite = 25, kappa = 1, alpha = 0.5, graph)
 EIGENFUN <- eigenpairs$EIGENFUN
 EIGENVAL <- eigenpairs$EIGENVAL
@@ -253,8 +253,8 @@ AAA = 1
 OMEGA = pi
 
 # Overkill parameters
-overkill_time_step <- 0.01
-overkill_h <- 0.01
+overkill_time_step <- 0.02
+overkill_h <- 0.02
 
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
