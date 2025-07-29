@@ -2,6 +2,16 @@
 title: "Contents"
 ---
 
+```{r, echo = FALSE}
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+```
+
 1. Contents
 
     - [Contents](about.html): The current page.
@@ -19,7 +29,7 @@ title: "Contents"
       - [the derivation of the proposed numerical scheme,](functionality.html#num_scheme)
       - [the implementation of the numerical scheme,](functionality.html#num_implementation)
       - [the implementation of some auxiliary functions,](functionality.html#auxiliary_functions)
-      - [the implementation of some plotting functions.](functionality.html#plotting_functions)
+      - [and the implementation of some plotting functions.](functionality.html#plotting_functions)
   
 4. Experiment
 
@@ -33,17 +43,32 @@ title: "Contents"
     - [Convergence in τ](conv_in_tau.html): This page shows 
       - [the convergence with respect to the temporal mesh size τ.](conv_in_tau.html)
     - [Convergence in 𝑚](conv_in_m.html): This page shows 
-      - [and the convergence with respect to the order 𝑚 of the rational approximation.](conv_in_m.html)
+      - [the convergence with respect to the order 𝑚 of the rational approximation.](conv_in_m.html)
+      
+    Figure 1 shows the convergence results. For details on how these plots were generated, please refer to the hyperlinks above.
+
+     
+      
+```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+library(patchwork)
+load(here::here("data_files/p_tau.RData"))
+load(here::here("data_files/p_m.RData"))
+load(here::here("data_files/p_h.RData"))
+p_all <- (p_h | p_tau | p_m) 
+p_all
+ggplot2::ggsave(here::here("data_files/p_all.png"), width = 12, height = 5, plot = p_all, dpi = 300)
+```
+
       
 6. Optimal control
 
-    - [Optimal control 1](control1.html): This page shows 
+    - [Optimal control](control1.html): This page shows 
       - [the description of the optimal control problem,](control1.html#optimal_control_problem)
       - [how to implement a numerical scheme to numerically solve the optimal control problem,](control1.html#num_scheme_optim_control)
-      - [how to construct an exact solution for the optimal control problem for error analysis purposes.](control1.html#exact_sol_for_optim_control_prob)
+      - [and how to construct an exact solution for the optimal control problem for error analysis purposes.](control1.html#exact_sol_for_optim_control_prob)
     - [Convergence in 𝘩](control_conv_h.html): This page shows 
       - [the convergence with respect to the spatial mesh size 𝘩.](conv_h.html)
     - [Convergence in τ](control_conv_tau.html): This page shows 
       - [the convergence with respect to the temporal mesh size τ.](conv_tau.html)
     - [Convergence in 𝑚](control_conv_m.html): This page shows 
-      - [and the convergence with respect to the order 𝑚 of the rational approximation.](control_conv_m.html)
+      - [the convergence with respect to the order 𝑚 of the rational approximation.](control_conv_m.html)

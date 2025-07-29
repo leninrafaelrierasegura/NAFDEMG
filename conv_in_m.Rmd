@@ -213,21 +213,22 @@ for (u in 1:length(alpha_vector)) {
 
 theoretical_rates <- - (4 * pi * alpha_vector / 5) * sqrt((1 - alpha_vector / 2))
 
-p <- error.convergence.plotter(x_axis_vector = m_vector, 
-                               alpha_vector, 
-                               errors_projected, 
-                               theoretical_rates, 
-                               observed_rates,
-                               line_equation_fun = exp_line_equation,
-                               fig_title = expression("Convergence in " * italic(m)),
-                               x_axis_label = expression(italic(m)),
-                               apply_sqrt = TRUE)
-p
+p_m <- error.convergence.plotter(x_axis_vector = m_vector, 
+                                 alpha_vector, 
+                                 errors_projected, 
+                                 theoretical_rates, 
+                                 observed_rates,
+                                 line_equation_fun = exp_line_equation,
+                                 fig_title = expression("Convergence in " * italic(m)),
+                                 x_axis_label = expression(italic(m)),
+                                 apply_sqrt = TRUE)
+p_m
 ```
 
 
 ```{r}
-ggsave(here::here("data_files/conv_rates_m.png"), width = 4, height = 5, plot = p, dpi = 300)
+ggsave(here::here("data_files/conv_rates_m.png"), width = 4, height = 5, plot = p_m, dpi = 300)
+save(p_m, file = here::here("data_files/p_m.RData"))
 ```
 
 

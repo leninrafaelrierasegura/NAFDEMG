@@ -218,20 +218,21 @@ for (u in 1:length(alpha_vector)) {
 theoretical_rates <- rep(1, length(alpha_vector))
 
 
-p <- error.convergence.plotter(x_axis_vector = tau_vector, 
-                               alpha_vector, 
-                               errors_projected, 
-                               theoretical_rates, 
-                               observed_rates,
-                               line_equation_fun = loglog_line_equation,
-                               fig_title = expression("Convergence in " * italic(tau)),
-                               x_axis_label = expression(italic(tau)))
-p
+p_tau <- error.convergence.plotter(x_axis_vector = tau_vector, 
+                                   alpha_vector, 
+                                   errors_projected, 
+                                   theoretical_rates, 
+                                   observed_rates,
+                                   line_equation_fun = loglog_line_equation,
+                                   fig_title = expression("Convergence in " * italic(tau)),
+                                   x_axis_label = expression(italic(tau)))
+p_tau
 ```
 
 
 ```{r}
-ggsave(here::here("data_files/conv_rates_tau.png"), width = 4, height = 5, plot = p, dpi = 300)
+ggsave(here::here("data_files/conv_rates_tau.png"), width = 4, height = 5, plot = p_tau, dpi = 300)
+save(p_tau, file = here::here("data_files/p_tau.RData"))
 ```
 
 
