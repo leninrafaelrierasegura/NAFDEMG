@@ -98,8 +98,8 @@ source(here::here("functionality.R"))
 
 ```{r}
 # Parameters
-T_final <- 2
-kappa <- 1.5
+T_final <- 0.2
+kappa <- 1000
 mu <- 0.1
 a <- - 0.5
 b <- 0.5
@@ -107,10 +107,9 @@ N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
 coeff_elliptic_g <- 50*(1:adjusted_N_finite)^-1
-coeff_elliptic_g[-5] <- 0
+coeff_elliptic_g[-2] <- 0
 coeff_elliptic_f <- rep(0, adjusted_N_finite)
-coeff_elliptic_f[7] <- 10
-
+coeff_elliptic_f[2] <- 10
 # Time step and mesh size
 POWERS <- seq(6.125, 5.625, by = -0.1)
 tau_vector <- 0.1 * 2^-POWERS
@@ -134,10 +133,13 @@ overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(overkill_
 # overkill_psi_prime <- - sin(overkill_time_seq)
 # overkill_phi <- sin(T_final - overkill_time_seq)
 # overkill_phi_prime <- - cos(T_final - overkill_time_seq)
-overkill_psi <- exp(-3*overkill_time_seq)
-overkill_psi_prime <- -3 * exp(-3*overkill_time_seq)
-overkill_phi <- 10 * exp(-3*overkill_time_seq) - 10*exp(-3*T_final)
-overkill_phi_prime <- -30 * exp(-3*overkill_time_seq)
+psi_rate <- -100#40
+phi_rate <- -100#40
+phi_coefficient <- 100#40
+overkill_psi <- exp(psi_rate*overkill_time_seq)
+overkill_psi_prime <- psi_rate * exp(psi_rate*overkill_time_seq)
+overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
+overkill_phi_prime <- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)
 
 m_values <- c()
 alpha_vector <- seq(1, 2, by = 0.2)
@@ -204,10 +206,10 @@ for (j in 1:length(alpha_vector)) {
     # psi_prime <- - sin(time_seq)
     # phi <- sin(T_final - time_seq)
     # phi_prime <- - cos(T_final - time_seq)
-    psi <- exp(-3*time_seq)
-    psi_prime <- - 3 * exp(-3*time_seq)
-    phi <- 10 * exp(-3*time_seq) - 10 * exp(-3*T_final)
-    phi_prime <- - 30 * exp(-3*time_seq)
+    psi <- exp(psi_rate*time_seq)
+    psi_prime <- psi_rate * exp(psi_rate*time_seq)
+    phi <- phi_coefficient * exp(phi_rate*time_seq) - phi_coefficient * exp(phi_rate*T_final)
+    phi_prime <- phi_coefficient * phi_rate * exp(phi_rate*time_seq)
     # Construct the projection matrix
     Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
     R <- t(Psi) %*% overkill_graph$mesh$C
@@ -252,6 +254,7 @@ for (j in 1:length(alpha_vector)) {
 }
 save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_tau.RData"))
 ```
+# Convergence results
 
 ```{r}
 # Load the errors data

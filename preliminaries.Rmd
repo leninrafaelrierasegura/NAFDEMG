@@ -203,7 +203,7 @@ where $C_{\phi, i}=1$ if $i$ is even and $C_{\phi, i}=1 / \sqrt{3}$ otherwise. M
 
 ```{r}
 graph <- gets.graph.tadpole(h = 0.02)
-eigenpairs <- gets.eigen.params(N_finite = 25, kappa = 1, alpha = 0.5, graph)
+eigenpairs <- gets.eigen.params(N_finite = 10, kappa = 1, alpha = 0.5, graph)
 EIGENFUN <- eigenpairs$EIGENFUN
 EIGENVAL <- eigenpairs$EIGENVAL
 INDEX <- eigenpairs$INDEX

@@ -98,8 +98,8 @@ source(here::here("functionality.R"))
 
 ```{r}
 # Parameters
-T_final <- 2
-kappa <- 150
+T_final <- 0.2
+kappa <- 1000
 mu <- 0.1
 a <- - 0.5
 b <- 0.5
@@ -107,19 +107,19 @@ N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
 coeff_elliptic_g <- 50*(1:adjusted_N_finite)^-1
-coeff_elliptic_g[-5] <- 0
+coeff_elliptic_g[-2] <- 0
 coeff_elliptic_f <- rep(0, adjusted_N_finite)
-coeff_elliptic_f[7] <- 10
+coeff_elliptic_f[2] <- 10
 
 # Time step and mesh size
-POWERS <- seq(14, 9, by = -1)
+POWERS <- c(12,10,9,8,7)#seq(12, 10, by = -2/3)
 
 time_steps <- 0.1 * 2^-POWERS
 h_vector <- time_steps^(1/2)
 
 # Overkill parameters
-overkill_time_step <- 0.1 * 2^-14
-overkill_h <- (0.1 * 2^-14)^(1/2)
+overkill_time_step <- 0.1 * 2^-(14)
+overkill_h <- (0.1 * 2^-(14))^(1/2)
 
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
@@ -132,10 +132,17 @@ overkill_weights <- overkill_graph$mesh$weights
 overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
 overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
 
-overkill_psi <- cos(overkill_time_seq)
-overkill_phi <- sin(T_final - overkill_time_seq)
-overkill_psi_prime <- - sin(overkill_time_seq)
-overkill_phi_prime <- - cos(T_final - overkill_time_seq)
+# overkill_psi <- cos(overkill_time_seq)
+# overkill_phi <- sin(T_final - overkill_time_seq)
+# overkill_psi_prime <- - sin(overkill_time_seq)
+# overkill_phi_prime <- - cos(T_final - overkill_time_seq)
+psi_rate <- -100
+phi_rate <- -100
+phi_coefficient <- 100
+overkill_psi <- exp(psi_rate*overkill_time_seq)
+overkill_psi_prime <- psi_rate * exp(psi_rate*overkill_time_seq)
+overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
+overkill_phi_prime <- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)
 
 m_values <- c()
 alpha_vector <- seq(1, 2, by = 0.2)
@@ -170,7 +177,7 @@ for (j in 1:length(alpha_vector)) {
   overkill_z_bar <- pmax(overkill_A, pmin(overkill_B, - overkill_p_bar / mu))
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
-    time_step <- h^alpha
+    time_step <- (h^alpha)/1
     m <- min(4, ceiling(25 * (log(h))^2 / (16 * pi^2 * (1 - alpha / 2))))
     m_values <- c(m_values, m)
     time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
@@ -198,10 +205,14 @@ for (j in 1:length(alpha_vector)) {
     elliptic_u <- as.vector(EIGENFUN %*% (coeff_elliptic_f * EIGENVAL_MINUS_ALPHA))
     elliptic_v <- as.vector(EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
     
-    psi <- cos(time_seq)
-    phi <- sin(T_final - time_seq)
-    psi_prime <- - sin(time_seq)
-    phi_prime <- - cos(T_final - time_seq)
+    # psi <- cos(time_seq)
+    # phi <- sin(T_final - time_seq)
+    # psi_prime <- - sin(time_seq)
+    # phi_prime <- - cos(T_final - time_seq)
+    psi <- exp(psi_rate*time_seq)
+    psi_prime <- psi_rate * exp(psi_rate*time_seq)
+    phi <- phi_coefficient * exp(phi_rate*time_seq) - phi_coefficient * exp(phi_rate*T_final)
+    phi_prime <- phi_coefficient * phi_rate * exp(phi_rate*time_seq)
     
     # Construct the projection matrix
     Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
@@ -241,10 +252,13 @@ for (j in 1:length(alpha_vector)) {
     errors_u_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_u_bar - projected_u_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
     errors_p_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_p_bar - projected_p_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
     errors_z_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_z_bar - projected_z_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
+    print(paste("i =", i, ", j =", j))
   }
 }
 save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_h.RData"))
 ```
+
+# Convergence results
 
 ```{r}
 # Load the errors data

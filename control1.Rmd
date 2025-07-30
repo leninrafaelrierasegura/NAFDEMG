@@ -300,11 +300,11 @@ In this section, we implement the numerical scheme for the optimal control probl
 
 ```{r}
 # Parameters
-T_final <- 2
+T_final <- 0.2
 time_step <- 0.01 
 h <- 0.01 
-kappa <- 150
-alpha <- 1.2
+kappa <- 1000
+alpha <- 1.6
 m = 1
 beta <- alpha/2
 mu <- 0.1
@@ -314,10 +314,9 @@ N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
 coeff_elliptic_g <- 50*(1:adjusted_N_finite)^-1
-coeff_elliptic_g[-5] <- 0
+coeff_elliptic_g[-2] <- 0
 coeff_elliptic_f <- rep(0, adjusted_N_finite)
-coeff_elliptic_f[7] <- 10
-
+coeff_elliptic_f[2] <- 10
 # time and spatial mesh 
 time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
 graph <- gets.graph.tadpole(h = h)
@@ -347,10 +346,13 @@ B <- matrix(b, nrow = nrow(C), ncol = length(time_seq))
 # psi_prime <- - sin(time_seq)
 # phi <- sin(T_final - time_seq)
 # phi_prime <- - cos(T_final - time_seq)
-psi <- exp(-time_seq)
-psi_prime <- - exp(-time_seq)
-phi <- exp(-time_seq) - exp(-T_final)
-phi_prime <- - exp(-time_seq)
+psi_rate <- -40
+phi_rate <- -40
+phi_coefficient <- 40
+psi <- exp(psi_rate*time_seq)
+psi_prime <- psi_rate * exp(psi_rate*time_seq)
+phi <- phi_coefficient * exp(phi_rate*time_seq) - phi_coefficient * exp(phi_rate*T_final)
+phi_prime <- phi_coefficient * phi_rate * exp(phi_rate*time_seq)
 u_bar <- elliptic_u %*% t(psi)
 p_bar <- - mu * (elliptic_v %*% t(phi))
 z_bar <- pmax(A, pmin(B, - p_bar / mu))
@@ -409,7 +411,7 @@ Z_bar <- pmax(A, pmin(B, - P_bar / mu))
 ```{r}
 start_idx <- which.min(abs(time_seq - 0))
 end_idx <- which.min(abs(time_seq - T_final))
-idx <- seq(start_idx, end_idx, by = 2)
+idx <- seq(start_idx, end_idx, by = 1)
 ```
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Right-hand side functions $f$ and $g$ for the elliptic problem.")}
