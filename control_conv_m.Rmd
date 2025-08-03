@@ -99,18 +99,18 @@ source(here::here("functionality.R"))
 
 ```{r}
 # Parameters
-T_final <- 0.2
-kappa <- 1000
+T_final <- 2
+kappa <- 15
 mu <- 0.1
 a <- - 0.5
 b <- 0.5
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
-coeff_elliptic_g <- 50*(1:adjusted_N_finite)^-1
-coeff_elliptic_g[-2] <- 0
+coeff_elliptic_g <- rep(0, adjusted_N_finite)
+coeff_elliptic_g[7] <- 100
 coeff_elliptic_f <- rep(0, adjusted_N_finite)
-coeff_elliptic_f[2] <- 10
+coeff_elliptic_f[7] <- -10
 
 # Time step and mesh size
 m_vector <- c(1, 2, 3, 4)
@@ -134,9 +134,9 @@ overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(overkill_
 # overkill_phi <- sin(T_final - overkill_time_seq)
 # overkill_psi_prime <- - sin(overkill_time_seq)
 # overkill_phi_prime <- - cos(T_final - overkill_time_seq)
-psi_rate <- -100
-phi_rate <- -100
-phi_coefficient <- 100
+psi_rate <- -2
+phi_rate <- -2
+phi_coefficient <- 10
 overkill_psi <- exp(psi_rate*overkill_time_seq)
 overkill_psi_prime <- psi_rate * exp(psi_rate*overkill_time_seq)
 overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
@@ -174,8 +174,8 @@ for (j in 1:length(alpha_vector)) {
   overkill_z_bar <- pmax(overkill_A, pmin(overkill_B, - overkill_p_bar / mu))
   for (i in 1:length(m_vector)) {
     m <- m_vector[i]
-    h <- exp(- (4 * pi / 5) * sqrt((1 - alpha / 2) * m))/1
-    time_step <- (h^alpha)/100
+    h <- exp(- (4 * pi / 5) * sqrt((1 - alpha / 2) * m))/10
+    time_step <- (h^alpha)/10
     time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
@@ -224,7 +224,7 @@ for (j in 1:length(alpha_vector)) {
                                         val_at_0 = u_0, 
                                         RHST = f_plus_z_bar_innerproduct)
     
-    u_d <- outer(elliptic_u, psi) +
+    u_d <- outer(elliptic_u, psi) -
       mu * outer(elliptic_v, phi_prime) +
       mu * outer(elliptic_g, phi)
     v_d <- reversecolumns(R %*% Psi %*% u_d)
@@ -305,12 +305,12 @@ p_z_bar <- error.convergence.plotter(x_axis_vector = m_vector,
 
 ```{r, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 
-p_all <- (p_u_bar | p_p_bar | p_z_bar) + 
+p_all_m <- (p_u_bar | p_p_bar | p_z_bar) + 
   plot_annotation(
     title = expression("         Convergence in " * italic(m)),
     theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5))
   )
-p_all
+p_all_m
 ```
 
 
@@ -318,7 +318,7 @@ p_all
 ggsave(here::here("data_files/control_conv_rates_m_u_bar.png"), width = 4, height = 5, plot = p_u_bar, dpi = 300)
 ggsave(here::here("data_files/control_conv_rates_m_p_bar.png"), width = 4, height = 5, plot = p_p_bar, dpi = 300)
 ggsave(here::here("data_files/control_conv_rates_m_z_bar.png"), width = 4, height = 5, plot = p_z_bar, dpi = 300)
-ggsave(here::here("data_files/control_conv_rates_m_all.png"), width = 12, height = 6, plot = p_all, dpi = 300)
+ggsave(here::here("data_files/control_conv_rates_m_all.png"), width = 12, height = 6, plot = p_all_m, dpi = 300)
 ```
 
 

@@ -99,7 +99,7 @@ source(here::here("functionality.R"))
 ```{r}
 # Parameters
 T_final <- 0.2
-kappa <- 1000
+kappa <- 15
 mu <- 0.1
 a <- - 0.5
 b <- 0.5
@@ -112,7 +112,7 @@ coeff_elliptic_f <- rep(0, adjusted_N_finite)
 coeff_elliptic_f[2] <- 10
 
 # Time step and mesh size
-POWERS <- c(12,10,9,8,7)#seq(12, 10, by = -2/3)
+POWERS <- seq(14, 9, by = -1)
 
 time_steps <- 0.1 * 2^-POWERS
 h_vector <- time_steps^(1/2)
@@ -132,17 +132,17 @@ overkill_weights <- overkill_graph$mesh$weights
 overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
 overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
 
-# overkill_psi <- cos(overkill_time_seq)
-# overkill_phi <- sin(T_final - overkill_time_seq)
-# overkill_psi_prime <- - sin(overkill_time_seq)
-# overkill_phi_prime <- - cos(T_final - overkill_time_seq)
-psi_rate <- -100
-phi_rate <- -100
-phi_coefficient <- 100
-overkill_psi <- exp(psi_rate*overkill_time_seq)
-overkill_psi_prime <- psi_rate * exp(psi_rate*overkill_time_seq)
-overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
-overkill_phi_prime <- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)
+overkill_psi <- cos(overkill_time_seq)
+overkill_phi <- sin(T_final - overkill_time_seq)
+overkill_psi_prime <- - sin(overkill_time_seq)
+overkill_phi_prime <- - cos(T_final - overkill_time_seq)
+# psi_rate <- -1
+# phi_rate <- -1
+# phi_coefficient <- 10
+# overkill_psi <- exp(psi_rate*overkill_time_seq)
+# overkill_psi_prime <- psi_rate * exp(psi_rate*overkill_time_seq)
+# overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
+# overkill_phi_prime <- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)
 
 m_values <- c()
 alpha_vector <- seq(1, 2, by = 0.2)
@@ -205,14 +205,14 @@ for (j in 1:length(alpha_vector)) {
     elliptic_u <- as.vector(EIGENFUN %*% (coeff_elliptic_f * EIGENVAL_MINUS_ALPHA))
     elliptic_v <- as.vector(EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
     
-    # psi <- cos(time_seq)
-    # phi <- sin(T_final - time_seq)
-    # psi_prime <- - sin(time_seq)
-    # phi_prime <- - cos(T_final - time_seq)
-    psi <- exp(psi_rate*time_seq)
-    psi_prime <- psi_rate * exp(psi_rate*time_seq)
-    phi <- phi_coefficient * exp(phi_rate*time_seq) - phi_coefficient * exp(phi_rate*T_final)
-    phi_prime <- phi_coefficient * phi_rate * exp(phi_rate*time_seq)
+    psi <- cos(time_seq)
+    phi <- sin(T_final - time_seq)
+    psi_prime <- - sin(time_seq)
+    phi_prime <- - cos(T_final - time_seq)
+    # psi <- exp(psi_rate*time_seq)
+    # psi_prime <- psi_rate * exp(psi_rate*time_seq)
+    # phi <- phi_coefficient * exp(phi_rate*time_seq) - phi_coefficient * exp(phi_rate*T_final)
+    # phi_prime <- phi_coefficient * phi_rate * exp(phi_rate*time_seq)
     
     # Construct the projection matrix
     Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
@@ -228,7 +228,7 @@ for (j in 1:length(alpha_vector)) {
                                         val_at_0 = u_0, 
                                         RHST = f_plus_z_bar_innerproduct)
     
-    u_d <- outer(elliptic_u, psi) +
+    u_d <- outer(elliptic_u, psi) -
       mu * outer(elliptic_v, phi_prime) +
       mu * outer(elliptic_g, phi)
     v_d <- reversecolumns(R %*% Psi %*% u_d)
@@ -305,12 +305,12 @@ p_z_bar <- error.convergence.plotter(x_axis_vector = h_vector,
 
 ```{r, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $h$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 
-p_all <- (p_u_bar | p_p_bar | p_z_bar) + 
+p_all_h <- (p_u_bar | p_p_bar | p_z_bar) + 
   plot_annotation(
     title = expression("         Convergence in " * italic(h)),
     theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5))
   )
-p_all
+p_all_h
 ```
 
 
@@ -318,7 +318,7 @@ p_all
 ggsave(here::here("data_files/control_conv_rates_h_u_bar.png"), width = 4, height = 5, plot = p_u_bar, dpi = 300)
 ggsave(here::here("data_files/control_conv_rates_h_p_bar.png"), width = 4, height = 5, plot = p_p_bar, dpi = 300)
 ggsave(here::here("data_files/control_conv_rates_h_z_bar.png"), width = 4, height = 5, plot = p_z_bar, dpi = 300)
-ggsave(here::here("data_files/control_conv_rates_h_all.png"), width = 12, height = 6, plot = p_all, dpi = 300)
+ggsave(here::here("data_files/control_conv_rates_h_all.png"), width = 12, height = 6, plot = p_all_h, dpi = 300)
 ```
 
 

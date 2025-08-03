@@ -328,11 +328,14 @@ $(document).ready(function () {
 
 
 <ol style="list-style-type: decimal">
-<li><p>Contents</p>
+<li>Contents</li>
+</ol>
 <ul>
 <li><a href="about.html">Contents</a>: The current page.</li>
-</ul></li>
-<li><p>Preliminaries</p>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li>Preliminaries</li>
+</ol>
 <ul>
 <li><a href="preliminaries.html">Preliminaries</a>: This page shows
 <ul>
@@ -345,8 +348,10 @@ computed on the tadpole graph,</a></li>
 <li><a href="preliminaries.html#piecewise_projection">and how to project
 onto a fine space-time mesh.</a></li>
 </ul></li>
-</ul></li>
-<li><p>Functionality</p>
+</ul>
+<ol start="3" style="list-style-type: decimal">
+<li>Functionality</li>
+</ol>
 <ul>
 <li><a href="functionality.html">Functionality</a>: This page shows
 <ul>
@@ -359,16 +364,20 @@ of some auxiliary functions,</a></li>
 <li><a href="functionality.html#plotting_functions">and the
 implementation of some plotting functions.</a></li>
 </ul></li>
-</ul></li>
-<li><p>Experiment</p>
+</ul>
+<ol start="4" style="list-style-type: decimal">
+<li>Experiment</li>
+</ol>
 <ul>
 <li><a href="exp1.html">Experiment</a>: This page shows
 <ul>
 <li><a href="exp1.html#eigensolconst">how to construct an exact solution
 to the addressed problem for error analysis purposes.</a></li>
 </ul></li>
-</ul></li>
-<li><p>Convergence rates</p>
+</ul>
+<ol start="5" style="list-style-type: decimal">
+<li>Convergence rates</li>
+</ol>
 <ul>
 <li><a href="conv_in_h.html">Convergence in 𝘩</a>: This page shows
 <ul>
@@ -384,11 +393,10 @@ temporal mesh size τ.</a></li>
 <ul>
 <li><a href="conv_in_m.html">the convergence with respect to the order 𝑚
 of the rational approximation.</a></li>
-</ul></li>
 </ul>
-<p>Figure 1 shows the convergence results. For details on how these
-plots were generated, please refer to the hyperlinks above.</p></li>
-</ol>
+Figure 1 shows the convergence results. For details on how these plots
+were generated, please refer to the hyperlinks above.</li>
+</ul>
 <div class="figure" style="text-align: center">
 <img src="about_files/figure-html/unnamed-chunk-2-1.png" alt="Figure 1: Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\Gamma))$-error with respect to $h$, $\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\tau$, respectively, on a $\text{log}_{10}$–$\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case." width="1152" />
 <p class="caption">
@@ -413,7 +421,8 @@ theoretical (‘theo’), and observed (‘obs’) rates for each case.
 </p>
 </div>
 <ol start="6" style="list-style-type: decimal">
-<li><p>Optimal control</p>
+<li>Optimal control</li>
+</ol>
 <ul>
 <li><a href="control1.html">Optimal control</a>: This page shows
 <ul>
@@ -428,22 +437,70 @@ analysis purposes.</a></li>
 </ul></li>
 <li><a href="control_conv_h.html">Convergence in 𝘩</a>: This page shows
 <ul>
-<li><a href="conv_h.html">the convergence with respect to the spatial
-mesh size 𝘩.</a></li>
+<li><a href="control_conv_h.html">the convergence with respect to the
+spatial mesh size 𝘩.</a></li>
 </ul></li>
+</ul>
+<div class="figure" style="text-align: center">
+<img src="data_files/control_conv_rates_h_all.png" alt="Figure 2: Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\Gamma))$-error with respect to $h$ on a $\text{log}_{10}$–$\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case."  />
+<p class="caption">
+Figure 2: Comparison of theoretical and observed convergence behavior
+for the <span
+class="math inline">\(L_2((0,T);L_2(\Gamma))\)</span>-error with respect
+to <span class="math inline">\(h\)</span> on a <span
+class="math inline">\(\text{log}_{10}\)</span>–<span
+class="math inline">\(\text{log}_{10}\)</span> scale. Dashed lines
+indicate the theoretical rates, and solid lines represent the observed
+error curves. The legend below each plot shows the value of <span
+class="math inline">\(\alpha\)</span> along with the corresponding
+theoretical (‘theo’), and observed (‘obs’) rates for each case.
+</p>
+</div>
+<ul>
 <li><a href="control_conv_tau.html">Convergence in τ</a>: This page
 shows
 <ul>
-<li><a href="conv_tau.html">the convergence with respect to the temporal
-mesh size τ.</a></li>
+<li><a href="control_conv_tau.html">the convergence with respect to the
+temporal mesh size τ.</a></li>
 </ul></li>
+</ul>
+<div class="figure" style="text-align: center">
+<img src="data_files/control_conv_rates_tau_all.png" alt="Figure 3: Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\Gamma))$-error with respect to $\tau$ on a $\text{log}_{10}$–$\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case."  />
+<p class="caption">
+Figure 3: Comparison of theoretical and observed convergence behavior
+for the <span
+class="math inline">\(L_2((0,T);L_2(\Gamma))\)</span>-error with respect
+to <span class="math inline">\(\tau\)</span> on a <span
+class="math inline">\(\text{log}_{10}\)</span>–<span
+class="math inline">\(\text{log}_{10}\)</span> scale. Dashed lines
+indicate the theoretical rates, and solid lines represent the observed
+error curves. The legend below each plot shows the value of <span
+class="math inline">\(\alpha\)</span> along with the corresponding
+theoretical (‘theo’), and observed (‘obs’) rates for each case.
+</p>
+</div>
+<ul>
 <li><a href="control_conv_m.html">Convergence in 𝑚</a>: This page shows
 <ul>
 <li><a href="control_conv_m.html">the convergence with respect to the
 order 𝑚 of the rational approximation.</a></li>
 </ul></li>
-</ul></li>
-</ol>
+</ul>
+<div class="figure" style="text-align: center">
+<img src="data_files/control_conv_rates_m_all.png" alt="Figure 4: Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\Gamma))$-error with respect to $m$ on a semi-$\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case."  />
+<p class="caption">
+Figure 4: Comparison of theoretical and observed convergence behavior
+for the <span
+class="math inline">\(L_2((0,T);L_2(\Gamma))\)</span>-error with respect
+to <span class="math inline">\(m\)</span> on a semi-<span
+class="math inline">\(\text{log}_{e}\)</span> scale, with <span
+class="math inline">\(m\)</span> plotted on a square-root scale. Dashed
+lines indicate the theoretical rates, and solid lines represent the
+observed error curves. The legend below each plot shows the value of
+<span class="math inline">\(\alpha\)</span> along with the corresponding
+theoretical (‘theo’), and observed (‘obs’) rates for each case.
+</p>
+</div>
 
 
 
