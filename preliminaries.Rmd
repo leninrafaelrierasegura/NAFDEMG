@@ -118,7 +118,10 @@ which is a star-shaped set with center at $v$ and rays made of the segments cont
         0,&\text{ otherwise},
     \end{cases}
 \end{equation*}
-where $x_v^e$ is either $x_0^e$ or $x_{n_e}^e$ depending on the edge direction and its parameterization. See @arioli2018finite for more details. Figure 1 shows an illustration of the basis function system $\{\varphi_j^e, \phi_v\}$ on the tadpole graph (in black). Standard hat functions associated with internal edge nodes are shown in blue, while special vertex-centered function are highlighted in red.
+where $x_v^e$ is either $x_0^e$ or $x_{n_e}^e$ depending on the edge direction and its parameterization. See @arioli2018finite for more details. Figure 1 shows an illustration of the basis function system $\{\varphi_j^e, \phi_v\}$ on the tadpole graph (in black). Standard hat functions associated with internal edge nodes are shown in blue, while special vertex-centered functions are highlighted in red.
+
+
+For an additional illustration, go to the [Basis](basis.html#basisf) page.
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Illustration of the system of basis functions $\\{\\varphi_j^e, \\phi_v\\}$ on the tadpole graph. Notice that the sets $\\Ncal_{v}$ are depicted in green and their corresponding basis functions are shown in red.")}
 graph <- gets.graph.tadpole(h = 1/4)
@@ -126,59 +129,59 @@ graph_to_get_loc <- gets.graph.tadpole(h = 1/40)
 loc <- graph_to_get_loc$get_mesh_locations()
 
 
-A <- graph$fem_basis(loc)
-A <- cbind(A, A[, 1]*0)  # this plots the graph
+A <- as.matrix(graph$fem_basis(loc))
+A <- apply(A, 2, function(x) plotting.order(x, graph_to_get_loc))
+A <- rbind(A, rep(NA, ncol(A))) # Add a row of NAs for the plotting
 
 x <- graph_to_get_loc$mesh$V[, 1]
 y <- graph_to_get_loc$mesh$V[, 2]
-x <- plotting.order(x, graph_to_get_loc)
-y <- plotting.order(y, graph_to_get_loc)
+x <- c(plotting.order(x, graph_to_get_loc), NA)
+y <- c(plotting.order(y, graph_to_get_loc), NA)
 
-x_range <- range(x)
-y_range <- range(y)
+x_range <- range(x, na.rm = TRUE)
+y_range <- range(y, na.rm = TRUE)
 z_range <- c(0,1)
 
 # Start plot
-p <- plot_ly()
-
-# Add function lines
-for (i in 1:ncol(A)) {
-  z <- plotting.order(A[, i], graph_to_get_loc)
-  mycolor <- if (i == ncol(A)) "black" else "blue"
-  if (i %in% c(1,2)) mycolor <- "red"
-  # Add basis function trace
-  p <- add_trace(p, x = x, y = y, z = z, type = "scatter3d", mode = "lines",
-                 line = list(color = mycolor, width = 3), showlegend = FALSE)
-  
-  # Add vertical segments from (x, y, 0) to (x, y, z)
-  for (j in 1:length(x)) {
-    p <- add_trace(p,
-      x = rep(x[j], 2),
-      y = rep(y[j], 2),
-      z = c(0, z[j]),
-      type = "scatter3d",
-      mode = "lines",
-      line = list(color = "gray", width = 1),
-      showlegend = FALSE
-    )
-  }
-}
-
-z <- plotting.order(A[, 1], graph_to_get_loc)
-z_new <- rep(NA, length(z))
-z_new[1:11] <- 0
-p <- add_trace(p, x = x, y = y, z = z_new, type = "scatter3d", mode = "lines",
-                 line = list(color = "green", width = 3), showlegend = FALSE)
-
-z <- plotting.order(A[, 2], graph_to_get_loc)
-z_new <- rep(NA, length(z))
-z_new[c(31:51, 111:121)] <- 0
-p <- add_trace(p, x = x, y = y, z = z_new, type = "scatter3d", mode = "lines",
-                 line = list(color = "green", width = 3), showlegend = FALSE)
-# Display plot
-p %>% layout(
-    scene = global.scene.setter(x_range, y_range, z_range, z_aspectratio = 1))
-
+p <- plot_ly() |> 
+  add_trace(x = rep(x, times = graph$nV), 
+            y = rep(y, times = graph$nV), 
+            z = as.vector(A[, 1:graph$nV]), 
+            type = "scatter3d", 
+            mode = "lines",
+            line = list(color = "red", width = 3), 
+            showlegend = FALSE) |>
+  add_trace(x = rep(x, times = ncol(A) - graph$nV), 
+            y = rep(y, times = ncol(A) - graph$nV), 
+            z = as.vector(A[, (graph$nV+1):ncol(A)]), 
+            type = "scatter3d",
+            mode = "lines", 
+            line = list(color = "blue", width = 3), 
+            showlegend = FALSE) |>
+  add_trace(x = rep(x, each = 3), 
+            y = rep(y, each = 3), 
+            z = unlist(lapply(apply(A, 1, max, na.rm = TRUE), function(zj) c(0, zj, NA))),
+            type = "scatter3d", 
+            mode = "lines",
+            line = list(color = "gray", width = 0.5),
+            showlegend = FALSE) |>
+  add_trace(x = x, 
+            y = y, 
+            z = x*0, 
+            type = "scatter3d",
+            mode = "lines",  
+            line = list(color = "black", width = 3),
+            showlegend = FALSE) |>
+  add_trace(x = rep(x, times = graph$nV), 
+            y = rep(y, times = graph$nV), 
+            z = c(replace(rep(NA, nrow(A)), 1:11, 0), 
+                  replace(rep(NA, nrow(A)), c(31:51, 111:121), 0)), 
+            type = "scatter3d", 
+            mode = "lines",
+            line = list(color = "green", width = 3), 
+            showlegend = FALSE) |>
+  layout(scene = global.scene.setter(x_range, y_range, z_range, z_aspectratio = 1))
+p
 ```
 
 
@@ -186,16 +189,16 @@ Having introduced the system of basis functions $\{\varphi_j^e, \phi_v\}$, which
 
 ## Eigenfunctions and eigenvalues on the tadpole graph {#eigenfunctions}
 
-Let $\Gamma_T = (\Vcal,\Ecal)$ characterize the tadpole graph with $\Vcal = \{v_1,v_2\}$ and $\Ecal = \{e_1,e_2\}$. The left edge $e_1$ has length 1 and the circular edge $e_2$ has length 2. As discussed before, a point on $e_1$ is parameterized via $s=\left(e_1, t\right)$ for $t \in[0,1]$ and a point on $e_2$ via $s=\left(e_2, t\right)$ for $t\in[0,2]$. One can verify that $-\Delta_\Gamma$ has eigenvalues $0,\left\{(i \pi / 2)^2\right\}_{i \in \mathbb{N}}$ and $\left\{(i \pi / 2)^2\right\}_{2 i \in \mathbb{N}}$ with corresponding eigenfunctions $\phi_0$, $\left\{\phi_i\right\}_{i \in \mathbb{N}}$, and $\left\{\psi_i\right\}_{2 i \in \mathbb{N}}$ given by $\phi_0(s)=1 / \sqrt{3}$ and 
+Let $\Gamma_T = (\Vcal,\Ecal)$ characterize the tadpole graph with $\Vcal = \{v_1,v_2\}$ and $\Ecal = \{e_1,e_2\}$. The left edge $e_1$ has length 1 and the circular edge $e_2$ has length 2. A point on $e_1$ is parameterized via $s=\left(e_1, t\right)$ for $t \in[0,1]$ and a point on $e_2$ via $s=\left(e_2, t\right)$ for $t\in[0,2]$. One can verify that $-\Delta_\Gamma$ has eigenvalues $0,\left\{(i \pi / 2)^2\right\}_{i \in \mathbb{N}}$ and $\left\{(i \pi / 2)^2\right\}_{2 i \in \mathbb{N}}$ with corresponding eigenfunctions $\phi_0$, $\left\{\phi_i\right\}_{i \in \mathbb{N}}$, and $\left\{\psi_i\right\}_{2 i \in \mathbb{N}}$ given by $\phi_0(s)=1 / \sqrt{3}$ and 
 \begin{equation*}
     \phi_i(s)=C_{\phi, i}\begin{cases}
-        -2 \sin (\frac{i\pi}{2}) \cos (\frac{i \pi t}{2}), & s \in e_1, \\
-\sin (i \pi t / 2), & s \in e_2,
+        -2 \sin \left(\dfrac{i\pi}{2}\right) \cos \left(\dfrac{i \pi s}{2}\right), & s \in e_1, \\
+\sin \left(\dfrac{i \pi s}{2}\right), & s \in e_2,
     \end{cases},
 \quad 
-    \psi_i(s)=\frac{\sqrt{3}}{\sqrt{2}} \begin{cases}
-    (-1)^{i / 2} \cos (\frac{i \pi t}{2}), & s \in e_1, \\
-\cos (\frac{i \pi t}{2}), & s \in e_2,
+    \psi_i(s)=\dfrac{\sqrt{3}}{\sqrt{2}} \begin{cases}
+    (-1)^{i / 2} \cos \left(\dfrac{i \pi s}{2}\right), & s \in e_1, \\
+\cos \left(\dfrac{i \pi s}{2}\right), & s \in e_2,
 \end{cases},
 \end{equation*}
 where $C_{\phi, i}=1$ if $i$ is even and $C_{\phi, i}=1 / \sqrt{3}$ otherwise. Moreover, these functions form an orthonormal basis for $L_2(\Gamma_T)$.

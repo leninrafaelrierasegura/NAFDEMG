@@ -19,7 +19,7 @@ captioner <- function(caption) {
 2. Preliminaries
 
   - [Preliminaries](preliminaries.html): This page shows 
-    - [how the finite element basis functions are constructed on a metric graph,](preliminaries.html#fem-basis)
+    - [how the finite element basis functions are constructed on a metric graph](preliminaries.html#fem-basis) (see the [Basis](basis.html#basisf) page for an additional illustration),
     - [how the eigenvalues and eigenfunctions of the shifted Kirchhoff–Laplacian $(\kappa^2-\Delta_\Gamma)$ operator are computed on the tadpole graph,](preliminaries.html#eigenfunctions)
     - [and how to project onto a fine space-time mesh.](preliminaries.html#piecewise_projection)
       

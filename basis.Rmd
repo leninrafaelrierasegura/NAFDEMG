@@ -1,0 +1,349 @@
+---
+title: "Basis functions"
+date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+    code_download: true
+    css: visual.css
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+---
+
+Go back to the [Contents](about.html) page.
+
+<div style="color: #2c3e50; text-align: right;">
+********  
+<strong>Press Show to reveal the code chunks.</strong>  
+
+********
+</div>
+
+
+```{r}
+# Create a clipboard button on the rendered HTML page
+source(here::here("clipboard.R")); clipboard
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+```
+
+
+```{r}
+library(tidyr)
+library(dplyr)
+library(plotly)
+library(MetricGraph)
+
+gets.graph.basis <- function(h, cont = TRUE){
+  #F
+  edge1 <- rbind(c(0,0), c(0,2))
+  edge2 <- rbind(c(0,2), c(0,4))
+  edge3 <- rbind(c(0,2), c(1,2))
+  edge4 <- rbind(c(0,4), c(2,4))
+  #U
+  edge5 <- rbind(c(2,4), c(2,1))
+  thetau <- seq(pi, 2*pi, length.out = 100)
+  edge6 <- cbind(3+1*cos(thetau), 1+1*sin(thetau))
+  edge7 <- rbind(c(4,1), c(4,4))
+  #N
+  edge8 <- rbind(c(4,1), c(4,0))
+  edge9 <- rbind(c(4,4), c(6,0))
+  edge10 <- rbind(c(6,0), c(6,4))
+  #C
+  thetac1 <- seq(pi, pi/2, length.out = 100)
+  edge11 <- cbind(8+2*cos(thetac1), 2+2*sin(thetac1))
+  thetac2 <- seq(pi, 3*pi/2, length.out = 100)
+  edge12 <- cbind(8+2*cos(thetac2), 2+2*sin(thetac2))
+  #T
+  edge13 <- rbind(c(8,4), c(10,4))
+  edge14 <- rbind(c(9,4), c(9,0))
+  #I
+  edge15 <- rbind(c(10,4), c(12,4))
+  edge16 <- rbind(c(10,0), c(12,0))
+  edge17 <- rbind(c(11,0), c(11,4))
+  #O
+  thetao1 <- seq(pi, 2*pi, length.out = 100)
+  edge18 <- cbind(13+1*cos(thetao1), 1+1*sin(thetao1))
+  thetao2 <- seq(0, pi, length.out = 100)
+  edge19 <- cbind(13+1*cos(thetao2), 3+1*sin(thetao2))
+  edge20 <- rbind(c(12,3), c(12,1))
+  edge21 <- rbind(c(14,1), c(14,4))
+  #N
+  edge22 <- rbind(c(14,4), c(16,0))
+  edge23 <- rbind(c(16,0), c(16,4))
+  edge56 <- rbind(c(14,0), c(14,1))
+  #S
+  edge24 <- rbind(c(16,0), c(17,0))
+  tethas1 <- seq(-pi/2, pi/2, length.out = 100)
+  edge25 <- cbind(17+1*cos(tethas1), 1+1*sin(tethas1))
+  thetas2 <- seq(3*pi/2, pi/2, length.out = 100)
+  edge26 <- cbind(17+1*cos(thetas2), 3+1*sin(thetas2))
+  edge27 <- rbind(c(17,4), c(18,4))
+  #H
+  edge28 <- rbind(c(0,4), c(0,6))
+  edge29 <- rbind(c(0,6), c(0,8))
+  edge30 <- rbind(c(0,6), c(2,6))
+  edge31 <- rbind(c(2,4), c(2,8))
+  #A
+  edge32 <- rbind(c(2,4), c(3,8))
+  edge33 <- rbind(c(3,8), c(4,4))
+  edge34 <- rbind(c(2.5,6), c(3.5,6))
+  #T
+  edge35 <- rbind(c(3,8), c(6,8))
+  edge36 <- rbind(c(5,8), c(5,4))
+  #B
+  edge37 <- rbind(c(8,8), c(8,4))
+  thetab1 <- seq(-pi/2, pi/2, length.out = 100)
+  edge38 <- cbind(9+1*cos(thetab1), 5+1*sin(thetab1))
+  edge39 <- rbind(c(8,6), c(9,6))
+  edge40 <- rbind(c(9,8), c(8,8))
+  thetab2 <- seq(-pi/2, pi/2, length.out = 100)
+  edge41 <- cbind(9+1*cos(thetab2), 7+1*sin(thetab2))
+  #A
+  edge42 <- rbind(c(10,4), c(11,8))
+  edge43 <- rbind(c(11,8), c(12,4))
+  edge44 <- rbind(c(10.5,6), c(11.5,6))
+  #S
+  
+  #I
+  edge45 <- rbind(c(14,4), c(16,4))
+  edge46 <- rbind(c(15,4), c(15,8))
+  edge47 <- rbind(c(14,8), c(16,8))
+  #S
+  edge48 <- rbind(c(16,4), c(17,4))
+  edge49 <- cbind(17+1*cos(tethas1), 5+1*sin(tethas1))
+  edge50 <- cbind(17+1*cos(thetas2), 7+1*sin(thetas2))
+  edge51 <- rbind(c(17,8), c(18,8))
+  #S
+  edge52 <- rbind(c(13,8), c(14,8))
+  edge53 <-cbind(13+1*cos(thetas2), 7+1*sin(thetas2))
+  edge54 <- cbind(13+1*cos(tethas1), 5+1*sin(tethas1))
+  edge55 <- rbind(c(12,4), c(13,4))
+  
+  edges <- list(edge1, edge2, edge3, edge4, edge5, edge6, edge7,
+                edge8, edge9, edge10, edge11, edge12, edge13, edge14,
+                edge15, edge16, edge17, edge18, edge19, edge20, edge21,
+                edge22, edge23, edge24, edge25, edge26, edge27,
+                edge28, edge29, edge30, edge31, edge32, edge33, edge34,
+                edge35, edge36, edge37, edge38, edge39, edge40, edge41,
+                edge42, edge43, edge44, edge45, edge46, edge47,
+                edge48, edge49, edge50, edge51, edge52, edge53, edge54, edge55, edge56)
+  graph <- metric_graph$new(edges = edges, perform_merges = TRUE)
+  graph$prune_vertices()
+  graph$build_mesh(h = h, continuous = cont)
+  return(graph)
+}
+
+add_group_boundaries <- function(mat) {
+  # Unique group identifiers in the first column
+  groups <- unique(mat[, 1])
+  
+  # Initialize list to store results
+  result_list <- vector("list", length(groups))
+  
+  for (i in seq_along(groups)) {
+    grp <- groups[i]
+    group_rows <- mat[mat[, 1] == grp, , drop = FALSE]
+    
+    # Add boundary rows
+    augmented <- rbind(
+      c(grp, 0),
+      group_rows,
+      c(grp, 1)
+    )
+    result_list[[i]] <- augmented
+  }
+  
+  # Combine all groups
+  result <- do.call(rbind, result_list)
+  rownames(result) <- NULL
+  return(result)
+}
+
+# Function to insert NA row between groups
+insert_na_between_groups <- function(mat, group_vec) {
+  # Split the matrix by group
+  mat_split <- split(as.data.frame(mat), group_vec)
+  
+  # Add NA rows after each group
+  with_na <- lapply(mat_split, function(x) rbind(as.matrix(x), rep(NA, ncol(mat))))
+  
+  # Combine everything into one matrix (removing the last NA if not needed)
+  mat <- do.call(rbind, with_na)
+  return(mat) #mat[-nrow(mat), ]
+}
+
+fill_between_NA <- function(vec) {
+  
+  # Find the indices of the NA values
+  na_indices <- which(is.na(vec))
+  
+  for (i in seq_along(na_indices)[-length(na_indices)]) {
+    start <- na_indices[i]
+    end <- na_indices[i + 1]
+    
+    # Work on the elements between two NA values
+    if (end - start > 1) {
+      segment <- vec[(start + 1):(end - 1)]
+      if (all(segment == 0, na.rm = TRUE)) {
+        vec[(start + 1):(end - 1)] <- NA
+      }
+    }
+  }
+  return(vec)
+}
+
+keep_nonzeros_and_border_zeros <- function(vec) {
+  n <- length(vec)
+  keep <- rep(FALSE, n)
+  
+  # Identify nonzero values (ignoring NAs)
+  is_nonzero <- !is.na(vec) & vec != 0
+  
+  for (i in which(is_nonzero)) {
+    keep[i] <- TRUE
+    if (i > 1 && !is.na(vec[i - 1]) && vec[i - 1] == 0) keep[i - 1] <- TRUE
+    if (i < n && !is.na(vec[i + 1]) && vec[i + 1] == 0) keep[i + 1] <- TRUE
+  }
+  
+  # Replace zeros that are not marked for keeping with NA
+  vec[!is.na(vec) & vec == 0 & !keep] <- NA
+  return(vec)
+}
+
+graph <- gets.graph.basis(h = 1/1, cont = TRUE)
+graph_cont <- gets.graph.basis(h = 1/50, cont = TRUE)
+
+# discontinuous mesh
+V <- graph_cont$mesh$V
+VtE <- graph_cont$mesh$VtE
+
+
+new_VtE <- add_group_boundaries(VtE[(graph$nV+1):nrow(VtE),])
+new_V <- graph_cont$coordinates(PtE = new_VtE, normalized = TRUE)
+V_with_NA <- rbind(c(NA,NA), insert_na_between_groups(new_V, new_VtE[,1]))
+x <- V_with_NA[,1]
+y <- V_with_NA[,2]
+
+
+A <- as.matrix(graph$fem_basis(new_VtE))
+A_with_NA <- rbind(rep(NA, ncol(A)), insert_na_between_groups(A, new_VtE[,1]))
+A_with_NA_cleaned <- apply(A_with_NA, 2, fill_between_NA)
+A_with_NA_zeroed <- apply(A_with_NA, 2, keep_nonzeros_and_border_zeros)
+
+x_range <- range(x, na.rm = TRUE)
+y_range <- range(y, na.rm = TRUE)
+z_range <- c(0,1)
+
+# Get all z values for vertical lines
+z_vals <- apply(A_with_NA_zeroed, 1, max, na.rm = TRUE)
+# Subsample every 5th index
+idx <- seq(1, nrow(A_with_NA_zeroed), by = 20)
+
+# Subsample x, y, and z for gray lines
+Z_red <- unlist(lapply(z_vals[idx], function(zj) c(0, zj, NA)))
+X_red <- rep(x[idx], each = 3)
+Y_red <- rep(y[idx], each = 3)
+
+# Start plot
+p <- plot_ly() %>% 
+  add_trace(x = rep(x, times = graph$nV), 
+            y = rep(y, times = graph$nV), 
+            z = as.vector(A_with_NA_zeroed[, 1:graph$nV]), 
+            type = "scatter3d",
+            mode = "lines", 
+            showlegend = FALSE, 
+            line = list(color = "red", width = 2)) %>%
+  add_trace(x = X_red, y = Y_red, z = Z_red,
+            type = "scatter3d", mode = "lines",
+            line = list(color = "gray", width = 0.5),
+            showlegend = FALSE) %>%
+  add_trace(x = rep(x, times = ncol(A_with_NA_zeroed) - graph$nV), 
+            y = rep(y, times = ncol(A_with_NA_zeroed) - graph$nV), 
+            z = as.vector(A_with_NA_zeroed[, (graph$nV+1):ncol(A_with_NA_zeroed)]), 
+            type = "scatter3d",
+            mode = "lines", 
+            showlegend = FALSE, 
+            line = list(color = "blue", width = 2)) %>%
+  add_trace(x = x, 
+            y = y, 
+            z = x*0, 
+            type = "scatter3d",
+            mode = "lines", 
+            showlegend = FALSE, 
+            line = list(color = "black", width = 4)) %>%
+  layout(scene = list(
+    xaxis = list(title = "x", range = x_range),
+    yaxis = list(title = "y", range = y_range),
+    zaxis = list(title = "z", range = z_range),
+    aspectratio = list(x = 2.4, y = 1.2, z = 0.06),
+    camera = list(eye = list(x = -2, y = -3, z = 1.5), 
+                  center = list(x = 0, y = 0, z = 0))))
+```
+
+
+# Illustration {#basisf}
+
+Go back to the [Contents](about.html) page.
+
+Go back to the [Preliminaries](preliminaries.html#fem-basis) page.
+
+```{r, fig.height = 8, out.width = "100%", fig.cap = captioner("Illustration of the basis function system $\\{\\psi^i_h\\}_{i=1}^{N_h}$ on the hat-basis-functions graph (in black). Standard hat functions associated with internal edge nodes are shown in blue, while special vertex-centered functions are highlighted in red.")}
+p
+```
+
+## References
+
+```{r}
+grateful::cite_packages(output = "paragraph", out.dir = ".")
+```
