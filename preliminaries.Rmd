@@ -320,6 +320,11 @@ projected_U_piecewise <- construct_piecewise_projection(projected_U_approx, time
 graph.plotter.3d(overkill_graph, overkill_time_seq, overkill_time_seq, overkill_U_true, projected_U_piecewise)
 ```
 
+```
+{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Approximated solution $U_{\\text{approx}}$ on the coarse space-time mesh.")}
+graph.plotter.3d(graph, time_seq, time_seq, U_approx)
+```
+
 ## References
 
 ```{r}

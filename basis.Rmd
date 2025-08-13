@@ -321,7 +321,14 @@ p <- plot_ly() %>%
             type = "scatter3d",
             mode = "lines", 
             showlegend = FALSE, 
-            line = list(color = "black", width = 4)) %>%
+            line = list(color = "black", width = 4)) %>% 
+  add_trace(x = rep(x, times = graph$nV), 
+            y = rep(y, times = graph$nV), 
+            z = as.vector(A_with_NA_zeroed[, 1:graph$nV])*0, 
+            type = "scatter3d",
+            mode = "lines", 
+            showlegend = FALSE, 
+            line = list(color = "green", width = 4)) %>%
   layout(scene = list(
     xaxis = list(title = "x", range = x_range),
     yaxis = list(title = "y", range = y_range),

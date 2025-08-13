@@ -98,7 +98,7 @@ source(here::here("functionality.R"))
 
 ```{r}
 # Parameters
-T_final <- 0.2
+T_final <- 2
 kappa <- 15
 mu <- 0.1
 a <- - 0.5
@@ -106,13 +106,13 @@ b <- 0.5
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
-coeff_elliptic_g <- 50*(1:adjusted_N_finite)^-1
+coeff_elliptic_g <- 20*(1:adjusted_N_finite)^-1
 coeff_elliptic_g[-2] <- 0
 coeff_elliptic_f <- rep(0, adjusted_N_finite)
 coeff_elliptic_f[2] <- 10
 
 # Time step and mesh size
-POWERS <- seq(14, 9, by = -1)
+POWERS <- seq(10, 8, by = -0.5)
 
 time_steps <- 0.1 * 2^-POWERS
 h_vector <- time_steps^(1/2)
@@ -136,9 +136,9 @@ overkill_psi <- cos(overkill_time_seq)
 overkill_phi <- sin(T_final - overkill_time_seq)
 overkill_psi_prime <- - sin(overkill_time_seq)
 overkill_phi_prime <- - cos(T_final - overkill_time_seq)
-# psi_rate <- -1
-# phi_rate <- -1
-# phi_coefficient <- 10
+# psi_rate <- -2
+# phi_rate <- -2
+# phi_coefficient <- 1
 # overkill_psi <- exp(psi_rate*overkill_time_seq)
 # overkill_psi_prime <- psi_rate * exp(psi_rate*overkill_time_seq)
 # overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)

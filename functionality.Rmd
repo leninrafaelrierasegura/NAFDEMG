@@ -605,6 +605,140 @@ reversecolumns <- function(mat) {
 ```
 
 
+```{r}
+# helper: safe relative change (Frobenius)
+rel_change_fro <- function(X_new, X_old) {
+  num <- sqrt(sum((X_new - X_old)^2))
+  den <- sqrt(sum(X_old^2))
+  if (den < .Machine$double.eps) {
+    # if old is (near) zero, use absolute norm scaling
+    return(ifelse(num < .Machine$double.eps, 0, num))
+  }
+  num / den
+}
+
+# Coupled solver with multi-criteria convergence
+solve_coupled_system_multi_tol <- function(
+  my_op_frac,           # your precomputed operator used by solve_fractional_evolution()
+  time_step,            # tau
+  time_seq,             # vector of times (includes t=0)
+  u_0,                   # initial state \bar U^0 (vector)
+  f,                # matrix of F (n x length(time_seq)), columns k=0..T
+  U_d,               # matrix of U_d  (n x length(time_seq))
+  Psi,                  # Psi matrix
+  C_ok,                 # C^{ok} matrix
+  A, B,                 # lower/upper bounds (vector or matrix broadcastable to time grid)
+  mu,                   # positive scalar
+  tol = 1e-8,           # scalar or named list: list(Z=..., U=..., P=...)
+  maxit = 200,
+  verbose = FALSE
+) {
+
+  # normalize tol input into named list
+  if (is.numeric(tol) && length(tol) == 1) {
+    tol_list <- list(Z = tol, U = tol, P = tol)
+  } else if (is.list(tol)) {
+    tol_list <- modifyList(list(Z = 1e-8, U = 1e-8, P = 1e-8), tol)
+  } else stop("tol must be scalar or list(Z=...,U=...,P=...)")
+
+  # precompute V_d (time-reversed filtered Ud)
+  Vd_mat <- reversecolumns(t(Psi) %*% C_ok %*% U_d)
+  F_mat <- t(Psi) %*% C_ok %*% f
+  # initialize Z
+  Z_mat <- F_mat*0
+
+  # convenience projector to [A,B]
+  project_box <- function(X) pmax(A, pmin(B, X))
+
+  it <- 0
+  converged <- FALSE
+  rels <- list(Z = NA_real_, U = NA_real_, P = NA_real_)
+
+  # keep previous iterates for relative changes
+  z_prev <- F_mat*0 
+  U_prev <- F_mat*0      # initialize with zeros (or could use u_0 replicated)
+  P_prev <- F_mat*0
+
+  repeat {
+    it <- it + 1
+
+    # (1) Evolve U with RHS = F + Z
+    U_mat <- solve_fractional_evolution(
+      my_op_frac,
+      time_step,
+      time_seq,
+      val_at_0 = u_0,
+      RHST = F_mat + Z_mat
+    )
+
+    # (2) V ≈ reversecolumns(Psi^T C_ok Psi U)
+    V_mat <- reversecolumns(t(Psi) %*% C_ok %*% Psi %*% U_mat)
+
+    # (3) Evolve Q with RHS = V - V_d (zero initial condition)
+    Q_mat <- solve_fractional_evolution(
+      my_op_frac,
+      time_step,
+      time_seq,
+      val_at_0 = u_0 * 0,
+      RHST = V_mat - Vd_mat
+    )
+
+    # (4) P = reversecolumns(Q)
+    P_mat <- reversecolumns(Q_mat)
+
+    # (5) z
+    z_new <- project_box(-P_mat / mu)
+    
+    # (6) Z from z
+    Z_mat <- t(Psi) %*% C_ok %*% Psi %*% z_new
+    
+    # relative changes
+    rels$Z <- rel_change_fro(z_new, z_prev)  # compare z, not Z
+    rels$U <- rel_change_fro(U_mat, U_prev)
+    rels$P <- rel_change_fro(P_mat, P_prev)
+
+    if (verbose) {
+      message(sprintf(
+        "iter %3d: rel(Z)=%.3e, rel(U)=%.3e, rel(P)=%.3e",
+        it, rels$Z, rels$U, rels$P
+      ))
+    }
+
+    # update stored previous iterates
+    z_prev <- z_new
+    U_prev <- U_mat
+    P_prev <- P_mat
+
+    # convergence check: require all rels <= respective tol
+    cond_Z <- rels$Z <= tol_list$Z
+    cond_U <- rels$U <= tol_list$U
+    cond_P <- rels$P <= tol_list$P
+
+    if ((cond_Z && cond_U && cond_P) || it >= maxit) {
+      converged <- (cond_Z && cond_U && cond_P)
+      break
+    }
+  }
+
+  if (verbose && !converged) {
+    message(sprintf(
+      "Stopped at maxit=%d; rels: Z=%.3e (tol %.3e), U=%.3e (tol %.3e), P=%.3e (tol %.3e)",
+      it, rels$Z, tol_list$Z, rels$U, tol_list$U, rels$P, tol_list$P
+    ))
+  }
+
+  list(U = U_mat,  # solution U
+       Z = z_new,  # solution z
+       P = P_mat,
+       iterations = it,
+       converged = converged,
+       rel_changes = rels,
+       tol = tol_list)  # solution P
+}
+
+```
+
+
 ## Plotting functions {#plotting_functions}
 
 ### Function `plotting.order()`

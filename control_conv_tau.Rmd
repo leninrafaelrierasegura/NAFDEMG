@@ -115,8 +115,8 @@ POWERS <- seq(6.125, 5.625, by = -0.1)
 tau_vector <- 0.1 * 2^-POWERS
 
 # Overkill parameters
-overkill_time_step <- 0.1 * 2^-14
-overkill_h <- (0.1 * 2^-14)^(1/2)
+overkill_time_step <- 0.1 * 2^-13
+overkill_h <- (0.1 * 2^-13)^(1/2)
 
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
@@ -129,17 +129,17 @@ overkill_weights <- overkill_graph$mesh$weights
 overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
 overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
 
-# overkill_psi <- cos(overkill_time_seq)
-# overkill_psi_prime <- - sin(overkill_time_seq)
-# overkill_phi <- sin(T_final - overkill_time_seq)
-# overkill_phi_prime <- - cos(T_final - overkill_time_seq)
-psi_rate <- -1#40
-phi_rate <- -1#40
-phi_coefficient <- 10#40
-overkill_psi <- exp(psi_rate*overkill_time_seq)
-overkill_psi_prime <- psi_rate * exp(psi_rate*overkill_time_seq)
-overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
-overkill_phi_prime <- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)
+overkill_psi <- cos(overkill_time_seq)
+overkill_psi_prime <- - sin(overkill_time_seq)
+overkill_phi <- sin(T_final - overkill_time_seq)
+overkill_phi_prime <- - cos(T_final - overkill_time_seq)
+# psi_rate <- -2
+# phi_rate <- -2
+# phi_coefficient <- 1
+# overkill_psi <- exp(psi_rate*overkill_time_seq)
+# overkill_psi_prime <- psi_rate * exp(psi_rate*overkill_time_seq)
+# overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
+# overkill_phi_prime <- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)
 
 m_values <- c()
 alpha_vector <- seq(1, 2, by = 0.2)
@@ -202,14 +202,14 @@ for (j in 1:length(alpha_vector)) {
     elliptic_u <- as.vector(EIGENFUN %*% (coeff_elliptic_f * EIGENVAL_MINUS_ALPHA))
     elliptic_v <- as.vector(EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
     
-    # psi <- cos(time_seq)
-    # psi_prime <- - sin(time_seq)
-    # phi <- sin(T_final - time_seq)
-    # phi_prime <- - cos(T_final - time_seq)
-    psi <- exp(psi_rate*time_seq)
-    psi_prime <- psi_rate * exp(psi_rate*time_seq)
-    phi <- phi_coefficient * exp(phi_rate*time_seq) - phi_coefficient * exp(phi_rate*T_final)
-    phi_prime <- phi_coefficient * phi_rate * exp(phi_rate*time_seq)
+    psi <- cos(time_seq)
+    psi_prime <- - sin(time_seq)
+    phi <- sin(T_final - time_seq)
+    phi_prime <- - cos(T_final - time_seq)
+    # psi <- exp(psi_rate*time_seq)
+    # psi_prime <- psi_rate * exp(psi_rate*time_seq)
+    # phi <- phi_coefficient * exp(phi_rate*time_seq) - phi_coefficient * exp(phi_rate*T_final)
+    # phi_prime <- phi_coefficient * phi_rate * exp(phi_rate*time_seq)
     # Construct the projection matrix
     Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
     R <- t(Psi) %*% overkill_graph$mesh$C
