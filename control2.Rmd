@@ -298,7 +298,7 @@ This shows that $\bar{u}$ and $\bar{p}$ satisfy \eqref{eq:maineqoptimal} and \eq
 In this section, we implement the numerical scheme for the optimal control problem \eqref{eq:costfun}-\eqref{control_constraints} on the tadpole graph. We start by defining the parameters and constructing the exact solution. We them use \eqref{numericalscheme1}-\eqref{thenumericalscheme2} to solve the forward and adjoint problems. Finally, we compute the control variable $\bar{z}$ using \eqref{zz}.
 
 
-```{r}
+```{r, message = TRUE}
 # Parameters
 T_final <- 2
 time_step <- 0.02
@@ -375,8 +375,7 @@ overkill_elliptic_u <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_f * EIGEN
 overkill_elliptic_v <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
 # Construct the projection matrix
 Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
-C_ok <- overkill_graph$mesh$C
-R <- t(Psi) %*% C_ok
+R <- t(Psi) %*% overkill_graph$mesh$C
 
 overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(time_seq))
 overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(time_seq))
@@ -386,15 +385,37 @@ z_bar_overkill <- pmax(overkill_A, pmin(overkill_B, elliptic_v %*% t(phi)))
 f <- overkill_elliptic_u %*% t(psi_prime) + overkill_elliptic_f %*% t(psi) - z_bar_overkill
 U_d <- overkill_elliptic_u %*% t(psi) - mu * (overkill_elliptic_v %*% t(phi_prime)) + mu * (overkill_elliptic_g %*% t(phi))
 
-tol <- 1e-8
+F_proj <- R %*% f
+V_d <- reversecolumns(R %*% U_d)
+
+tol <- 1e-16
 maxit <- 200
 verbose <- TRUE
 res <- solve_coupled_system_multi_tol(
-  my_op_frac, time_step, time_seq, u_0, f, U_d, Psi, C_ok, A, B, mu,
-  tol, maxit, verbose)
+  my_op_frac = my_op_frac,
+  time_step = time_step, 
+  time_seq = time_seq, 
+  u_0 = u_0, 
+  F_proj = F_proj, 
+  V_d = V_d, 
+  Psi = Psi, 
+  R = R,
+  A = A, 
+  B = B, 
+  mu = mu,
+  weights = graph$mesh$weights,
+  tol = tol, 
+  maxit = maxit, 
+  verbose = verbose)
+
 U_bar <- res$U
 P_bar <- res$P
 Z_bar <- res$Z
+res$converged
+history <- res$history
+tol_list <- res$tol_list
+
+plot_convergence_history(history, tol_list)
 ```
 
 
