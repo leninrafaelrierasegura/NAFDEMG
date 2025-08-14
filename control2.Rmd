@@ -308,15 +308,15 @@ alpha <- 1.8
 m = 4
 beta <- alpha/2
 mu <- 0.1
-a <- - 0.5
-b <- 0.5
+a <- - 500
+b <- 500
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
 coeff_elliptic_g <- rep(0, adjusted_N_finite)
-coeff_elliptic_g[7] <- 100
+coeff_elliptic_g[7] <- 100000
 coeff_elliptic_f <- rep(0, adjusted_N_finite)
-coeff_elliptic_f[7] <- -10
+coeff_elliptic_f[7] <- -10000
 # time and spatial mesh 
 time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
 graph <- gets.graph.tadpole(h = h)
@@ -391,6 +391,7 @@ V_d <- reversecolumns(R %*% U_d)
 tol <- 1e-16
 maxit <- 200
 verbose <- TRUE
+weights <- graph$mesh$weights
 res <- solve_coupled_system_multi_tol(
   my_op_frac = my_op_frac,
   time_step = time_step, 
@@ -403,19 +404,26 @@ res <- solve_coupled_system_multi_tol(
   A = A, 
   B = B, 
   mu = mu,
-  weights = graph$mesh$weights,
+  weights = weights,
   tol = tol, 
   maxit = maxit, 
-  verbose = verbose)
+  verbose = verbose,
+  true_sol = list(
+    u_bar = u_bar, 
+    p_bar = p_bar, 
+    z_bar = z_bar
+  ))
 
 U_bar <- res$U
 P_bar <- res$P
 Z_bar <- res$Z
 res$converged
 history <- res$history
+history2 <- res$history2
 tol_list <- res$tol_list
 
 plot_convergence_history(history, tol_list)
+plot_convergence_history(history2, tol_list)
 ```
 
 
