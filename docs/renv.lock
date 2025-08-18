@@ -1140,6 +1140,27 @@
       ],
       "Hash": "14a8dae2a678fa953907893a9df561c0"
     },
+    "slackr": {
+      "Package": "slackr",
+      "Version": "3.4.0",
+      "Source": "Repository",
+      "Repository": "https://mrkaye97.r-universe.dev",
+      "Requirements": [
+        "R",
+        "cachem",
+        "dplyr",
+        "grDevices",
+        "httr",
+        "jsonlite",
+        "magrittr",
+        "memoise",
+        "rlang",
+        "tibble",
+        "utils",
+        "withr"
+      ],
+      "Hash": "b497428c1896cbf70041115416614ec3"
+    },
     "sp": {
       "Package": "sp",
       "Version": "2.2-0",

@@ -732,7 +732,7 @@ solve_coupled_system_multi_tol <- function(
 
   return(list(U = U_mat,  # solution U
               Z = z_new,  # solution z
-              P = P_mat,
+              P = P_mat, # solution P
               iterations = it,
               converged = converged,
               rel_changes = rel_changes,
