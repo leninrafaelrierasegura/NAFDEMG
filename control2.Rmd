@@ -83,6 +83,7 @@ library(MetricGraph)
 library(ggplot2)
 library(reshape2)
 library(plotly)
+library(tidyr)
 ```
 
 
@@ -308,15 +309,15 @@ alpha <- 1.8
 m = 4
 beta <- alpha/2
 mu <- 0.1
-a <- - 500
-b <- 500
+a <- - 0.5*100
+b <- 0.5*100
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
 coeff_elliptic_g <- rep(0, adjusted_N_finite)
-coeff_elliptic_g[7] <- 100000
+coeff_elliptic_g[7] <- 100*100
 coeff_elliptic_f <- rep(0, adjusted_N_finite)
-coeff_elliptic_f[7] <- -10000
+coeff_elliptic_f[7] <- -10*100
 # time and spatial mesh 
 time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
 graph <- gets.graph.tadpole(h = h)
@@ -351,12 +352,13 @@ u_bar <- elliptic_u %*% t(psi)
 p_bar <- - mu * (elliptic_v %*% t(phi))
 z_bar <- pmax(A, pmin(B, - p_bar / mu))
 # Construct the data for the problem
-f <- elliptic_u %*% t(psi_prime) + elliptic_f %*% t(psi) - z_bar
-f_plus_z_bar <- elliptic_u %*% t(psi_prime) + elliptic_f %*% t(psi)
+f <- elliptic_u %*% t(psi_prime) + 
+  elliptic_f %*% t(psi) - 
+  z_bar
 u_d <- elliptic_u %*% t(psi) -
   mu * (elliptic_v %*% t(phi_prime)) +
   mu * (elliptic_g %*% t(phi))
-u_0 <- elliptic_u
+
 # Construct the fractional operator, which is shared for the forward and adjoint problems
 my_op_frac <- my.fractional.operators.frac(L, beta, C, scale.factor = kappa^2, m = m, time_step)
 # Construct the integration mesh
@@ -377,19 +379,30 @@ overkill_elliptic_v <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_g * EIGEN
 Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
 R <- t(Psi) %*% overkill_graph$mesh$C
 
-overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(time_seq))
-overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(time_seq))
+# overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(time_seq))
+# overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(time_seq))
+# 
+# 
+# z_bar_overkill <- pmax(overkill_A, pmin(overkill_B, overkill_elliptic_v %*% t(phi)))
+# f <- overkill_elliptic_u %*% t(psi_prime) + 
+#   overkill_elliptic_f %*% t(psi) - 
+#   z_bar_overkill
+# U_d <- overkill_elliptic_u %*% t(psi) - 
+#   mu * (overkill_elliptic_v %*% t(phi_prime)) + 
+#   mu * (overkill_elliptic_g %*% t(phi))
+# u_0 <- elliptic_u
 
-
-z_bar_overkill <- pmax(overkill_A, pmin(overkill_B, elliptic_v %*% t(phi)))
-f <- overkill_elliptic_u %*% t(psi_prime) + overkill_elliptic_f %*% t(psi) - z_bar_overkill
-U_d <- overkill_elliptic_u %*% t(psi) - mu * (overkill_elliptic_v %*% t(phi_prime)) + mu * (overkill_elliptic_g %*% t(phi))
-
+f <- (overkill_EIGENFUN[, 3] + overkill_EIGENFUN[, 5]) %*% t(phi)
+U_d <- (overkill_EIGENFUN[, 2] + overkill_EIGENFUN[, 4] + + overkill_EIGENFUN[, 6]) %*% t(psi)
+u_0 <- EIGENFUN[, 7]
 F_proj <- R %*% f
 V_d <- reversecolumns(R %*% U_d)
+```
 
-tol <- 1e-16
-maxit <- 200
+
+```{r, message = TRUE}
+tol <- 1e-12
+maxit <- 25
 verbose <- TRUE
 weights <- graph$mesh$weights
 res <- solve_coupled_system_multi_tol(
@@ -418,12 +431,19 @@ U_bar <- res$U
 P_bar <- res$P
 Z_bar <- res$Z
 res$converged
-history <- res$history
-history2 <- res$history2
+res$iterations
+rel_history <- res$rel_history
+abs_history <- res$abs_history
 tol_list <- res$tol_list
+Z_list <- res$Z_list
+U_list <- res$U_list
+P_list <- res$P_list
+```
 
-plot_convergence_history(history, tol_list)
-plot_convergence_history(history2, tol_list)
+
+```{r, message = TRUE}
+plot_convergence_history(rel_history, tol_list, relative = TRUE)
+plot_convergence_history(abs_history, tol_list, relative = FALSE)
 ```
 
 
@@ -437,18 +457,41 @@ idx <- seq(start_idx, end_idx, by = 1)
 ## Visualization of the results {#visualization_results}
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal state variable.")}
-graph.plotter.3d(graph, time_seq[idx], time_seq[idx], u_bar[, idx], U_bar[, idx])
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], 
+                 # u_bar[, idx], 
+                 # U_bar[, idx], 
+                 U_list[[1]][, idx], 
+                 U_list[[2]][, idx], 
+                 U_list[[3]][, idx], 
+                 U_list[[4]][, idx], 
+                 U_list[[5]][, idx], 
+                 U_list[[6]][, idx])
 ```
 
 
-
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal adjoint variable.")}
-graph.plotter.3d(graph, time_seq[idx], time_seq[idx], p_bar[, idx], P_bar[, idx])
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], 
+                 # p_bar[, idx], 
+                 # P_bar[, idx], 
+                 P_list[[1]][, idx], 
+                 P_list[[2]][, idx], 
+                 P_list[[3]][, idx], 
+                 P_list[[4]][, idx], 
+                 P_list[[5]][, idx], 
+                 P_list[[6]][, idx])
 ```
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal control variable.")}
-graph.plotter.3d(graph, time_seq[idx], time_seq[idx], z_bar[, idx], Z_bar[, idx])
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], 
+                 # z_bar[, idx], 
+                 # Z_bar[, idx], 
+                 Z_list[[1]][, idx], 
+                 Z_list[[2]][, idx], 
+                 Z_list[[3]][, idx], 
+                 Z_list[[4]][, idx], 
+                 Z_list[[5]][, idx], 
+                 Z_list[[6]][, idx])
 ```
 
 

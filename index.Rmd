@@ -7,3 +7,4 @@ This website is a companion to the paper *Numerical approximation of fractional 
 Visit this [GitHub](https://github.com/leninrafaelrierasegura/NAFDEMG) repository for all the necessary files to reproduce the results presented in this website and paper.
 
 Go to the [Contents](about.html) page for a brief description of the contents of this website.
+

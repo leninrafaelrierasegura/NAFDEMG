@@ -332,15 +332,21 @@ reversecolumns <- function(mat) {
 
 ## -----------------------------------------------------------------------------
 # helper: measure change relative to the size of the previous iterate 
-rel_change_comp <- function(X_new, X_old, time_step, time_seq, weights) {
-  num <- sqrt(as.double(t(weights) %*% (X_new - X_old)^2 %*% rep(time_step, length(time_seq))))
-  den <- sqrt(as.double(t(weights) %*% X_old^2 %*% rep(time_step, length(time_seq))))
+change_comparer <- function(X_new, X_old, time_step, time_seq, weights, relative = TRUE) {
+  num <- sqrt(as.double(t(weights) %*% ((X_new - X_old)^2) %*% rep(time_step, length(time_seq))))
+  if (!relative) {
+    return(num)
+    }
+  den <- sqrt(as.double(t(weights) %*% (X_new^2) %*% rep(time_step, length(time_seq))))
   if (den < .Machine$double.eps) {
     return(ifelse(num < .Machine$double.eps, 0, num))
+  } else {
+    return(num / den)
   }
-  return(num / den)
 }
 
+
+## -----------------------------------------------------------------------------
 # Coupled solver with multi-criteria convergence
 solve_coupled_system_multi_tol <- function(
   my_op_frac,           # operator
@@ -368,13 +374,15 @@ solve_coupled_system_multi_tol <- function(
 
   it <- 0
   converged <- FALSE
-  rel_changes <- list(Z = NA_real_, U = NA_real_, P = NA_real_)
+  
+  rel_history <- data.frame(iter = integer(0), variable = character(0), value = numeric(0))
+  abs_history <- data.frame(iter = integer(0), variable = character(0), value = numeric(0))
 
-  # store residual history in long/tidy format
-  history <- data.frame(iter = integer(0), variable = character(0), value = numeric(0))
-  history2 <- data.frame(iter = integer(0), variable = character(0), value = numeric(0))
-
-  z_prev <- F_proj*0
+  Z_list <- list()
+  U_list <- list()
+  P_list <- list()
+  
+  z_prev <- F_proj*1e3
   Z_mat <- R %*% Psi %*% z_prev
   U_prev <- F_proj*0
   P_prev <- F_proj*0
@@ -382,65 +390,45 @@ solve_coupled_system_multi_tol <- function(
   repeat {
     it <- it + 1
 
-    U_mat <- solve_fractional_evolution(
-      my_op_frac,
-      time_step,
-      time_seq,
-      val_at_0 = u_0,
-      RHST = F_proj + Z_mat
-    )
-
+    U_mat <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = u_0, RHST = F_proj + Z_mat)
     V_mat <- reversecolumns(R %*% Psi %*% U_mat)
-
-    Q_mat <- solve_fractional_evolution(
-      my_op_frac,
-      time_step,
-      time_seq,
-      val_at_0 = u_0 * 0,
-      RHST = V_mat - V_d
-    )
-
+    Q_mat <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = u_0 * 0, RHST = V_mat - V_d)
     P_mat <- reversecolumns(Q_mat)
-
     z_new <- pmax(A, pmin(B, - P_mat / mu))
-    
     Z_mat <- R %*% Psi %*% z_new
     
     # relative changes
-    rel_changes$Z <- rel_change_comp(z_new, z_prev, time_step, time_seq, weights)  
-    rel_changes$U <- rel_change_comp(U_mat, U_prev, time_step, time_seq, weights)
-    rel_changes$P <- rel_change_comp(P_mat, P_prev, time_step, time_seq, weights)
+    rel_changes_Z <- change_comparer(z_new, z_prev, time_step, time_seq, weights, relative = TRUE)  
+    rel_changes_U <- change_comparer(U_mat, U_prev, time_step, time_seq, weights, relative = TRUE)
+    rel_changes_P <- change_comparer(P_mat, P_prev, time_step, time_seq, weights, relative = TRUE)
+    abs_changes_Z <- change_comparer(z_new, true_sol$z_bar, time_step, time_seq, weights, relative = FALSE)
+    abs_changes_U <- change_comparer(U_mat, true_sol$u_bar, time_step, time_seq, weights, relative = FALSE)
+    abs_changes_P <- change_comparer(P_mat, true_sol$p_bar, time_step, time_seq, weights, relative = FALSE)
 
-    # save history in tidy format
-    history <- rbind(
-      history,
-      data.frame(iter = it, variable = "Z", value = rel_changes$Z),
-      data.frame(iter = it, variable = "U", value = rel_changes$U),
-      data.frame(iter = it, variable = "P", value = rel_changes$P)
-    )
-    history2 <- rbind(
-      history2,
-      data.frame(iter = it, variable = "Z", value = rel_change_comp(z_new, true_sol$z_bar, time_step, time_seq, weights)),
-      data.frame(iter = it, variable = "U", value = rel_change_comp(U_mat, true_sol$u_bar, time_step, time_seq, weights)),
-      data.frame(iter = it, variable = "P", value = rel_change_comp(P_mat, true_sol$p_bar, time_step, time_seq, weights))
-    )
+    rel_history <- rbind(rel_history,
+      data.frame(iter = it, variable = "Z", value = rel_changes_Z),
+      data.frame(iter = it, variable = "U", value = rel_changes_U),
+      data.frame(iter = it, variable = "P", value = rel_changes_P))
+    abs_history <- rbind(abs_history,
+      data.frame(iter = it, variable = "Z", value = abs_changes_Z),
+      data.frame(iter = it, variable = "U", value = abs_changes_U),
+      data.frame(iter = it, variable = "P", value = abs_changes_P))
     
-    if (verbose) {
-      message(sprintf(
-        "iter %3d: rel(Z)=%.3e, rel(U)=%.3e, rel(P)=%.3e",
-        it, rel_changes$Z, rel_changes$U, rel_changes$P
-      ))
-    }
+    if (verbose) {message(sprintf("iter %3d: rel(Z) = %.3e, rel(U) = %.3e, rel(P) = %.3e", it, rel_changes_Z, rel_changes_U, rel_changes_P))}
 
     # update stored previous iterates
     z_prev <- z_new
     U_prev <- U_mat
     P_prev <- P_mat
+    
+    Z_list[[paste0(it)]] <- z_new
+    U_list[[paste0(it)]] <- U_mat
+    P_list[[paste0(it)]] <- P_mat
 
     # convergence check: require all rel_changes <= respective tol
-    cond_Z <- rel_changes$Z <= tol_list$Z
-    cond_U <- rel_changes$U <= tol_list$U
-    cond_P <- rel_changes$P <= tol_list$P
+    cond_Z <- rel_changes_Z <= tol_list$Z
+    cond_U <- rel_changes_U <= tol_list$U
+    cond_P <- rel_changes_P <= tol_list$P
 
     if ((cond_Z && cond_U && cond_P) || it >= maxit) {
       converged <- (cond_Z && cond_U && cond_P)
@@ -450,8 +438,8 @@ solve_coupled_system_multi_tol <- function(
 
   if (verbose && !converged) {
     message(sprintf(
-      "Stopped at maxit=%d; rel_changes: Z=%.3e (tol %.3e), U=%.3e (tol %.3e), P=%.3e (tol %.3e)",
-      it, rel_changes$Z, tol_list$Z, rel_changes$U, tol_list$U, rel_changes$P, tol_list$P
+      "Stopped at maxit=%d; rel_changes: Z = %.3e (tol %.3e), U = %.3e (tol %.3e), P = %.3e (tol %.3e)",
+      it, rel_changes_Z, tol_list$Z, rel_changes_U, tol_list$U, rel_changes_P, tol_list$P
     ))
   }
 
@@ -460,25 +448,30 @@ solve_coupled_system_multi_tol <- function(
               P = P_mat, # solution P
               iterations = it,
               converged = converged,
-              rel_changes = rel_changes,
               tol_list = tol_list,
-              history = history,
-              history2 = history2))
+              rel_history = rel_history,
+              abs_history = abs_history,
+              Z_list = Z_list,
+              U_list = U_list,
+              P_list = P_list))
 }
 
 
-plot_convergence_history <- function(history_df, tol_list = NULL) {
+## -----------------------------------------------------------------------------
+plot_convergence_history <- function(history_df, tol_list = NULL, relative = TRUE) {
+
   p <- ggplot(history_df, aes(x = iter, y = value, color = variable)) +
     geom_line() +
     geom_point(size = 1.5) +
     scale_y_log10() +
     labs(
+      title = ifelse(relative, "|X_{iter} - X_{iter-1}| / |X_{iter}|", "|X_{exact} - X_{iter}|"),
       x = "Iteration",
-      y = "Relative change",
+      y = "Error",
       color = "Quantity"
     ) +
     theme_minimal()
-
+  
   # Add tolerance lines if provided
   if (!is.null(tol_list)) {
     tol_df <- data.frame(
@@ -491,6 +484,7 @@ plot_convergence_history <- function(history_df, tol_list = NULL) {
       linetype = "dashed"
     )
   }
+  
   return(plotly::ggplotly(p))
 }
 

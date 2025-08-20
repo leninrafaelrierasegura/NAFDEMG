@@ -223,7 +223,7 @@ for (u in 1:length(alpha_vector)) {
   observed_rates[u] <- coef(lm(log(errors_projected[, u]) ~ sqrt(m_vector)))[2]
 }
 
-theoretical_rates <- -  pi * alpha_vector * sqrt((1 - alpha_vector / 2))
+theoretical_rates <- - pi * alpha_vector * sqrt((1 - alpha_vector / 2))
 
 p_m <- error.convergence.plotter(x_axis_vector = m_vector, 
                                  alpha_vector, 
