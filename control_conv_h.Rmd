@@ -165,7 +165,7 @@ for (j in 1:length(alpha_vector)) {
 ```
 
 
-```{r, eval = TRUE, class.source = "fold-show"}
+```{r, eval = FALSE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_u_bar <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
 errors_p_bar <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
@@ -279,7 +279,7 @@ for (j in 1:length(alpha_vector)) {
 
 ```{r}
 # Load the errors data
-#load(here::here("data_files/control_error_h.RData"))
+load(here::here("data_files/control_error_h.RData"))
 
 observed_rates_u_bar <- numeric(length(alpha_vector))
 observed_rates_p_bar <- numeric(length(alpha_vector))
