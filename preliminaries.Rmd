@@ -214,7 +214,7 @@ INDEX <- eigenpairs$INDEX
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Illustration of the eigenfunctions on the tadpole graph.")}
-graph.plotter.3d(graph, INDEX, EIGENVAL, EIGENFUN)
+graph.plotter.3d(graph, INDEX, EIGENVAL, list(eigenfunctions = EIGENFUN))
 ```
 
 
@@ -317,7 +317,7 @@ projected_U_piecewise <- construct_piecewise_projection(projected_U_approx, time
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Illustration of the projection of the approximated solution $U_{\\text{approx}}$ (called `projected_U_piecewise`) onto a fine space-time mesh. `overkill_U_true` is the true solution $U_{\\text{true}}$.")}
-graph.plotter.3d(overkill_graph, overkill_time_seq, overkill_time_seq, overkill_U_true, projected_U_piecewise)
+graph.plotter.3d(overkill_graph, overkill_time_seq, overkill_time_seq, list(overkill_U_true = overkill_U_true, projected_U_piecewise = projected_U_piecewise))
 ```
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("`U_approx` is the coarse approximated solution on the coarse mesh, `projected_U_approx` is the coarse solution on the fine mesh, and `overkill_U_true` is the true solution on the fine mesh. We use the coarse time sequence.")}

@@ -415,12 +415,13 @@ idx <- seq(start_idx, end_idx, by = 1)
 ```
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Right-hand side functions $f$ and $g$ for the elliptic problem.")}
-graph.plotter.3d.static(graph, elliptic_f, elliptic_g)
+graph.plotter.3d.static(graph, list(f = elliptic_f, g = elliptic_g))
+
 ```
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Solutions $u$ and $v$ to the elliptic problem.")}
-graph.plotter.3d.static(graph, elliptic_u, elliptic_v)
+graph.plotter.3d.static(graph, list(u = elliptic_u, v = elliptic_v))
 ```
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the right-hand side function $f+\\bar{z}$ of the state equation.")}
@@ -435,23 +436,23 @@ graph.plotter.3d.single(graph, v_bar_minus_v_d[, idx], time_seq[idx])
 ## Visualization of the results {#visualization_results}
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal state variable.")}
-graph.plotter.3d(graph, time_seq[idx], time_seq[idx], u_bar[, idx], U_bar[, idx])
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], list(exact_state = u_bar[, idx], numerical_state = U_bar[, idx]))
 ```
 
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal adjoint variable.")}
-graph.plotter.3d(graph, time_seq[idx], time_seq[idx], p_bar[, idx], P_bar[, idx])
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], list(exact_adjoint = p_bar[, idx], numerical_adjoint = P_bar[, idx]))
 ```
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal control variable.")}
-graph.plotter.3d(graph, time_seq[idx], time_seq[idx], z_bar[, idx], Z_bar[, idx])
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], list(exact_control = z_bar[, idx], numerical_control = Z_bar[, idx]))
 ```
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Desired state (in red) and optimal state (in blue).")}
-graph.plotter.3d(graph, time_seq[idx], time_seq[idx], u_d[, idx], u_bar[, idx])
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], list(desired_state = u_d[, idx], numerical_state = u_bar[, idx]))
 ```
 
 

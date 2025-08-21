@@ -469,41 +469,17 @@ idx <- seq(start_idx, end_idx, by = 1)
 ## Visualization of the results {#visualization_results}
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal state variable.")}
-graph.plotter.3d(graph, time_seq[idx], time_seq[idx], 
-                 # u_bar[, idx], 
-                 # U_bar[, idx], 
-                 U_list[[1]][, idx], 
-                 U_list[[2]][, idx], 
-                 U_list[[3]][, idx], 
-                 U_list[[4]][, idx], 
-                 U_list[[5]][, idx], 
-                 U_list[[6]][, idx])
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], U_list)
 ```
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal adjoint variable.")}
-graph.plotter.3d(graph, time_seq[idx], time_seq[idx], 
-                 # p_bar[, idx], 
-                 # P_bar[, idx], 
-                 P_list[[1]][, idx], 
-                 P_list[[2]][, idx], 
-                 P_list[[3]][, idx], 
-                 P_list[[4]][, idx], 
-                 P_list[[5]][, idx], 
-                 P_list[[6]][, idx])
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], P_list)
 ```
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal control variable.")}
-graph.plotter.3d(graph, time_seq[idx], time_seq[idx], 
-                 # z_bar[, idx], 
-                 # Z_bar[, idx], 
-                 Z_list[[1]][, idx], 
-                 Z_list[[2]][, idx], 
-                 Z_list[[3]][, idx], 
-                 Z_list[[4]][, idx], 
-                 Z_list[[5]][, idx], 
-                 Z_list[[6]][, idx])
+graph.plotter.3d(graph, time_seq[idx], time_seq[idx], Z_list)
 ```
 
 
