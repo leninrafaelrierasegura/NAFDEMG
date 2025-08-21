@@ -1,4 +1,4 @@
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
@@ -40,7 +40,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
@@ -49,7 +49,7 @@ poly.from.roots <- function(roots) {
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
@@ -69,7 +69,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
@@ -108,7 +108,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -128,7 +128,7 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0, RHST) {
   CC <- my_op_frac$C
   SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
@@ -141,7 +141,7 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(h){
   edge1 <- rbind(c(0,0),c(1,0))
@@ -155,7 +155,7 @@ gets.graph.tadpole <- function(h){
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to compute the eigenfunctions of the tadpole graph
 tadpole.eig <- function(k,graph){
 x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -186,7 +186,7 @@ return(f)
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to compute the eigenpairs of the tadpole graph
 gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
   EIGENVAL <- NULL
@@ -224,7 +224,7 @@ gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to construct a piecewise constant projection of approximated values
 construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
   projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
@@ -242,7 +242,7 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 loglog_line_equation <- function(x1, y1, slope) {
   b <- log10(y1 / (x1 ^ slope))
   
@@ -279,7 +279,7 @@ compute_guiding_lines <- function(x_axis_vector, errors, theoretical_rates, line
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Functions to compute the exact solution to the fractional diffusion equation
 g_linear <- function(r, A, lambda_j_alpha_half) {
   return(A * exp(-lambda_j_alpha_half * r))
@@ -324,13 +324,13 @@ G_cos <- function(t, A, lambda_j_alpha_half, theta) {
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 reversecolumns <- function(mat) {
   return(mat[, rev(seq_len(ncol(mat)))])
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # helper: measure change relative to the size of the previous iterate 
 change_comparer <- function(X_new, X_old, time_step, time_seq, weights, relative = TRUE) {
   num <- sqrt(as.double(t(weights) %*% ((X_new - X_old)^2) %*% rep(time_step, length(time_seq))))
@@ -346,7 +346,7 @@ change_comparer <- function(X_new, X_old, time_step, time_seq, weights, relative
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Coupled solver with multi-criteria convergence
 solve_coupled_system_multi_tol <- function(
   my_op_frac,           # operator
@@ -354,7 +354,9 @@ solve_coupled_system_multi_tol <- function(
   time_seq,             # vector of times 
   u_0,                  # initial state U^0 
   F_proj,               # matrix of F 
+  Z_ini,
   V_d,                  # matrix of 
+  u_d,
   Psi,                  # Psi matrix
   R,                    # R matrix
   A, B,                 # lower/upper bounds (vector or matrix broadcastable to time grid)
@@ -377,12 +379,13 @@ solve_coupled_system_multi_tol <- function(
   
   rel_history <- data.frame(iter = integer(0), variable = character(0), value = numeric(0))
   abs_history <- data.frame(iter = integer(0), variable = character(0), value = numeric(0))
+  min_history <- data.frame(iter = integer(0), variable = character(0), value = numeric(0))
 
   Z_list <- list()
   U_list <- list()
   P_list <- list()
   
-  z_prev <- F_proj*1e3
+  z_prev <- Z_ini
   Z_mat <- R %*% Psi %*% z_prev
   U_prev <- F_proj*0
   P_prev <- F_proj*0
@@ -404,6 +407,7 @@ solve_coupled_system_multi_tol <- function(
     abs_changes_Z <- change_comparer(z_new, true_sol$z_bar, time_step, time_seq, weights, relative = FALSE)
     abs_changes_U <- change_comparer(U_mat, true_sol$u_bar, time_step, time_seq, weights, relative = FALSE)
     abs_changes_P <- change_comparer(P_mat, true_sol$p_bar, time_step, time_seq, weights, relative = FALSE)
+    min_change <- 0.5 * (as.double(t(weights) %*% ((U_mat - u_d)^2 + mu * z_new^2) %*% rep(time_step, length(time_seq))))
 
     rel_history <- rbind(rel_history,
       data.frame(iter = it, variable = "Z", value = rel_changes_Z),
@@ -413,6 +417,8 @@ solve_coupled_system_multi_tol <- function(
       data.frame(iter = it, variable = "Z", value = abs_changes_Z),
       data.frame(iter = it, variable = "U", value = abs_changes_U),
       data.frame(iter = it, variable = "P", value = abs_changes_P))
+    min_history <- rbind(min_history,
+      data.frame(iter = it, variable = "min", value = min_change))
     
     if (verbose) {message(sprintf("iter %3d: rel(Z) = %.3e, rel(U) = %.3e, rel(P) = %.3e", it, rel_changes_Z, rel_changes_U, rel_changes_P))}
 
@@ -451,21 +457,29 @@ solve_coupled_system_multi_tol <- function(
               tol_list = tol_list,
               rel_history = rel_history,
               abs_history = abs_history,
+              min_history = min_history,
               Z_list = Z_list,
               U_list = U_list,
               P_list = P_list))
 }
 
 
-## -----------------------------------------------------------------------------
-plot_convergence_history <- function(history_df, tol_list = NULL, relative = TRUE) {
+## ------------------------------------------------------------------------------------------
+plot_convergence_history <- function(history_df, tol_list = NULL, type = "relative") {
+  if (type == "relative"){
+    text_title <- "|X_{iter} - X_{iter-1}| / |X_{iter}|"
+  } else if (type == "absolute") {
+    text_title <- "|X_{exact} - X_{iter}|"
+  } else if (type == "minimum") {
+    text_title <- "J(U_{iter},z_{iter})"
+  }
 
   p <- ggplot(history_df, aes(x = iter, y = value, color = variable)) +
     geom_line() +
     geom_point(size = 1.5) +
     scale_y_log10() +
     labs(
-      title = ifelse(relative, "|X_{iter} - X_{iter-1}| / |X_{iter}|", "|X_{exact} - X_{iter}|"),
+      title = text_title,
       x = "Iteration",
       y = "Error",
       color = "Quantity"
@@ -489,7 +503,7 @@ plot_convergence_history <- function(history_df, tol_list = NULL, relative = TRU
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to order the vertices for plotting
 plotting.order <- function(v, graph){
   edge_number <- graph$mesh$VtE[, 1]
@@ -498,7 +512,7 @@ plotting.order <- function(v, graph){
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to set the scene for 3D plots
 global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
   
@@ -517,7 +531,7 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to plot in 3D
 graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, ...) {
   U_list <- list(...)
@@ -574,7 +588,7 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, ...) {
               line = list(color = "black", width = 3))
 
   # Add traces for each variable
-  colors <- RColorBrewer::brewer.pal(min(n_vars, 8), "Set1")
+  colors <- rev(viridisLite::viridis(n_vars)) #RColorBrewer::brewer.pal(min(n_vars, 8), "Set1")
   for (i in seq_along(U_list)) {
     p <- add_trace(p,
       x = ~x, y = ~y, z = as.formula(paste0("~u", i)),
@@ -617,7 +631,7 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, ...) {
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to plot the error at each time step
 error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_step) {
   weights <- graph$mesh$weights
@@ -641,7 +655,7 @@ error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_s
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to plot the 3D comparison of U_true and U_approx
 graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -784,7 +798,7 @@ graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to plot a single 3D line for 
 graph.plotter.3d.single <- function(graph, U_true, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -858,7 +872,7 @@ graph.plotter.3d.single <- function(graph, U_true, time_seq) {
 }
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 # Function to plot the error convergence
 error.convergence.plotter <- function(x_axis_vector, 
                                       alpha_vector, 
@@ -933,7 +947,7 @@ error.convergence.plotter <- function(x_axis_vector,
 
 
 
-## -----------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------
 graph.plotter.3d.static <- function(graph, ...) {
   x <- plotting.order(graph$mesh$V[, 1], graph)
   y <- plotting.order(graph$mesh$V[, 2], graph)
@@ -979,6 +993,173 @@ graph.plotter.3d.static <- function(graph, ...) {
               line = list(color = "black", width = 3),
               name = "thegraph", showlegend = FALSE) %>%
     layout(scene = global.scene.setter(x_range, y_range, z_range))
+  return(p)
+}
+
+
+
+## ------------------------------------------------------------------------------------------
+graph.plotter.3d.two.meshes.time <- function(graph_finer, graph_coarser, 
+                                             time_seq, frame_val_to_display,
+                                             fs_finer = list(), fs_coarser = list()) {
+  # Spatial coordinates (ordered for plotting)
+  x_finer <- plotting.order(graph_finer$mesh$V[, 1], graph_finer)
+  y_finer <- plotting.order(graph_finer$mesh$V[, 2], graph_finer)
+  x_coarser <- plotting.order(graph_coarser$mesh$V[, 1], graph_coarser)
+  y_coarser <- plotting.order(graph_coarser$mesh$V[, 2], graph_coarser)
+  
+  n_time <- if (length(fs_finer) > 0) ncol(fs_finer[[1]]) else ncol(fs_coarser[[1]])
+
+  # Helper: make dataframe from one function
+  make_df <- function(f_mat, graph, x, y, mesh_name) {
+    z <- apply(f_mat, 2, plotting.order, graph = graph)
+    data.frame(
+      x = rep(x, times = n_time),
+      y = rep(y, times = n_time),
+      z = as.vector(z),
+      frame = rep(time_seq, each = length(x)),
+      mesh = mesh_name
+    )
+  }
+  
+  # Build data for finer functions
+  data_finer_list <- lapply(names(fs_finer), function(nm) {
+    make_df(fs_finer[[nm]], graph_finer, x_finer, y_finer, nm)
+  })
+  
+  # Build data for coarser functions
+  data_coarser_list <- lapply(names(fs_coarser), function(nm) {
+    make_df(fs_coarser[[nm]], graph_coarser, x_coarser, y_coarser, nm)
+  })
+  
+  # Combine
+  all_data <- c(data_finer_list, data_coarser_list)
+  
+  # Baseline graph (on finer mesh for consistency)
+  data_graph <- data.frame(
+    x = rep(x_finer, times = n_time),
+    y = rep(y_finer, times = n_time),
+    z = 0,
+    frame = rep(time_seq, each = length(x_finer)),
+    mesh = "Graph"
+  )
+  
+# --------- Vertical lines helper ----------
+vertical_lines <- function(x, y, z, frame_vals, mesh_name) {
+  do.call(rbind, lapply(seq_along(frame_vals), function(i) {
+    idx <- ((i - 1) * length(x) + 1):(i * length(x))
+    data.frame(
+      x = rep(x, each = 3),
+      y = rep(y, each = 3),
+      z = as.vector(t(cbind(0, z[idx], NA))),
+      frame = rep(frame_vals[i], each = length(x) * 3),
+      mesh = mesh_name
+    )
+  }))
+}
+
+# --------- Compute vertical lines per mesh using max absolute value ---------
+make_vertical_from_list <- function(data_list, x, y, mesh_name) {
+  if (length(data_list) == 0) return(NULL)
+  
+  # Reshape each function's z back to matrix: (nodes × time)
+  z_mats <- lapply(data_list, function(df) {
+    matrix(df$z, nrow = length(x), ncol = length(time_seq))
+  })
+  
+  # Stack into 3D array: (nodes × time × functions)
+  arr <- array(unlist(z_mats), dim = c(length(x), length(time_seq), length(z_mats)))
+  
+  # For each node × time, select the entry with largest absolute value (keep sign)
+  idx <- apply(arr, c(1, 2), function(v) which.max(abs(v)))
+  z_signed_max <- mapply(function(i, j) arr[i, j, idx[i, j]],
+                         rep(1:length(x), times = length(time_seq)),
+                         rep(1:length(time_seq), each = length(x)))
+  
+  # Flatten back into long vector
+  z_signed_max <- as.vector(z_signed_max)
+  
+  vertical_lines(x, y, z_signed_max, time_seq, mesh_name)
+}
+
+
+vertical_finer   <- make_vertical_from_list(data_finer_list,   x_finer,   y_finer,   "finer")
+vertical_coarser <- make_vertical_from_list(data_coarser_list, x_coarser, y_coarser, "coarser")
+
+  
+  # Compute ranges
+  all_z <- unlist(lapply(all_data, function(df) df$z))
+  x_range <- range(c(x_finer, x_coarser))
+  y_range <- range(c(y_finer, y_coarser))
+  z_range <- range(all_z)
+  
+  # --------- Plotly object ----------
+  p <- plot_ly(frame = ~frame)
+  
+  # Add traces for finer + coarser (looping automatically with names)
+  for (df in all_data) {
+    p <- p %>%
+      add_trace(data = df,
+                x = ~x, y = ~y, z = ~z,
+                type = "scatter3d", mode = "lines",
+                line = list(width = 3),
+                name = unique(df$mesh))
+  }
+  
+  # Add baseline
+  p <- p %>%
+    add_trace(data = data_graph,
+              x = ~x, y = ~y, z = ~z,
+              type = "scatter3d", mode = "lines",
+              line = list(color = "black", width = 2),
+              name = "Graph", showlegend = FALSE)
+  
+# Add verticals (one per mesh, envelope of all functions)
+if (!is.null(vertical_finer)) {
+  p <- p %>%
+    add_trace(data = vertical_finer,
+              x = ~x, y = ~y, z = ~z,
+              type = "scatter3d", mode = "lines",
+              line = list(color = "gray", width = 0.5),
+              name = "Vertical finer", showlegend = FALSE)
+}
+if (!is.null(vertical_coarser)) {
+  p <- p %>%
+    add_trace(data = vertical_coarser,
+              x = ~x, y = ~y, z = ~z,
+              type = "scatter3d", mode = "lines",
+              line = list(color = "gray", width = 0.5),
+              name = "Vertical coarser", showlegend = FALSE)
+}
+
+  
+  frame_name <- deparse(substitute(frame_val_to_display))
+  
+  p <- p %>%
+    layout(
+      scene = global.scene.setter(x_range, y_range, z_range),
+      updatemenus = list(list(
+        type = "buttons", showactive = FALSE,
+        buttons = list(
+          list(label = "Play", method = "animate",
+               args = list(NULL, list(frame = list(duration = 2000 / length(time_seq), redraw = TRUE),
+                                      fromcurrent = TRUE))),
+          list(label = "Pause", method = "animate",
+               args = list(NULL, list(mode = "immediate", 
+                                      frame = list(duration = 0), redraw = FALSE)))
+        )
+      )),
+      title = paste0(frame_name, ": ", formatC(frame_val_to_display[1], format = "f", digits = 4))
+    ) %>%
+    plotly_build()
+  
+  # Update frame titles
+  for (i in seq_along(p$x$frames)) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", formatC(frame_val_to_display[i], format = "f", digits = 4))
+    )
+  }
+  
   return(p)
 }
 

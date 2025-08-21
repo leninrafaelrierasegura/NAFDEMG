@@ -378,7 +378,10 @@ overkill_elliptic_v <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_g * EIGEN
 # Construct the projection matrix
 Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
 R <- t(Psi) %*% overkill_graph$mesh$C
+```
 
+
+```{r}
 # overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(time_seq))
 # overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(time_seq))
 # 
@@ -393,8 +396,13 @@ R <- t(Psi) %*% overkill_graph$mesh$C
 # u_0 <- elliptic_u
 
 f <- (overkill_EIGENFUN[, 3] + overkill_EIGENFUN[, 5]) %*% t(phi)
+f <- ((overkill_graph$mesh$V[, 1])^2 - (overkill_graph$mesh$V[, 2])^2)  %*% t(phi)
+
 U_d <- (overkill_EIGENFUN[, 2] + overkill_EIGENFUN[, 4] + + overkill_EIGENFUN[, 6]) %*% t(psi)
 u_0 <- EIGENFUN[, 7]
+u_0 <- graph$mesh$V[, 1] - graph$mesh$V[, 2]
+
+
 F_proj <- R %*% f
 V_d <- reversecolumns(R %*% U_d)
 ```
@@ -411,7 +419,9 @@ res <- solve_coupled_system_multi_tol(
   time_seq = time_seq, 
   u_0 = u_0, 
   F_proj = F_proj, 
+  Z_ini = F_proj*1e3,
   V_d = V_d, 
+  u_d = u_d,
   Psi = Psi, 
   R = R,
   A = A, 
@@ -434,6 +444,7 @@ res$converged
 res$iterations
 rel_history <- res$rel_history
 abs_history <- res$abs_history
+min_history <- res$min_history
 tol_list <- res$tol_list
 Z_list <- res$Z_list
 U_list <- res$U_list
@@ -442,8 +453,9 @@ P_list <- res$P_list
 
 
 ```{r, message = TRUE}
-plot_convergence_history(rel_history, tol_list, relative = TRUE)
-plot_convergence_history(abs_history, tol_list, relative = FALSE)
+plot_convergence_history(rel_history, tol_list, type = "relative")
+plot_convergence_history(abs_history, tol_list, type = "absolute")
+plot_convergence_history(min_history, tol_list, type = "minimum")
 ```
 
 

@@ -316,12 +316,18 @@ projected_U_piecewise <- construct_piecewise_projection(projected_U_approx, time
 ```
 
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Illustration of the projection of the approximated solution $U_{\\text{approx}}$ (called `projected_U_piecewise`) onto a fine space-time mesh. The true solution $U_{\\text{true}}$ (called `overkill_U_true`) is shown in red, while the projection is shown in blue.")}
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Illustration of the projection of the approximated solution $U_{\\text{approx}}$ (called `projected_U_piecewise`) onto a fine space-time mesh. `overkill_U_true` is the true solution $U_{\\text{true}}$.")}
 graph.plotter.3d(overkill_graph, overkill_time_seq, overkill_time_seq, overkill_U_true, projected_U_piecewise)
 ```
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Approximated solution $U_{\\text{approx}}$ on the coarse space-time mesh.")}
-graph.plotter.3d(graph, time_seq, time_seq, U_approx)
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("`U_approx` is the coarse approximated solution on the coarse mesh, `projected_U_approx` is the coarse solution on the fine mesh, and `overkill_U_true` is the true solution on the fine mesh. We use the coarse time sequence.")}
+start_idx <- which.min(abs(overkill_time_seq - 0))
+end_idx <- which.min(abs(overkill_time_seq - T_final))
+idx <- seq(start_idx, end_idx, by = 10)
+
+
+
+graph.plotter.3d.two.meshes.time(overkill_graph, graph, time_seq, time_seq, fs_finer = list(projected_U_approx = projected_U_approx, overkill_U_true = overkill_U_true[,idx]), fs_coarser = list(U_approx = U_approx))
 ```
 
 ## References
