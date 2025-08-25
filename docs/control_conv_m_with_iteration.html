@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Convergence in 𝑚 for the optimal control variable</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="site_libs/clipboard-2.0.6/clipboard.min.js"></script>
+<link href="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.css" rel="stylesheet" />
+<script src="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.js"></script>
+<script>window.xaringanExtraClipboard(null, {"button":"<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"><\/i>","success":"<i class=\"fa fa-check\" style=\"color: #90BE6D\"><\/i>","error":"<i class=\"fa fa-times-circle\" style=\"color: #F94144\"><\/i>"})</script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+<style type="text/css">
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="visual.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">NAFDEMG</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">Contents</a>
+</li>
+<li>
+  <a href="preliminaries.html">Preliminaries</a>
+</li>
+<li>
+  <a href="functionality.html">Functionality</a>
+</li>
+<li>
+  <a href="exp1.html">Experiment</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Convergence rates
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="conv_in_h.html">Convergence in 𝘩</a>
+    </li>
+    <li>
+      <a href="conv_in_tau.html">Convergence in τ</a>
+    </li>
+    <li>
+      <a href="conv_in_m.html">Convergence in 𝑚</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Optimal Control
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="control1.html">Optimal Control</a>
+    </li>
+    <li>
+      <a href="control_conv_h.html">Convergence in 𝘩</a>
+    </li>
+    <li>
+      <a href="control_conv_tau.html">Convergence in τ</a>
+    </li>
+    <li>
+      <a href="control_conv_m.html">Convergence in 𝑚</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://arxiv.org/abs/0000.00000">
+    <span class="fa fa-file-pdf"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/leninrafaelrierasegura/NAFDEMG">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Convergence in 𝑚 for the optimal control
+variable</h1>
+<h4 class="date">Last modified: 25-08-2025.</h4>
+
+</div>
+
+
+<p>Go back to the <a href="about.html">Contents</a> page.</p>
+<div style="color: #2c3e50; text-align: right;">
+<hr />
+<p><strong>Press Show to reveal the code chunks.</strong></p>
+<hr />
+</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Create a clipboard button on the rendered HTML page</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;clipboard.R&quot;</span>)); clipboard</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Set seed for reproducibility</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1982</span>) </span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># Set global options for all code chunks</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="co"># Disable messages printed by R code chunks</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">FALSE</span>,    </span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="co"># Disable warnings printed by R code chunks</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">FALSE</span>,    </span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="co"># Show R code within code chunks in output</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,        </span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="co"># Include both R code and its results in output</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="at">include =</span> <span class="cn">TRUE</span>,     </span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="co"># Evaluate R code chunks</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">TRUE</span>,       </span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="co"># Enable caching of R code chunks for faster rendering</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">FALSE</span>,      </span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="co"># Align figures in the center of the output</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">&quot;center&quot;</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="co"># Enable retina display for high-resolution figures</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="at">retina =</span> <span class="dv">2</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  <span class="co"># Show errors in the output instead of stopping rendering</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="at">error =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="co"># Do not collapse code and output into a single block</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  <span class="at">collapse =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>)</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co"># Start the figure counter</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>fig_count <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co"># Define the captioner function</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>captioner <span class="ot">&lt;-</span> <span class="cf">function</span>(caption) {</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  fig_count <span class="ot">&lt;&lt;-</span> fig_count <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;Figure &quot;</span>, fig_count, <span class="st">&quot;: &quot;</span>, caption)</span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(MetricGraph)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="fu">library</span>(slackr)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;keys.R&quot;</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="fu">slackr_setup</span>(<span class="at">token =</span> token) <span class="co"># token comes from keys.R</span></span></code></pre></div>
+<pre><code>## [1] &quot;Successfully connected to Slack&quot;</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">capture.output</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">purl</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.Rmd&quot;</span>), <span class="at">output =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.R&quot;</span>)),</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">file =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;purl_log.txt&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;functionality.R&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Parameters</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>T_final <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="dv">16</span> <span class="co"># readRDS(&quot;old/kappa.RDS&quot;) #4</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>divider <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="co"># readRDS(&quot;old/divider.RDS&quot;) </span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="sc">-</span> <span class="fl">0.5</span><span class="sc">*</span><span class="dv">1</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fl">0.5</span><span class="sc">*</span><span class="dv">1</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>N_finite <span class="ot">=</span> <span class="dv">4</span> <span class="co"># choose even</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>adjusted_N_finite <span class="ot">&lt;-</span> N_finite <span class="sc">+</span> N_finite<span class="sc">/</span><span class="dv">2</span> <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co"># Coefficients for f and g</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>coeff_elliptic_g <span class="ot">&lt;-</span> <span class="dv">20</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">:</span>adjusted_N_finite)<span class="sc">^-</span><span class="dv">1</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>coeff_elliptic_g[<span class="sc">-</span><span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>coeff_elliptic_f <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, adjusted_N_finite)</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>coeff_elliptic_f[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co"># Time step and mesh size</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>m_vector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co"># Overkill parameters</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>overkill_time_step <span class="ot">&lt;-</span> <span class="fl">0.1</span> <span class="sc">*</span> <span class="dv">2</span><span class="sc">^-</span><span class="dv">14</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>overkill_h <span class="ot">&lt;-</span> (<span class="fl">0.1</span> <span class="sc">*</span> <span class="dv">2</span><span class="sc">^-</span><span class="dv">14</span>)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co"># Finest time and space mesh</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>overkill_time_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, T_final, <span class="at">length.out =</span> ((T_final <span class="sc">-</span> <span class="dv">0</span>) <span class="sc">/</span> overkill_time_step <span class="sc">+</span> <span class="dv">1</span>))</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>overkill_graph <span class="ot">&lt;-</span> <span class="fu">gets.graph.tadpole</span>(<span class="at">h =</span> overkill_h)</span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co"># Compute the weights on the finest mesh</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>overkill_graph<span class="sc">$</span><span class="fu">compute_fem</span>() <span class="co"># This is needed to compute the weights</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a>overkill_weights <span class="ot">&lt;-</span> overkill_graph<span class="sc">$</span>mesh<span class="sc">$</span>weights</span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a>overkill_A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(a, <span class="at">nrow =</span> <span class="fu">length</span>(overkill_weights), <span class="at">ncol =</span> <span class="fu">length</span>(overkill_time_seq))</span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a>overkill_B <span class="ot">&lt;-</span> <span class="fu">matrix</span>(b, <span class="at">nrow =</span> <span class="fu">length</span>(overkill_weights), <span class="at">ncol =</span> <span class="fu">length</span>(overkill_time_seq))</span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a>overkill_psi <span class="ot">&lt;-</span> <span class="fu">cos</span>(overkill_time_seq)</span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a>overkill_phi <span class="ot">&lt;-</span> <span class="fu">sin</span>(T_final <span class="sc">-</span> overkill_time_seq)</span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a>overkill_psi_prime <span class="ot">&lt;-</span> <span class="sc">-</span> <span class="fu">sin</span>(overkill_time_seq)</span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a>overkill_phi_prime <span class="ot">&lt;-</span> <span class="sc">-</span> <span class="fu">cos</span>(T_final <span class="sc">-</span> overkill_time_seq)</span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co"># psi_rate &lt;- -2</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co"># phi_rate &lt;- -2</span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co"># phi_coefficient &lt;- 10</span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co"># overkill_psi &lt;- exp(psi_rate*overkill_time_seq)</span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co"># overkill_psi_prime &lt;- psi_rate * exp(psi_rate*overkill_time_seq)</span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co"># overkill_phi &lt;- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)</span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co"># overkill_phi_prime &lt;- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)</span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a>alpha_vector <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">1</span>, <span class="fl">1.8</span>, <span class="at">by =</span> <span class="fl">0.2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode r fold-show"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Create a matrix to store the errors</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>errors_u_bar <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="fu">length</span>(m_vector), <span class="at">ncol =</span> <span class="fu">length</span>(alpha_vector))</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>errors_p_bar <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="fu">length</span>(m_vector), <span class="at">ncol =</span> <span class="fu">length</span>(alpha_vector))</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>errors_z_bar <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="fu">length</span>(m_vector), <span class="at">ncol =</span> <span class="fu">length</span>(alpha_vector))</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(alpha_vector)) {</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> alpha_vector[j] </span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> alpha <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="co"># Compute the eigenvalues and eigenfunctions on the finest mesh</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  overkill_eigen_params <span class="ot">&lt;-</span> <span class="fu">gets.eigen.params</span>(<span class="at">N_finite =</span> N_finite, </span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>                                             <span class="at">kappa =</span> kappa, </span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>                                             <span class="at">alpha =</span> alpha, </span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>                                             <span class="at">graph =</span> overkill_graph)</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  EIGENVAL_MINUS_ALPHA <span class="ot">&lt;-</span> overkill_eigen_params<span class="sc">$</span>EIGENVAL_MINUS_ALPHA <span class="co"># Eigenvalues (they are independent of the meshes)</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>  overkill_EIGENFUN <span class="ot">&lt;-</span> overkill_eigen_params<span class="sc">$</span>EIGENFUN <span class="co"># Eigenfunctions on the finest mesh</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>  </span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>  <span class="co"># Compute the true solution on the finest mesh</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>  overkill_elliptic_f <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(overkill_EIGENFUN <span class="sc">%*%</span> coeff_elliptic_f)</span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>  overkill_elliptic_g <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(overkill_EIGENFUN <span class="sc">%*%</span> coeff_elliptic_g)</span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>  <span class="co"># Construct the corresponding elliptic solution u and v on the integration mesh</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>  overkill_elliptic_u <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(overkill_EIGENFUN <span class="sc">%*%</span> (coeff_elliptic_f <span class="sc">*</span> EIGENVAL_MINUS_ALPHA))</span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>  overkill_elliptic_v <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(overkill_EIGENFUN <span class="sc">%*%</span> (coeff_elliptic_g <span class="sc">*</span> EIGENVAL_MINUS_ALPHA))</span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>  overkill_u_bar <span class="ot">&lt;-</span> <span class="fu">outer</span>(overkill_elliptic_u, overkill_psi)</span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>  overkill_p_bar <span class="ot">&lt;-</span> <span class="sc">-</span> mu <span class="sc">*</span> <span class="fu">outer</span>(overkill_elliptic_v, overkill_phi)</span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a>  overkill_z_bar <span class="ot">&lt;-</span> <span class="fu">pmax</span>(overkill_A, <span class="fu">pmin</span>(overkill_B, <span class="sc">-</span> overkill_p_bar <span class="sc">/</span> mu))</span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(m_vector)) {</span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>    m <span class="ot">&lt;-</span> m_vector[i]</span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a>    h <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span> pi <span class="sc">*</span> <span class="fu">sqrt</span>((<span class="dv">1</span> <span class="sc">-</span> alpha <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">*</span> m))<span class="sc">/</span>divider <span class="co"># exp(- (4 * pi / 5) * sqrt((1 - alpha / 2) * m))/10</span></span>
+<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a>    time_step <span class="ot">&lt;-</span> (h<span class="sc">^</span>alpha)<span class="sc">/</span><span class="dv">1</span></span>
+<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a>    time_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, T_final, <span class="at">length.out =</span> ((T_final <span class="sc">-</span> <span class="dv">0</span>) <span class="sc">/</span> time_step <span class="sc">+</span> <span class="dv">1</span>))</span>
+<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a>    graph <span class="ot">&lt;-</span> <span class="fu">gets.graph.tadpole</span>(<span class="at">h =</span> h)</span>
+<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a>    graph<span class="sc">$</span><span class="fu">compute_fem</span>()</span>
+<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a>    G <span class="ot">&lt;-</span> graph<span class="sc">$</span>mesh<span class="sc">$</span>G</span>
+<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a>    C <span class="ot">&lt;-</span> graph<span class="sc">$</span>mesh<span class="sc">$</span>C</span>
+<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a>    L <span class="ot">&lt;-</span> kappa<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>C <span class="sc">+</span> G</span>
+<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a>    <span class="co"># Construct the fractional operator, which is shared for the forward and adjoint problems</span></span>
+<span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a>    my_op_frac <span class="ot">&lt;-</span> <span class="fu">my.fractional.operators.frac</span>(L, </span>
+<span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a>                                               beta, </span>
+<span id="cb7-39"><a href="#cb7-39" tabindex="-1"></a>                                               C, </span>
+<span id="cb7-40"><a href="#cb7-40" tabindex="-1"></a>                                               <span class="at">scale.factor =</span> kappa<span class="sc">^</span><span class="dv">2</span>, </span>
+<span id="cb7-41"><a href="#cb7-41" tabindex="-1"></a>                                               <span class="at">m =</span> m, </span>
+<span id="cb7-42"><a href="#cb7-42" tabindex="-1"></a>                                               time_step)</span>
+<span id="cb7-43"><a href="#cb7-43" tabindex="-1"></a>    eigen_params <span class="ot">&lt;-</span> <span class="fu">gets.eigen.params</span>(<span class="at">N_finite =</span> N_finite, </span>
+<span id="cb7-44"><a href="#cb7-44" tabindex="-1"></a>                                      <span class="at">kappa =</span> kappa, </span>
+<span id="cb7-45"><a href="#cb7-45" tabindex="-1"></a>                                      <span class="at">alpha =</span> alpha, </span>
+<span id="cb7-46"><a href="#cb7-46" tabindex="-1"></a>                                      <span class="at">graph =</span> graph)</span>
+<span id="cb7-47"><a href="#cb7-47" tabindex="-1"></a>    EIGENFUN <span class="ot">&lt;-</span> eigen_params<span class="sc">$</span>EIGENFUN</span>
+<span id="cb7-48"><a href="#cb7-48" tabindex="-1"></a>    <span class="co"># Construct the right hand side functions f and g for the elliptic problem</span></span>
+<span id="cb7-49"><a href="#cb7-49" tabindex="-1"></a>    elliptic_f <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(EIGENFUN <span class="sc">%*%</span> coeff_elliptic_f)</span>
+<span id="cb7-50"><a href="#cb7-50" tabindex="-1"></a>    elliptic_g <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(EIGENFUN <span class="sc">%*%</span> coeff_elliptic_g)</span>
+<span id="cb7-51"><a href="#cb7-51" tabindex="-1"></a>    <span class="co"># Construct the corresponding elliptic solution u and v</span></span>
+<span id="cb7-52"><a href="#cb7-52" tabindex="-1"></a>    elliptic_u <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(EIGENFUN <span class="sc">%*%</span> (coeff_elliptic_f <span class="sc">*</span> EIGENVAL_MINUS_ALPHA))</span>
+<span id="cb7-53"><a href="#cb7-53" tabindex="-1"></a>    elliptic_v <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(EIGENFUN <span class="sc">%*%</span> (coeff_elliptic_g <span class="sc">*</span> EIGENVAL_MINUS_ALPHA))</span>
+<span id="cb7-54"><a href="#cb7-54" tabindex="-1"></a>    </span>
+<span id="cb7-55"><a href="#cb7-55" tabindex="-1"></a>    psi <span class="ot">&lt;-</span> <span class="fu">cos</span>(time_seq)</span>
+<span id="cb7-56"><a href="#cb7-56" tabindex="-1"></a>    phi <span class="ot">&lt;-</span> <span class="fu">sin</span>(T_final <span class="sc">-</span> time_seq)</span>
+<span id="cb7-57"><a href="#cb7-57" tabindex="-1"></a>    psi_prime <span class="ot">&lt;-</span> <span class="sc">-</span> <span class="fu">sin</span>(time_seq)</span>
+<span id="cb7-58"><a href="#cb7-58" tabindex="-1"></a>    phi_prime <span class="ot">&lt;-</span> <span class="sc">-</span> <span class="fu">cos</span>(T_final <span class="sc">-</span> time_seq)</span>
+<span id="cb7-59"><a href="#cb7-59" tabindex="-1"></a>    <span class="co"># psi &lt;- exp(psi_rate*time_seq)</span></span>
+<span id="cb7-60"><a href="#cb7-60" tabindex="-1"></a>    <span class="co"># psi_prime &lt;- psi_rate * exp(psi_rate*time_seq)</span></span>
+<span id="cb7-61"><a href="#cb7-61" tabindex="-1"></a>    <span class="co"># phi &lt;- phi_coefficient * exp(phi_rate*time_seq) - phi_coefficient * exp(phi_rate*T_final)</span></span>
+<span id="cb7-62"><a href="#cb7-62" tabindex="-1"></a>    <span class="co"># phi_prime &lt;- phi_coefficient * phi_rate * exp(phi_rate*time_seq)</span></span>
+<span id="cb7-63"><a href="#cb7-63" tabindex="-1"></a>    </span>
+<span id="cb7-64"><a href="#cb7-64" tabindex="-1"></a>    A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(a, <span class="at">nrow =</span> <span class="fu">nrow</span>(C), <span class="at">ncol =</span> <span class="fu">length</span>(time_seq))</span>
+<span id="cb7-65"><a href="#cb7-65" tabindex="-1"></a>    B <span class="ot">&lt;-</span> <span class="fu">matrix</span>(b, <span class="at">nrow =</span> <span class="fu">nrow</span>(C), <span class="at">ncol =</span> <span class="fu">length</span>(time_seq))</span>
+<span id="cb7-66"><a href="#cb7-66" tabindex="-1"></a>    </span>
+<span id="cb7-67"><a href="#cb7-67" tabindex="-1"></a>    u_bar <span class="ot">&lt;-</span> elliptic_u <span class="sc">%*%</span> <span class="fu">t</span>(psi)</span>
+<span id="cb7-68"><a href="#cb7-68" tabindex="-1"></a>    p_bar <span class="ot">&lt;-</span> <span class="sc">-</span> mu <span class="sc">*</span> (elliptic_v <span class="sc">%*%</span> <span class="fu">t</span>(phi))</span>
+<span id="cb7-69"><a href="#cb7-69" tabindex="-1"></a>    z_bar <span class="ot">&lt;-</span> <span class="fu">pmax</span>(A, <span class="fu">pmin</span>(B, <span class="sc">-</span> p_bar <span class="sc">/</span> mu))</span>
+<span id="cb7-70"><a href="#cb7-70" tabindex="-1"></a></span>
+<span id="cb7-71"><a href="#cb7-71" tabindex="-1"></a>    <span class="co"># Construct the projection matrix</span></span>
+<span id="cb7-72"><a href="#cb7-72" tabindex="-1"></a>    Psi <span class="ot">&lt;-</span> graph<span class="sc">$</span><span class="fu">fem_basis</span>(overkill_graph<span class="sc">$</span><span class="fu">get_mesh_locations</span>())</span>
+<span id="cb7-73"><a href="#cb7-73" tabindex="-1"></a>    R <span class="ot">&lt;-</span> <span class="fu">t</span>(Psi) <span class="sc">%*%</span> overkill_graph<span class="sc">$</span>mesh<span class="sc">$</span>C</span>
+<span id="cb7-74"><a href="#cb7-74" tabindex="-1"></a>    </span>
+<span id="cb7-75"><a href="#cb7-75" tabindex="-1"></a>    A_aux <span class="ot">&lt;-</span> <span class="fu">matrix</span>(a, <span class="at">nrow =</span> <span class="fu">length</span>(overkill_weights), <span class="at">ncol =</span> <span class="fu">length</span>(time_seq))</span>
+<span id="cb7-76"><a href="#cb7-76" tabindex="-1"></a>    B_aux <span class="ot">&lt;-</span> <span class="fu">matrix</span>(b, <span class="at">nrow =</span> <span class="fu">length</span>(overkill_weights), <span class="at">ncol =</span> <span class="fu">length</span>(time_seq))</span>
+<span id="cb7-77"><a href="#cb7-77" tabindex="-1"></a>    z_aux <span class="ot">&lt;-</span> <span class="fu">pmax</span>(A_aux, <span class="fu">pmin</span>(B_aux, overkill_elliptic_v <span class="sc">%*%</span> <span class="fu">t</span>(phi)))</span>
+<span id="cb7-78"><a href="#cb7-78" tabindex="-1"></a>    f <span class="ot">&lt;-</span> overkill_elliptic_u <span class="sc">%*%</span> <span class="fu">t</span>(psi_prime) <span class="sc">+</span> overkill_elliptic_f <span class="sc">%*%</span> <span class="fu">t</span>(psi) <span class="sc">-</span> z_aux</span>
+<span id="cb7-79"><a href="#cb7-79" tabindex="-1"></a>    </span>
+<span id="cb7-80"><a href="#cb7-80" tabindex="-1"></a>    </span>
+<span id="cb7-81"><a href="#cb7-81" tabindex="-1"></a>    U_d <span class="ot">&lt;-</span> overkill_elliptic_u <span class="sc">%*%</span> <span class="fu">t</span>(psi) <span class="sc">-</span></span>
+<span id="cb7-82"><a href="#cb7-82" tabindex="-1"></a>      mu <span class="sc">*</span> (overkill_elliptic_v <span class="sc">%*%</span> <span class="fu">t</span>(phi_prime)) <span class="sc">+</span></span>
+<span id="cb7-83"><a href="#cb7-83" tabindex="-1"></a>      mu <span class="sc">*</span> (overkill_elliptic_g <span class="sc">%*%</span> <span class="fu">t</span>(phi))</span>
+<span id="cb7-84"><a href="#cb7-84" tabindex="-1"></a>    </span>
+<span id="cb7-85"><a href="#cb7-85" tabindex="-1"></a>    V_d <span class="ot">&lt;-</span> <span class="fu">reversecolumns</span>(R <span class="sc">%*%</span> U_d)</span>
+<span id="cb7-86"><a href="#cb7-86" tabindex="-1"></a>    u_0 <span class="ot">&lt;-</span> elliptic_u</span>
+<span id="cb7-87"><a href="#cb7-87" tabindex="-1"></a>    F_proj <span class="ot">&lt;-</span> R <span class="sc">%*%</span> f</span>
+<span id="cb7-88"><a href="#cb7-88" tabindex="-1"></a>    </span>
+<span id="cb7-89"><a href="#cb7-89" tabindex="-1"></a>    u_d <span class="ot">&lt;-</span> <span class="fu">outer</span>(elliptic_u, psi) <span class="sc">-</span></span>
+<span id="cb7-90"><a href="#cb7-90" tabindex="-1"></a>      mu <span class="sc">*</span> <span class="fu">outer</span>(elliptic_v, phi_prime) <span class="sc">+</span></span>
+<span id="cb7-91"><a href="#cb7-91" tabindex="-1"></a>      mu <span class="sc">*</span> <span class="fu">outer</span>(elliptic_g, phi)</span>
+<span id="cb7-92"><a href="#cb7-92" tabindex="-1"></a>    </span>
+<span id="cb7-93"><a href="#cb7-93" tabindex="-1"></a>    </span>
+<span id="cb7-94"><a href="#cb7-94" tabindex="-1"></a>    tol <span class="ot">&lt;-</span> <span class="fl">1e-12</span></span>
+<span id="cb7-95"><a href="#cb7-95" tabindex="-1"></a>    maxit <span class="ot">&lt;-</span> <span class="dv">25</span></span>
+<span id="cb7-96"><a href="#cb7-96" tabindex="-1"></a>    verbose <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb7-97"><a href="#cb7-97" tabindex="-1"></a>    weights <span class="ot">&lt;-</span> graph<span class="sc">$</span>mesh<span class="sc">$</span>weights</span>
+<span id="cb7-98"><a href="#cb7-98" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">solve_coupled_system_multi_tol</span>(</span>
+<span id="cb7-99"><a href="#cb7-99" tabindex="-1"></a>      <span class="at">my_op_frac =</span> my_op_frac,</span>
+<span id="cb7-100"><a href="#cb7-100" tabindex="-1"></a>      <span class="at">time_step =</span> time_step, </span>
+<span id="cb7-101"><a href="#cb7-101" tabindex="-1"></a>      <span class="at">time_seq =</span> time_seq, </span>
+<span id="cb7-102"><a href="#cb7-102" tabindex="-1"></a>      <span class="at">u_0 =</span> u_0, </span>
+<span id="cb7-103"><a href="#cb7-103" tabindex="-1"></a>      <span class="at">F_proj =</span> F_proj, </span>
+<span id="cb7-104"><a href="#cb7-104" tabindex="-1"></a>      <span class="at">Z_ini =</span> F_proj<span class="sc">*</span><span class="dv">0</span>,</span>
+<span id="cb7-105"><a href="#cb7-105" tabindex="-1"></a>      <span class="at">V_d =</span> V_d, </span>
+<span id="cb7-106"><a href="#cb7-106" tabindex="-1"></a>      <span class="at">u_d =</span> u_d,</span>
+<span id="cb7-107"><a href="#cb7-107" tabindex="-1"></a>      <span class="at">Psi =</span> Psi, </span>
+<span id="cb7-108"><a href="#cb7-108" tabindex="-1"></a>      <span class="at">R =</span> R,</span>
+<span id="cb7-109"><a href="#cb7-109" tabindex="-1"></a>      <span class="at">A =</span> A, </span>
+<span id="cb7-110"><a href="#cb7-110" tabindex="-1"></a>      <span class="at">B =</span> B, </span>
+<span id="cb7-111"><a href="#cb7-111" tabindex="-1"></a>      <span class="at">mu =</span> mu,</span>
+<span id="cb7-112"><a href="#cb7-112" tabindex="-1"></a>      <span class="at">weights =</span> weights,</span>
+<span id="cb7-113"><a href="#cb7-113" tabindex="-1"></a>      <span class="at">tol =</span> tol, </span>
+<span id="cb7-114"><a href="#cb7-114" tabindex="-1"></a>      <span class="at">maxit =</span> maxit, </span>
+<span id="cb7-115"><a href="#cb7-115" tabindex="-1"></a>      <span class="at">verbose =</span> verbose,</span>
+<span id="cb7-116"><a href="#cb7-116" tabindex="-1"></a>      <span class="at">true_sol =</span> <span class="fu">list</span>(</span>
+<span id="cb7-117"><a href="#cb7-117" tabindex="-1"></a>        <span class="at">u_bar =</span> u_bar, </span>
+<span id="cb7-118"><a href="#cb7-118" tabindex="-1"></a>        <span class="at">p_bar =</span> p_bar, </span>
+<span id="cb7-119"><a href="#cb7-119" tabindex="-1"></a>        <span class="at">z_bar =</span> z_bar</span>
+<span id="cb7-120"><a href="#cb7-120" tabindex="-1"></a>      ))</span>
+<span id="cb7-121"><a href="#cb7-121" tabindex="-1"></a>    </span>
+<span id="cb7-122"><a href="#cb7-122" tabindex="-1"></a>    U_bar <span class="ot">&lt;-</span> res<span class="sc">$</span>U</span>
+<span id="cb7-123"><a href="#cb7-123" tabindex="-1"></a>    P_bar <span class="ot">&lt;-</span> res<span class="sc">$</span>P</span>
+<span id="cb7-124"><a href="#cb7-124" tabindex="-1"></a>    Z_bar <span class="ot">&lt;-</span> res<span class="sc">$</span>Z</span>
+<span id="cb7-125"><a href="#cb7-125" tabindex="-1"></a>    </span>
+<span id="cb7-126"><a href="#cb7-126" tabindex="-1"></a>    projected_u_bar_piecewise <span class="ot">&lt;-</span> <span class="fu">construct_piecewise_projection</span>(Psi <span class="sc">%*%</span> U_bar, time_seq, overkill_time_seq)</span>
+<span id="cb7-127"><a href="#cb7-127" tabindex="-1"></a>    projected_p_bar_piecewise <span class="ot">&lt;-</span> <span class="fu">construct_piecewise_projection</span>(Psi <span class="sc">%*%</span> P_bar, time_seq, overkill_time_seq)</span>
+<span id="cb7-128"><a href="#cb7-128" tabindex="-1"></a>    projected_z_bar_piecewise <span class="ot">&lt;-</span> <span class="fu">construct_piecewise_projection</span>(Psi <span class="sc">%*%</span> Z_bar, time_seq, overkill_time_seq)</span>
+<span id="cb7-129"><a href="#cb7-129" tabindex="-1"></a>    </span>
+<span id="cb7-130"><a href="#cb7-130" tabindex="-1"></a>    errors_u_bar[i,j] <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.double</span>(<span class="fu">t</span>(overkill_weights) <span class="sc">%*%</span> (overkill_u_bar <span class="sc">-</span> projected_u_bar_piecewise)<span class="sc">^</span><span class="dv">2</span> <span class="sc">%*%</span> <span class="fu">rep</span>(overkill_time_step, <span class="fu">length</span>(overkill_time_seq))))</span>
+<span id="cb7-131"><a href="#cb7-131" tabindex="-1"></a>    errors_p_bar[i,j] <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.double</span>(<span class="fu">t</span>(overkill_weights) <span class="sc">%*%</span> (overkill_p_bar <span class="sc">-</span> projected_p_bar_piecewise)<span class="sc">^</span><span class="dv">2</span> <span class="sc">%*%</span> <span class="fu">rep</span>(overkill_time_step, <span class="fu">length</span>(overkill_time_seq))))</span>
+<span id="cb7-132"><a href="#cb7-132" tabindex="-1"></a>    errors_z_bar[i,j] <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.double</span>(<span class="fu">t</span>(overkill_weights) <span class="sc">%*%</span> (overkill_z_bar <span class="sc">-</span> projected_z_bar_piecewise)<span class="sc">^</span><span class="dv">2</span> <span class="sc">%*%</span> <span class="fu">rep</span>(overkill_time_step, <span class="fu">length</span>(overkill_time_seq))))</span>
+<span id="cb7-133"><a href="#cb7-133" tabindex="-1"></a>    <span class="fu">print</span>(<span class="fu">paste0</span>(<span class="st">&quot;m =&quot;</span>, m, <span class="st">&quot;, alpha =&quot;</span>, alpha, <span class="st">&quot;, h =&quot;</span>, h, <span class="st">&quot;, time_step =&quot;</span>, time_step))</span>
+<span id="cb7-134"><a href="#cb7-134" tabindex="-1"></a>    <span class="fu">slackr_msg</span>(<span class="at">text =</span> <span class="fu">paste0</span>(<span class="st">&quot;m =&quot;</span>, m, <span class="st">&quot;, alpha =&quot;</span>, alpha, <span class="st">&quot;, h =&quot;</span>, h, <span class="st">&quot;, time_step =&quot;</span>, time_step), <span class="at">channel =</span> <span class="st">&quot;#research&quot;</span>)</span>
+<span id="cb7-135"><a href="#cb7-135" tabindex="-1"></a>  }</span>
+<span id="cb7-136"><a href="#cb7-136" tabindex="-1"></a>}</span>
+<span id="cb7-137"><a href="#cb7-137" tabindex="-1"></a><span class="fu">save</span>(errors_u_bar, errors_p_bar, errors_z_bar, <span class="at">file =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/control_error_m_with_iteration.RData&quot;</span>))</span></code></pre></div>
+<div id="convergence-results" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Convergence
+results</h1>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Load the errors data</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">load</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/control_error_m_with_iteration.RData&quot;</span>))</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>observed_rates_u_bar <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(alpha_vector))</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>observed_rates_p_bar <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(alpha_vector))</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>observed_rates_z_bar <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(alpha_vector))</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(alpha_vector)) {observed_rates_u_bar[i] <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">lm</span>(<span class="fu">log</span>(errors_u_bar[, i]) <span class="sc">~</span> <span class="fu">sqrt</span>(m_vector)))[<span class="dv">2</span>]}</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(alpha_vector)) {observed_rates_p_bar[i] <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">lm</span>(<span class="fu">log</span>(errors_p_bar[, i]) <span class="sc">~</span> <span class="fu">sqrt</span>(m_vector)))[<span class="dv">2</span>]}</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(alpha_vector)) {observed_rates_z_bar[i] <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">lm</span>(<span class="fu">log</span>(errors_z_bar[, i]) <span class="sc">~</span> <span class="fu">sqrt</span>(m_vector)))[<span class="dv">2</span>]}</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>theoretical_rates <span class="ot">&lt;-</span> <span class="sc">-</span> pi <span class="sc">*</span> alpha_vector <span class="sc">*</span> <span class="fu">sqrt</span>((<span class="dv">1</span> <span class="sc">-</span> alpha_vector <span class="sc">/</span> <span class="dv">2</span>))</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>p_u_bar <span class="ot">&lt;-</span> <span class="fu">error.convergence.plotter</span>(<span class="at">x_axis_vector =</span> m_vector, </span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>                               alpha_vector, </span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>                               errors_u_bar, </span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>                               theoretical_rates, </span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>                               observed_rates_u_bar,</span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>                               <span class="at">line_equation_fun =</span> exp_line_equation,</span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>                               <span class="at">fig_title =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="fu">bar</span>(u))),</span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>                               <span class="at">x_axis_label =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(m)),</span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>                               <span class="at">apply_sqrt =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a>p_p_bar <span class="ot">&lt;-</span> <span class="fu">error.convergence.plotter</span>(<span class="at">x_axis_vector =</span> m_vector, </span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>                               alpha_vector, </span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>                               errors_p_bar, </span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a>                               theoretical_rates, </span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>                               observed_rates_p_bar,</span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>                               <span class="at">line_equation_fun =</span> exp_line_equation,</span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a>                               <span class="at">fig_title =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="fu">bar</span>(p))),</span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a>                               <span class="at">x_axis_label =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(m)),</span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a>                               <span class="at">apply_sqrt =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a></span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a>p_z_bar <span class="ot">&lt;-</span> <span class="fu">error.convergence.plotter</span>(<span class="at">x_axis_vector =</span> m_vector, </span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a>                               alpha_vector, </span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a>                               errors_z_bar, </span>
+<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a>                               theoretical_rates, </span>
+<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a>                               observed_rates_z_bar,</span>
+<span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a>                               <span class="at">line_equation_fun =</span> exp_line_equation,</span>
+<span id="cb8-40"><a href="#cb8-40" tabindex="-1"></a>                               <span class="at">fig_title =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="fu">bar</span>(z))),</span>
+<span id="cb8-41"><a href="#cb8-41" tabindex="-1"></a>                               <span class="at">x_axis_label =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(m)),</span>
+<span id="cb8-42"><a href="#cb8-42" tabindex="-1"></a>                               <span class="at">apply_sqrt =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>p_all_m <span class="ot">&lt;-</span> (p_u_bar <span class="sc">|</span> p_p_bar <span class="sc">|</span> p_z_bar) <span class="sc">+</span> </span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">expression</span>(<span class="st">&quot;         Convergence in &quot;</span> <span class="sc">*</span> <span class="fu">italic</span>(m)),</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>    <span class="at">theme =</span> <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">18</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>))</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  )</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>p_all_m</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="control_conv_m_with_iteration_files/figure-html/unnamed-chunk-7-1.png" alt="Figure 1: Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\Gamma))$-error with respect to $m$ on a semi-$\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case." width="1152" />
+<p class="caption">
+Figure 1: Comparison of theoretical and observed convergence behavior
+for the <span
+class="math inline">\(L_2((0,T);L_2(\Gamma))\)</span>-error with respect
+to <span class="math inline">\(m\)</span> on a semi-<span
+class="math inline">\(\text{log}_{e}\)</span> scale, with <span
+class="math inline">\(m\)</span> plotted on a square-root scale. Dashed
+lines indicate the theoretical rates, and solid lines represent the
+observed error curves. The legend below each plot shows the value of
+<span class="math inline">\(\alpha\)</span> along with the corresponding
+theoretical (‘theo’), and observed (‘obs’) rates for each case.
+</p>
+</div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co">#ggsave(here::here(&quot;data_files/control_conv_rates_m_u_bar_with_iteration.png&quot;), width = 4, height = 5, plot = p_u_bar, dpi = 300)</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#ggsave(here::here(&quot;data_files/control_conv_rates_m_p_bar_with_iteration.png&quot;), width = 4, height = 5, plot = p_p_bar, dpi = 300)</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#ggsave(here::here(&quot;data_files/control_conv_rates_m_z_bar_with_iteration.png&quot;), width = 4, height = 5, plot = p_z_bar, dpi = 300)</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">ggsave</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/control_conv_rates_m_all_with_iteration.png&quot;</span>), <span class="at">width =</span> <span class="dv">12</span>, <span class="at">height =</span> <span class="dv">6</span>, <span class="at">plot =</span> p_all_m, <span class="at">dpi =</span> <span class="dv">300</span>)</span></code></pre></div>
+</div>
+<div id="references" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> References</h1>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
+<p>We used R version 4.5.0 <span class="citation">(R Core Team
+2025)</span> and the following R packages: gsignal v. 0.3.7 <span
+class="citation">(Van Boxtel, G.J.M., et al. 2021)</span>, here v. 1.0.1
+<span class="citation">(Müller 2020)</span>, htmltools v. 0.5.8.1 <span
+class="citation">(Cheng et al. 2024)</span>, knitr v. 1.50 <span
+class="citation">(Xie 2014, 2015, 2025)</span>, Matrix v. 1.7.3 <span
+class="citation">(Bates, Maechler, and Jagan 2025)</span>, MetricGraph
+v. 1.5.0.9000 <span class="citation">(Bolin, Simas, and Wallin 2023a,
+2023b, 2024, 2025; Bolin et al. 2024)</span>, patchwork v. 1.3.1 <span
+class="citation">(Pedersen 2025)</span>, plotly v. 4.11.0 <span
+class="citation">(Sievert 2020)</span>, pracma v. 2.4.4 <span
+class="citation">(Borchers 2023)</span>, RColorBrewer v. 1.1.3 <span
+class="citation">(Neuwirth 2022)</span>, renv v. 1.1.5 <span
+class="citation">(Ushey and Wickham 2025)</span>, reshape2 v. 1.4.4
+<span class="citation">(Wickham 2007)</span>, rmarkdown v. 2.29 <span
+class="citation">(Xie, Allaire, and Grolemund 2018; Xie, Dervieux, and
+Riederer 2020; Allaire et al. 2024)</span>, rSPDE v. 2.5.1.9000 <span
+class="citation">(Bolin and Kirchner 2020; Bolin and Simas 2023; Bolin,
+Simas, and Xiong 2024)</span>, scales v. 1.4.0 <span
+class="citation">(Wickham, Pedersen, and Seidel 2025)</span>, slackr v.
+3.4.0 <span class="citation">(Kaye et al. 2025)</span>, tidyverse v.
+2.0.0 <span class="citation">(Wickham et al. 2019)</span>, viridisLite
+v. 0.4.2 <span class="citation">(Garnier et al. 2023)</span>,
+xaringanExtra v. 0.8.0 <span class="citation">(Aden-Buie and Warkentin
+2024)</span>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
+<div id="ref-xaringanExtra" class="csl-entry">
+Aden-Buie, Garrick, and Matthew T. Warkentin. 2024. <em><span
+class="nocase">xaringanExtra</span>: Extras and Extensions for
+<span>“<span class="nocase">xaringan</span>”</span> Slides</em>. <a
+href="https://doi.org/10.32614/CRAN.package.xaringanExtra">https://doi.org/10.32614/CRAN.package.xaringanExtra</a>.
+</div>
+<div id="ref-rmarkdown2024" class="csl-entry">
+Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier
+Luraschi, Kevin Ushey, Aron Atkins, et al. 2024. <em><span
+class="nocase">rmarkdown</span>: Dynamic Documents for r</em>. <a
+href="https://github.com/rstudio/rmarkdown">https://github.com/rstudio/rmarkdown</a>.
+</div>
+<div id="ref-Matrix" class="csl-entry">
+Bates, Douglas, Martin Maechler, and Mikael Jagan. 2025.
+<em><span>Matrix</span>: Sparse and Dense Matrix Classes and
+Methods</em>. <a
+href="https://doi.org/10.32614/CRAN.package.Matrix">https://doi.org/10.32614/CRAN.package.Matrix</a>.
+</div>
+<div id="ref-rSPDE2020" class="csl-entry">
+Bolin, David, and Kristin Kirchner. 2020. <span>“The Rational
+<span>SPDE</span> Approach for <span>Gaussian</span> Random Fields with
+General Smoothness.”</span> <em>Journal of Computational and Graphical
+Statistics</em> 29 (2): 274–85. <a
+href="https://doi.org/10.1080/10618600.2019.1665537">https://doi.org/10.1080/10618600.2019.1665537</a>.
+</div>
+<div id="ref-MetricGraph2024c" class="csl-entry">
+Bolin, David, Mihály Kovács, Vivek Kumar, and Alexandre B. Simas. 2024.
+<span>“Regularity and Numerical Approximation of Fractional Elliptic
+Differential Equations on Compact Metric Graphs.”</span> <em>Mathematics
+of Computation</em> 93 (349): 2439–72. <a
+href="https://doi.org/10.1090/mcom/3929">https://doi.org/10.1090/mcom/3929</a>.
+</div>
+<div id="ref-rSPDE2023" class="csl-entry">
+Bolin, David, and Alexandre B. Simas. 2023. <em><span
+class="nocase">rSPDE</span>: Rational Approximations of Fractional
+Stochastic Partial Differential Equations</em>. <a
+href="https://CRAN.R-project.org/package=rSPDE">https://CRAN.R-project.org/package=rSPDE</a>.
+</div>
+<div id="ref-MetricGraph2023a" class="csl-entry">
+Bolin, David, Alexandre B. Simas, and Jonas Wallin. 2023a.
+<em><span>MetricGraph</span>: Random Fields on Metric Graphs</em>. <a
+href="https://CRAN.R-project.org/package=MetricGraph">https://CRAN.R-project.org/package=MetricGraph</a>.
+</div>
+<div id="ref-MetricGraph2023e" class="csl-entry">
+———. 2023b. <span>“Statistical Inference for Gaussian Whittle-Matérn
+Fields on Metric Graphs.”</span> <em>arXiv Preprint
+arXiv:2304.10372</em>. <a
+href="https://doi.org/10.48550/arXiv.2304.10372">https://doi.org/10.48550/arXiv.2304.10372</a>.
+</div>
+<div id="ref-MetricGraph2024b" class="csl-entry">
+———. 2024. <span>“Gaussian Whittle-Matérn Fields on Metric
+Graphs.”</span> <em>Bernoulli</em> 30 (2): 1611–39. <a
+href="https://doi.org/10.3150/23-BEJ1647">https://doi.org/10.3150/23-BEJ1647</a>.
+</div>
+<div id="ref-MetricGraph2025d" class="csl-entry">
+———. 2025. <span>“Markov Properties of Gaussian Random Fields on Compact
+Metric Graphs.”</span> <em>Bernoulli</em>. <a
+href="https://doi.org/10.48550/arXiv.2304.03190">https://doi.org/10.48550/arXiv.2304.03190</a>.
+</div>
+<div id="ref-rSPDE2024" class="csl-entry">
+Bolin, David, Alexandre B. Simas, and Zhen Xiong. 2024.
+<span>“Covariance-Based Rational Approximations of Fractional SPDEs for
+Computationally Efficient Bayesian Inference.”</span> <em>Journal of
+Computational and Graphical Statistics</em> 33 (1): 64–74. <a
+href="https://doi.org/10.1080/10618600.2023.2231051">https://doi.org/10.1080/10618600.2023.2231051</a>.
+</div>
+<div id="ref-pracma" class="csl-entry">
+Borchers, Hans W. 2023. <em><span class="nocase">pracma</span>:
+Practical Numerical Math Functions</em>. <a
+href="https://doi.org/10.32614/CRAN.package.pracma">https://doi.org/10.32614/CRAN.package.pracma</a>.
+</div>
+<div id="ref-htmltools" class="csl-entry">
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
+and Jeff Allen. 2024. <em><span class="nocase">htmltools</span>: Tools
+for HTML</em>. <a
+href="https://doi.org/10.32614/CRAN.package.htmltools">https://doi.org/10.32614/CRAN.package.htmltools</a>.
+</div>
+<div id="ref-viridisLite" class="csl-entry">
+Garnier, Simon, Ross, Noam, Rudis, Robert, Camargo, et al. 2023.
+<em><span class="nocase">viridis(Lite)</span> - Colorblind-Friendly
+Color Maps for r</em>. <a
+href="https://doi.org/10.5281/zenodo.4678327">https://doi.org/10.5281/zenodo.4678327</a>.
+</div>
+<div id="ref-slackr" class="csl-entry">
+Kaye, Matt, Bob Rudis, Andrie de Vries, and Jonathan Sidi. 2025.
+<em><span class="nocase">slackr</span>: Send Messages, Images, r Objects
+and Files to <span>“<span>Slack</span>”</span> Channels/Users</em>. <a
+href="https://github.com/mrkaye97/slackr">https://github.com/mrkaye97/slackr</a>.
+</div>
+<div id="ref-here" class="csl-entry">
+Müller, Kirill. 2020. <em><span class="nocase">here</span>: A Simpler
+Way to Find Your Files</em>. <a
+href="https://doi.org/10.32614/CRAN.package.here">https://doi.org/10.32614/CRAN.package.here</a>.
+</div>
+<div id="ref-RColorBrewer" class="csl-entry">
+Neuwirth, Erich. 2022. <em><span>RColorBrewer</span>: ColorBrewer
+Palettes</em>. <a
+href="https://doi.org/10.32614/CRAN.package.RColorBrewer">https://doi.org/10.32614/CRAN.package.RColorBrewer</a>.
+</div>
+<div id="ref-patchwork" class="csl-entry">
+Pedersen, Thomas Lin. 2025. <em><span class="nocase">patchwork</span>:
+The Composer of Plots</em>. <a
+href="https://doi.org/10.32614/CRAN.package.patchwork">https://doi.org/10.32614/CRAN.package.patchwork</a>.
+</div>
+<div id="ref-base" class="csl-entry">
+R Core Team. 2025. <em><span>R</span>: A Language and Environment for
+Statistical Computing</em>. Vienna, Austria: R Foundation for
+Statistical Computing. <a
+href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-plotly" class="csl-entry">
+Sievert, Carson. 2020. <em>Interactive Web-Based Data Visualization with
+r, Plotly, and Shiny</em>. Chapman; Hall/CRC. <a
+href="https://plotly-r.com">https://plotly-r.com</a>.
+</div>
+<div id="ref-renv" class="csl-entry">
+Ushey, Kevin, and Hadley Wickham. 2025. <em><span
+class="nocase">renv</span>: Project Environments</em>. <a
+href="https://doi.org/10.32614/CRAN.package.renv">https://doi.org/10.32614/CRAN.package.renv</a>.
+</div>
+<div id="ref-gsignal" class="csl-entry">
+Van Boxtel, G.J.M., et al. 2021. <em><span
+class="nocase">gsignal</span>: Signal Processing</em>. <a
+href="https://github.com/gjmvanboxtel/gsignal">https://github.com/gjmvanboxtel/gsignal</a>.
+</div>
+<div id="ref-reshape2" class="csl-entry">
+Wickham, Hadley. 2007. <span>“Reshaping Data with the <span
+class="nocase">reshape</span> Package.”</span> <em>Journal of
+Statistical Software</em> 21 (12): 1–20. <a
+href="http://www.jstatsoft.org/v21/i12/">http://www.jstatsoft.org/v21/i12/</a>.
+</div>
+<div id="ref-tidyverse" class="csl-entry">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+<span>“Welcome to the <span class="nocase">tidyverse</span>.”</span>
+<em>Journal of Open Source Software</em> 4 (43): 1686. <a
+href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-scales" class="csl-entry">
+Wickham, Hadley, Thomas Lin Pedersen, and Dana Seidel. 2025. <em><span
+class="nocase">scales</span>: Scale Functions for Visualization</em>. <a
+href="https://doi.org/10.32614/CRAN.package.scales">https://doi.org/10.32614/CRAN.package.scales</a>.
+</div>
+<div id="ref-knitr2014" class="csl-entry">
+Xie, Yihui. 2014. <span>“<span class="nocase">knitr</span>: A
+Comprehensive Tool for Reproducible Research in <span>R</span>.”</span>
+In <em>Implementing Reproducible Computational Research</em>, edited by
+Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman;
+Hall/CRC.
+</div>
+<div id="ref-knitr2015" class="csl-entry">
+———. 2015. <em>Dynamic Documents with <span>R</span> and Knitr</em>. 2nd
+ed. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-knitr2025" class="csl-entry">
+———. 2025. <em><span class="nocase">knitr</span>: A General-Purpose
+Package for Dynamic Report Generation in <span>R</span></em>. <a
+href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-rmarkdown2018" class="csl-entry">
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. <em>R Markdown:
+The Definitive Guide</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://bookdown.org/yihui/rmarkdown">https://bookdown.org/yihui/rmarkdown</a>.
+</div>
+<div id="ref-rmarkdown2020" class="csl-entry">
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R
+Markdown Cookbook</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook">https://bookdown.org/yihui/rmarkdown-cookbook</a>.
+</div>
+</div>
+</div>
+
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ29udmVyZ2VuY2UgaW4g8J2RmiBmb3IgdGhlIG9wdGltYWwgY29udHJvbCB2YXJpYWJsZSIKZGF0ZTogIkxhc3QgbW9kaWZpZWQ6IGByIGZvcm1hdChTeXMudGltZSgpLCAnJWQtJW0tJVkuJylgIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDoKICAgIG1hdGhqYXg6ICJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL21hdGhqYXhAMy9lczUvdGV4LW1tbC1jaHRtbC5qcyIKICAgIGhpZ2hsaWdodDogcHlnbWVudHMKICAgIHRoZW1lOiBmbGF0bHkKICAgIGNvZGVfZm9sZGluZzogaGlkZSAjIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUiIHRvIGhpZGUgY29kZSBhbmQgYWRkIGEgYnV0dG9uIHRvIHNob3cgaXQKICAgIGRmX3ByaW50OiBwYWdlZAogICAgdG9jOiB0cnVlCiAgICB0b2NfZmxvYXQ6CiAgICAgIGNvbGxhcHNlZDogdHJ1ZQogICAgICBzbW9vdGhfc2Nyb2xsOiB0cnVlCiAgICBudW1iZXJfc2VjdGlvbnM6IHRydWUKICAgIGZpZ19jYXB0aW9uOiB0cnVlCiAgICBjb2RlX2Rvd25sb2FkOiB0cnVlCiAgICBjc3M6IHZpc3VhbC5jc3MKYWx3YXlzX2FsbG93X2h0bWw6IHRydWUKYmlibGlvZ3JhcGh5OiAKICAtIHJlZmVyZW5jZXMuYmliCiAgLSBncmF0ZWZ1bC1yZWZzLmJpYgpoZWFkZXItaW5jbHVkZXM6CiAgLSBcbmV3Y29tbWFuZHtcYXJ9e1xtYXRoYmJ7Un19CiAgLSBcbmV3Y29tbWFuZHtcbGxhdn1bMV17XGxlZnRceyMxXHJpZ2h0XH19CiAgLSBcbmV3Y29tbWFuZHtccGFyZX1bMV17XGxlZnQoIzFccmlnaHQpfQogIC0gXG5ld2NvbW1hbmR7XE5jYWx9e1xtYXRoY2Fse059fQogIC0gXG5ld2NvbW1hbmR7XFZjYWx9e1xtYXRoY2Fse1Z9fQogIC0gXG5ld2NvbW1hbmR7XEVjYWx9e1xtYXRoY2Fse0V9fQogIC0gXG5ld2NvbW1hbmR7XFdjYWx9e1xtYXRoY2Fse1d9fQogIC0gXG5ld2NvbW1hbmR7XGFsbW9zdGV2ZXJ5d2hlcmV9e1xtYXRocm17YS5lLn1cO30KLS0tCgpHbyBiYWNrIHRvIHRoZSBbQ29udGVudHNdKGFib3V0Lmh0bWwpIHBhZ2UuCgo8ZGl2IHN0eWxlPSJjb2xvcjogIzJjM2U1MDsgdGV4dC1hbGlnbjogcmlnaHQ7Ij4KKioqKioqKiogIAo8c3Ryb25nPlByZXNzIFNob3cgdG8gcmV2ZWFsIHRoZSBjb2RlIGNodW5rcy48L3N0cm9uZz4gIAoKKioqKioqKioKPC9kaXY+CgoKYGBge3J9CiMgQ3JlYXRlIGEgY2xpcGJvYXJkIGJ1dHRvbiBvbiB0aGUgcmVuZGVyZWQgSFRNTCBwYWdlCnNvdXJjZShoZXJlOjpoZXJlKCJjbGlwYm9hcmQuUiIpKTsgY2xpcGJvYXJkCiMgU2V0IHNlZWQgZm9yIHJlcHJvZHVjaWJpbGl0eQpzZXQuc2VlZCgxOTgyKSAKIyBTZXQgZ2xvYmFsIG9wdGlvbnMgZm9yIGFsbCBjb2RlIGNodW5rcwprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgIyBEaXNhYmxlIG1lc3NhZ2VzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIG1lc3NhZ2UgPSBGQUxTRSwgICAgCiAgIyBEaXNhYmxlIHdhcm5pbmdzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIHdhcm5pbmcgPSBGQUxTRSwgICAgCiAgIyBTaG93IFIgY29kZSB3aXRoaW4gY29kZSBjaHVua3MgaW4gb3V0cHV0CiAgZWNobyA9IFRSVUUsICAgICAgICAKICAjIEluY2x1ZGUgYm90aCBSIGNvZGUgYW5kIGl0cyByZXN1bHRzIGluIG91dHB1dAogIGluY2x1ZGUgPSBUUlVFLCAgICAgCiAgIyBFdmFsdWF0ZSBSIGNvZGUgY2h1bmtzCiAgZXZhbCA9IFRSVUUsICAgICAgIAogICMgRW5hYmxlIGNhY2hpbmcgb2YgUiBjb2RlIGNodW5rcyBmb3IgZmFzdGVyIHJlbmRlcmluZwogIGNhY2hlID0gRkFMU0UsICAgICAgCiAgIyBBbGlnbiBmaWd1cmVzIGluIHRoZSBjZW50ZXIgb2YgdGhlIG91dHB1dAogIGZpZy5hbGlnbiA9ICJjZW50ZXIiLAogICMgRW5hYmxlIHJldGluYSBkaXNwbGF5IGZvciBoaWdoLXJlc29sdXRpb24gZmlndXJlcwogIHJldGluYSA9IDIsCiAgIyBTaG93IGVycm9ycyBpbiB0aGUgb3V0cHV0IGluc3RlYWQgb2Ygc3RvcHBpbmcgcmVuZGVyaW5nCiAgZXJyb3IgPSBUUlVFLAogICMgRG8gbm90IGNvbGxhcHNlIGNvZGUgYW5kIG91dHB1dCBpbnRvIGEgc2luZ2xlIGJsb2NrCiAgY29sbGFwc2UgPSBGQUxTRQopCiMgU3RhcnQgdGhlIGZpZ3VyZSBjb3VudGVyCmZpZ19jb3VudCA8LSAwCiMgRGVmaW5lIHRoZSBjYXB0aW9uZXIgZnVuY3Rpb24KY2FwdGlvbmVyIDwtIGZ1bmN0aW9uKGNhcHRpb24pIHsKICBmaWdfY291bnQgPDwtIGZpZ19jb3VudCArIDEKICBwYXN0ZTAoIkZpZ3VyZSAiLCBmaWdfY291bnQsICI6ICIsIGNhcHRpb24pCn0KYGBgCgpgYGB7cn0KbGlicmFyeShNZXRyaWNHcmFwaCkKbGlicmFyeShnZ3Bsb3QyKQpsaWJyYXJ5KHJlc2hhcGUyKQpsaWJyYXJ5KHBsb3RseSkKbGlicmFyeShwYXRjaHdvcmspCmxpYnJhcnkoc2xhY2tyKQpzb3VyY2UoImtleXMuUiIpCnNsYWNrcl9zZXR1cCh0b2tlbiA9IHRva2VuKSAjIHRva2VuIGNvbWVzIGZyb20ga2V5cy5SCmBgYAoKCmBgYHtyfQpjYXB0dXJlLm91dHB1dCgKICBrbml0cjo6cHVybChoZXJlOjpoZXJlKCJmdW5jdGlvbmFsaXR5LlJtZCIpLCBvdXRwdXQgPSBoZXJlOjpoZXJlKCJmdW5jdGlvbmFsaXR5LlIiKSksCiAgZmlsZSA9IGhlcmU6OmhlcmUoInB1cmxfbG9nLnR4dCIpCikKc291cmNlKGhlcmU6OmhlcmUoImZ1bmN0aW9uYWxpdHkuUiIpKQpgYGAKCgoKYGBge3J9CiMgUGFyYW1ldGVycwpUX2ZpbmFsIDwtIDIKa2FwcGEgPC0gMTYgIyByZWFkUkRTKCJvbGQva2FwcGEuUkRTIikgIzQKZGl2aWRlciA8LSAxICMgcmVhZFJEUygib2xkL2RpdmlkZXIuUkRTIikgCm11IDwtIDAuMQphIDwtIC0gMC41KjEKYiA8LSAwLjUqMQpOX2Zpbml0ZSA9IDQgIyBjaG9vc2UgZXZlbgphZGp1c3RlZF9OX2Zpbml0ZSA8LSBOX2Zpbml0ZSArIE5fZmluaXRlLzIgKyAxCiMgQ29lZmZpY2llbnRzIGZvciBmIGFuZCBnCmNvZWZmX2VsbGlwdGljX2cgPC0gMjAqKDE6YWRqdXN0ZWRfTl9maW5pdGUpXi0xCmNvZWZmX2VsbGlwdGljX2dbLTJdIDwtIDAKY29lZmZfZWxsaXB0aWNfZiA8LSByZXAoMCwgYWRqdXN0ZWRfTl9maW5pdGUpCmNvZWZmX2VsbGlwdGljX2ZbMl0gPC0gMTAKCiMgVGltZSBzdGVwIGFuZCBtZXNoIHNpemUKbV92ZWN0b3IgPC0gYygxLCAyLCAzLCA0KQoKIyBPdmVya2lsbCBwYXJhbWV0ZXJzCm92ZXJraWxsX3RpbWVfc3RlcCA8LSAwLjEgKiAyXi0xNApvdmVya2lsbF9oIDwtICgwLjEgKiAyXi0xNCleKDEvMikKCiMgRmluZXN0IHRpbWUgYW5kIHNwYWNlIG1lc2gKb3ZlcmtpbGxfdGltZV9zZXEgPC0gc2VxKDAsIFRfZmluYWwsIGxlbmd0aC5vdXQgPSAoKFRfZmluYWwgLSAwKSAvIG92ZXJraWxsX3RpbWVfc3RlcCArIDEpKQpvdmVya2lsbF9ncmFwaCA8LSBnZXRzLmdyYXBoLnRhZHBvbGUoaCA9IG92ZXJraWxsX2gpCgojIENvbXB1dGUgdGhlIHdlaWdodHMgb24gdGhlIGZpbmVzdCBtZXNoCm92ZXJraWxsX2dyYXBoJGNvbXB1dGVfZmVtKCkgIyBUaGlzIGlzIG5lZWRlZCB0byBjb21wdXRlIHRoZSB3ZWlnaHRzCm92ZXJraWxsX3dlaWdodHMgPC0gb3ZlcmtpbGxfZ3JhcGgkbWVzaCR3ZWlnaHRzCgpvdmVya2lsbF9BIDwtIG1hdHJpeChhLCBucm93ID0gbGVuZ3RoKG92ZXJraWxsX3dlaWdodHMpLCBuY29sID0gbGVuZ3RoKG92ZXJraWxsX3RpbWVfc2VxKSkKb3ZlcmtpbGxfQiA8LSBtYXRyaXgoYiwgbnJvdyA9IGxlbmd0aChvdmVya2lsbF93ZWlnaHRzKSwgbmNvbCA9IGxlbmd0aChvdmVya2lsbF90aW1lX3NlcSkpCgpvdmVya2lsbF9wc2kgPC0gY29zKG92ZXJraWxsX3RpbWVfc2VxKQpvdmVya2lsbF9waGkgPC0gc2luKFRfZmluYWwgLSBvdmVya2lsbF90aW1lX3NlcSkKb3ZlcmtpbGxfcHNpX3ByaW1lIDwtIC0gc2luKG92ZXJraWxsX3RpbWVfc2VxKQpvdmVya2lsbF9waGlfcHJpbWUgPC0gLSBjb3MoVF9maW5hbCAtIG92ZXJraWxsX3RpbWVfc2VxKQojIHBzaV9yYXRlIDwtIC0yCiMgcGhpX3JhdGUgPC0gLTIKIyBwaGlfY29lZmZpY2llbnQgPC0gMTAKIyBvdmVya2lsbF9wc2kgPC0gZXhwKHBzaV9yYXRlKm92ZXJraWxsX3RpbWVfc2VxKQojIG92ZXJraWxsX3BzaV9wcmltZSA8LSBwc2lfcmF0ZSAqIGV4cChwc2lfcmF0ZSpvdmVya2lsbF90aW1lX3NlcSkKIyBvdmVya2lsbF9waGkgPC0gcGhpX2NvZWZmaWNpZW50ICogZXhwKHBzaV9yYXRlKm92ZXJraWxsX3RpbWVfc2VxKSAtIHBoaV9jb2VmZmljaWVudCpleHAocHNpX3JhdGUqVF9maW5hbCkKIyBvdmVya2lsbF9waGlfcHJpbWUgPC0gcGhpX2NvZWZmaWNpZW50ICogcHNpX3JhdGUgKiBleHAocHNpX3JhdGUqb3ZlcmtpbGxfdGltZV9zZXEpCgphbHBoYV92ZWN0b3IgPC0gc2VxKDEsIDEuOCwgYnkgPSAwLjIpCmBgYAoKCmBgYHtyLCBldmFsID0gRkFMU0UsIGNsYXNzLnNvdXJjZSA9ICJmb2xkLXNob3cifQojIENyZWF0ZSBhIG1hdHJpeCB0byBzdG9yZSB0aGUgZXJyb3JzCmVycm9yc191X2JhciA8LSBtYXRyaXgoTkEsIG5yb3cgPSBsZW5ndGgobV92ZWN0b3IpLCBuY29sID0gbGVuZ3RoKGFscGhhX3ZlY3RvcikpCmVycm9yc19wX2JhciA8LSBtYXRyaXgoTkEsIG5yb3cgPSBsZW5ndGgobV92ZWN0b3IpLCBuY29sID0gbGVuZ3RoKGFscGhhX3ZlY3RvcikpCmVycm9yc196X2JhciA8LSBtYXRyaXgoTkEsIG5yb3cgPSBsZW5ndGgobV92ZWN0b3IpLCBuY29sID0gbGVuZ3RoKGFscGhhX3ZlY3RvcikpCmZvciAoaiBpbiAxOmxlbmd0aChhbHBoYV92ZWN0b3IpKSB7CiAgYWxwaGEgPC0gYWxwaGFfdmVjdG9yW2pdIAogIGJldGEgPC0gYWxwaGEgLyAyCgogICMgQ29tcHV0ZSB0aGUgZWlnZW52YWx1ZXMgYW5kIGVpZ2VuZnVuY3Rpb25zIG9uIHRoZSBmaW5lc3QgbWVzaAogIG92ZXJraWxsX2VpZ2VuX3BhcmFtcyA8LSBnZXRzLmVpZ2VuLnBhcmFtcyhOX2Zpbml0ZSA9IE5fZmluaXRlLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAga2FwcGEgPSBrYXBwYSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFscGhhID0gYWxwaGEsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBncmFwaCA9IG92ZXJraWxsX2dyYXBoKQogIEVJR0VOVkFMX01JTlVTX0FMUEhBIDwtIG92ZXJraWxsX2VpZ2VuX3BhcmFtcyRFSUdFTlZBTF9NSU5VU19BTFBIQSAjIEVpZ2VudmFsdWVzICh0aGV5IGFyZSBpbmRlcGVuZGVudCBvZiB0aGUgbWVzaGVzKQogIG92ZXJraWxsX0VJR0VORlVOIDwtIG92ZXJraWxsX2VpZ2VuX3BhcmFtcyRFSUdFTkZVTiAjIEVpZ2VuZnVuY3Rpb25zIG9uIHRoZSBmaW5lc3QgbWVzaAogIAogICMgQ29tcHV0ZSB0aGUgdHJ1ZSBzb2x1dGlvbiBvbiB0aGUgZmluZXN0IG1lc2gKICBvdmVya2lsbF9lbGxpcHRpY19mIDwtIGFzLnZlY3RvcihvdmVya2lsbF9FSUdFTkZVTiAlKiUgY29lZmZfZWxsaXB0aWNfZikKICBvdmVya2lsbF9lbGxpcHRpY19nIDwtIGFzLnZlY3RvcihvdmVya2lsbF9FSUdFTkZVTiAlKiUgY29lZmZfZWxsaXB0aWNfZykKICAjIENvbnN0cnVjdCB0aGUgY29ycmVzcG9uZGluZyBlbGxpcHRpYyBzb2x1dGlvbiB1IGFuZCB2IG9uIHRoZSBpbnRlZ3JhdGlvbiBtZXNoCiAgb3ZlcmtpbGxfZWxsaXB0aWNfdSA8LSBhcy52ZWN0b3Iob3ZlcmtpbGxfRUlHRU5GVU4gJSolIChjb2VmZl9lbGxpcHRpY19mICogRUlHRU5WQUxfTUlOVVNfQUxQSEEpKQogIG92ZXJraWxsX2VsbGlwdGljX3YgPC0gYXMudmVjdG9yKG92ZXJraWxsX0VJR0VORlVOICUqJSAoY29lZmZfZWxsaXB0aWNfZyAqIEVJR0VOVkFMX01JTlVTX0FMUEhBKSkKICBvdmVya2lsbF91X2JhciA8LSBvdXRlcihvdmVya2lsbF9lbGxpcHRpY191LCBvdmVya2lsbF9wc2kpCiAgb3ZlcmtpbGxfcF9iYXIgPC0gLSBtdSAqIG91dGVyKG92ZXJraWxsX2VsbGlwdGljX3YsIG92ZXJraWxsX3BoaSkKICBvdmVya2lsbF96X2JhciA8LSBwbWF4KG92ZXJraWxsX0EsIHBtaW4ob3ZlcmtpbGxfQiwgLSBvdmVya2lsbF9wX2JhciAvIG11KSkKICBmb3IgKGkgaW4gMTpsZW5ndGgobV92ZWN0b3IpKSB7CiAgICBtIDwtIG1fdmVjdG9yW2ldCiAgICBoIDwtIGV4cCgtIHBpICogc3FydCgoMSAtIGFscGhhIC8gMikgKiBtKSkvZGl2aWRlciAjIGV4cCgtICg0ICogcGkgLyA1KSAqIHNxcnQoKDEgLSBhbHBoYSAvIDIpICogbSkpLzEwCiAgICB0aW1lX3N0ZXAgPC0gKGheYWxwaGEpLzEKICAgIHRpbWVfc2VxIDwtIHNlcSgwLCBUX2ZpbmFsLCBsZW5ndGgub3V0ID0gKChUX2ZpbmFsIC0gMCkgLyB0aW1lX3N0ZXAgKyAxKSkKICAgIGdyYXBoIDwtIGdldHMuZ3JhcGgudGFkcG9sZShoID0gaCkKICAgIGdyYXBoJGNvbXB1dGVfZmVtKCkKICAgIEcgPC0gZ3JhcGgkbWVzaCRHCiAgICBDIDwtIGdyYXBoJG1lc2gkQwogICAgTCA8LSBrYXBwYV4yKkMgKyBHCiAgICAjIENvbnN0cnVjdCB0aGUgZnJhY3Rpb25hbCBvcGVyYXRvciwgd2hpY2ggaXMgc2hhcmVkIGZvciB0aGUgZm9yd2FyZCBhbmQgYWRqb2ludCBwcm9ibGVtcwogICAgbXlfb3BfZnJhYyA8LSBteS5mcmFjdGlvbmFsLm9wZXJhdG9ycy5mcmFjKEwsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGJldGEsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEMsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNjYWxlLmZhY3RvciA9IGthcHBhXjIsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG0gPSBtLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0aW1lX3N0ZXApCiAgICBlaWdlbl9wYXJhbXMgPC0gZ2V0cy5laWdlbi5wYXJhbXMoTl9maW5pdGUgPSBOX2Zpbml0ZSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAga2FwcGEgPSBrYXBwYSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYWxwaGEgPSBhbHBoYSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ3JhcGggPSBncmFwaCkKICAgIEVJR0VORlVOIDwtIGVpZ2VuX3BhcmFtcyRFSUdFTkZVTgogICAgIyBDb25zdHJ1Y3QgdGhlIHJpZ2h0IGhhbmQgc2lkZSBmdW5jdGlvbnMgZiBhbmQgZyBmb3IgdGhlIGVsbGlwdGljIHByb2JsZW0KICAgIGVsbGlwdGljX2YgPC0gYXMudmVjdG9yKEVJR0VORlVOICUqJSBjb2VmZl9lbGxpcHRpY19mKQogICAgZWxsaXB0aWNfZyA8LSBhcy52ZWN0b3IoRUlHRU5GVU4gJSolIGNvZWZmX2VsbGlwdGljX2cpCiAgICAjIENvbnN0cnVjdCB0aGUgY29ycmVzcG9uZGluZyBlbGxpcHRpYyBzb2x1dGlvbiB1IGFuZCB2CiAgICBlbGxpcHRpY191IDwtIGFzLnZlY3RvcihFSUdFTkZVTiAlKiUgKGNvZWZmX2VsbGlwdGljX2YgKiBFSUdFTlZBTF9NSU5VU19BTFBIQSkpCiAgICBlbGxpcHRpY192IDwtIGFzLnZlY3RvcihFSUdFTkZVTiAlKiUgKGNvZWZmX2VsbGlwdGljX2cgKiBFSUdFTlZBTF9NSU5VU19BTFBIQSkpCiAgICAKICAgIHBzaSA8LSBjb3ModGltZV9zZXEpCiAgICBwaGkgPC0gc2luKFRfZmluYWwgLSB0aW1lX3NlcSkKICAgIHBzaV9wcmltZSA8LSAtIHNpbih0aW1lX3NlcSkKICAgIHBoaV9wcmltZSA8LSAtIGNvcyhUX2ZpbmFsIC0gdGltZV9zZXEpCiAgICAjIHBzaSA8LSBleHAocHNpX3JhdGUqdGltZV9zZXEpCiAgICAjIHBzaV9wcmltZSA8LSBwc2lfcmF0ZSAqIGV4cChwc2lfcmF0ZSp0aW1lX3NlcSkKICAgICMgcGhpIDwtIHBoaV9jb2VmZmljaWVudCAqIGV4cChwaGlfcmF0ZSp0aW1lX3NlcSkgLSBwaGlfY29lZmZpY2llbnQgKiBleHAocGhpX3JhdGUqVF9maW5hbCkKICAgICMgcGhpX3ByaW1lIDwtIHBoaV9jb2VmZmljaWVudCAqIHBoaV9yYXRlICogZXhwKHBoaV9yYXRlKnRpbWVfc2VxKQogICAgCiAgICBBIDwtIG1hdHJpeChhLCBucm93ID0gbnJvdyhDKSwgbmNvbCA9IGxlbmd0aCh0aW1lX3NlcSkpCiAgICBCIDwtIG1hdHJpeChiLCBucm93ID0gbnJvdyhDKSwgbmNvbCA9IGxlbmd0aCh0aW1lX3NlcSkpCiAgICAKICAgIHVfYmFyIDwtIGVsbGlwdGljX3UgJSolIHQocHNpKQogICAgcF9iYXIgPC0gLSBtdSAqIChlbGxpcHRpY192ICUqJSB0KHBoaSkpCiAgICB6X2JhciA8LSBwbWF4KEEsIHBtaW4oQiwgLSBwX2JhciAvIG11KSkKCiAgICAjIENvbnN0cnVjdCB0aGUgcHJvamVjdGlvbiBtYXRyaXgKICAgIFBzaSA8LSBncmFwaCRmZW1fYmFzaXMob3ZlcmtpbGxfZ3JhcGgkZ2V0X21lc2hfbG9jYXRpb25zKCkpCiAgICBSIDwtIHQoUHNpKSAlKiUgb3ZlcmtpbGxfZ3JhcGgkbWVzaCRDCiAgICAKICAgIEFfYXV4IDwtIG1hdHJpeChhLCBucm93ID0gbGVuZ3RoKG92ZXJraWxsX3dlaWdodHMpLCBuY29sID0gbGVuZ3RoKHRpbWVfc2VxKSkKICAgIEJfYXV4IDwtIG1hdHJpeChiLCBucm93ID0gbGVuZ3RoKG92ZXJraWxsX3dlaWdodHMpLCBuY29sID0gbGVuZ3RoKHRpbWVfc2VxKSkKICAgIHpfYXV4IDwtIHBtYXgoQV9hdXgsIHBtaW4oQl9hdXgsIG92ZXJraWxsX2VsbGlwdGljX3YgJSolIHQocGhpKSkpCiAgICBmIDwtIG92ZXJraWxsX2VsbGlwdGljX3UgJSolIHQocHNpX3ByaW1lKSArIG92ZXJraWxsX2VsbGlwdGljX2YgJSolIHQocHNpKSAtIHpfYXV4CiAgICAKICAgIAogICAgVV9kIDwtIG92ZXJraWxsX2VsbGlwdGljX3UgJSolIHQocHNpKSAtCiAgICAgIG11ICogKG92ZXJraWxsX2VsbGlwdGljX3YgJSolIHQocGhpX3ByaW1lKSkgKwogICAgICBtdSAqIChvdmVya2lsbF9lbGxpcHRpY19nICUqJSB0KHBoaSkpCiAgICAKICAgIFZfZCA8LSByZXZlcnNlY29sdW1ucyhSICUqJSBVX2QpCiAgICB1XzAgPC0gZWxsaXB0aWNfdQogICAgRl9wcm9qIDwtIFIgJSolIGYKICAgIAogICAgdV9kIDwtIG91dGVyKGVsbGlwdGljX3UsIHBzaSkgLQogICAgICBtdSAqIG91dGVyKGVsbGlwdGljX3YsIHBoaV9wcmltZSkgKwogICAgICBtdSAqIG91dGVyKGVsbGlwdGljX2csIHBoaSkKICAgIAogICAgCiAgICB0b2wgPC0gMWUtMTIKICAgIG1heGl0IDwtIDI1CiAgICB2ZXJib3NlIDwtIFRSVUUKICAgIHdlaWdodHMgPC0gZ3JhcGgkbWVzaCR3ZWlnaHRzCiAgICByZXMgPC0gc29sdmVfY291cGxlZF9zeXN0ZW1fbXVsdGlfdG9sKAogICAgICBteV9vcF9mcmFjID0gbXlfb3BfZnJhYywKICAgICAgdGltZV9zdGVwID0gdGltZV9zdGVwLCAKICAgICAgdGltZV9zZXEgPSB0aW1lX3NlcSwgCiAgICAgIHVfMCA9IHVfMCwgCiAgICAgIEZfcHJvaiA9IEZfcHJvaiwgCiAgICAgIFpfaW5pID0gRl9wcm9qKjAsCiAgICAgIFZfZCA9IFZfZCwgCiAgICAgIHVfZCA9IHVfZCwKICAgICAgUHNpID0gUHNpLCAKICAgICAgUiA9IFIsCiAgICAgIEEgPSBBLCAKICAgICAgQiA9IEIsIAogICAgICBtdSA9IG11LAogICAgICB3ZWlnaHRzID0gd2VpZ2h0cywKICAgICAgdG9sID0gdG9sLCAKICAgICAgbWF4aXQgPSBtYXhpdCwgCiAgICAgIHZlcmJvc2UgPSB2ZXJib3NlLAogICAgICB0cnVlX3NvbCA9IGxpc3QoCiAgICAgICAgdV9iYXIgPSB1X2JhciwgCiAgICAgICAgcF9iYXIgPSBwX2JhciwgCiAgICAgICAgel9iYXIgPSB6X2JhcgogICAgICApKQogICAgCiAgICBVX2JhciA8LSByZXMkVQogICAgUF9iYXIgPC0gcmVzJFAKICAgIFpfYmFyIDwtIHJlcyRaCiAgICAKICAgIHByb2plY3RlZF91X2Jhcl9waWVjZXdpc2UgPC0gY29uc3RydWN0X3BpZWNld2lzZV9wcm9qZWN0aW9uKFBzaSAlKiUgVV9iYXIsIHRpbWVfc2VxLCBvdmVya2lsbF90aW1lX3NlcSkKICAgIHByb2plY3RlZF9wX2Jhcl9waWVjZXdpc2UgPC0gY29uc3RydWN0X3BpZWNld2lzZV9wcm9qZWN0aW9uKFBzaSAlKiUgUF9iYXIsIHRpbWVfc2VxLCBvdmVya2lsbF90aW1lX3NlcSkKICAgIHByb2plY3RlZF96X2Jhcl9waWVjZXdpc2UgPC0gY29uc3RydWN0X3BpZWNld2lzZV9wcm9qZWN0aW9uKFBzaSAlKiUgWl9iYXIsIHRpbWVfc2VxLCBvdmVya2lsbF90aW1lX3NlcSkKICAgIAogICAgZXJyb3JzX3VfYmFyW2ksal0gPC0gc3FydChhcy5kb3VibGUodChvdmVya2lsbF93ZWlnaHRzKSAlKiUgKG92ZXJraWxsX3VfYmFyIC0gcHJvamVjdGVkX3VfYmFyX3BpZWNld2lzZSleMiAlKiUgcmVwKG92ZXJraWxsX3RpbWVfc3RlcCwgbGVuZ3RoKG92ZXJraWxsX3RpbWVfc2VxKSkpKQogICAgZXJyb3JzX3BfYmFyW2ksal0gPC0gc3FydChhcy5kb3VibGUodChvdmVya2lsbF93ZWlnaHRzKSAlKiUgKG92ZXJraWxsX3BfYmFyIC0gcHJvamVjdGVkX3BfYmFyX3BpZWNld2lzZSleMiAlKiUgcmVwKG92ZXJraWxsX3RpbWVfc3RlcCwgbGVuZ3RoKG92ZXJraWxsX3RpbWVfc2VxKSkpKQogICAgZXJyb3JzX3pfYmFyW2ksal0gPC0gc3FydChhcy5kb3VibGUodChvdmVya2lsbF93ZWlnaHRzKSAlKiUgKG92ZXJraWxsX3pfYmFyIC0gcHJvamVjdGVkX3pfYmFyX3BpZWNld2lzZSleMiAlKiUgcmVwKG92ZXJraWxsX3RpbWVfc3RlcCwgbGVuZ3RoKG92ZXJraWxsX3RpbWVfc2VxKSkpKQogICAgcHJpbnQocGFzdGUwKCJtID0iLCBtLCAiLCBhbHBoYSA9IiwgYWxwaGEsICIsIGggPSIsIGgsICIsIHRpbWVfc3RlcCA9IiwgdGltZV9zdGVwKSkKICAgIHNsYWNrcl9tc2codGV4dCA9IHBhc3RlMCgibSA9IiwgbSwgIiwgYWxwaGEgPSIsIGFscGhhLCAiLCBoID0iLCBoLCAiLCB0aW1lX3N0ZXAgPSIsIHRpbWVfc3RlcCksIGNoYW5uZWwgPSAiI3Jlc2VhcmNoIikKICB9Cn0Kc2F2ZShlcnJvcnNfdV9iYXIsIGVycm9yc19wX2JhciwgZXJyb3JzX3pfYmFyLCBmaWxlID0gaGVyZTo6aGVyZSgiZGF0YV9maWxlcy9jb250cm9sX2Vycm9yX21fd2l0aF9pdGVyYXRpb24uUkRhdGEiKSkKYGBgCgojIENvbnZlcmdlbmNlIHJlc3VsdHMKCmBgYHtyfQojIExvYWQgdGhlIGVycm9ycyBkYXRhCmxvYWQoaGVyZTo6aGVyZSgiZGF0YV9maWxlcy9jb250cm9sX2Vycm9yX21fd2l0aF9pdGVyYXRpb24uUkRhdGEiKSkKCm9ic2VydmVkX3JhdGVzX3VfYmFyIDwtIG51bWVyaWMobGVuZ3RoKGFscGhhX3ZlY3RvcikpCm9ic2VydmVkX3JhdGVzX3BfYmFyIDwtIG51bWVyaWMobGVuZ3RoKGFscGhhX3ZlY3RvcikpCm9ic2VydmVkX3JhdGVzX3pfYmFyIDwtIG51bWVyaWMobGVuZ3RoKGFscGhhX3ZlY3RvcikpCgpmb3IgKGkgaW4gMTpsZW5ndGgoYWxwaGFfdmVjdG9yKSkge29ic2VydmVkX3JhdGVzX3VfYmFyW2ldIDwtIGNvZWYobG0obG9nKGVycm9yc191X2JhclssIGldKSB+IHNxcnQobV92ZWN0b3IpKSlbMl19CmZvciAoaSBpbiAxOmxlbmd0aChhbHBoYV92ZWN0b3IpKSB7b2JzZXJ2ZWRfcmF0ZXNfcF9iYXJbaV0gPC0gY29lZihsbShsb2coZXJyb3JzX3BfYmFyWywgaV0pIH4gc3FydChtX3ZlY3RvcikpKVsyXX0KZm9yIChpIGluIDE6bGVuZ3RoKGFscGhhX3ZlY3RvcikpIHtvYnNlcnZlZF9yYXRlc196X2JhcltpXSA8LSBjb2VmKGxtKGxvZyhlcnJvcnNfel9iYXJbLCBpXSkgfiBzcXJ0KG1fdmVjdG9yKSkpWzJdfQoKdGhlb3JldGljYWxfcmF0ZXMgPC0gLSBwaSAqIGFscGhhX3ZlY3RvciAqIHNxcnQoKDEgLSBhbHBoYV92ZWN0b3IgLyAyKSkKCnBfdV9iYXIgPC0gZXJyb3IuY29udmVyZ2VuY2UucGxvdHRlcih4X2F4aXNfdmVjdG9yID0gbV92ZWN0b3IsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYWxwaGFfdmVjdG9yLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVycm9yc191X2JhciwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0aGVvcmV0aWNhbF9yYXRlcywgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvYnNlcnZlZF9yYXRlc191X2JhciwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxpbmVfZXF1YXRpb25fZnVuID0gZXhwX2xpbmVfZXF1YXRpb24sCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBmaWdfdGl0bGUgPSBleHByZXNzaW9uKGl0YWxpYyhiYXIodSkpKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHhfYXhpc19sYWJlbCA9IGV4cHJlc3Npb24oaXRhbGljKG0pKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFwcGx5X3NxcnQgPSBUUlVFKQoKcF9wX2JhciA8LSBlcnJvci5jb252ZXJnZW5jZS5wbG90dGVyKHhfYXhpc192ZWN0b3IgPSBtX3ZlY3RvciwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBhbHBoYV92ZWN0b3IsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZXJyb3JzX3BfYmFyLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRoZW9yZXRpY2FsX3JhdGVzLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG9ic2VydmVkX3JhdGVzX3BfYmFyLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbGluZV9lcXVhdGlvbl9mdW4gPSBleHBfbGluZV9lcXVhdGlvbiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGZpZ190aXRsZSA9IGV4cHJlc3Npb24oaXRhbGljKGJhcihwKSkpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgeF9heGlzX2xhYmVsID0gZXhwcmVzc2lvbihpdGFsaWMobSkpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYXBwbHlfc3FydCA9IFRSVUUpCgpwX3pfYmFyIDwtIGVycm9yLmNvbnZlcmdlbmNlLnBsb3R0ZXIoeF9heGlzX3ZlY3RvciA9IG1fdmVjdG9yLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFscGhhX3ZlY3RvciwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBlcnJvcnNfel9iYXIsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdGhlb3JldGljYWxfcmF0ZXMsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb2JzZXJ2ZWRfcmF0ZXNfel9iYXIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsaW5lX2VxdWF0aW9uX2Z1biA9IGV4cF9saW5lX2VxdWF0aW9uLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZmlnX3RpdGxlID0gZXhwcmVzc2lvbihpdGFsaWMoYmFyKHopKSksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB4X2F4aXNfbGFiZWwgPSBleHByZXNzaW9uKGl0YWxpYyhtKSksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBhcHBseV9zcXJ0ID0gVFJVRSkKYGBgCgpgYGB7ciwgZmlnLmFsaWduPSdjZW50ZXInLCBmaWcuZGltPSBjKDEyLDYpLCBmaWcuY2FwID0gY2FwdGlvbmVyKCJDb21wYXJpc29uIG9mIHRoZW9yZXRpY2FsIGFuZCBvYnNlcnZlZCBjb252ZXJnZW5jZSBiZWhhdmlvciBmb3IgdGhlICRMXzIoKDAsVCk7TF8yKFxcR2FtbWEpKSQtZXJyb3Igd2l0aCByZXNwZWN0IHRvICRtJCBvbiBhIHNlbWktJFxcdGV4dHtsb2d9X3tlfSQgc2NhbGUsIHdpdGggJG0kIHBsb3R0ZWQgb24gYSBzcXVhcmUtcm9vdCBzY2FsZS4gRGFzaGVkIGxpbmVzIGluZGljYXRlIHRoZSB0aGVvcmV0aWNhbCByYXRlcywgYW5kIHNvbGlkIGxpbmVzIHJlcHJlc2VudCB0aGUgb2JzZXJ2ZWQgZXJyb3IgY3VydmVzLiBUaGUgbGVnZW5kIGJlbG93IGVhY2ggcGxvdCBzaG93cyB0aGUgdmFsdWUgb2YgJFxcYWxwaGEkIGFsb25nIHdpdGggdGhlIGNvcnJlc3BvbmRpbmcgdGhlb3JldGljYWwgKCd0aGVvJyksIGFuZCBvYnNlcnZlZCAoJ29icycpIHJhdGVzIGZvciBlYWNoIGNhc2UuIil9CgpwX2FsbF9tIDwtIChwX3VfYmFyIHwgcF9wX2JhciB8IHBfel9iYXIpICsgCiAgcGxvdF9hbm5vdGF0aW9uKAogICAgdGl0bGUgPSBleHByZXNzaW9uKCIgICAgICAgICBDb252ZXJnZW5jZSBpbiAiICogaXRhbGljKG0pKSwKICAgIHRoZW1lID0gdGhlbWUocGxvdC50aXRsZSA9IGVsZW1lbnRfdGV4dChzaXplID0gMTgsIGZhY2UgPSAiYm9sZCIsIGhqdXN0ID0gMC41KSkKICApCnBfYWxsX20KYGBgCgoKYGBge3J9CiNnZ3NhdmUoaGVyZTo6aGVyZSgiZGF0YV9maWxlcy9jb250cm9sX2NvbnZfcmF0ZXNfbV91X2Jhcl93aXRoX2l0ZXJhdGlvbi5wbmciKSwgd2lkdGggPSA0LCBoZWlnaHQgPSA1LCBwbG90ID0gcF91X2JhciwgZHBpID0gMzAwKQojZ2dzYXZlKGhlcmU6OmhlcmUoImRhdGFfZmlsZXMvY29udHJvbF9jb252X3JhdGVzX21fcF9iYXJfd2l0aF9pdGVyYXRpb24ucG5nIiksIHdpZHRoID0gNCwgaGVpZ2h0ID0gNSwgcGxvdCA9IHBfcF9iYXIsIGRwaSA9IDMwMCkKI2dnc2F2ZShoZXJlOjpoZXJlKCJkYXRhX2ZpbGVzL2NvbnRyb2xfY29udl9yYXRlc19tX3pfYmFyX3dpdGhfaXRlcmF0aW9uLnBuZyIpLCB3aWR0aCA9IDQsIGhlaWdodCA9IDUsIHBsb3QgPSBwX3pfYmFyLCBkcGkgPSAzMDApCmdnc2F2ZShoZXJlOjpoZXJlKCJkYXRhX2ZpbGVzL2NvbnRyb2xfY29udl9yYXRlc19tX2FsbF93aXRoX2l0ZXJhdGlvbi5wbmciKSwgd2lkdGggPSAxMiwgaGVpZ2h0ID0gNiwgcGxvdCA9IHBfYWxsX20sIGRwaSA9IDMwMCkKYGBgCgoKYGBge3IsIGV2YWwgPSBUUlVFLCBlY2hvID0gRkFMU0V9CmluaXRpYWxfY29tbWVudCA8LSBwYXN0ZTAoIkhlcmXigJlzIHRoZSBsYXRlc3QgcGxvdCB1cGRhdGUgZm9yIHRoZSBjb252ZXJnZW5jZSBpbiBtIGZvciB0aGUgb3B0aW1hbCBjb250cm9sIHByb2JsZW0hIHdpdGgga2FwcGEgPSAiLCBrYXBwYSwgIiBhbmQgZGl2aWRlciA9ICIsIGRpdmlkZXIpCiMgb3B0aW9uIDEKc2xhY2tyX3VwbG9hZCgKICBmaWxlbmFtZSA9ICJkYXRhX2ZpbGVzL2NvbnRyb2xfY29udl9yYXRlc19tX2FsbF93aXRoX2l0ZXJhdGlvbi5wbmciLCAgICAgICAgIyBwYXRoIHRvIHlvdXIgaW1hZ2UKICBpbml0aWFsX2NvbW1lbnQgPSBpbml0aWFsX2NvbW1lbnQsCiAgY2hhbm5lbHMgPSAiI3Jlc2VhcmNoIgopCmBgYAoKIyBSZWZlcmVuY2VzCgpgYGB7cn0KY2l0ZV9wYWNrYWdlcyhvdXRwdXQgPSAicGFyYWdyYXBoIiwgb3V0LmRpciA9ICIuIikKYGBgCg==</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("control_conv_m_with_iteration.Rmd");
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
