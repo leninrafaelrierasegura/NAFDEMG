@@ -304,20 +304,20 @@ In this section, we implement the numerical scheme for the optimal control probl
 T_final <- 2
 time_step <- 0.02
 h <- 0.02
-kappa <- 15
+kappa <- 4
 alpha <- 1.8
 m = 4
 beta <- alpha/2
 mu <- 0.1
-a <- - 0.5*100
-b <- 0.5*100
+a <- - 0.5*10
+b <- 0.5*10
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
 coeff_elliptic_g <- rep(0, adjusted_N_finite)
-coeff_elliptic_g[7] <- 100*100
+coeff_elliptic_g[7] <- 100*1
 coeff_elliptic_f <- rep(0, adjusted_N_finite)
-coeff_elliptic_f[7] <- -10*100
+coeff_elliptic_f[7] <- -10*1
 # time and spatial mesh 
 time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
 graph <- gets.graph.tadpole(h = h)
@@ -382,25 +382,25 @@ R <- t(Psi) %*% overkill_graph$mesh$C
 
 
 ```{r}
-# overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(time_seq))
-# overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(time_seq))
-# 
-# 
-# z_bar_overkill <- pmax(overkill_A, pmin(overkill_B, overkill_elliptic_v %*% t(phi)))
-# f <- overkill_elliptic_u %*% t(psi_prime) + 
-#   overkill_elliptic_f %*% t(psi) - 
-#   z_bar_overkill
-# U_d <- overkill_elliptic_u %*% t(psi) - 
-#   mu * (overkill_elliptic_v %*% t(phi_prime)) + 
-#   mu * (overkill_elliptic_g %*% t(phi))
-# u_0 <- elliptic_u
+overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(time_seq))
+overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(time_seq))
 
-f <- (overkill_EIGENFUN[, 3] + overkill_EIGENFUN[, 5]) %*% t(phi)
-f <- ((overkill_graph$mesh$V[, 1])^2 - (overkill_graph$mesh$V[, 2])^2)  %*% t(phi)
 
-U_d <- (overkill_EIGENFUN[, 2] + overkill_EIGENFUN[, 4] + + overkill_EIGENFUN[, 6]) %*% t(psi)
-u_0 <- EIGENFUN[, 7]
-u_0 <- graph$mesh$V[, 1] - graph$mesh$V[, 2]
+z_bar_overkill <- pmax(overkill_A, pmin(overkill_B, overkill_elliptic_v %*% t(phi)))
+f <- overkill_elliptic_u %*% t(psi_prime) +
+  overkill_elliptic_f %*% t(psi) -
+  z_bar_overkill
+U_d <- overkill_elliptic_u %*% t(psi) -
+  mu * (overkill_elliptic_v %*% t(phi_prime)) +
+  mu * (overkill_elliptic_g %*% t(phi))
+u_0 <- elliptic_u
+
+# f <- (overkill_EIGENFUN[, 3] + overkill_EIGENFUN[, 5]) %*% t(phi)
+# f <- ((overkill_graph$mesh$V[, 1])^2 - (overkill_graph$mesh$V[, 2])^2)  %*% t(phi)
+# 
+# U_d <- (overkill_EIGENFUN[, 2] + overkill_EIGENFUN[, 4] + + overkill_EIGENFUN[, 6]) %*% t(psi)
+# u_0 <- EIGENFUN[, 7]
+# u_0 <- graph$mesh$V[, 1] - graph$mesh$V[, 2]
 
 
 F_proj <- R %*% f
@@ -419,7 +419,7 @@ res <- solve_coupled_system_multi_tol(
   time_seq = time_seq, 
   u_0 = u_0, 
   F_proj = F_proj, 
-  Z_ini = F_proj*1e3,
+  Z_ini = F_proj*0 + 1,
   V_d = V_d, 
   u_d = u_d,
   Psi = Psi, 
@@ -468,17 +468,22 @@ idx <- seq(start_idx, end_idx, by = 1)
 
 ## Visualization of the results {#visualization_results}
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal state variable.")}
+```
+{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal state variable.")}
+U_list$u_true <- u_bar
 graph.plotter.3d(graph, time_seq[idx], time_seq[idx], U_list)
 ```
 
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal adjoint variable.")}
+```
+{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal adjoint variable.")}
+P_list$p_true <- p_bar
 graph.plotter.3d(graph, time_seq[idx], time_seq[idx], P_list)
 ```
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal control variable.")}
+Z_list$z_true <- z_bar
 graph.plotter.3d(graph, time_seq[idx], time_seq[idx], Z_list)
 ```
 

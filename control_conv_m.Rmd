@@ -103,8 +103,8 @@ source(here::here("functionality.R"))
 ```{r}
 # Parameters
 T_final <- 2
-kappa <- readRDS("old/kappa.RDS") #4
-divider <- readRDS("old/divider.RDS") 
+kappa <- 16 # readRDS("old/kappa.RDS") #4
+divider <- 1 # readRDS("old/divider.RDS") 
 mu <- 0.1
 a <- - 0.5*1
 b <- 0.5*1
@@ -150,7 +150,7 @@ alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
-```{r, eval = FALSE, class.source = "fold-show"}
+```{r, eval = TRUE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_u_bar <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
 errors_p_bar <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
@@ -258,7 +258,7 @@ for (j in 1:length(alpha_vector)) {
     slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
-#save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_m.RData"))
+save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_m.RData"))
 ```
 
 # Convergence results
