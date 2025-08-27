@@ -96,6 +96,9 @@ library(grateful)
 library(ggplot2)
 library(reshape2)
 library(plotly)
+library(slackr)
+source("keys.R")
+slackr_setup(token = token) # token comes from keys.R
 ```
 
 
@@ -113,7 +116,8 @@ source(here::here("functionality.R"))
 ```{r}
 # Parameters
 T_final <- 2
-kappa <- 4
+kappa <- readRDS("old/kappa.RDS") #4
+divider <- readRDS("old/divider.RDS") 
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for u_0 and f
@@ -126,7 +130,7 @@ AAA = 1
 OMEGA = pi
 
 # Time step and mesh size
-m_vector <- c(1, 2, 3, 4)
+m_vector <- c(1, 2, 3, 4, 5, 6, 7, 8)
     
 # Overkill parameters
 overkill_time_step <- 0.1 * 2^-14
@@ -143,19 +147,8 @@ overkill_weights <- overkill_graph$mesh$weights
 alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
-```{r, eval = FALSE, echo = FALSE}
-for (j in 1:length(alpha_vector)) {
-  alpha <- alpha_vector[j]
-    for (i in 1:length(m_vector)) {
-    m <- m_vector[i]
-    h <- exp(- pi * sqrt((1 - alpha / 2) * m))/7 # exp(- (4 * pi / 5) * sqrt((1 - alpha / 2) * m))/10
-    time_step <- (h^alpha)/1
-    print(paste("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step))
-    }}
-```
 
-
-```{r, eval = FALSE, class.source = "fold-show"}
+```{r, eval = TRUE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_projected <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {
@@ -175,7 +168,7 @@ for (j in 1:length(alpha_vector)) {
   
   for (i in 1:length(m_vector)) {
     m <- m_vector[i]
-    h <- exp(- pi * sqrt((1 - alpha / 2) * m))/7 # exp(- (4 * pi / 5) * sqrt((1 - alpha / 2) * m))/10
+    h <- exp(- pi * sqrt((1 - alpha / 2) * m))/divider # exp(- (4 * pi / 5) * sqrt((1 - alpha / 2) * m))/10
     time_step <- (h^alpha)/1
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
@@ -205,7 +198,7 @@ for (j in 1:length(alpha_vector)) {
     projected_U_approx <- Psi %*% U_approx
     projected_U_piecewise <- construct_piecewise_projection(projected_U_approx, time_seq, overkill_time_seq)
     errors_projected[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_U_true - projected_U_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
-    print(paste("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step))
+    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
 save(errors_projected, file = here::here("data_files/errors_projected_m.RData"))
@@ -245,10 +238,7 @@ save(p_m, file = here::here("data_files/p_m.RData"))
 
 
 ```{r, eval = TRUE, echo = FALSE}
-library(slackr)
-source("keys.R")
-slackr_setup(token = token) # token comes from keys.R
-initial_comment <- "Here’s the latest plot update for the convergence in m!"
+initial_comment <- paste0("Here’s the latest plot update for the convergence in m for the optimal control problem! with kappa = ", kappa, " and divider = ", divider)
 # option 1
 slackr_upload(
   filename = "data_files/conv_rates_m.png",        # path to your image

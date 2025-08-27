@@ -15,11 +15,12 @@ library(plotly)
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
                          ) {
-  m1table <- rSPDE:::m1table
-  m2table <- rSPDE:::m2table
-  m3table <- rSPDE:::m3table
-  m4table <- rSPDE:::m4table
-  mt <- get(paste0("m", m, "table"))
+  # m1table <- rSPDE:::m1table
+  # m2table <- rSPDE:::m2table
+  # m3table <- rSPDE:::m3table
+  # m4table <- rSPDE:::m4table
+  # mt <- get(paste0("m", m, "table"))
+  mt <- readRDS("data_files/chebfun_tables.RDS")[[m]]
   rb <- rep(0, m + 1)
   rc <- rep(0, m)
   if(m == 1) {
@@ -51,20 +52,38 @@ poly.from.roots <- function(roots) {
 
 ## -----------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
+# compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
+#                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
+#                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
+#                                            time_step, # \tau
+#                                            scaling # \kappa^{2\beta}
+#                                            ) {
+#   pr_coef <- c(0, poly.from.roots(pr_roots)) 
+#   pl_coef <- poly.from.roots(pl_roots) 
+#   factor_pr_coef <- pr_coef
+#   pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
+#   res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
+#   return(list(r = res$r, # residues \{a_k\}_{k=1}^{m+1}
+#               p = res$p, # poles \{p_k\}_{k=1}^{m+1}
+#               k = res$k # remainder r
+#               )) 
+# }
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
                                            time_step, # \tau
                                            scaling # \kappa^{2\beta}
                                            ) {
-  pr_coef <- c(0, poly.from.roots(pr_roots)) 
-  pl_coef <- poly.from.roots(pl_roots) 
-  factor_pr_coef <- pr_coef
-  pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
-  res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
-  return(list(r = res$r, # residues \{a_k\}_{k=1}^{m+1}
-              p = res$p, # poles \{p_k\}_{k=1}^{m+1}
-              k = res$k # remainder r
+  pr_coef <- poly.from.roots(pr_roots)
+  pl_coef <- poly.from.roots(pl_roots)
+  pr_plus_pl_coef <- c(0, pr_coef) + ((scaling * time_step)/factor) * pl_coef
+  poles <- Re(polyroot(rev(pr_plus_pl_coef)))
+  num_vals <- pracma::polyval(pr_coef, poles)
+  den_deriv <- Re(pracma::polyval(pracma::polyder(pr_plus_pl_coef), poles))
+  residues <- Re(num_vals / den_deriv)
+  return(list(r = residues, # residues \{a_k\}_{k=1}^{m+1}
+              p = poles, # poles \{p_k\}_{k=1}^{m+1}
+              k = 0 # remainder r
               )) 
 }
 
@@ -96,13 +115,14 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
     partial_fraction_terms <- list()
     for (i in 1:(m+1)) {
       # Here is where the terms in the sum in eq 12 are computed
-      partial_fraction_terms[[i]] <- (L - poles_rs_k$p[i] * C)/poles_rs_k$r[i]
+      partial_fraction_terms[[i]] <- (L - poles_rs_k$p[i] * C)#/poles_rs_k$r[i]
       }
     return(list(C = C, # mass matrix
                 L = L, # Laplacian matrix scaled
                 m = m, # rational order
                 beta = beta, # smoothness parameter
-                partial_fraction_terms = partial_fraction_terms # partial fraction terms
+                partial_fraction_terms = partial_fraction_terms, # partial fraction terms
+                residues = poles_rs_k$r # residues \{a_k\}_{k=1}^{m+1}
                 ))
   }
 }
@@ -120,8 +140,9 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
            )
   } else {
     partial_fraction_terms <- obj$partial_fraction_terms
+    residues <- obj$residues
     output <- v*0
-    for (i in 1:(m+1)) {output <- output + solve(partial_fraction_terms[[i]], v)}
+    for (i in 1:(m+1)) {output <- output + residues[i] * solve(partial_fraction_terms[[i]], v)}
     return(output # solve the linear system using the partial fraction decomposition
            )
   }

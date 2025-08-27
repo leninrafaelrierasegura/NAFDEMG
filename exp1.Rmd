@@ -272,6 +272,7 @@ FF_true <- EIGENFUN %*% outer(1:length(coeff_FF),
 # Numerical solution
 my_op_frac <- my.fractional.operators.frac(L, beta, C, scale.factor = kappa^2, m = m, time_step)
 
+
 U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0, RHST = FF_innerprod)
 
 error <- sqrt(as.double(t(graph$mesh$weights) %*% (U_true - U_approx)^2 %*% rep(time_step, ncol(U_true))))

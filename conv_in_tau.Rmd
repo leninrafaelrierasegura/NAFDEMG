@@ -96,6 +96,9 @@ library(grateful)
 library(ggplot2)
 library(reshape2)
 library(plotly)
+library(slackr)
+source("keys.R")
+slackr_setup(token = token) # token comes from keys.R
 ```
 
 
@@ -146,7 +149,7 @@ alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
-```{r, eval = FALSE, class.source = "fold-show"}
+```{r, eval = TRUE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_projected <- matrix(NA, nrow = length(tau_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {
@@ -167,7 +170,7 @@ for (j in 1:length(alpha_vector)) {
   for (i in 1:length(tau_vector)) {
     time_step <- tau_vector[i]
     h <- time_step^(1/alpha)
-    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) # min(4, ceiling(25 * (log(h))^2 / (16 * pi^2 * (1 - alpha / 2))))
+    m <- min(8, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) # min(4, ceiling(25 * (log(h))^2 / (16 * pi^2 * (1 - alpha / 2))))
     m_values <- c(m_values, m)
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
@@ -197,7 +200,7 @@ for (j in 1:length(alpha_vector)) {
     projected_U_approx <- Psi %*% U_approx
     projected_U_piecewise <- construct_piecewise_projection(projected_U_approx, time_seq, overkill_time_seq)
     errors_projected[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_U_true - projected_U_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
-    print(paste("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step))
+    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
 save(errors_projected, file = here::here("data_files/errors_projected_tau.RData"))
@@ -238,9 +241,6 @@ save(p_tau, file = here::here("data_files/p_tau.RData"))
 
 
 ```{r, eval = TRUE, echo = FALSE}
-library(slackr)
-source("keys.R")
-slackr_setup(token = token) # token comes from keys.R
 initial_comment <- "Here’s the latest plot update for the convergence in τ!"
 # option 1
 slackr_upload(

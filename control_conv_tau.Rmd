@@ -162,7 +162,7 @@ for (j in 1:length(alpha_vector)) {
 }
 ```
 
-```{r, eval = FALSE, class.source = "fold-show"}
+```{r, eval = TRUE, class.source = "fold-show"}
 # Create a matrices to store the errors
 errors_u_bar <- matrix(NA, nrow = length(tau_vector), ncol = length(alpha_vector))
 errors_p_bar <- matrix(NA, nrow = length(tau_vector), ncol = length(alpha_vector))
@@ -191,7 +191,7 @@ for (j in 1:length(alpha_vector)) {
   for (i in 1:length(tau_vector)) {
     time_step <- tau_vector[i]
     h <- (time_step^(1/alpha))/divider
-    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) # min(4, ceiling(25 * (log(h))^2 / (16 * pi^2 * (1 - alpha / 2))))
+    m <- min(5, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) # min(4, ceiling(25 * (log(h))^2 / (16 * pi^2 * (1 - alpha / 2))))
     m_values <- c(m_values, m)
     time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
     graph <- gets.graph.tadpole(h = h)
@@ -275,7 +275,7 @@ for (j in 1:length(alpha_vector)) {
 
 ```{r}
 # Load the errors data
-load(here::here("data_files/control_error_tau.RData"))
+# load(here::here("data_files/control_error_tau.RData"))
 
 observed_rates_u_bar <- numeric(length(alpha_vector))
 observed_rates_p_bar <- numeric(length(alpha_vector))
