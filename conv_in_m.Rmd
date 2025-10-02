@@ -116,8 +116,8 @@ source(here::here("functionality.R"))
 ```{r}
 # Parameters
 T_final <- 2
-kappa <- readRDS("old/kappa.RDS") #4
-divider <- readRDS("old/divider.RDS") 
+kappa <- 4
+divider <- 7
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for u_0 and f
@@ -130,7 +130,7 @@ AAA = 1
 OMEGA = pi
 
 # Time step and mesh size
-m_vector <- c(1, 2, 3, 4, 5, 6, 7, 8)
+m_vector <- c(1, 2, 3, 4)
     
 # Overkill parameters
 overkill_time_step <- 0.1 * 2^-14
@@ -148,7 +148,7 @@ alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
-```{r, eval = TRUE, class.source = "fold-show"}
+```{r, eval = FALSE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_projected <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {

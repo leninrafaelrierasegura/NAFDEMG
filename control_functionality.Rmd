@@ -1,4 +1,89 @@
-## ----------------------------------------------------------------------------------------------------------------------------------
+---
+title: "Functionality"
+date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+    code_download: true
+    css: visual.css
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+---
+
+Go back to the [Contents](about.html) page.
+
+<div style="color: #2c3e50; text-align: right;">
+********  
+<strong>Press Show to reveal the code chunks.</strong>  
+
+********
+</div>
+
+
+```{r, purl = FALSE, echo = FALSE}
+# Create a clipboard button on the rendered HTML page
+source(here::here("clipboard.R")); clipboard
+```
+
+
+```{r, purl = FALSE, class.source = "fold-hide"}
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+```
+
+
+
+```{r}
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -8,18 +93,141 @@ library(grateful)
 library(ggplot2)
 library(reshape2)
 library(plotly)
+```
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+## Fractional diffusion equations on metric graphs
+
+We analyze and numerically approximate solutions to fractional diffusion equations on metric graphs of the form
+\begin{equation}
+\label{eq:maineq}
+\tag{1}
+\left\{
+\begin{aligned}
+    \partial_t u(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s,t) &= f(s,t), && \quad (s,t) \in \Gamma \times (0, T), \\
+    u(s,0) &= u_0(s), && \quad s \in \Gamma,
+\end{aligned}
+\right.
+\end{equation}
+with $u(\cdot,t)$ satisfying the Kirchhoff vertex conditions
+\begin{equation}
+\label{eq:Kcond}
+\tag{2}
+   \mathcal{K} =  \left\{\phi\in C(\Gamma)\;\middle|\; \forall v\in \mathcal{V}:\; \sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}.
+\end{equation}
+Here $\Gamma = (\mathcal{V},\mathcal{E})$ is a metric graph, $\kappa>0$, $\alpha\in(0,2]$ determines the smoothness of $u(\cdot,t)$, $\Delta_{\Gamma}$ is the so-called Kirchhoff--Laplacian, and $f:\Gamma\times (0,T)\to\mathbb{R}$ and $u_0: \Gamma \to \mathbb{R}$ are fixed functions, called right-hand side and initial condition, respectively.
+
+## Numerical Scheme {#num_scheme}
+
+Let $\alpha\in(0,2]$ and $U_h^\tau$ denote the sequence of approximations of the solution to the weak form of problem \eqref{eq:maineq} at each time step on a mesh indexed by $h$. Let $U^0_h = P_hu_0$. For $k=0,\dots, N-1$, $U_h^{k+1}\in V_h$ solves the following scheme
+\begin{align}
+\label{system:fully_discrete_scheme}
+\tag{3}
+        \langle\delta U_h^{k+1},\phi\rangle + \mathfrak{a}(U_h^{k+1},\phi) = \langle f^{k+1},\phi\rangle ,\quad\forall\phi\in V_h,
+\end{align}
+where $f^{k+1} = \displaystyle\dfrac{1}{\tau}\int_{t_k}^{t^{k+1}}f(t)dt$. At each time step $t_k$, the finite element solution $U_h^k\in V_h$ to \eqref{system:fully_discrete_scheme} can be expressed as a linear combination of the basis functions  $\{\psi^i_h\}_{i=1}^{N_h}$ introduced in the [Preliminaries](preliminaries.html#fem-basis) page, namely, 
+\begin{align}
+\label{num_sol}
+\tag{4}
+    U_h^k(s) =  \sum_{i=1}^{N_h}u_i^k\psi^i_h(s), \;s\in\Gamma.
+\end{align}
+Replacing \eqref{num_sol} into \eqref{system:fully_discrete_scheme} yields the following linear system
+\begin{align*}
+    \sum_{j=1}^{N_h}u_j^{k+1}[(\psi_j,\psi_i)_{L_2(\Gamma)}+ \tau\mathfrak{a}(\psi_j,\psi_i)] = \sum_{j=1}^{N_h}u_j^{k}(\psi_j,\psi_i)_{L_2(\Gamma)}+\tau( f^{k+1},\psi_i)_{L_2(\Gamma)},
+\end{align*}
+for $i = 1,\dots, N_h$. In matrix notation,
+\begin{align}
+\label{diff_eq_discrete}
+    (\boldsymbol{C}+\tau \boldsymbol{L}^{\alpha/2})\boldsymbol{U}^{k+1} = \boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1},
+\end{align}
+or by introducing the scaling parameter $\kappa^2>0$,
+\begin{align}
+    (\boldsymbol{C}+\tau (\kappa^2)^{\alpha/2}(\boldsymbol{L}/\kappa^2)^{\alpha/2})\boldsymbol{U}^{k+1} = \boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1},
+\end{align}
+where $\boldsymbol{C}$ has entries $\boldsymbol{C}_{ij} = (\psi_j,\psi_i)_{L_2(\Gamma)}$, $\boldsymbol{L}^{\alpha/2}$ has entries $\mathfrak{a}(\psi_j,\psi_i)$, $\boldsymbol{U}^k$ has entries $u_j^k$, and $\boldsymbol{F}^k$ has entries $( f^{k},\psi_i)_{L_2(\Gamma)}$.  To reduce computational cost and promote sparsity, we replace the mass matrix $\boldsymbol{C}$ with a lumped mass matrix $\tilde{\boldsymbol{C}}$, which is diagonal with entries $\tilde{\boldsymbol{C}}_{ii}=\sum_{j=1}^{N_h}\boldsymbol{C}_{ij}$.  For convenience, we write $\boldsymbol{C}$ instead of $\tilde{\boldsymbol{C}}$ in the following. Applying $(\boldsymbol{L}/\kappa^2)^{-\alpha/2}$ to both sides yields
+\begin{equation}
+((\boldsymbol{L}/\kappa^2)^{-\alpha/2}\boldsymbol{C}+\tau (\kappa^2)^{\alpha/2}\boldsymbol{I})\boldsymbol{U}^{k+1} = (\boldsymbol{L}/\kappa^2)^{-\alpha/2}(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}).
+\end{equation}
+Following @rSPDE2020, we approximate $(\boldsymbol{L}/\kappa^2)^{-\alpha/2}$ by $\boldsymbol{P}_\ell^{-\top}\boldsymbol{P}_r^\top$ to arrive at
+\begin{equation}
+\label{eq:scheme2}
+\tag{5}
+(\boldsymbol{P}_\ell^{-\top}\boldsymbol{P}_r^\top \boldsymbol{C}+\tau(\kappa^2)^{\alpha/2} \boldsymbol{I})\boldsymbol{U}^{k+1} = \boldsymbol{P}_\ell^{-\top}\boldsymbol{P}_r^\top(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}).
+\end{equation}
+where
+\begin{equation}
+\label{eq:PLPR}
+\tag{6}
+\boldsymbol{P}_r = \prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right)\quad\text{and}\quad \boldsymbol{P}_\ell = \dfrac{1}{\texttt{factor}}\boldsymbol{C}\prod_{j=1}^{m+1} \left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right),
+\end{equation}
+and $\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, and
+$\{r_{1i}\}_{i=1}^m$ and $\{r_{2j}\}_{j=1}^{m+1}$ are the roots of $q_1(x) =\sum_{i=0}^mc_ix^{i}$ and  $q_2(x)=\sum_{j=0}^{m+1}b_jx^{j}$, respectively. The coefficients  $\{c_i\}_{i=0}^m$ and  $\{b_j\}_{j=0}^{m+1}$ are determined as the best rational approximation $\hat{r}_m =q_1/q_2$ of the function $\hat{f}(x) := x^{\alpha/2-1}$ over the interval $J_h: = [\kappa^{2}\lambda_{N_h,h}^{-1}, \kappa^{2}\lambda_{1,h}^{-1}]$, where $\lambda_{1,h}, \lambda_{N_h,h}>0$ are the smallest and the largest eigenvalue of $L_h$, respectively.
+
+
+For the sake of clarity, we note that the numerical implementation of @rSPDE2020 actually defines $\boldsymbol{P}_r$ and $\boldsymbol{P}_\ell$ as
+\begin{equation}
+\label{eq:PLPRbolin}
+\tag{7}
+\boldsymbol{P}_r = \prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right)\quad\text{and}\quad \boldsymbol{P}_\ell = \dfrac{\kappa^{2\beta}}{\texttt{factor}}\boldsymbol{C}\prod_{j=1}^{m+1} \left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right),
+\end{equation}
+where $\beta = \alpha/2$ and the scaling factor $(\kappa^2)^{\alpha/2}$ or $\kappa^{2\beta}$ is already incorporated in $\boldsymbol{P}_\ell$, a convention we adopt in the following. With this under consideration, we can rewrite \eqref{eq:scheme2} as
+\begin{equation}
+\tag{8}
+(\boldsymbol{P}_r^\top \boldsymbol{C}+\tau \boldsymbol{P}_\ell^\top)\boldsymbol{U}^{k+1} = \boldsymbol{P}_r^\top(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}),
+\label{eq:scheme}
+\end{equation}
+where  
+\begin{equation}
+\boldsymbol{P}_r^\top = \prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\quad\text{and}\quad \boldsymbol{P}_\ell^\top = \dfrac{\kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\cdot \boldsymbol{C}
+\end{equation}
+since $\boldsymbol{L}$ and $\boldsymbol{C}^{-1}$ are symmetric and the factors in the product commute. Replacing these two into \eqref{eq:scheme} yields
+\begin{equation}
+\left(\prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\right)\boldsymbol{C}\boldsymbol{U}^{k+1} = \prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\cdot (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}),
+\end{equation}
+that is,
+\begin{equation}
+\label{eq:final_scheme}
+\tag{9}
+\boldsymbol{U}^{k+1} = \boldsymbol{C}^{-1}\left(\prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\right)^{-1} \prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\cdot (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}).
+\end{equation}
+Considering the partial fraction decomposition
+\begin{equation}
+\label{eq:partial_fraction}
+\tag{10}
+\dfrac{\prod_{i=1}^m (1-r_{1i}x)}{\prod_{i=1}^m (1-r_{1i}x)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}} \prod_{j=1}^{m+1} (1-r_{2j}x)}=\sum_{k=1}^{m+1} a_k(x-p_k)^{-1} + r,
+\end{equation}
+scheme \eqref{eq:final_scheme} can be expressed as
+\begin{equation}
+\label{eq:final_scheme2}
+\tag{11}
+\boldsymbol{U}^{k+1} = \boldsymbol{C}^{-1}\left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1} + r\boldsymbol{I}\right) (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1})
+\end{equation}
+
+In practice, since the rational function in \eqref{eq:partial_fraction} is proper, there is no remainder $r$. Moreover, since $\left( \dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1}  = \boldsymbol{C}\left( \dfrac{\boldsymbol{L}}{\kappa^2}-p_k\boldsymbol{C}\right)^{-1}$, we have that \eqref{eq:final_scheme2} can be rewritten as
+
+\begin{equation}
+\label{eq:final_scheme3}
+\tag{12}
+\boldsymbol{U}^{k+1} = \left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\boldsymbol{L}}{\kappa^2}-p_k\boldsymbol{C}\right)^{-1}\right) (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}).
+\end{equation}
+
+## Numerical implementation {#num_implementation}
+
+### Function `my.get.roots()`
+
+For each rational order $m$ (1,2,3,4) and smoothness parameter $\beta$ (= $\alpha/2$ with $\alpha$ between 0.5 and 2), function `my.get.roots()` (adapted from the `rSPDE` package) returns $\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, and the roots $\{r_{1i}\}_{i=1}^m$ and $\{r_{2j}\}_{j=1}^{m+1}$.
+
+```{r}
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
                          ) {
-  m1table <- rSPDE:::m1table
-  m2table <- rSPDE:::m2table
-  m3table <- rSPDE:::m3table
-  m4table <- rSPDE:::m4table
-  mt <- get(paste0("m", m, "table"))
+  # m1table <- rSPDE:::m1table
+  # m2table <- rSPDE:::m2table
+  # m3table <- rSPDE:::m3table
+  # m4table <- rSPDE:::m4table
+  # mt <- get(paste0("m", m, "table"))
+  mt <- readRDS("data_files/chebfun_tables.RDS")[[m]]
   rb <- rep(0, m + 1)
   rc <- rep(0, m)
   if(m == 1) {
@@ -38,38 +246,68 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
               factor = factor # this is c_m/b_{m+1}
               ))
 }
+```
 
+### Function `poly.from.roots()`
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+Function `poly.from.roots()` computes the coefficients of a polynomial from its roots.
+
+```{r}
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
   for (r in roots) {coef <- convolve(coef, c(1, -r), type = "open")}
   return(coef) # returned in increasing order like a+bx+cx^2+...
 }
+```
 
+### Function `compute.partial.fraction.param()`
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+Given `factor`$=\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, `pr_roots`$=\{r_{1i}\}_{i=1}^m$, `pl_roots`$=\{r_{2j}\}_{j=1}^{m+1}$, `time_step`$=\tau$, and `scaling`$=\kappa^{2\beta}$, function `compute.partial.fraction.param()` computes the parameters for the partial fraction decomposition \eqref{eq:partial_fraction}.
+
+```{r}
 # Function to compute the parameters for the partial fraction decomposition
+# compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
+#                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
+#                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
+#                                            time_step, # \tau
+#                                            scaling # \kappa^{2\beta}
+#                                            ) {
+#   pr_coef <- c(0, poly.from.roots(pr_roots)) 
+#   pl_coef <- poly.from.roots(pl_roots) 
+#   factor_pr_coef <- pr_coef
+#   pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
+#   res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
+#   return(list(r = res$r, # residues \{a_k\}_{k=1}^{m+1}
+#               p = res$p, # poles \{p_k\}_{k=1}^{m+1}
+#               k = res$k # remainder r
+#               )) 
+# }
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
                                            time_step, # \tau
                                            scaling # \kappa^{2\beta}
                                            ) {
-  pr_coef <- c(0, poly.from.roots(pr_roots))
+  pr_coef <- poly.from.roots(pr_roots)
   pl_coef <- poly.from.roots(pl_roots)
-  factor_pr_coef <- pr_coef
-  pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
-  res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
-  return(list(r = res$r, # residues \{a_k\}_{k=1}^{m+1}
-              p = res$p, # poles \{p_k\}_{k=1}^{m+1}
-              k = res$k # remainder r
-              ))
+  pr_plus_pl_coef <- c(0, pr_coef) + ((scaling * time_step)/factor) * pl_coef
+  poles <- Re(polyroot(rev(pr_plus_pl_coef)))
+  num_vals <- pracma::polyval(pr_coef, poles)
+  den_deriv <- Re(pracma::polyval(pracma::polyder(pr_plus_pl_coef), poles))
+  residues <- Re(num_vals / den_deriv)
+  return(list(r = residues, # residues \{a_k\}_{k=1}^{m+1}
+              p = poles, # poles \{p_k\}_{k=1}^{m+1}
+              k = 0 # remainder r
+              )) 
 }
+```
 
+### Function `my.fractional.operators.frac()`
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+Given the Laplacian matrix `L`, the smoothness parameter `beta`, the mass matrix `C` (not lumped), the scaling factor `scale.factor`$=\kappa^2$, the rational order `m`, and the time step `time_step`$=\tau$, function `my.fractional.operators.frac()` computes the fractional operator and returns a list containing the necessary matrices and parameters for the fractional diffusion equation.
+
+```{r}
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
@@ -107,9 +345,13 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                 ))
   }
 }
+```
 
+### Function `my.solver.frac()`
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+Given the object returned by `my.fractional.operators.frac()` and a vector `v`, function `my.solver.frac()` solves the linear system \eqref{eq:final_scheme2} for the vector `v`. If `beta = 1`, it solves the linear system directly; otherwise, it uses the partial fraction decomposition.
+
+```{r}
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -128,9 +370,15 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
            )
   }
 }
+```
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+### Function `solve_fractional_evolution()`
+
+Given the fractional operator object `my_op_frac`, a time step `time_step`, a sequence of time points `time_seq`, an initial value `val_at_0`, and the right-hand side matrix `RHST`, function `solve_fractional_evolution()` computes the solution to the fractional diffusion equation at each time step using scheme \eqref{eq:final_scheme2}.
+
+
+```{r}
 solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0, RHST) {
   CC <- my_op_frac$C
   SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
@@ -141,9 +389,16 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
   }
   return(SOL)
 }
+```
+
+## Auxiliary functions {#auxiliary_functions}
+
+### Function `gets.graph.tadpole()`
+
+Given a mesh size `h`, function `gets.graph.tadpole()` builds a tadpole graph and creates a mesh.
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+```{r}
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(h){
   edge1 <- rbind(c(0,0),c(1,0))
@@ -155,9 +410,15 @@ gets.graph.tadpole <- function(h){
   graph$build_mesh(h = h)
   return(graph)
 }
+```
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+### Function `tadpole.eig()`
+
+Given a mode number `k` and a tadpole graph `graph`, function `tadpole.eig()` computes the eigenpairs of the tadpole graph.
+
+
+```{r}
 # Function to compute the eigenfunctions of the tadpole graph
 tadpole.eig <- function(k,graph){
 x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -186,9 +447,14 @@ if(k==0){
 }
 return(f)
 }
+```
+
+### Function `gets.eigen.params()`
+
+Given a finite number of modes `N_finite`, a scaling parameter `kappa`, a smoothness parameter `alpha`, and a tadpole graph `graph`, function `gets.eigen.params()` computes `EIGENVAL_ALPHA` (a vector with entries $\lambda_j^{\alpha/2}$), `EIGENVAL_MINUS_ALPHA` (a vector with entries $\lambda_j^{-\alpha/2}$), and `EIGENFUN` (a matrix with columns $e_j$ on the mesh of `graph`).
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+```{r}
 # Function to compute the eigenpairs of the tadpole graph
 gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
   EIGENVAL <- NULL
@@ -224,9 +490,14 @@ gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
               EIGENFUN = EIGENFUN,
               INDEX = INDEX))
 }
+```
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+### Function `construct_piecewise_projection()` {#construct_piecewise_projection}
+
+Given a matrix `projected_U_approx` with approximated values at discrete time points, a sequence of time points `time_seq`, and an extended sequence of time points `overkill_time_seq`, function `construct_piecewise_projection()` constructs a piecewise constant projection of the approximated values over the extended time sequence.
+
+```{r}
 # Function to construct a piecewise constant projection of approximated values
 construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
   projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
@@ -242,9 +513,11 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
   
   return(projected_U_piecewise)
 }
+```
 
+### Functions for computing the true line rates
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+```{r}
 loglog_line_equation <- function(x1, y1, slope) {
   b <- log10(y1 / (x1 ^ slope))
   
@@ -279,9 +552,24 @@ compute_guiding_lines <- function(x_axis_vector, errors, theoretical_rates, line
   
   return(guiding_lines)
 }
+```
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+
+### Functions for computing an exact solution to the fractional diffusion equation {#exact_solution}
+
+Below we present closed-form expressions for $\displaystyle G_j(t)= \int_0^t e^{\lambda^{\alpha/2}_jr}g(r)dr$ corresponding to some choices of $g(r)$.
+
+\begin{aligned}
+g(r) &= Ae^{-\lambda^{\alpha/2}_j r} &\implies\quad G_j(t) &= At, \quad A\in\mathbb{R} \\[1.5ex]
+g(r) &= Ae^{\mu r} &\implies\quad G_j(t) &= A \frac{e^{(\lambda^{\alpha/2}_j+\mu)t} - 1}{\lambda^{\alpha/2}_j + \mu}, \quad -\lambda^{\alpha/2}_j \ne \mu \in \mathbb{R} \\[1.5ex]
+g(r) &= Ar^n &\implies\quad G_j(t) &= A\frac{(-1)^{n+1} n!}{(\lambda_j^{\alpha/2})^{n+1}} \left(1 - e^{\lambda_j^{\alpha/2} t} \sum_{k=0}^n \frac{(-\lambda_j^{\alpha/2} t)^k}{k!} \right), \quad n=0,1,\dots \\[1.5ex]
+g(r) &= A\sin(\omega r) &\implies\quad G_j(t) &= A \frac{e^{\lambda_j^{\alpha/2} t} \left( \lambda_j^{\alpha/2} \sin(\omega t) - \omega \cos(\omega t) \right) + \omega}{(\lambda_j^{\alpha/2})^2 + \omega^2}, \quad \omega \in \mathbb{R} \\[1.5ex]
+g(r) &= A\cos(\theta r) &\implies\quad G_j(t) &= A \frac{e^{\lambda_j^{\alpha/2} t} \left( \lambda_j^{\alpha/2} \cos(\theta t) + \theta \sin(\theta t) \right) - \lambda_j^{\alpha/2}}{(\lambda_j^{\alpha/2})^2 + \theta^2}, \quad \theta \in \mathbb{R}
+\end{aligned}
+
+
+```{r}
 # Functions to compute the exact solution to the fractional diffusion equation
 g_linear <- function(r, A, lambda_j_alpha_half) {
   return(A * exp(-lambda_j_alpha_half * r))
@@ -324,15 +612,21 @@ G_cos <- function(t, A, lambda_j_alpha_half, theta) {
   numerator <- exp(lambda_j_alpha_half * t) * (lambda_j_alpha_half * cos(theta * t) + theta * sin(theta * t)) - lambda_j_alpha_half
   return(A * numerator / denom)
 }
+```
+
+### Function `reversecolumns()`
+
+Given a matrix `mat`, function `reversecolumns()` reverses the order of its columns.
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+```{r}
 reversecolumns <- function(mat) {
   return(mat[, rev(seq_len(ncol(mat)))])
 }
+```
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+```{r}
 # helper: measure change relative to the size of the previous iterate 
 change_comparer <- function(X_new, X_old, time_step, time_seq, weights, relative = TRUE) {
   num <- sqrt(as.double(t(weights) %*% ((X_new - X_old)^2) %*% rep(time_step, length(time_seq))))
@@ -346,9 +640,10 @@ change_comparer <- function(X_new, X_old, time_step, time_seq, weights, relative
     return(num / den)
   }
 }
+```
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+```{r}
 # Coupled solver with multi-criteria convergence
 solve_coupled_system_multi_tol <- function(
   my_op_frac,           # operator
@@ -464,9 +759,10 @@ solve_coupled_system_multi_tol <- function(
               U_list = U_list,
               P_list = P_list))
 }
+```
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+```{r}
 plot_convergence_history <- function(history_df, tol_list = NULL, type = "relative") {
   if (type == "relative"){
     text_title <- "|X_{iter} - X_{iter-1}| / |X_{iter}|"
@@ -503,18 +799,29 @@ plot_convergence_history <- function(history_df, tol_list = NULL, type = "relati
   
   return(plotly::ggplotly(p))
 }
+```
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+## Plotting functions {#plotting_functions}
+
+### Function `plotting.order()`
+
+Given a vector `v` and a graph object `graph`, function `plotting.order()` orders the mesh values for plotting.
+
+```{r}
 # Function to order the vertices for plotting
 plotting.order <- function(v, graph){
   edge_number <- graph$mesh$VtE[, 1]
   pos <- sum(edge_number == 1)+1
   return(c(v[1], v[3:pos], v[2], v[(pos+1):length(v)], v[2]))
 }
+```
 
+### Function `global.scene.setter()`
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+Given ranges for the `x`, `y`, and `z` axes, and an optional aspect ratio for the `z` axis, function `global.scene.setter()` sets the scene for 3D plots so that all plots have the same aspect ratio and camera position.
+
+```{r}
 # Function to set the scene for 3D plots
 global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
   
@@ -531,9 +838,13 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
                                           y = 0, 
                                           z = 0))))
 }
+```
 
+### Function `graph.plotter.3d()`
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+Given a graph object `graph`, a sequence of time points `time_seq`, and one or more matrices `...` representing function values defined on the mesh of `graph` at each time in `time_seq`, the `graph.plotter.3d()` function generates an interactive 3D visualization of these values over time.
+
+```{r}
 # Function to plot in 3D
 graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
   U_list <- list(...)
@@ -631,9 +942,9 @@ graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
 
   return(p)
 }
+```
 
-
-## ----------------------------------------------------------------------------------------------------------------------------------
+```{r}
 graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
   U_names <- names(U_list) 
   # Spatial coordinates
@@ -732,9 +1043,13 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
 
   return(p)
 }
+```
 
+### Function `error.at.each.time.plotter()`
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+Given a graph object `graph`, a matrix `U_true` of true values, a matrix `U_approx` of approximated values, a sequence of time points `time_seq`, and a time step `time_step`, function `error.at.each.time.plotter()` computes the error at each time step and generates a plot showing the error over time.
+
+```{r}
 # Function to plot the error at each time step
 error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_step) {
   weights <- graph$mesh$weights
@@ -756,9 +1071,13 @@ error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_s
 )
   return(p)
 }
+```
 
+### Function `graph.plotter.3d.comparer()`
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+Given a graph object `graph`, matrices `U_true` and `U_approx` representing true and approximated values, and a sequence of time points `time_seq`, function `graph.plotter.3d.comparer()` generates a 3D plot comparing the true and approximated values over time, with color-coded traces for each time point.
+
+```{r}
 # Function to plot the 3D comparison of U_true and U_approx
 graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -899,9 +1218,13 @@ graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
   
   return(p)
 }
+```
 
+### Function `graph.plotter.3d.single()`
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+Given a graph object `graph`, a matrix `U_true` representing true values, and a sequence of time points `time_seq`, function `graph.plotter.3d.single()` generates a 3D plot of the true values over time, with color-coded traces for each time point.
+
+```{r}
 # Function to plot a single 3D line for 
 graph.plotter.3d.single <- function(graph, U_true, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -973,9 +1296,11 @@ graph.plotter.3d.single <- function(graph, U_true, time_seq) {
   
   return(p)
 }
+```
 
+### Function `error.convergence.plotter()`
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+```{r}
 # Function to plot the error convergence
 error.convergence.plotter <- function(x_axis_vector, 
                                       alpha_vector, 
@@ -1048,9 +1373,10 @@ error.convergence.plotter <- function(x_axis_vector,
   return(p)
 }
 
+```
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+```{r}
 graph.plotter.3d.static <- function(graph, z_list) {
   x <- plotting.order(graph$mesh$V[, 1], graph)
   y <- plotting.order(graph$mesh$V[, 2], graph)
@@ -1102,9 +1428,10 @@ graph.plotter.3d.static <- function(graph, z_list) {
   return(p)
 }
 
+```
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------
+```{r}
 graph.plotter.3d.two.meshes.time <- function(graph_finer, graph_coarser, 
                                              time_seq, frame_val_to_display,
                                              fs_finer = list(), fs_coarser = list()) {
@@ -1268,5 +1595,13 @@ if (!is.null(vertical_coarser)) {
   
   return(p)
 }
+
+```
+
+## References
+
+```{r, purl = FALSE}
+grateful::cite_packages(output = "paragraph", out.dir = ".")
+```
 
 
