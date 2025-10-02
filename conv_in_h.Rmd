@@ -96,6 +96,9 @@ library(grateful)
 library(ggplot2)
 library(reshape2)
 library(plotly)
+library(slackr)
+source("keys.R")
+slackr_setup(token = token) # token comes from keys.R
 ```
 
 
@@ -201,7 +204,7 @@ for (j in 1:length(alpha_vector)) {
     projected_U_approx <- Psi %*% U_approx
     projected_U_piecewise <- construct_piecewise_projection(projected_U_approx, time_seq, overkill_time_seq)
     errors_projected[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_U_true - projected_U_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
-    print(paste("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step))
+    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
 save(errors_projected, file = here::here("data_files/errors_projected_h.RData"))
@@ -242,10 +245,7 @@ save(p_h, file = here::here("data_files/p_h.RData"))
 
 
 ```{r, eval = TRUE, echo = FALSE}
-library(slackr)
-source("keys.R")
-slackr_setup(token = token) # token comes from keys.R
-initial_comment <- "Here’s the latest plot update for th e convergence in h!"
+initial_comment <- "Here’s the latest plot update for the convergence in h!"
 # option 1
 slackr_upload(
   filename = "data_files/conv_rates_h.png",        # path to your image
