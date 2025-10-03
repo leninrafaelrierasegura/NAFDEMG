@@ -1,46 +1,16 @@
 source(here::here("control_functionality.R"))
 library(pracma)
-m <- 1
-beta <- readRDS("data_files/chebfun_tables.RDS")[[1]]$beta[1]
+m_vector <- 1:4
+errors <- rep(0, length(m_vector))
+for (i in 1:length(m_vector)) {
+m <- m_vector[i]
+beta <- readRDS("data_files/chebfun_tables.RDS")[[1]]$beta[100]
 
 res <- my.get.roots(m = m, beta = beta)
 
 factor <- res$factor
 pr_roots <- res$pr_roots
 pl_roots <- res$pl_roots
-
-kappa <- 15
-scaling <- (kappa^2)^beta
-time_step <- 0.001
-
-pr_coef <- poly.from.roots(pr_roots)
-pl_coef <- poly.from.roots(pl_roots)
-
-pr_plus_pl_coef <- c(0, pr_coef) + ((scaling * time_step)/factor) * pl_coef
-res <- gsignal::residue(pr_coef, pr_plus_pl_coef)
-res
-
-den_roots <- Re(polyroot(rev(pr_plus_pl_coef)))
-den_roots
-
-num_vals <- polyval(pr_coef, den_roots)
-den_deriv <- Re(polyval(polyder(pr_plus_pl_coef), den_roots))
-residues <- num_vals / den_deriv
-Re(residues)
-
-
-
-g_x <- function(x) {
-  term_matrix <- outer(x, den_roots, "-") # matrix of (x - p[i])
-  term_values <- sweep(1 / term_matrix, 2, Re(residues), "*") # multiply columns by r[i]
-  return(rowSums(term_values))
-}
-
-f_x <- function(x) {
-  up <- sapply(x, function(xx) sum(pr_coef * xx^(rev(seq_along(pr_coef))-1)))
-  down <- sapply(x, function(xx) sum(pr_plus_pl_coef * xx^(rev(seq_along(pr_plus_pl_coef))-1)))
-  up / down
-}
 
 exp_x <- function(x){
   return(x^(beta-1))
@@ -52,12 +22,31 @@ rat_x <- function(x) {
   factor * num / den
 }
 
-
-x <- seq(0, 1, by = 0.01)
+h <- pi * sqrt(m / (1-beta))
+upper_x <- 1
+lower_x <- 10^(-(5+m)/2)+0
+x <- seq(lower_x, upper_x, length.out = ((upper_x - 0) / h + 1))
 
 
 f <- exp_x(x) #f_x(x)
 g <- rat_x(x) #g_x(x)
+
+errors[i] <- max(abs(f-g))
+}
+
+
+coef(lm(log(errors) ~ sqrt(m_vector)))[2]
+
+- 2 * pi * sqrt(1-beta)
+
+
+
+
+
+
+
+
+
 
 
 sum((f - g)^2)  # Check if the two polynomials are equal
