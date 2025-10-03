@@ -146,6 +146,7 @@ overkill_graph <- gets.graph.tadpole(h = overkill_h)
 # Compute the weights on the finest mesh
 overkill_graph$compute_fem() # This is needed to compute the weights
 overkill_weights <- overkill_graph$mesh$weights
+E <- overkill_time_step * kronecker(Diagonal(n = length(overkill_time_seq)), overkill_graph$mesh$C)
 
 m_values <- c()
 alpha_vector <- seq(1, 1.8, by = 0.2)
@@ -195,15 +196,12 @@ for (j in 1:length(alpha_vector)) {
             1:length(time_seq), 
         function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))
     
-    U_approx <- matrix(NA, nrow = nrow(C), ncol = length(time_seq))
-    U_approx[, 1] <- U_0
-    for (k in 1:(length(time_seq) - 1)) {
-      U_approx[, k + 1] <- as.matrix(my.solver.frac(my_op_frac, my_op_frac$C %*% U_approx[, k] + time_step * FF_approx[, k + 1]))
-    }
+    U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0, RHST = FF_approx)
     
     projected_U_approx <- Psi %*% U_approx
     projected_U_piecewise <- construct_piecewise_projection(projected_U_approx, time_seq, overkill_time_seq)
-    errors_projected[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_U_true - projected_U_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
+    xx <- as.vector(overkill_U_true - projected_U_piecewise)
+    errors_projected[i,j] <- sqrt(as.double(t(xx) %*% E %*% xx)) 
     slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
