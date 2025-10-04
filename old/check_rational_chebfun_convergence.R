@@ -1,70 +1,61 @@
 source(here::here("control_functionality.R"))
-library(pracma)
-m_vector <- 1:4
-errors <- rep(0, length(m_vector))
-for (i in 1:length(m_vector)) {
-m <- m_vector[i]
-beta <- readRDS("data_files/chebfun_tables.RDS")[[1]]$beta[100]
-
-res <- my.get.roots(m = m, beta = beta)
-
-factor <- res$factor
-pr_roots <- res$pr_roots
-pl_roots <- res$pl_roots
-
-exp_x <- function(x){
+exp_x <- function(x, beta){
   return(x^(beta-1))
 }
-
-rat_x <- function(x) {
+rat_x <- function(x, pr_roots, pl_roots, factor) {
   num <- apply(outer(x, pr_roots, "-"), 1, prod)
   den <- apply(outer(x, pl_roots, "-"), 1, prod)
-  factor * num / den
+  return(factor * num / den)
+}
+m_vector <- 1:8
+beta_vector_index <- c(1, 10, 100, 200, 400)
+beta_vector <- rep(NA, length(beta_vector_index))
+errors <- matrix(NA, nrow = length(m_vector), ncol = length(beta_vector_index))
+for (j in 1:length(beta_vector_index)) {
+  beta <- readRDS("data_files/chebfun_tables.RDS")[[1]]$beta[beta_vector_index[j]]
+  beta_vector[j] <- beta
+  for (i in 1:length(m_vector)) {
+    m <- m_vector[i]
+    
+    res <- my.get.roots(m = m, beta = beta)
+    
+    factor <- res$factor
+    pr_roots <- res$pr_roots
+    pl_roots <- res$pl_roots
+    
+    h <- exp(-pi * sqrt(m / (1-beta)))
+    upper_x <- 1
+    lower_x <- 10^(-(5+m)/2) + 0
+    x <- seq(lower_x, upper_x, length.out = ((upper_x - lower_x) / h + 1))
+    
+    f <- exp_x(x, beta) 
+    g <- rat_x(x, pr_roots, pl_roots, factor) 
+    
+    errors[i, j] <- max(abs(f-g))
+  }
 }
 
-h <- pi * sqrt(m / (1-beta))
-upper_x <- 1
-lower_x <- 10^(-(5+m)/2)+0
-x <- seq(lower_x, upper_x, length.out = ((upper_x - 0) / h + 1))
 
-
-f <- exp_x(x) #f_x(x)
-g <- rat_x(x) #g_x(x)
-
-errors[i] <- max(abs(f-g))
+observed_rates <- rep(NA, length(beta_vector_index))
+for (u in 1:length(beta_vector_index)) {
+  observed_rates[u] <- coef(lm(log(errors[, u]) ~ sqrt(m_vector)))[2]
 }
 
+theoretical_rates <- - 4 * pi * sqrt(1-beta_vector)
 
-coef(lm(log(errors) ~ sqrt(m_vector)))[2]
-
-- 2 * pi * sqrt(1-beta)
-
-
-
-
-
-
-
-
-
+p_m <- error.convergence.plotter(x_axis_vector = m_vector, 
+                                 beta_vector, 
+                                 errors, 
+                                 theoretical_rates, 
+                                 observed_rates,
+                                 line_equation_fun = exp_line_equation,
+                                 fig_title = expression("Convergence in " * italic(m)),
+                                 x_axis_label = expression(italic(m)),
+                                 apply_sqrt = TRUE)
+p_m
 
 
-sum((f - g)^2)  # Check if the two polynomials are equal
-df <- data.frame(x = x, f = f, g = g)
 
-p <- ggplot(df, aes(x = x)) +
-  geom_line(aes(y = f, color = "p/q"), size = 1) +
-  geom_point(aes(y = f, color = "p/q"), size = 1.5) +
-  geom_line(aes(y = g, color = "partialfraction p/q"), size = 1, linetype = "dashed") +
-  geom_point(aes(y = g, color = "partialfraction p/q"), size = 1.5) +
-  labs(
-    title = "Polynomials Comparison",
-    x = "x",
-    y = "f(x) and g(x)",
-    color = "Function"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(hjust = 0.5)
-  )
-plotly::ggplotly(p)
+
+
+
