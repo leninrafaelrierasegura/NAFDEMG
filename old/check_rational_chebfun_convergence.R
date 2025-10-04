@@ -23,7 +23,7 @@ for (j in 1:length(beta_vector_index)) {
     pr_roots <- res$pr_roots
     pl_roots <- res$pl_roots
     
-    h <- exp(-pi * sqrt(m / (1-beta)))
+    h <- 0.0001 #exp(-pi * sqrt(m / (1-beta)))
     upper_x <- 1
     lower_x <- 10^(-(5+m)/2) + 0
     x <- seq(lower_x, upper_x, length.out = ((upper_x - lower_x) / h + 1))
@@ -32,6 +32,7 @@ for (j in 1:length(beta_vector_index)) {
     g <- rat_x(x, pr_roots, pl_roots, factor) 
     
     errors[i, j] <- max(abs(f-g))
+    print(rat_x(1, pr_roots, pl_roots, factor) )
   }
 }
 
@@ -41,7 +42,7 @@ for (u in 1:length(beta_vector_index)) {
   observed_rates[u] <- coef(lm(log(errors[, u]) ~ sqrt(m_vector)))[2]
 }
 
-theoretical_rates <- - 4 * pi * sqrt(1-beta_vector)
+theoretical_rates <- - 2 * pi * sqrt(2-beta_vector)
 
 p_m <- error.convergence.plotter(x_axis_vector = m_vector, 
                                  beta_vector, 
