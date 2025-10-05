@@ -151,10 +151,10 @@ min_hs
 # Truncate to first significant digit
 min_hs_trunc <- trunc_first_signi_digit(min_hs)
 min_hs_trunc
-
-H_AUX <- c()
-tau_aux <- c()
-hs_calibrated <- rep(NA, length(alpha_vector))
+graphs <- list()
+aux_graph <- gets.graph.tadpole(h = min_hs_trunc)
+graphs[[1]] <- aux_graph$mesh$V
+counter <- 1
 for (j in 1:length(alpha_vector)) {
   alpha <- alpha_vector[j]
   for (i in 1:length(m_vector)) {
@@ -162,18 +162,27 @@ for (j in 1:length(alpha_vector)) {
     h <- exp(- pi * sqrt((1 - alpha / 2) * m))/divider 
     time_step <- (h^alpha)
     h_aux <- largest_nested_h(min_hs_trunc, h)
-    H_AUX <- c(H_AUX, h_aux)
-    tau_aux <- c(tau_aux, time_step)
     print(paste0("m = ", m, ", h_cand = ", formatC(h, format = "f", digits = 6), ", h_aux = ", h_aux, ", h_aux/h_fine = ", h_aux/min_hs_trunc, ", tau = ", formatC(time_step, format = "f", digits = 6)))
-  }
-  hs_calibrated[j] <- h_aux
-  }
-min_h_coarse <- min(H_AUX)
-min_h_coarse
-min_tau <- min(tau_aux)
-min_tau
+    counter <- counter + 1
+    aux_graph <- gets.graph.tadpole(h = h_aux)
+    graphs[[counter]] <- aux_graph$mesh$V
+  }}
 
-hs_calibrated
+# Combine matrices into one data frame with a "group" column
+df <- dplyr::bind_rows(lapply(seq_along(graphs), function(i) {
+  data.frame(
+    x = graphs[[i]][,1],
+    y = graphs[[i]][,2],
+    group = as.factor(i)   # group indicates which list member
+  )
+}))
+
+# Plot
+p_graphs <- ggplot(df, aes(x = x, y = y, color = group)) +
+  geom_point(size = 2) +
+  theme_minimal() +
+  labs(title = "Points colored by list member", color = "List Member")
+plotly::ggplotly(p_graphs)
 ```
 
 
@@ -208,12 +217,12 @@ for (j in 1:length(alpha_vector)) {
     outer(1:length(coeff_U_0), 
           1:length(overkill_time_seq), 
           function(i, j) (coeff_U_0[i] + coeff_FF[i] * G_sin(t = overkill_time_seq[j], A = AAA, lambda_j_alpha_half = EIGENVAL_ALPHA[i], omega = OMEGA)) * exp(-EIGENVAL_ALPHA[i] * overkill_time_seq[j]))
-  h <- hs_calibrated[j]
+  
   for (i in 1:length(m_vector)) {
     m <- m_vector[i]
-    #h <- exp(- pi * sqrt((1 - alpha / 2) * m))/divider 
+    h <- exp(- pi * sqrt((1 - alpha / 2) * m))/divider 
     time_step <- (h^alpha)
-    # h <- min_h_coarse #largest_nested_h(min_hs_trunc, h)
+    h <- largest_nested_h(min_hs_trunc, h)
     
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
