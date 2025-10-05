@@ -1,4 +1,4 @@
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,17 +10,16 @@ library(reshape2)
 library(plotly)
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
                          ) {
-  # m1table <- rSPDE:::m1table
-  # m2table <- rSPDE:::m2table
-  # m3table <- rSPDE:::m3table
-  # m4table <- rSPDE:::m4table
-  # mt <- get(paste0("m", m, "table"))
-  mt <- readRDS("data_files/chebfun_tables.RDS")[[m]]
+  m1table <- rSPDE:::m1table
+  m2table <- rSPDE:::m2table
+  m3table <- rSPDE:::m3table
+  m4table <- rSPDE:::m4table
+  mt <- get(paste0("m", m, "table"))
   rb <- rep(0, m + 1)
   rc <- rep(0, m)
   if(m == 1) {
@@ -41,7 +40,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
@@ -50,45 +49,27 @@ poly.from.roots <- function(roots) {
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
-# compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
-#                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
-#                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
-#                                            time_step, # \tau
-#                                            scaling # \kappa^{2\beta}
-#                                            ) {
-#   pr_coef <- c(0, poly.from.roots(pr_roots)) 
-#   pl_coef <- poly.from.roots(pl_roots) 
-#   factor_pr_coef <- pr_coef
-#   pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
-#   res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
-#   return(list(r = res$r, # residues \{a_k\}_{k=1}^{m+1}
-#               p = res$p, # poles \{p_k\}_{k=1}^{m+1}
-#               k = res$k # remainder r
-#               )) 
-# }
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
                                            time_step, # \tau
                                            scaling # \kappa^{2\beta}
                                            ) {
-  pr_coef <- poly.from.roots(pr_roots)
+  pr_coef <- c(0, poly.from.roots(pr_roots))
   pl_coef <- poly.from.roots(pl_roots)
-  pr_plus_pl_coef <- c(0, pr_coef) + ((scaling * time_step)/factor) * pl_coef
-  poles <- Re(polyroot(rev(pr_plus_pl_coef)))
-  num_vals <- pracma::polyval(pr_coef, poles)
-  den_deriv <- Re(pracma::polyval(pracma::polyder(pr_plus_pl_coef), poles))
-  residues <- Re(num_vals / den_deriv)
-  return(list(r = residues, # residues \{a_k\}_{k=1}^{m+1}
-              p = poles, # poles \{p_k\}_{k=1}^{m+1}
-              k = 0 # remainder r
-              )) 
+  factor_pr_coef <- pr_coef
+  pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
+  res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
+  return(list(r = res$r, # residues \{a_k\}_{k=1}^{m+1}
+              p = res$p, # poles \{p_k\}_{k=1}^{m+1}
+              k = res$k # remainder r
+              ))
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
@@ -128,7 +109,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -149,7 +130,7 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0, RHST) {
   CC <- my_op_frac$C
   SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
@@ -162,7 +143,7 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(h){
   edge1 <- rbind(c(0,0),c(1,0))
@@ -176,7 +157,7 @@ gets.graph.tadpole <- function(h){
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to compute the eigenfunctions of the tadpole graph
 tadpole.eig <- function(k,graph){
 x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -207,7 +188,7 @@ return(f)
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to compute the eigenpairs of the tadpole graph
 gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
   EIGENVAL <- NULL
@@ -245,7 +226,7 @@ gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to construct a piecewise constant projection of approximated values
 construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
   projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
@@ -263,7 +244,7 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 loglog_line_equation <- function(x1, y1, slope) {
   b <- log10(y1 / (x1 ^ slope))
   
@@ -300,7 +281,7 @@ compute_guiding_lines <- function(x_axis_vector, errors, theoretical_rates, line
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Functions to compute the exact solution to the fractional diffusion equation
 g_linear <- function(r, A, lambda_j_alpha_half) {
   return(A * exp(-lambda_j_alpha_half * r))
@@ -345,13 +326,13 @@ G_cos <- function(t, A, lambda_j_alpha_half, theta) {
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 reversecolumns <- function(mat) {
   return(mat[, rev(seq_len(ncol(mat)))])
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # helper: measure change relative to the size of the previous iterate 
 change_comparer <- function(X_new, X_old, time_step, time_seq, weights, relative = TRUE) {
   num <- sqrt(as.double(t(weights) %*% ((X_new - X_old)^2) %*% rep(time_step, length(time_seq))))
@@ -367,7 +348,7 @@ change_comparer <- function(X_new, X_old, time_step, time_seq, weights, relative
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Coupled solver with multi-criteria convergence
 solve_coupled_system_multi_tol <- function(
   my_op_frac,           # operator
@@ -485,7 +466,7 @@ solve_coupled_system_multi_tol <- function(
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 plot_convergence_history <- function(history_df, tol_list = NULL, type = "relative") {
   if (type == "relative"){
     text_title <- "|X_{iter} - X_{iter-1}| / |X_{iter}|"
@@ -524,7 +505,38 @@ plot_convergence_history <- function(history_df, tol_list = NULL, type = "relati
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
+largest_nested_h <- function(h_fine, h_candidate) {
+  Nfine <- round(1 / h_fine)       # number of intervals in fine mesh
+  m0 <- floor(h_candidate / h_fine)
+  
+  best <- 0
+  r <- floor(sqrt(Nfine))
+  
+  for (a in 1:r) {
+    if (Nfine %% a == 0) {
+      b <- Nfine / a
+      if (a <= m0 && a > best) best <- a
+      if (b <= m0 && b > best) best <- b
+    }
+  }
+  
+  # if no divisor found, default to h_fine
+  if (best == 0) best <- 1
+  
+  h_coarse <- best * h_fine
+  return(h_coarse)
+}
+
+
+## ----------------------------------------------------------------------------------------------------
+trunc_first_signi_digit <- function(x){
+  aux <- floor(log10(x))
+  return(floor(x / 10^aux) * 10^aux)
+}
+
+
+## ----------------------------------------------------------------------------------------------------
 # Function to order the vertices for plotting
 plotting.order <- function(v, graph){
   edge_number <- graph$mesh$VtE[, 1]
@@ -533,7 +545,7 @@ plotting.order <- function(v, graph){
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to set the scene for 3D plots
 global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
   
@@ -552,7 +564,7 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to plot in 3D
 graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
   U_list <- list(...)
@@ -652,7 +664,7 @@ graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
   U_names <- names(U_list) 
   # Spatial coordinates
@@ -753,7 +765,7 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to plot the error at each time step
 error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_step) {
   weights <- graph$mesh$weights
@@ -777,7 +789,7 @@ error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_s
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to plot the 3D comparison of U_true and U_approx
 graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -920,7 +932,7 @@ graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to plot a single 3D line for 
 graph.plotter.3d.single <- function(graph, U_true, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -994,7 +1006,7 @@ graph.plotter.3d.single <- function(graph, U_true, time_seq) {
 }
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 # Function to plot the error convergence
 error.convergence.plotter <- function(x_axis_vector, 
                                       alpha_vector, 
@@ -1069,7 +1081,7 @@ error.convergence.plotter <- function(x_axis_vector,
 
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 graph.plotter.3d.static <- function(graph, z_list) {
   x <- plotting.order(graph$mesh$V[, 1], graph)
   y <- plotting.order(graph$mesh$V[, 2], graph)
@@ -1123,7 +1135,7 @@ graph.plotter.3d.static <- function(graph, z_list) {
 
 
 
-## --------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 graph.plotter.3d.two.meshes.time <- function(graph_finer, graph_coarser, 
                                              time_seq, frame_val_to_display,
                                              fs_finer = list(), fs_coarser = list()) {

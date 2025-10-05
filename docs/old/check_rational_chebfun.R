@@ -1,5 +1,6 @@
-
-m <- 4
+source(here::here("control_functionality.R"))
+library(pracma)
+m <- 1
 beta <- readRDS("data_files/chebfun_tables.RDS")[[1]]$beta[1]
 
 res <- my.get.roots(m = m, beta = beta)
@@ -45,14 +46,6 @@ exp_x <- function(x){
   return(x^(beta-1))
 }
 
-# rat_x <- function(x){
-#   factor <- res$factor
-#   up_roots <- res$pr_roots
-#   down_roots <- res$pl_roots
-#   rat <- factor * prod((x - up_roots)) / prod((x - down_roots))
-#   return(rat)
-# }
-
 rat_x <- function(x) {
   num <- apply(outer(x, pr_roots, "-"), 1, prod)
   den <- apply(outer(x, pl_roots, "-"), 1, prod)
@@ -60,11 +53,11 @@ rat_x <- function(x) {
 }
 
 
-x <- seq(0.01, 1, by = 0.01)
+x <- seq(0, 1, by = 0.01)
 
 
-f <- f_x(x)
-g <- g_x(x)
+f <- exp_x(x) #f_x(x)
+g <- rat_x(x) #g_x(x)
 
 
 sum((f - g)^2)  # Check if the two polynomials are equal

@@ -395,14 +395,6 @@ U_d <- overkill_elliptic_u %*% t(psi) -
   mu * (overkill_elliptic_g %*% t(phi))
 u_0 <- elliptic_u
 
-# f <- (overkill_EIGENFUN[, 3] + overkill_EIGENFUN[, 5]) %*% t(phi)
-# f <- ((overkill_graph$mesh$V[, 1])^2 - (overkill_graph$mesh$V[, 2])^2)  %*% t(phi)
-# 
-# U_d <- (overkill_EIGENFUN[, 2] + overkill_EIGENFUN[, 4] + + overkill_EIGENFUN[, 6]) %*% t(psi)
-# u_0 <- EIGENFUN[, 7]
-# u_0 <- graph$mesh$V[, 1] - graph$mesh$V[, 2]
-
-
 F_proj <- R %*% f
 V_d <- reversecolumns(R %*% U_d)
 ```
@@ -419,7 +411,7 @@ res <- solve_coupled_system_multi_tol(
   time_seq = time_seq, 
   u_0 = u_0, 
   F_proj = F_proj, 
-  Z_ini = F_proj*0 + 1,
+  Z_ini = F_proj * 0,
   V_d = V_d, 
   u_d = u_d,
   Psi = Psi, 
@@ -468,15 +460,13 @@ idx <- seq(start_idx, end_idx, by = 1)
 
 ## Visualization of the results {#visualization_results}
 
-```
-{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal state variable.")}
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal state variable.")}
 U_list$u_true <- u_bar
 graph.plotter.3d(graph, time_seq[idx], time_seq[idx], U_list)
 ```
 
 
-```
-{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal adjoint variable.")}
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal adjoint variable.")}
 P_list$p_true <- p_bar
 graph.plotter.3d(graph, time_seq[idx], time_seq[idx], P_list)
 ```

@@ -131,21 +131,72 @@ OMEGA = pi
 
 # Time step and mesh size
 m_vector <- c(1, 2, 3, 4)
-    
+alpha_vector <- seq(1, 1.8, by = 0.2)
+```
+
+```{r}
+# Enforce nestedness
+hs <- c()
+for (j in 1:length(alpha_vector)) {
+  alpha <- alpha_vector[j]
+  for (i in 1:length(m_vector)) {
+    m <- m_vector[i]
+    h <- exp(- pi * sqrt((1 - alpha / 2) * m))/divider 
+    time_step <- (h^alpha)
+    hs <- c(hs, h)
+  }}
+min_hs <- min(hs)
+min_hs
+
+# Truncate to first significant digit
+min_hs_trunc <- trunc_first_signi_digit(min_hs)
+min_hs_trunc
+graphs <- list()
+aux_graph <- gets.graph.tadpole(h = min_hs_trunc)
+graphs[[1]] <- aux_graph$mesh$V
+counter <- 1
+for (j in 1:length(alpha_vector)) {
+  alpha <- alpha_vector[j]
+  for (i in 1:length(m_vector)) {
+    m <- m_vector[i]
+    h <- exp(- pi * sqrt((1 - alpha / 2) * m))/divider 
+    time_step <- (h^alpha)
+    h_aux <- largest_nested_h(min_hs_trunc, h)
+    print(paste0("m = ", m, ", h_cand = ", formatC(h, format = "f", digits = 6), ", h_aux = ", h_aux, ", h_aux/h_fine = ", h_aux/min_hs_trunc, ", tau = ", formatC(time_step, format = "f", digits = 6)))
+    counter <- counter + 1
+    aux_graph <- gets.graph.tadpole(h = h_aux)
+    graphs[[counter]] <- aux_graph$mesh$V
+  }}
+
+# Combine matrices into one data frame with a "group" column
+df <- dplyr::bind_rows(lapply(seq_along(graphs), function(i) {
+  data.frame(
+    x = graphs[[i]][,1],
+    y = graphs[[i]][,2],
+    group = as.factor(i)   # group indicates which list member
+  )
+}))
+
+# Plot
+p_graphs <- ggplot(df, aes(x = x, y = y, color = group)) +
+  geom_point(size = 2) +
+  theme_minimal() +
+  labs(title = "Points colored by list member", color = "List Member")
+plotly::ggplotly(p_graphs)
+```
+
+
+```{r}
 # Overkill parameters
 overkill_time_step <- 0.1 * 2^-14
-overkill_h <- (0.1 * 2^-14)^(1/2)
-
+overkill_h <- min_hs_trunc #(0.1 * 2^-14)^(1/2)
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
 overkill_graph <- gets.graph.tadpole(h = overkill_h)
-
 # Compute the weights on the finest mesh
 overkill_graph$compute_fem() # This is needed to compute the weights
 overkill_weights <- overkill_graph$mesh$weights
-E <- overkill_time_step * kronecker(Diagonal(n = length(overkill_time_seq)), overkill_graph$mesh$C)
-
-alpha_vector <- seq(1, 1.8, by = 0.2)
+overkill_C <- overkill_graph$mesh$C
 ```
 
 
@@ -169,8 +220,10 @@ for (j in 1:length(alpha_vector)) {
   
   for (i in 1:length(m_vector)) {
     m <- m_vector[i]
-    h <- exp(- pi * sqrt((1 - alpha / 2) * m))/divider # exp(- (4 * pi / 5) * sqrt((1 - alpha / 2) * m))/10
-    time_step <- (h^alpha)/1
+    h <- exp(- pi * sqrt((1 - alpha / 2) * m))/divider 
+    time_step <- (h^alpha)
+    h <- largest_nested_h(min_hs_trunc, h)
+    
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
     G <- graph$mesh$G
@@ -193,8 +246,8 @@ for (j in 1:length(alpha_vector)) {
     U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0, RHST = FF_approx)
     projected_U_approx <- Psi %*% U_approx
     projected_U_piecewise <- construct_piecewise_projection(projected_U_approx, time_seq, overkill_time_seq)
-    xx <- as.vector(overkill_U_true - projected_U_piecewise)
-    errors_projected[i,j] <- sqrt(as.double(t(xx) %*% E %*% xx)) 
+    XX <- overkill_U_true - projected_U_piecewise
+    errors_projected[i,j] <- sqrt(as.double(overkill_time_step * sum(XX * (overkill_graph$mesh$C %*% XX)))) 
     slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
