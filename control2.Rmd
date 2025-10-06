@@ -89,10 +89,10 @@ library(tidyr)
 
 ```{r}
 capture.output(
-  knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R")),
+  knitr::purl(here::here("control_functionality.Rmd"), output = here::here("control_functionality.R")),
   file = here::here("purl_log.txt")
 )
-source(here::here("functionality.R"))
+source(here::here("control_functionality.R"))
 ```
 
 # Optimal control of fractional diffusion equations on metric graphs
@@ -381,6 +381,7 @@ R <- t(Psi) %*% overkill_graph$mesh$C
 ```
 
 
+
 ```{r}
 overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(time_seq))
 overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(time_seq))
@@ -418,6 +419,7 @@ res <- solve_coupled_system_multi_tol(
   R = R,
   A = A, 
   B = B, 
+  C = C,
   mu = mu,
   weights = weights,
   tol = tol, 
@@ -461,18 +463,24 @@ idx <- seq(start_idx, end_idx, by = 1)
 ## Visualization of the results {#visualization_results}
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal state variable.")}
+XX <- U_list[[length(U_list)]] - u_bar
+sqrt(as.double(time_step * sum(XX * (C %*% XX))))
 U_list$u_true <- u_bar
 graph.plotter.3d(graph, time_seq[idx], time_seq[idx], U_list)
 ```
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal adjoint variable.")}
+XX <- P_list[[length(P_list)]] - p_bar
+sqrt(as.double(time_step * sum(XX * (C %*% XX))))
 P_list$p_true <- p_bar
 graph.plotter.3d(graph, time_seq[idx], time_seq[idx], P_list)
 ```
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Exact (in red) and numerical (in blue) optimal control variable.")}
+XX <- Z_list[[length(Z_list)]] - z_bar
+sqrt(as.double(time_step * sum(XX * (C %*% XX))))
 Z_list$z_true <- z_bar
 graph.plotter.3d(graph, time_seq[idx], time_seq[idx], Z_list)
 ```

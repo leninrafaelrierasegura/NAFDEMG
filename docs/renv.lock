@@ -229,13 +229,13 @@
         "Rcpp",
         "RcppEigen"
       ],
+      "Author": "David Bolin [cre, aut], Alexandre Simas [aut], Jonas Wallin [aut]",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "metricgraph",
       "RemoteUsername": "davidbolin",
       "RemoteRef": "devel",
-      "RemoteSha": "4ecbaf3c6e30f06fb2bfac17f41ec1d075e66785",
-      "Author": "David Bolin [cre, aut], Alexandre Simas [aut], Jonas Wallin [aut]"
+      "RemoteSha": "4ecbaf3c6e30f06fb2bfac17f41ec1d075e66785"
     },
     "R6": {
       "Package": "R6",
@@ -3276,6 +3276,9 @@
       "RoxygenNote": "7.2.3",
       "Config/pak/sysreqs": "libssl-dev",
       "Repository": "https://mrkaye97.r-universe.dev",
+      "RemoteUrl": "https://github.com/mrkaye97/slackr",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "aa52b054c77ae424e2bafdf323c4114e248b05c0",
       "NeedsCompilation": "no",
       "Author": "Matt Kaye [aut, cre] (website: matthewrkaye.com), Bob Rudis [aut], Andrie de Vries [aut, ctb], Jay Jacobs [ctb], David Severski [ctb], Quinn Weber [ctb], Konrad Karczewski [ctb], Shinya Uryu [ctb], Gregory Jefferis [ctb], Ed Niles [ctb], Rick Saporta [ctb], Jonathan Sidi [aut, ctb], Xinye Li [ctb]",
       "Maintainer": "Matt Kaye <mrkaye97@gmail.com>"

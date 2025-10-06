@@ -413,8 +413,8 @@ solve_backward_evolution <- function(my_op_frac, time_step, time_seq, RHST) {
   SOL <- matrix(NA, nrow = nrow(CC), ncol = N)
   SOL[, N] <- 0
   for (k in (N - 1):1) {
-    rhs <- CC %*% SOL[, k + 1] + time_step * RHST[, k + 1]
-    #rhs <- CC %*% SOL[, k + 1] + time_step * RHST[, k]
+    #rhs <- CC %*% SOL[, k + 1] + time_step * RHST[, k + 1] #this is how it should be in theory
+    rhs <- CC %*% SOL[, k + 1] + time_step * RHST[, k]
     SOL[, k] <- as.matrix(my.solver.frac(my_op_frac, rhs))
   }
   return(SOL)
@@ -659,12 +659,13 @@ reversecolumns <- function(mat) {
 
 ```{r}
 # helper: measure change relative to the size of the previous iterate 
-change_comparer <- function(X_new, X_old, time_step, time_seq, weights, relative = TRUE) {
-  num <- sqrt(as.double(t(weights) %*% ((X_new - X_old)^2) %*% rep(time_step, length(time_seq))))
+change_comparer <- function(X_new, X_old, time_step, C, relative = TRUE) {
+  XX <- X_new - X_old
+  num <- sqrt(as.double(time_step * sum(XX * (C %*% XX))))
   if (!relative) {
     return(num)
     }
-  den <- sqrt(as.double(t(weights) %*% (X_new^2) %*% rep(time_step, length(time_seq))))
+  den <- sqrt(as.double(time_step * sum(X_new * (C %*% X_new))))
   if (den < .Machine$double.eps) {
     return(ifelse(num < .Machine$double.eps, 0, num))
   } else {
@@ -687,7 +688,7 @@ solve_coupled_system_multi_tol <- function(
   u_d,
   Psi,                  # Psi matrix
   R,                    # R matrix
-  A, B,                 # lower/upper bounds (vector or matrix broadcastable to time grid)
+  A, B, C,                # lower/upper bounds (vector or matrix broadcastable to time grid)
   mu,                   # positive scalar
   weights,
   tol = 1e-8,           # scalar or named list: list(Z=..., U=..., P=...)
@@ -729,14 +730,14 @@ solve_coupled_system_multi_tol <- function(
     Z_mat <- R %*% Psi %*% z_new
     
     # relative changes
-    rel_changes_Z <- change_comparer(z_new, z_prev, time_step, time_seq, weights, relative = TRUE)  
-    rel_changes_U <- change_comparer(U_mat, U_prev, time_step, time_seq, weights, relative = TRUE)
-    rel_changes_P <- change_comparer(P_mat, P_prev, time_step, time_seq, weights, relative = TRUE)
-    abs_changes_Z <- change_comparer(z_new, true_sol$z_bar, time_step, time_seq, weights, relative = FALSE)
-    abs_changes_U <- change_comparer(U_mat, true_sol$u_bar, time_step, time_seq, weights, relative = FALSE)
-    abs_changes_P <- change_comparer(P_mat, true_sol$p_bar, time_step, time_seq, weights, relative = FALSE)
-    min_change <- 0.5 * (as.double(t(weights) %*% ((U_mat - u_d)^2 + mu * z_new^2) %*% rep(time_step, length(time_seq))))
-
+    rel_changes_Z <- change_comparer(z_new, z_prev, time_step, C, relative = TRUE)  
+    rel_changes_U <- change_comparer(U_mat, U_prev, time_step, C, relative = TRUE)
+    rel_changes_P <- change_comparer(P_mat, P_prev, time_step, C, relative = TRUE)
+    abs_changes_Z <- change_comparer(z_new, true_sol$z_bar, time_step, C, relative = FALSE)
+    abs_changes_U <- change_comparer(U_mat, true_sol$u_bar, time_step, C, relative = FALSE)
+    abs_changes_P <- change_comparer(P_mat, true_sol$p_bar, time_step, C, relative = FALSE)
+    XX <- U_mat - u_d
+    min_change <- 0.5 * as.double(time_step * sum(XX * (C %*% XX)))  + 0.5 * mu * as.double(time_step * sum(z_new * (C %*% z_new)))
     rel_history <- rbind(rel_history,
       data.frame(iter = it, variable = "Z", value = rel_changes_Z),
       data.frame(iter = it, variable = "U", value = rel_changes_U),
