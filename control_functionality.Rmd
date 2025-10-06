@@ -690,10 +690,10 @@ solve_coupled_system_multi_tol <- function(
   R,                    # R matrix
   A, B, C,                # lower/upper bounds (vector or matrix broadcastable to time grid)
   mu,                   # positive scalar
-  weights,
   tol = 1e-8,           # scalar or named list: list(Z=..., U=..., P=...)
   maxit = 200,
   verbose = FALSE,
+  nested_spatial_mesh = FALSE,
   true_sol
 ) {
 
@@ -715,19 +715,19 @@ solve_coupled_system_multi_tol <- function(
   P_list <- list()
   
   z_prev <- Z_ini
-  Z_mat <- R %*% Psi %*% z_prev
+  Z_mat <- ifelse(nested_spatial_mesh, C %*% z_prev, R %*% Psi %*% z_prev)
   U_prev <- F_proj*0
   P_prev <- F_proj*0
 
   repeat {
     it <- it + 1
 
-    U_mat <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = u_0, RHST = F_proj + Z_mat)
-    V_mat <- reversecolumns(R %*% Psi %*% U_mat)
-    Q_mat <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = u_0 * 0, RHST = V_mat - V_d)
-    P_mat <- reversecolumns(Q_mat)
+    U_mat <- solve_forward_evolution(my_op_frac, time_step, time_seq, RHST = F_proj + Z_mat, val_at_0 = u_0)
+    V_mat <- ifelse(nested_spatial_mesh, C %*% U_mat, R %*% Psi %*% U_mat)
+    Q_mat <- solve_backward_evolution(my_op_frac, time_step, time_seq, RHST = V_mat - V_d)
+    P_mat <- Q_mat
     z_new <- pmax(A, pmin(B, - P_mat / mu))
-    Z_mat <- R %*% Psi %*% z_new
+    Z_mat <- ifelse(nested_spatial_mesh, C %*% z_new, R %*% Psi %*% z_new)
     
     # relative changes
     rel_changes_Z <- change_comparer(z_new, z_prev, time_step, C, relative = TRUE)  
@@ -833,6 +833,36 @@ plot_convergence_history <- function(history_df, tol_list = NULL, type = "relati
 }
 ```
 
+```{r}
+largest_nested_h <- function(h_fine, h_candidate) {
+  Nfine <- round(1 / h_fine)       # number of intervals in fine mesh
+  m0 <- floor(h_candidate / h_fine)
+  
+  best <- 0
+  r <- floor(sqrt(Nfine))
+  
+  for (a in 1:r) {
+    if (Nfine %% a == 0) {
+      b <- Nfine / a
+      if (a <= m0 && a > best) best <- a
+      if (b <= m0 && b > best) best <- b
+    }
+  }
+  
+  # if no divisor found, default to h_fine
+  if (best == 0) best <- 1
+  
+  h_coarse <- best * h_fine
+  return(h_coarse)
+}
+```
+
+```{r}
+trunc_first_signi_digit <- function(x){
+  aux <- floor(log10(x))
+  return(floor(x / 10^aux) * 10^aux)
+}
+```
 
 ## Plotting functions {#plotting_functions}
 

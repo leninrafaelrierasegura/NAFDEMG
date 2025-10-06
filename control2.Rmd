@@ -397,15 +397,14 @@ U_d <- overkill_elliptic_u %*% t(psi) -
 u_0 <- elliptic_u
 
 F_proj <- R %*% f
-V_d <- reversecolumns(R %*% U_d)
+V_d <- R %*% U_d
 ```
-
 
 ```{r, message = TRUE}
 tol <- 1e-12
 maxit <- 25
 verbose <- TRUE
-weights <- graph$mesh$weights
+nested_spatial_mesh <- TRUE
 res <- solve_coupled_system_multi_tol(
   my_op_frac = my_op_frac,
   time_step = time_step, 
@@ -421,10 +420,10 @@ res <- solve_coupled_system_multi_tol(
   B = B, 
   C = C,
   mu = mu,
-  weights = weights,
   tol = tol, 
   maxit = maxit, 
   verbose = verbose,
+  nested_spatial_mesh = nested_spatial_mesh,
   true_sol = list(
     u_bar = u_bar, 
     p_bar = p_bar, 
