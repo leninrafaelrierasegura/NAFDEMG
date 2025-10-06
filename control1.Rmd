@@ -88,10 +88,10 @@ library(plotly)
 
 ```{r}
 capture.output(
-  knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R")),
+  knitr::purl(here::here("control_functionality.Rmd"), output = here::here("control_functionality.R")),
   file = here::here("purl_log.txt")
 )
-source(here::here("functionality.R"))
+source(here::here("control_functionality.R"))
 ```
 
 # Optimal control of fractional diffusion equations on metric graphs
@@ -405,6 +405,15 @@ Q_bar <- solve_fractional_evolution(my_op_frac,
 P_bar <- reversecolumns(Q_bar)
 # Compute the control variable
 Z_bar <- pmax(A, pmin(B, - P_bar / mu))
+```
+
+```{r}
+XX <- U_bar - u_bar
+sqrt(as.double(time_step * sum(XX * (C %*% XX)))) 
+XX <- P_bar - p_bar
+sqrt(as.double(time_step * sum(XX * (C %*% XX)))) 
+XX <- Z_bar - z_bar
+sqrt(as.double(time_step * sum(XX * (C %*% XX)))) 
 ```
 
 
