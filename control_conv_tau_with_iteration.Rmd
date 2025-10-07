@@ -296,13 +296,13 @@ for (j in 1:length(alpha_vector)) {
     slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
-save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_tau.RData"))
+save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_tau_with_iteration.RData"))
 ```
 # Convergence results
 
 ```{r}
 # Load the errors data
-load(here::here("data_files/control_error_tau.RData"))
+load(here::here("data_files/control_error_tau_with_iteration.RData"))
 
 observed_rates_u_bar <- numeric(length(alpha_vector))
 observed_rates_p_bar <- numeric(length(alpha_vector))
@@ -339,6 +339,25 @@ p_z_bar <- error.convergence.plotter(x_axis_vector = tau_vector,
                                line_equation_fun = loglog_line_equation,
                                fig_title = expression(italic(bar(z))),
                                x_axis_label = expression(italic(tau)))
+
+p_tau_u <- error.convergence.plotter(x_axis_vector = tau_vector, 
+                               alpha_vector, 
+                               errors_u_bar, 
+                               theoretical_rates, 
+                               observed_rates_u_bar,
+                               line_equation_fun = loglog_line_equation,
+                               fig_title = expression("Convergence in " * italic(tau)),
+                               x_axis_label = expression(italic(tau)))
+p_tau_z <- error.convergence.plotter(x_axis_vector = tau_vector, 
+                               alpha_vector, 
+                               errors_z_bar, 
+                               theoretical_rates, 
+                               observed_rates_z_bar,
+                               line_equation_fun = loglog_line_equation,
+                               fig_title = expression("Convergence in " * italic(tau)),
+                               x_axis_label = expression(italic(tau)))
+save(p_tau_u, file = here::here("data_files/p_tau_u.RData"))
+save(p_tau_z, file = here::here("data_files/p_tau_z.RData"))
 ```
 
 

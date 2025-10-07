@@ -251,7 +251,7 @@ for (j in 1:length(alpha_vector)) {
     tol <- 1e-12
     maxit <- 25
     verbose <- TRUE
-    nested_spatial_mesh <- TRUE
+    nested_spatial_mesh <- FALSE
     res <- solve_coupled_system_multi_tol(
       my_op_frac = my_op_frac,
       time_step = time_step, 
@@ -348,6 +348,27 @@ p_z_bar <- error.convergence.plotter(x_axis_vector = m_vector,
                                fig_title = expression(italic(bar(z))),
                                x_axis_label = expression(italic(m)),
                                apply_sqrt = TRUE)
+
+p_m_u <- error.convergence.plotter(x_axis_vector = m_vector, 
+                               alpha_vector, 
+                               errors_u_bar, 
+                               theoretical_rates, 
+                               observed_rates_u_bar,
+                               line_equation_fun = exp_line_equation,
+                               fig_title = expression("Convergence in " * italic(m)),
+                               x_axis_label = expression(italic(m)),
+                               apply_sqrt = TRUE)
+p_m_z <- error.convergence.plotter(x_axis_vector = m_vector, 
+                               alpha_vector, 
+                               errors_z_bar, 
+                               theoretical_rates, 
+                               observed_rates_z_bar,
+                               line_equation_fun = exp_line_equation,
+                               fig_title = expression("Convergence in " * italic(m)),
+                               x_axis_label = expression(italic(m)),
+                               apply_sqrt = TRUE)
+save(p_m_u, file = here::here("data_files/p_m_u.RData"))
+save(p_m_z, file = here::here("data_files/p_m_z.RData"))
 ```
 
 ```{r, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}

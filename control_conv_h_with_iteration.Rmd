@@ -345,6 +345,25 @@ p_z_bar <- error.convergence.plotter(x_axis_vector = h_vector,
                                line_equation_fun = loglog_line_equation,
                                fig_title = expression(italic(bar(z))),
                                x_axis_label = expression(italic(h)))
+
+p_h_u <- error.convergence.plotter(x_axis_vector = h_vector, 
+                               alpha_vector, 
+                               errors_u_bar, 
+                               theoretical_rates, 
+                               observed_rates_u_bar,
+                               line_equation_fun = loglog_line_equation,
+                               fig_title = expression("Convergence in " * italic(h)),
+                               x_axis_label = expression(italic(h)))
+p_h_z <- error.convergence.plotter(x_axis_vector = h_vector, 
+                               alpha_vector, 
+                               errors_z_bar, 
+                               theoretical_rates, 
+                               observed_rates_z_bar,
+                               line_equation_fun = loglog_line_equation,
+                               fig_title = expression("Convergence in " * italic(h)),
+                               x_axis_label = expression(italic(h)))
+save(p_h_u, file = here::here("data_files/p_h_u.RData"))
+save(p_h_z, file = here::here("data_files/p_h_z.RData"))
 ```
 
 ```{r, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $h$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
