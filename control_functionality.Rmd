@@ -267,22 +267,6 @@ Given `factor`$=\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, `pr_roots`$=\{r_{1i}\}_
 
 ```{r}
 # Function to compute the parameters for the partial fraction decomposition
-# compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
-#                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
-#                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
-#                                            time_step, # \tau
-#                                            scaling # \kappa^{2\beta}
-#                                            ) {
-#   pr_coef <- c(0, poly.from.roots(pr_roots)) 
-#   pl_coef <- poly.from.roots(pl_roots) 
-#   factor_pr_coef <- pr_coef
-#   pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
-#   res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
-#   return(list(r = res$r, # residues \{a_k\}_{k=1}^{m+1}
-#               p = res$p, # poles \{p_k\}_{k=1}^{m+1}
-#               k = res$k # remainder r
-#               )) 
-# }
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}

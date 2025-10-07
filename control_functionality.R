@@ -52,22 +52,6 @@ poly.from.roots <- function(roots) {
 
 ## -----------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
-# compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
-#                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
-#                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
-#                                            time_step, # \tau
-#                                            scaling # \kappa^{2\beta}
-#                                            ) {
-#   pr_coef <- c(0, poly.from.roots(pr_roots)) 
-#   pl_coef <- poly.from.roots(pl_roots) 
-#   factor_pr_coef <- pr_coef
-#   pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
-#   res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
-#   return(list(r = res$r, # residues \{a_k\}_{k=1}^{m+1}
-#               p = res$p, # poles \{p_k\}_{k=1}^{m+1}
-#               k = res$k # remainder r
-#               )) 
-# }
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
@@ -551,6 +535,37 @@ plot_convergence_history <- function(history_df, tol_list = NULL, type = "relati
   }
   
   return(plotly::ggplotly(p))
+}
+
+
+## -----------------------------------------------------------------------------
+largest_nested_h <- function(h_fine, h_candidate) {
+  Nfine <- round(1 / h_fine)       # number of intervals in fine mesh
+  m0 <- floor(h_candidate / h_fine)
+  
+  best <- 0
+  r <- floor(sqrt(Nfine))
+  
+  for (a in 1:r) {
+    if (Nfine %% a == 0) {
+      b <- Nfine / a
+      if (a <= m0 && a > best) best <- a
+      if (b <= m0 && b > best) best <- b
+    }
+  }
+  
+  # if no divisor found, default to h_fine
+  if (best == 0) best <- 1
+  
+  h_coarse <- best * h_fine
+  return(h_coarse)
+}
+
+
+## -----------------------------------------------------------------------------
+trunc_first_signi_digit <- function(x){
+  aux <- floor(log10(x))
+  return(floor(x / 10^aux) * 10^aux)
 }
 
 

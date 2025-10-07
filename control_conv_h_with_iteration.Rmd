@@ -1,5 +1,5 @@
 ---
-title: "Convergence in 𝑚 for the optimal control variable"
+title: "Convergence in 𝘩 for the optimal control variable"
 date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
 output:
   html_document:
@@ -99,12 +99,11 @@ source(here::here("control_functionality.R"))
 ```
 
 
-
 ```{r}
 # Parameters
 T_final <- 1
-kappa <- 16 # readRDS("old/kappa.RDS") #4
-divider <- 7 # readRDS("old/divider.RDS") 
+kappa <- 4
+divider <- 1
 mu <- 1
 a <- - 0.5*1
 b <- 0.5*1
@@ -117,14 +116,16 @@ coeff_elliptic_f <- rep(0, adjusted_N_finite)
 coeff_elliptic_f[2] <- 10
 
 # Time step and mesh size
-m_vector <- c(1, 2, 3, 4)
+POWERS <- seq(12, 6, by = -1.5)
+
+time_steps <- 0.1 * 2^-POWERS
+h_vector <- time_steps^(1/2)
 
 h_star <- 0.001
 
 # Overkill parameters
-overkill_time_step <- 0.1 * 2^-14
-overkill_h <- (0.1 * 2^-14)^(1/2)
-
+overkill_time_step <- 0.1 * 2^-(14)
+overkill_h <- (0.1 * 2^-(14))^(1/2)
 
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
@@ -143,21 +144,22 @@ overkill_psi_prime <- - sin(overkill_time_seq)
 overkill_phi_prime <- - cos(T_final - overkill_time_seq)
 # psi_rate <- -2
 # phi_rate <- -2
-# phi_coefficient <- 10
+# phi_coefficient <- 1
 # overkill_psi <- exp(psi_rate*overkill_time_seq)
 # overkill_psi_prime <- psi_rate * exp(psi_rate*overkill_time_seq)
 # overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
 # overkill_phi_prime <- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)
 
+m_values <- c()
 alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
-```{r, eval = TRUE, class.source = "fold-show"}
+```{r, eval = FALSE, class.source = "fold-show"}
 # Create a matrix to store the errors
-errors_u_bar <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
-errors_p_bar <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
-errors_z_bar <- matrix(NA, nrow = length(m_vector), ncol = length(alpha_vector))
+errors_u_bar <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
+errors_p_bar <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
+errors_z_bar <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {
   alpha <- alpha_vector[j] 
   beta <- alpha / 2
@@ -179,11 +181,12 @@ for (j in 1:length(alpha_vector)) {
   overkill_u_bar <- outer(overkill_elliptic_u, overkill_psi)
   overkill_p_bar <- - mu * outer(overkill_elliptic_v, overkill_phi)
   overkill_z_bar <- pmax(overkill_A, pmin(overkill_B, - overkill_p_bar / mu))
-  for (i in 1:length(m_vector)) {
-    m <- m_vector[i]
-    h <- exp(- pi * sqrt((1 - alpha / 2) * m))/divider 
-    time_step <- (h^alpha)
+  for (i in 1:length(h_vector)) {
+    h <- h_vector[i]
+    time_step <- (h^alpha)/divider
+    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
     #h <- largest_nested_h(h_star, h) # makes them nested
+    m_values <- c(m_values, m)
     time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
@@ -224,10 +227,10 @@ for (j in 1:length(alpha_vector)) {
     u_bar <- elliptic_u %*% t(psi)
     p_bar <- - mu * (elliptic_v %*% t(phi))
     z_bar <- pmax(A, pmin(B, - p_bar / mu))
-
+    
     # Construct the projection matrix
     Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
-    R <- t(Psi) %*% overkill_C
+    R <- t(Psi) %*% overkill_graph$mesh$C
     
     A_aux <- matrix(a, nrow = nrow(overkill_C), ncol = length(time_seq))
     B_aux <- matrix(b, nrow = nrow(overkill_C), ncol = length(time_seq))
@@ -296,80 +299,77 @@ for (j in 1:length(alpha_vector)) {
     slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
-save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_m_with_iteration.RData"))
+save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_h.RData"))
 ```
 
 # Convergence results
 
 ```{r}
 # Load the errors data
-load(here::here("data_files/control_error_m_with_iteration.RData"))
+load(here::here("data_files/control_error_h.RData"))
 
 observed_rates_u_bar <- numeric(length(alpha_vector))
 observed_rates_p_bar <- numeric(length(alpha_vector))
 observed_rates_z_bar <- numeric(length(alpha_vector))
 
-for (i in 1:length(alpha_vector)) {observed_rates_u_bar[i] <- coef(lm(log(errors_u_bar[, i]) ~ sqrt(m_vector)))[2]}
-for (i in 1:length(alpha_vector)) {observed_rates_p_bar[i] <- coef(lm(log(errors_p_bar[, i]) ~ sqrt(m_vector)))[2]}
-for (i in 1:length(alpha_vector)) {observed_rates_z_bar[i] <- coef(lm(log(errors_z_bar[, i]) ~ sqrt(m_vector)))[2]}
+for (i in 1:length(alpha_vector)) {observed_rates_u_bar[i] <- coef(lm(log10(errors_u_bar[, i]) ~ log10(h_vector)))[2]}
+for (i in 1:length(alpha_vector)) {observed_rates_p_bar[i] <- coef(lm(log10(errors_p_bar[, i]) ~ log10(h_vector)))[2]}
+for (i in 1:length(alpha_vector)) {observed_rates_z_bar[i] <- coef(lm(log10(errors_z_bar[, i]) ~ log10(h_vector)))[2]}
 
-theoretical_rates <- - pi * alpha_vector * sqrt((1 - alpha_vector / 2))
 
-p_u_bar <- error.convergence.plotter(x_axis_vector = m_vector, 
+theoretical_rates <- alpha_vector
+
+p_u_bar <- error.convergence.plotter(x_axis_vector = h_vector, 
                                alpha_vector, 
                                errors_u_bar, 
                                theoretical_rates, 
                                observed_rates_u_bar,
-                               line_equation_fun = exp_line_equation,
+                               line_equation_fun = loglog_line_equation,
                                fig_title = expression(italic(bar(u))),
-                               x_axis_label = expression(italic(m)),
-                               apply_sqrt = TRUE)
+                               x_axis_label = expression(italic(h)))
 
-p_p_bar <- error.convergence.plotter(x_axis_vector = m_vector, 
+p_p_bar <- error.convergence.plotter(x_axis_vector = h_vector, 
                                alpha_vector, 
                                errors_p_bar, 
                                theoretical_rates, 
                                observed_rates_p_bar,
-                               line_equation_fun = exp_line_equation,
+                               line_equation_fun = loglog_line_equation,
                                fig_title = expression(italic(bar(p))),
-                               x_axis_label = expression(italic(m)),
-                               apply_sqrt = TRUE)
+                               x_axis_label = expression(italic(h)))
 
-p_z_bar <- error.convergence.plotter(x_axis_vector = m_vector, 
+p_z_bar <- error.convergence.plotter(x_axis_vector = h_vector, 
                                alpha_vector, 
                                errors_z_bar, 
                                theoretical_rates, 
                                observed_rates_z_bar,
-                               line_equation_fun = exp_line_equation,
+                               line_equation_fun = loglog_line_equation,
                                fig_title = expression(italic(bar(z))),
-                               x_axis_label = expression(italic(m)),
-                               apply_sqrt = TRUE)
+                               x_axis_label = expression(italic(h)))
 ```
 
-```{r, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+```{r, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $h$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 
-p_all_m <- (p_u_bar | p_p_bar | p_z_bar) + 
+p_all_h <- (p_u_bar | p_p_bar | p_z_bar) + 
   plot_annotation(
-    title = expression("         Convergence in " * italic(m)),
+    title = expression("         Convergence in " * italic(h)),
     theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5))
   )
-p_all_m
+p_all_h
 ```
 
 
 ```{r}
-#ggsave(here::here("data_files/control_conv_rates_m_u_bar_with_iteration.png"), width = 4, height = 5, plot = p_u_bar, dpi = 300)
-#ggsave(here::here("data_files/control_conv_rates_m_p_bar_with_iteration.png"), width = 4, height = 5, plot = p_p_bar, dpi = 300)
-#ggsave(here::here("data_files/control_conv_rates_m_z_bar_with_iteration.png"), width = 4, height = 5, plot = p_z_bar, dpi = 300)
-ggsave(here::here("data_files/control_conv_rates_m_all_with_iteration.png"), width = 12, height = 6, plot = p_all_m, dpi = 300)
+# ggsave(here::here("data_files/control_conv_rates_h_u_bar.png"), width = 4, height = 5, plot = p_u_bar, dpi = 300)
+# ggsave(here::here("data_files/control_conv_rates_h_p_bar.png"), width = 4, height = 5, plot = p_p_bar, dpi = 300)
+# ggsave(here::here("data_files/control_conv_rates_h_z_bar.png"), width = 4, height = 5, plot = p_z_bar, dpi = 300)
+ggsave(here::here("data_files/control_conv_rates_h_all.png"), width = 12, height = 6, plot = p_all_h, dpi = 300)
 ```
 
-
 ```{r, eval = TRUE, echo = FALSE}
-initial_comment <- paste0("Here’s the latest plot update for the convergence in m for the optimal control problem! with kappa = ", kappa, " and divider = ", divider)
+initial_comment <- paste0("Here’s the latest plot update for the convergence in h for the optimal control problem! with kappa = ", kappa, " and divider = ", divider)
 # option 1
 slackr_upload(
-  filename = "data_files/control_conv_rates_m_all_with_iteration.png",        # path to your image
+  filename = "data_files/control_conv_rates_h_all.png",        # path to your image
   initial_comment = initial_comment,
   channels = "#research"
 )
