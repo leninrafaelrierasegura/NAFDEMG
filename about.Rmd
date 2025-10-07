@@ -92,7 +92,8 @@ knitr::include_graphics(here::here("data_files/control_conv_rates_m_all.png"))
       
       
 
-```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6)}
+```
+{r, echo = FALSE, fig.align='center', fig.dim= c(12,6)}
 load(here::here("data_files/p_h_u.RData"))
 load(here::here("data_files/p_tau_u.RData"))
 load(here::here("data_files/p_m_u.RData"))
@@ -101,7 +102,8 @@ p_all_u
 ggplot2::ggsave(here::here("data_files/p_all_u.png"), width = 12, height = 5, plot = p_all_u, dpi = 300)
 ```
 
-```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6)}
+```
+{r, echo = FALSE, fig.align='center', fig.dim= c(12,6)}
 
 load(here::here("data_files/p_h_z.RData"))
 load(here::here("data_files/p_tau_z.RData"))

@@ -105,7 +105,7 @@ source(here::here("control_functionality.R"))
 T_final <- 2
 kappa <- 16 # readRDS("old/kappa.RDS") #4
 divider <- 1 # readRDS("old/divider.RDS") 
-mu <- 0.1
+mu <- 1
 a <- - 0.5*1
 b <- 0.5*1
 N_finite = 4 # choose even
@@ -149,7 +149,7 @@ overkill_phi_prime <- - cos(T_final - overkill_time_seq)
 # overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
 # overkill_phi_prime <- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)
 
-alpha_vector <- seq(1.8, 1.8, by = 0.2)
+alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
@@ -398,20 +398,34 @@ slackr_upload(
   initial_comment = initial_comment,
   channels = "#research"
 )
-capture.output(
-  knitr::purl(
-    here::here("control_conv_m_with_iteration.Rmd"),
-    output = here::here("old/scripts/control_conv_m_with_iteration.R")
-  ),
-  file = here::here("old/purl_log_aux.txt")
+```
+
+```{r}
+get_numeric_scalars <- function() {
+  vars <- ls(envir = .GlobalEnv)
+  scalars <- sapply(vars, function(v) {
+    val <- get(v, envir = .GlobalEnv)
+    is.numeric(val) && length(val) == 1
+  })
+  mget(vars[scalars], envir = .GlobalEnv)
+}
+
+# Collect the scalars
+num_scalars <- get_numeric_scalars()
+
+# Format as message
+msg <- paste(
+  sprintf("%s = %s", names(num_scalars), unlist(num_scalars)),
+  collapse = "\n"
 )
 
-slackr_upload(
-  filename = here::here("old/scripts/control_conv_m_with_iteration.R"),
-  initial_comment = "Here’s the R script that produced the above plot",
-  channels = "#research"
+# Send to Slack
+slackr::slackr_msg(
+  text = paste("Numeric scalars in this run:\n", msg),
+  channel = "#research"
 )
 ```
+
 
 # References
 

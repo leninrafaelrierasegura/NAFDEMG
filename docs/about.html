@@ -503,6 +503,21 @@ observed error curves. The legend below each plot shows the value of
 theoretical (‘theo’), and observed (‘obs’) rates for each case.
 </p>
 </div>
+<pre><code>{r, echo = FALSE, fig.align=&#39;center&#39;, fig.dim= c(12,6)}
+load(here::here(&quot;data_files/p_h_u.RData&quot;))
+load(here::here(&quot;data_files/p_tau_u.RData&quot;))
+load(here::here(&quot;data_files/p_m_u.RData&quot;))
+p_all_u &lt;- (p_h_u | p_tau_u | p_m_u) 
+p_all_u
+ggplot2::ggsave(here::here(&quot;data_files/p_all_u.png&quot;), width = 12, height = 5, plot = p_all_u, dpi = 300)</code></pre>
+<pre><code>{r, echo = FALSE, fig.align=&#39;center&#39;, fig.dim= c(12,6)}
+
+load(here::here(&quot;data_files/p_h_z.RData&quot;))
+load(here::here(&quot;data_files/p_tau_z.RData&quot;))
+load(here::here(&quot;data_files/p_m_z.RData&quot;))
+p_all_z &lt;- (p_h_z | p_tau_z | p_m_z) 
+p_all_z
+ggplot2::ggsave(here::here(&quot;data_files/p_all.png&quot;), width = 12, height = 5, plot = p_all_z, dpi = 300)</code></pre>
 
 
 

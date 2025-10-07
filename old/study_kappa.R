@@ -44,14 +44,17 @@ for (i in 1:length(KAPPAS)) {
 # }
 
 
-KAPPAS <- c(1,2,4,8,16,32)
-DIVIDER <- c(1,2,4,6,8,10)
+
+rmarkdown::render("control_conv_m_with_iteration.Rmd")
+KAPPAS <- c(4,8,16,32)
+DIVIDER <- c(1,2,4,8,16)
 for (i in 1:length(KAPPAS)) {
   kappa <- KAPPAS[i]
   saveRDS(kappa, "old/kappa.RDS")
   for (j in 1:length(DIVIDER)) {
     divider <- DIVIDER[j]
     saveRDS(divider, "old/divider.RDS")
-    rmarkdown::render("conv_in_m.Rmd")
+    rmarkdown::render("control_conv_h_with_iteration.Rmd")
+    rmarkdown::render("control_conv_tau_with_iteration.Rmd")
   }
 }
