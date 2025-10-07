@@ -102,10 +102,10 @@ source(here::here("control_functionality.R"))
 
 ```{r}
 # Parameters
-T_final <- 1
+T_final <- 2
 kappa <- 16 # readRDS("old/kappa.RDS") #4
-divider <- 7 # readRDS("old/divider.RDS") 
-mu <- 1
+divider <- 1 # readRDS("old/divider.RDS") 
+mu <- 0.1
 a <- - 0.5*1
 b <- 0.5*1
 N_finite = 4 # choose even
@@ -149,7 +149,7 @@ overkill_phi_prime <- - cos(T_final - overkill_time_seq)
 # overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
 # overkill_phi_prime <- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)
 
-alpha_vector <- seq(1, 1.8, by = 0.2)
+alpha_vector <- seq(1.8, 1.8, by = 0.2)
 ```
 
 
@@ -251,7 +251,7 @@ for (j in 1:length(alpha_vector)) {
     tol <- 1e-12
     maxit <- 25
     verbose <- TRUE
-    nested_spatial_mesh <- FALSE
+    nested_spatial_mesh <- TRUE
     res <- solve_coupled_system_multi_tol(
       my_op_frac = my_op_frac,
       time_step = time_step, 
@@ -289,11 +289,15 @@ for (j in 1:length(alpha_vector)) {
     PP <- overkill_p_bar - projected_p_bar_piecewise
     ZZ <- overkill_z_bar - projected_z_bar_piecewise
     
-    errors_u_bar[i,j] <- sqrt(as.double(overkill_time_step * sum(UU * (overkill_C %*% UU))))
-    errors_p_bar[i,j] <- sqrt(as.double(overkill_time_step * sum(PP * (overkill_C %*% PP))))
-    errors_z_bar[i,j] <- sqrt(as.double(overkill_time_step * sum(ZZ * (overkill_C %*% ZZ))))
+    DDD <- sqrt(as.double(overkill_time_step * sum(UU * (overkill_C %*% UU))))
+    HHH <- sqrt(as.double(overkill_time_step * sum(PP * (overkill_C %*% PP))))
+    KKK <- sqrt(as.double(overkill_time_step * sum(ZZ * (overkill_C %*% ZZ))))
+
+    errors_u_bar[i,j] <- DDD
+    errors_p_bar[i,j] <- HHH
+    errors_z_bar[i,j] <- KKK
     print(paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step))
-    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
+    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step, ", converged = ", res$converged, ", iterations = ", res$iterations, ", error u = ", DDD, ", error p = ", HHH, ", error z = ", KKK), channel = "#research")
   }
 }
 save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_m_with_iteration.RData"))
@@ -365,12 +369,25 @@ ggsave(here::here("data_files/control_conv_rates_m_all_with_iteration.png"), wid
 ```
 
 
-```{r, eval = TRUE, echo = FALSE}
+```{r, eval = TRUE, echo = TRUE}
 initial_comment <- paste0("Here’s the latest plot update for the convergence in m for the optimal control problem! with kappa = ", kappa, " and divider = ", divider)
 # option 1
 slackr_upload(
   filename = "data_files/control_conv_rates_m_all_with_iteration.png",        # path to your image
   initial_comment = initial_comment,
+  channels = "#research"
+)
+capture.output(
+  knitr::purl(
+    here::here("control_conv_m_with_iteration.Rmd"),
+    output = here::here("old/scripts/control_conv_m_with_iteration.R")
+  ),
+  file = here::here("old/purl_log_aux.txt")
+)
+
+slackr_upload(
+  filename = here::here("old/scripts/control_conv_m_with_iteration.R"),
+  initial_comment = "Here’s the R script that produced the above plot",
   channels = "#research"
 )
 ```

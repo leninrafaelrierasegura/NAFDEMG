@@ -176,7 +176,7 @@ for (j in 1:length(alpha_vector)) {
 ```{r}
 # Overkill parameters
 overkill_time_step <- 0.1 * 2^-14
-overkill_h <- h_star #(0.1 * 2^-14)^(1/2)
+overkill_h <- (0.1 * 2^-14)^(1/2)
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
 overkill_graph <- gets.graph.tadpole(h = overkill_h)
@@ -208,7 +208,7 @@ for (j in 1:length(alpha_vector)) {
     m <- m_vector[i]
     h <- exp(- pi * sqrt((1 - alpha / 2) * m))/divider 
     time_step <- (h^alpha)
-    h <- largest_nested_h(h_star, h) # this makes the spatial mesh nested
+    #h <- largest_nested_h(h_star, h) # this makes the spatial mesh nested
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
     G <- graph$mesh$G

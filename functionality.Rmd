@@ -298,7 +298,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          time_step # time step = tau
                                          ) {
   I <- Matrix::Diagonal(dim(C)[1])
-  L <- L / scale.factor 
+  L <- L / scale.factor
   if(beta == 1){
     L <- L * scale.factor^beta
     return(list(C = C, # mass matrix
@@ -694,7 +694,7 @@ solve_coupled_system_multi_tol <- function(
   P_list <- list()
   
   z_prev <- Z_ini
-  Z_mat <- ifelse(nested_spatial_mesh, C %*% z_prev, R %*% Psi %*% z_prev)
+  if(nested_spatial_mesh == TRUE){Z_mat <- C %*% z_prev}else{Z_mat <- R %*% Psi %*% z_prev}
   U_prev <- F_proj*0
   P_prev <- F_proj*0
 
@@ -702,11 +702,11 @@ solve_coupled_system_multi_tol <- function(
     it <- it + 1
 
     U_mat <- solve_forward_evolution(my_op_frac, time_step, time_seq, RHST = F_proj + Z_mat, val_at_0 = u_0)
-    V_mat <- ifelse(nested_spatial_mesh, C %*% U_mat, R %*% Psi %*% U_mat)
+    if(nested_spatial_mesh == TRUE){V_mat <- C %*% U_mat}else{V_mat <- R %*% Psi %*% U_mat}
     Q_mat <- solve_backward_evolution(my_op_frac, time_step, time_seq, RHST = V_mat - V_d)
     P_mat <- Q_mat
     z_new <- pmax(A, pmin(B, - P_mat / mu))
-    Z_mat <- ifelse(nested_spatial_mesh, C %*% z_new, R %*% Psi %*% z_new)
+    if(nested_spatial_mesh == TRUE){Z_mat <- C %*% z_new}else{Z_mat <- R %*% Psi %*% z_new}
     
     # relative changes
     rel_changes_Z <- change_comparer(z_new, z_prev, time_step, C, relative = TRUE)  
