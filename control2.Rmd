@@ -657,6 +657,114 @@ Now
 \end{align}
 
 For example, with $N=3$
+\begin{align}
+\boldsymbol{\mathfrak{L}} = \mathbf{S}_{\mathrm{B}}\mathbf{\hat{R}}\mathbf{M}\mathbf{S}_{\mathrm{F}}\mathbf{\hat{R}}\mathbf{M} 
+&= \tau^2
+\begin{bmatrix}
+\mathbf{0} & \mathbf{R}\mathbf{C} & (\mathbf{R}\mathbf{C})^2 & (\mathbf{R}\mathbf{C})^{3} \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{R}\mathbf{C} & (\mathbf{R}\mathbf{C})^2 \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{R}\mathbf{C} \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0}
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0}  \\[1mm]
+\mathbf{0} & \mathbf{R}\mathbf{C} & \mathbf{0} & \mathbf{0}  \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^2 & \mathbf{R}\mathbf{C} & \mathbf{0}  \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^3 & (\mathbf{R}\mathbf{C})^2 & \mathbf{R}\mathbf{C}
+\end{bmatrix}\\
+&\\
+& = \tau^2
+\begin{bmatrix}
+\mathbf{0} & (\mathbf{R}\mathbf{C})^2 + (\mathbf{R}\mathbf{C})^4 + (\mathbf{R}\mathbf{C})^6 
+           & (\mathbf{R}\mathbf{C})^3 + (\mathbf{R}\mathbf{C})^5 
+           & (\mathbf{R}\mathbf{C})^4 \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^3 + (\mathbf{R}\mathbf{C})^5 
+           & (\mathbf{R}\mathbf{C})^2 + (\mathbf{R}\mathbf{C})^4 
+           & (\mathbf{R}\mathbf{C})^3 \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^4 
+           & (\mathbf{R}\mathbf{C})^3 
+           & (\mathbf{R}\mathbf{C})^2 \\[1mm]
+\mathbf{0} & \mathbf{0} 
+           & \mathbf{0} 
+           & \mathbf{0}
+\end{bmatrix}
+\end{align}
+Let $\boldsymbol{\mathfrak{B}} = \mathbf{C}_{N+1}^{\frac{1}{2}}\boldsymbol{\mathfrak{L}}\mathbf{C}_{N+1}^{-\frac{1}{2}}$. Note for example that
+\begin{align*}
+ \mathbf{C}^{\frac{1}{2}}(\mathbf{R}\mathbf{C})^{3}\mathbf{C}^{-\frac{1}{2}}  =  \mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}\mathbf{R}\mathbf{C}\mathbf{R}\mathbf{C}\mathbf{C}^{-\frac{1}{2}} =  (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^3.
+\end{align*}
+Therefore
+\begin{align}
+\boldsymbol{\mathfrak{B}}  = \tau^2
+\begin{bmatrix}
+\mathbf{0} & (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^2 + (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^4 + (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^6 
+           & (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^3 + (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^5 
+           & (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^4 \\[1mm]
+\mathbf{0} & (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^3 + (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^5 
+           & (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^2 + (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^4 
+           & (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^3 \\[1mm]
+\mathbf{0} & (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^4 
+           & (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^3 
+           & (\mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}})^2 \\[1mm]
+\mathbf{0} & \mathbf{0} 
+           & \mathbf{0} 
+           & \mathbf{0}
+\end{bmatrix}
+\end{align}
+By letting $\mathbf{\Omega} = \mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}}$, we can write
+\begin{align}
+\boldsymbol{\mathfrak{B}}  = \tau^2
+\begin{bmatrix}
+\mathbf{0} & \mathbf{\Omega}^2 + \mathbf{\Omega}^4 + \mathbf{\Omega}^6 
+           & \mathbf{\Omega}^3 + \mathbf{\Omega}^5 
+           & \mathbf{\Omega}^4 \\[1mm]
+\mathbf{0} & \mathbf{\Omega}^3 + \mathbf{\Omega}^5 
+           & \mathbf{\Omega}^2 + \mathbf{\Omega}^4 
+           & \mathbf{\Omega}^3 \\[1mm]
+\mathbf{0} & \mathbf{\Omega}^4 
+           & \mathbf{\Omega}^3 
+           & \mathbf{\Omega}^2 \\[1mm]
+\mathbf{0} & \mathbf{0} 
+           & \mathbf{0} 
+           & \mathbf{0}
+\end{bmatrix}
+\end{align}
+Let $\boldsymbol{\mathfrak{A}} = \begin{bmatrix}
+ \mathbf{\Omega}^2 + \mathbf{\Omega}^4 + \mathbf{\Omega}^6 
+           & \mathbf{\Omega}^3 + \mathbf{\Omega}^5 
+           & \mathbf{\Omega}^4 \\[1mm]
+ \mathbf{\Omega}^3 + \mathbf{\Omega}^5 
+           & \mathbf{\Omega}^2 + \mathbf{\Omega}^4 
+           & \mathbf{\Omega}^3 \\[1mm]
+ \mathbf{\Omega}^4 
+           & \mathbf{\Omega}^3 
+           & \mathbf{\Omega}^2 
+\end{bmatrix}$
+
+\begin{align}
+\label{chain1}
+    \|\boldsymbol{\mathfrak{L}}\|_{\mathbf{C}_{N+1}}  = \|\boldsymbol{\mathfrak{B}}\|_2= \|\boldsymbol{\mathfrak{B}} \mathbf{\hat{J}} \|_2= \tau^2  \| \begin{bmatrix}
+ \boldsymbol{\mathfrak{A}}\mathbf{\hat{J}} & \mathbf{0} \\[1mm]
+ \mathbf{0} & \mathbf{0} 
+\end{bmatrix}\|_2  = \tau^2  \|\boldsymbol{\mathfrak{A}}\mathbf{\hat{J}} \|_2 = \tau^2  \|\boldsymbol{\mathfrak{A}}\|_2
+\end{align}
+
+We have that $\mathbf{Q}^\top\boldsymbol{\Omega}^k\mathbf{Q}  =  \boldsymbol{\Delta}^k$. Let $\mathbf{V} = \mathbf{I}_{N}\otimes  \mathbf{Q}$. By ,  $\mathbf{V}$ is orthogonal and
+\begin{align*}
+\mathbf{V}^\top \boldsymbol{\mathfrak{A}} \mathbf{V} = 
+\begin{bmatrix}
+ \mathbf{\Delta}^2 + \mathbf{\Delta}^4 + \mathbf{\Delta}^6 
+           & \mathbf{\Delta}^3 + \mathbf{\Delta}^5 
+           & \mathbf{\Delta}^4 \\[1mm]
+ \mathbf{\Delta}^3 + \mathbf{\Delta}^5 
+           & \mathbf{\Delta}^2 + \mathbf{\Delta}^4 
+           & \mathbf{\Delta}^3 \\[1mm]
+ \mathbf{\Delta}^4 
+           & \mathbf{\Delta}^3 
+           & \mathbf{\Delta}^2 
+\end{bmatrix}
+\end{align*}
+
 
 
 ## Construction of an exact solution to the optimal control problem {#exact_sol_for_optim_control_prob}
