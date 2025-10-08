@@ -76,18 +76,74 @@ build_perm_matrix(length(egs), Nh)
 # 
 # P
 
-Nh <- 3
-eg1 <- 1
-eg2 <- 3
-eg3 <- 5
-AA <- cbind(rbind(build_T(eg1,Nh), build_T(eg1,Nh)*0, build_T(eg1,Nh)*0),
-            rbind(build_T(eg2,Nh)*0, build_T(eg2,Nh), build_T(eg2,Nh)*0),
-            rbind(build_T(eg3,Nh)*0, build_T(eg3,Nh)*0, build_T(eg3,Nh)))
-AA
 
-P %*% AA %*% P
+# check norm identity
+source(here::here("functionality.R"))
+T_final <- 2
+time_step <- 0.001 
+h <- 1
+kappa <- 15
+alpha <- 0.5 
+m = 1
+beta <- alpha/2
 
+graph <- gets.graph.tadpole(h = h)
+graph$compute_fem()
+G <- graph$mesh$G
+C <- graph$mesh$C
+L <- kappa^2*C + G
+I <- Matrix::Diagonal(nrow(C))
 
+# Numerical solution
+obj <- my.fractional.operators.frac(L, beta, C, scale.factor = kappa^2, m = m, time_step)
+partial_fraction_terms <- obj$partial_fraction_terms
+residues <- obj$residues
+output <- I*0
+for (i in 1:(m+1)) {output <- output + residues[i] * solve(partial_fraction_terms[[i]], I)}
+R <- output
+
+C_sqrt <- expm::sqrtm(C)       # matrix square root
+Omega <- C_sqrt %*% R %*% C_sqrt
+n <- nrow(Omega)
+Omega2 <- Omega %*% Omega
+Omega3 <- Omega2 %*% Omega
+Omega4 <- Omega2 %*% Omega2
+Omega5 <- Omega3 %*% Omega2
+Omega6 <- Omega3 %*% Omega3
+B11 <- matrix(0, nrow = n, ncol = n)
+B12 <- Omega2 + Omega4 + Omega6
+B13 <- Omega3 + Omega5
+B14 <- Omega4
+
+B21 <- matrix(0, nrow = n, ncol = n)
+B22 <- Omega3 + Omega5
+B23 <- Omega2 + Omega4
+B24 <- Omega3
+
+B31 <- matrix(0, nrow = n, ncol = n)
+B32 <- Omega4
+B33 <- Omega3
+B34 <- Omega2
+
+B41 <- matrix(0, nrow = n, ncol = n)
+B42 <- matrix(0, nrow = n, ncol = n)
+B43 <- matrix(0, nrow = n, ncol = n)
+B44 <- matrix(0, nrow = n, ncol = n)
+library(Matrix)  # optional, for bdiag if needed
+
+big_matrix <- rbind(
+  cbind(B11, B12, B13, B14),
+  cbind(B21, B22, B23, B24),
+  cbind(B31, B32, B33, B34),
+  cbind(B41, B42, B43, B44)
+)
+
+omega <- 1/(1+time_step * kappa^(2*beta))
+
+TT <- build_T(omega, 3)
+
+norm(TT, type = "2")
+norm(big_matrix, type = "2")
 
 T_final <- 2
 
