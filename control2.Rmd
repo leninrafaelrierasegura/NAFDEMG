@@ -57,7 +57,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = TRUE,       
+  eval = FALSE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -187,48 +187,476 @@ since $\partial_t\bar{q}(s,t) = -\partial_t\bar{p}(s,T-t)$ and $\bar{q}(s, 0) =\
 
 Given $\bar{u}$ and $u_d$, we can time-reverse them to obtain $\bar{v}$ and $v_d$ and then use the same numerical scheme we use for the forward problem \eqref{eq:maineqoptimal} to solve the adjoint problem \eqref{transformed_adjoint_state}. The control variable $\bar{z}$ is then computed using \eqref{zz}.
 
+
+
 The numerical scheme for \eqref{eq:maineqoptimal} and \eqref{transformed_adjoint_state} are given by (see the [Functionality](functionality.html#num_scheme) page)
+
 \begin{align}
-\label{numericalscheme1}
 \tag{10}
-\bar{\boldsymbol{U}}^{k+1} = \boldsymbol{C}^{-1}\left(\sum_{k=1}^{m+1} a_k\left(\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1} + r\boldsymbol{I}\right) (\boldsymbol{C}\bar{\boldsymbol{U}}^k+\tau (\boldsymbol{F}^{k+1}+\bar{\boldsymbol{Z}}^{k+1})),
+    \label{numericalscheme1}
+    \begin{cases}
+    &\mathbf{\bar{U}}_{k+1}  = \mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_k+\tau (\mathbf{F}_{k+1}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{k+1})),\quad k = 0,\dots, N-1,\\
+    &\mathbf{\bar{U}}_{0}  = P_h u_0,
+    \end{cases}
 \end{align}
 and
 \begin{align}
-\label{thenumericalscheme2}
 \tag{11}
-\bar{\boldsymbol{Q}}^{k+1} = \boldsymbol{C}^{-1}\left(\sum_{k=1}^{m+1} a_k\left(\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1} + r\boldsymbol{I}\right) (\boldsymbol{C}\bar{\boldsymbol{Q}}^k+\tau (\bar{\boldsymbol{V}}^{k+1}-\boldsymbol{V_d}^{k+1})),
+    \label{thenumericalscheme2}
+    \begin{cases}
+    &\mathbf{\bar{Q}}_{k+1}  = \mathbf{R}(\mathbf{C}\mathbf{\bar{Q}}_k+\tau ((\mathbf{C}\mathbf{\bar{U}}\mathbf{J}_{N+1})_{k+1}-\mathbf{D}_{k+1})),\quad k = 0,\dots, N-1,\\
+    &\mathbf{\bar{Q}}_{0}  = \mathbf{0},
+    \end{cases}
 \end{align}
-with initial conditions $\bar{\boldsymbol{U}}^0 = \boldsymbol{U}_0$ and $\bar{\boldsymbol{Q}}^0 = \boldsymbol{0}$. Observe that \eqref{numericalscheme1}-\eqref{thenumericalscheme2} is a coupled problem.
+where $\mathbf{R} = \sum_{k=1}^{m+1} a_k\left(\mathbf{L}/\kappa^2-p_k\mathbf{C}\right)^{-1}$. Observe that \eqref{numericalscheme1}-\eqref{thenumericalscheme2} is a coupled problem.
 
-For notation convenience, let
+Here
 
- - $\bar{\boldsymbol{U}}$  be the matrix with columns $\bar{\boldsymbol{U}}^k$ obtained from the numerical scheme \eqref{numericalscheme1} 
- - $\boldsymbol{F}$ be the matrix with columns $\boldsymbol{F}^k$ and entries $\boldsymbol{F}_{ik}=(\psi^i_h,f(\cdot,t_k))_{L_2(\Gamma)}$
- - $\bar{\boldsymbol{Z}}$ be the matrix with columns $\bar{\boldsymbol{Z}}^k$ and entries $\bar{\boldsymbol{Z}}_{ik}=(\psi^i_h,\bar{z}(\cdot,t_k))_{L_2(\Gamma)}$
- - $\bar{\boldsymbol{Q}}$ be the matrix with columns $\bar{\boldsymbol{Q}}^k$ obtained from the numerical scheme \eqref{thenumericalscheme2}
- - $\bar{\boldsymbol{V}}$ be the matrix with columns $\bar{\boldsymbol{V}}^k$ and entries $\bar{\boldsymbol{V}}^{ik}=(\psi^i_h,\bar{v}(\cdot,t_k))_{L_2(\Gamma)} =(\psi^i_h,\bar{u}(\cdot,T-t_k))_{L_2(\Gamma)}$
- - $\boldsymbol{V_d}$ be the matrix with columns $\boldsymbol{V_d}^k$ and entries $\boldsymbol{V_d}^{ik}=(\psi^i_h,v_d(\cdot,t_k))_{L_2(\Gamma)} =(\psi^i_h,u_d(\cdot,T-t_k))_{L_2(\Gamma)}$
- - $\boldsymbol{A}$ be the matrices with entries $\boldsymbol{A}_{ik} = a(s_i,t_k)$
- - $\boldsymbol{B}$ be the matrices with entries $\boldsymbol{B}_{ik} = b(s_i,t_k)$
- - $\bar{\boldsymbol{P}} = \text{reversecolumns}(\bar{\boldsymbol{Q}})$
+- $\mathbf{\bar{U}}$ has entries $\mathbf{U}_{j,k}  = \bar{u}(s_j,t_k)$
+- $\mathbf{F}$ has entries $\mathbf{F}_{j,k} =(f^{k},\psi^j_h)_{L_2(\Gamma)}$.
+- $\mathbf{\bar{\mathcal{Z}}}$ has entries $\mathbf{\bar{\mathcal{Z}}}_{j,k} = \bar{z}(s_j,t_k)$
+- $\mathbf{D}$ has entries $\mathbf{D}_{j,k} =(u_d^{N-k},\psi^j_h)_{L_2(\Gamma)}$
+- $\mathbf{\bar{P}} = \mathbf{\bar{Q}}\mathbf{J}_{N+1}$ and has entries $\mathbf{\bar{P}}_{j,k} = \bar{p}(s_j,t_k)$
 
 
-Observe that the entries of $\boldsymbol{F}$ are given by $\boldsymbol{F}_{ik}=(\psi^i_h, f(\cdot,t_k))_{L_2(\Gamma)}$ where $\psi^i_h$ is the $i$-th basis function on a mesh with $N_h$ nodes. By introducing a finer integration mesh with $N_{h_{\text{ok}}}$ nodes, we can approximate $\boldsymbol{F}_{ik}$ as $\boldsymbol{\psi}_i^\top\boldsymbol{C}^{\text{ok}}\boldsymbol{f}_k$, where $\boldsymbol{\psi}_i=[\psi^i_h(s_1)\dots \psi^i_h(s_{N_{h_{\text{ok}}}})]^\top$ for $i=1\dots, N_h$, $\boldsymbol{f}_k = [f(s_1,t_k)\dots f(s_{N_{h_{\text{ok}}}},t_k)]\top$ for $k= 0,\dots,N$, and matrix $\boldsymbol{C}^{\text{ok}}$ has entries $\boldsymbol{C}^{\text{ok}}_{nm} = (\psi_{h_\text{ok}}^n,\psi_{h_\text{ok}}^m)_{L_2(\Gamma)}$ for $n,m = 1,\dots, N_{h_\text{ok}}$. Let $\boldsymbol{f}$ denote the matrix with columns $\boldsymbol{f}_k$ and $\boldsymbol{\Psi}$ denote a matrix with entries $\boldsymbol{\Psi}_{ji}=\psi^i_h(s_j)$ for $i=1\dots, N_h$ and $j = 1,\dots N_{h_{\text{ok}}}$. Then 
+If we change \eqref{thenumericalscheme2} to $\mathbf{\bar{P}}$, then we obtain 
+\begin{align}
+\tag{12}
+    \label{thenumericalscheme3}
+    \begin{cases}
+    &\mathbf{\bar{P}}_{k}  = \mathbf{R}(\mathbf{C}\mathbf{\bar{P}}_{k+1}+\tau (\mathbf{C}\mathbf{\bar{U}}_{k}-\mathbf{D}_{k})),\quad k = N-1,\dots, 0,\\
+    &\mathbf{\bar{P}}_{N}  = \mathbf{0},
+    \end{cases}
+\end{align}
+
+## Numerical scheme derivation for the state equation
+
 \begin{equation}
-\boldsymbol{F} \approx \boldsymbol{\Psi}^\top \boldsymbol{C}^{\text{ok}} \boldsymbol{f}.
+\label{system:fully_discrete_scheme}
+\tag{3}
+    \left\{
+\begin{aligned}
+    \langle\delta U_h^{k+1},\phi\rangle + \mathfrak{a}(
+        U_h^{k+1},\phi) &= \langle f^{k+1}+Z_h^{k+1},\phi\rangle, \quad\forall\phi\in V_h,\quad k=0,\dots, N-1, \\
+    U^0_h &= P_hu_0, 
+\end{aligned}
+\right.
 \end{equation}
-Similarly, if $\boldsymbol{U_d}$ is the matrix with entries $\boldsymbol{U_d}^{jk} = u_d(s_j,t_k)$ for $j = 1,\dots, N_{h_{\text{ok}}}$ and $k = 0,\dots, N$, then the matrix $\boldsymbol{V_d}$ can be approximated as
+We have 
+\begin{align}
+\langle\dfrac{U_h^{k+1} - U_h^{k}}{\tau},\phi\rangle + \mathfrak{a}(
+        U_h^{k+1},\phi) = \langle f^{k+1}+Z_h^{k+1},\phi\rangle
+\end{align}
+and
+\begin{align}
+\langle U_h^{k+1},\phi\rangle + \tau\mathfrak{a}(
+        U_h^{k+1},\phi) = \langle U_h^{k},\phi\rangle + \tau\langle f^{k+1}+Z_h^{k+1},\phi\rangle
+\end{align}
+At each time step $t_k$, the finite element solution $U_h^k\in V_h$ to \eqref{system:fully_discrete_scheme} can be expressed as a linear combination of the basis functions  $\{\psi^i_h\}_{i=1}^{N_h}$ introduced in the [Preliminaries](preliminaries.html#fem-basis) page, namely, 
+\begin{align}
+\label{num_sol}
+\tag{4}
+    U_h^k(s) =  \sum_{i=1}^{N_h}u_i^k\psi^i_h(s), \;s\in\Gamma.
+\end{align}
+Replacing \eqref{num_sol} into \eqref{system:fully_discrete_scheme} yields the following linear system
+\begin{align*}
+    \sum_{j=1}^{N_h}u_j^{k+1}[(\psi_j,\psi_i)_{L_2(\Gamma)}+ \tau\mathfrak{a}(\psi_j,\psi_i)] = \sum_{j=1}^{N_h}u_j^{k}(\psi_j,\psi_i)_{L_2(\Gamma)}+\tau( f^{k+1},\psi_i)_{L_2(\Gamma)},
+\end{align*}
+for $i = 1,\dots, N_h$. In matrix notation,
+\begin{align}
+\label{diff_eq_discrete}
+    (\mathbf{C}+\tau \mathbf{L}^{\alpha/2})\mathbf{U}^{k+1} = \mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1},
+\end{align}
+or by introducing the scaling parameter $\kappa^2>0$,
+\begin{align}
+    (\mathbf{C}+\tau (\kappa^2)^{\alpha/2}(\mathbf{L}/\kappa^2)^{\alpha/2})\mathbf{U}^{k+1} = \mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1},
+\end{align}
+where $\mathbf{C}$ has entries $\mathbf{C}_{ij} = (\psi_j,\psi_i)_{L_2(\Gamma)}$, $\mathbf{L}^{\alpha/2}$ has entries $\mathfrak{a}(\psi_j,\psi_i)$, $\mathbf{U}^k$ has entries $u_j^k$, and $\mathbf{F}^k$ has entries $( f^{k},\psi_i)_{L_2(\Gamma)}$. Applying $(\mathbf{L}/\kappa^2)^{-\alpha/2}$ to both sides yields
 \begin{equation}
-\boldsymbol{V_d} \approx \text{reversecolumns}(\boldsymbol{\Psi}^\top \boldsymbol{C}^{\text{ok}} \boldsymbol{U_d}).
+((\mathbf{L}/\kappa^2)^{-\alpha/2}\mathbf{C}+\tau (\kappa^2)^{\alpha/2}\mathbf{I})\mathbf{U}^{k+1} = (\mathbf{L}/\kappa^2)^{-\alpha/2}(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
+\end{equation}
+Following @rSPDE2020, we approximate $(\mathbf{L}/\kappa^2)^{-\alpha/2}$ by $\mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top$ to arrive at
+\begin{equation}
+\label{eq:scheme2}
+\tag{5}
+(\mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top \mathbf{C}+\tau(\kappa^2)^{\alpha/2} \mathbf{I})\mathbf{U}^{k+1} = \mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
+\end{equation}
+where
+\begin{equation}
+\label{eq:PLPRbolin}
+\tag{7}
+\mathbf{P}_r = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{C}^{-1}\mathbf{L}}{\kappa^2}\right)\quad\text{and}\quad \mathbf{P}_\ell = \dfrac{\kappa^{2\beta}}{\texttt{factor}}\mathbf{C}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{C}^{-1}\mathbf{L}}{\kappa^2}\right),
+\end{equation}
+and $\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, and
+$\{r_{1i}\}_{i=1}^m$ and $\{r_{2j}\}_{j=1}^{m+1}$ are the roots of $q_1(x) =\sum_{i=0}^mc_ix^{i}$ and  $q_2(x)=\sum_{j=0}^{m+1}b_jx^{j}$, respectively. The coefficients  $\{c_i\}_{i=0}^m$ and  $\{b_j\}_{j=0}^{m+1}$ are determined as the best rational approximation $\hat{r}_m =q_1/q_2$ of the function $\hat{f}(x) := x^{\alpha/2-1}$ over the interval $J_h: = [\kappa^{2}\lambda_{N_h,h}^{-1}, \kappa^{2}\lambda_{1,h}^{-1}]$, where $\lambda_{1,h}, \lambda_{N_h,h}>0$ are the smallest and the largest eigenvalue of $L_h$, respectively. With this under consideration, we can rewrite \eqref{eq:scheme2} as
+\begin{equation}
+\tag{8}
+(\mathbf{P}_r^\top \mathbf{C}+\tau \mathbf{P}_\ell^\top)\mathbf{U}^{k+1} = \mathbf{P}_r^\top(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}),
+\label{eq:scheme}
+\end{equation}
+where  
+\begin{equation}
+\mathbf{P}_r^\top = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\quad\text{and}\quad \mathbf{P}_\ell^\top = \dfrac{\kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot \mathbf{C}
+\end{equation}
+since $\mathbf{L}$ and $\mathbf{C}^{-1}$ are symmetric and the factors in the product commute. Replacing these two into \eqref{eq:scheme} yields
+\begin{equation}
+\left(\prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\right)\mathbf{C}\mathbf{U}^{k+1} = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot (\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}),
+\end{equation}
+that is,
+\begin{equation}
+\label{eq:final_scheme}
+\tag{9}
+\mathbf{U}^{k+1} = \mathbf{C}^{-1}\left(\prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\right)^{-1} \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot (\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
+\end{equation}
+Considering the partial fraction decomposition
+\begin{equation}
+\label{eq:partial_fraction}
+\tag{10}
+\dfrac{\prod_{i=1}^m (1-r_{1i}x)}{\prod_{i=1}^m (1-r_{1i}x)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}} \prod_{j=1}^{m+1} (1-r_{2j}x)}=\sum_{k=1}^{m+1} a_k(x-p_k)^{-1} + r,
+\end{equation}
+scheme \eqref{eq:final_scheme} can be expressed as
+\begin{equation}
+\label{eq:final_scheme2}
+\tag{11}
+\mathbf{U}^{k+1} = \mathbf{C}^{-1}\left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}-p_k\mathbf{I}\right)^{-1} + r\mathbf{I}\right) (\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1})
+\end{equation}
+
+In practice, since the rational function in \eqref{eq:partial_fraction} is proper, there is no remainder $r$. Moreover, since $\left( \dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}-p_k\mathbf{I}\right)^{-1}  = \mathbf{C}\left( \dfrac{\mathbf{L}}{\kappa^2}-p_k\mathbf{C}\right)^{-1}$, we have that \eqref{eq:final_scheme2} can be rewritten as
+
+\begin{equation}
+\label{eq:final_scheme3}
+\tag{12}
+\mathbf{U}^{k+1} = \left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\mathbf{L}}{\kappa^2}-p_k\mathbf{C}\right)^{-1}\right) (\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
 \end{equation}
 
 
-To approximate $\boldsymbol{F}$ and $\boldsymbol{V_d}$, we use the values of $f$ and $u_d$ on the integration mesh with $N_{h_{\text{ok}}}$ nodes. However, to approximate $\bar{\boldsymbol{Z}}$ and $\bar{\boldsymbol{V}}$, we do not even have access to the values of $\bar{z}$ and $\bar{v}$ on the coarse mesh, let alone on the fine mesh. Instead, we use their approximations on the coarse mesh, given by the matrices $\bar{\boldsymbol{z}} = \max\{\boldsymbol{A},\min\{\boldsymbol{B},-\bar{\boldsymbol{P}}/\mu\}\}$ and $\text{reversecolumns}(\bar{\boldsymbol{U}})$, respectively. With these at hand, 
-we can approximate $\bar{\boldsymbol{Z}}$ and $\bar{\boldsymbol{V}}$ by first projecting $\bar{\boldsymbol{z}} = \max\{\boldsymbol{A},\min\{\boldsymbol{B},-\bar{\boldsymbol{P}}/\mu\}\}$ and $\text{reversecolumns}(\bar{\boldsymbol{U}})$ onto the fine mesh and then approximating the inner products $(\psi^i_h,\bar{z}(\cdot,t_k))_{L_2(\Gamma)}$ and $(\psi^i_h,\bar{u}(\cdot,T-t_k))_{L_2(\Gamma)}$ as
+## Numerical scheme derivation for the adjoint equation
+
 \begin{equation}
-\bar{\boldsymbol{Z}} \approx \boldsymbol{\Psi}^\top \boldsymbol{C}^{\text{ok}} \boldsymbol{\Psi} \bar{\boldsymbol{z}}\quad \text{ and }\quad \bar{\boldsymbol{V}} \approx \text{reversecolumns}(\boldsymbol{\Psi}^\top \boldsymbol{C}^{\text{ok}} \boldsymbol{\Psi} \bar{\boldsymbol{U}}).
+\label{discrete_adjoint}
+    \left\{
+\begin{aligned}
+    \langle\bar{\delta} P_h^{k},\phi\rangle + \mathfrak{a}(P_h^{k},\phi) &= \langle U_h^{k+1}-u_d^{k+1},\phi\rangle, \quad\forall\phi\in V_h,\quad k=N-1,\dots, 0, \\
+    P^N_h &= 0
+\end{aligned}
+\right.
 \end{equation}
+We have 
+\begin{align}
+\langle\dfrac{P_h^{k} - P_h^{k+1}}{\tau},\phi\rangle + \mathfrak{a}(
+        P_h^{k},\phi) = \langle U_h^{k+1} - u_d^{k+1},\phi\rangle
+\end{align}
+and
+\begin{align}
+\langle P_h^{k},\phi\rangle + \tau\mathfrak{a}(
+        P_h^{k},\phi) = \langle P_h^{k+1},\phi\rangle + \tau\langle U_h^{k+1} - u_d^{k+1},\phi\rangle
+\end{align}
+
+At each time step $t_k$, the finite element solution $P_h^k\in V_h$ to \eqref{system:fully_discrete_scheme} can be expressed as a linear combination of the basis functions  $\{\psi^i_h\}_{i=1}^{N_h}$ introduced in the [Preliminaries](preliminaries.html#fem-basis) page, namely, 
+\begin{align}
+\label{num_sol2}
+\tag{4}
+    P_h^k(s) =  \sum_{i=1}^{N_h}p_i^k\psi^i_h(s), \;s\in\Gamma.
+\end{align}
+Replacing \eqref{num_sol} into \eqref{system:fully_discrete_scheme} yields the following linear system
+\begin{align*}
+    \sum_{j=1}^{N_h}p_j^{k}[(\psi_j,\psi_i)_{L_2(\Gamma)}+ \tau\mathfrak{a}(\psi_j,\psi_i)] = \sum_{j=1}^{N_h}p_j^{k+1}(\psi_j,\psi_i)_{L_2(\Gamma)}+\tau(U_h^{k+1} - u_d^{k+1},\psi_i)_{L_2(\Gamma)},
+\end{align*}
+for $i = 1,\dots, N_h$. In matrix notation,
+\begin{align}
+\label{diff_eq_discrete_adjoint}
+    (\mathbf{C}+\tau \mathbf{L}^{\alpha/2})\mathbf{P}^{k} = \mathbf{C}\mathbf{P}^{k+1}+\tau \mathbf{U}^{k+1},
+\end{align}
+or by introducing the scaling parameter $\kappa^2>0$,
+\begin{align}
+    (\mathbf{C}+\tau (\kappa^2)^{\alpha/2}(\mathbf{L}/\kappa^2)^{\alpha/2})\mathbf{P}^{k} = \mathbf{C}\mathbf{P}^{k+1}+\tau \mathbf{U}^{k+1},
+\end{align}
+where $\mathbf{C}$ has entries $\mathbf{C}_{ij} = (\psi_j,\psi_i)_{L_2(\Gamma)}$, $\mathbf{L}^{\alpha/2}$ has entries $\mathfrak{a}(\psi_j,\psi_i)$, $\mathbf{U}^k$ has entries $u_j^k$, and $\mathbf{F}^k$ has entries $( f^{k},\psi_i)_{L_2(\Gamma)}$. Applying $(\mathbf{L}/\kappa^2)^{-\alpha/2}$ to both sides yields
+\begin{equation}
+((\mathbf{L}/\kappa^2)^{-\alpha/2}\mathbf{C}+\tau (\kappa^2)^{\alpha/2}\mathbf{I})\mathbf{P}^{k} = (\mathbf{L}/\kappa^2)^{-\alpha/2}(\mathbf{C}\mathbf{P}^{k+1}+\tau \mathbf{U}^{k+1}).
+\end{equation}
+Following @rSPDE2020, we approximate $(\mathbf{L}/\kappa^2)^{-\alpha/2}$ by $\mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top$ to arrive at
+\begin{equation}
+\label{eq:scheme2adjoint}
+\tag{5}
+(\mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top \mathbf{C}+\tau(\kappa^2)^{\alpha/2} \mathbf{I})\mathbf{P}^{k} = \mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top(\mathbf{C}\mathbf{P}^{k+1}+\tau \mathbf{U}^{k+1}).
+\end{equation}
+where
+\begin{equation}
+\label{eq:PLPRbolinadjoint}
+\tag{7}
+\mathbf{P}_r = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{C}^{-1}\mathbf{L}}{\kappa^2}\right)\quad\text{and}\quad \mathbf{P}_\ell = \dfrac{\kappa^{2\beta}}{\texttt{factor}}\mathbf{C}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{C}^{-1}\mathbf{L}}{\kappa^2}\right),
+\end{equation}
+and $\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, and
+$\{r_{1i}\}_{i=1}^m$ and $\{r_{2j}\}_{j=1}^{m+1}$ are the roots of $q_1(x) =\sum_{i=0}^mc_ix^{i}$ and  $q_2(x)=\sum_{j=0}^{m+1}b_jx^{j}$, respectively. The coefficients  $\{c_i\}_{i=0}^m$ and  $\{b_j\}_{j=0}^{m+1}$ are determined as the best rational approximation $\hat{r}_m =q_1/q_2$ of the function $\hat{f}(x) := x^{\alpha/2-1}$ over the interval $J_h: = [\kappa^{2}\lambda_{N_h,h}^{-1}, \kappa^{2}\lambda_{1,h}^{-1}]$, where $\lambda_{1,h}, \lambda_{N_h,h}>0$ are the smallest and the largest eigenvalue of $L_h$, respectively. With this under consideration, we can rewrite \eqref{eq:scheme2} as
+\begin{equation}
+\tag{8}
+(\mathbf{P}_r^\top \mathbf{C}+\tau \mathbf{P}_\ell^\top)\mathbf{P}^{k} = \mathbf{P}_r^\top(\mathbf{C}\mathbf{P}^{k+1}+\tau \mathbf{U}^{k+1}),
+\label{eq:schemeadjoint}
+\end{equation}
+where  
+\begin{equation}
+\mathbf{P}_r^\top = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\quad\text{and}\quad \mathbf{P}_\ell^\top = \dfrac{\kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot \mathbf{C}
+\end{equation}
+since $\mathbf{L}$ and $\mathbf{C}^{-1}$ are symmetric and the factors in the product commute. Replacing these two into \eqref{eq:scheme} yields
+\begin{equation}
+\left(\prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\right)\mathbf{C}\mathbf{P}^{k} = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot (\mathbf{C}\mathbf{P}^{k+1}+\tau \mathbf{U}^{k+1}),
+\end{equation}
+that is,
+\begin{equation}
+\label{eq:final_schemeadjoint}
+\tag{9}
+\mathbf{P}^{k} = \mathbf{C}^{-1}\left(\prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\right)^{-1} \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot (\mathbf{C}\mathbf{P}^{k+1}+\tau \mathbf{U}^{k+1}).
+\end{equation}
+Considering the partial fraction decomposition
+\begin{equation}
+\label{eq:partial_fractionadjoint}
+\tag{10}
+\dfrac{\prod_{i=1}^m (1-r_{1i}x)}{\prod_{i=1}^m (1-r_{1i}x)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}} \prod_{j=1}^{m+1} (1-r_{2j}x)}=\sum_{k=1}^{m+1} a_k(x-p_k)^{-1} + r,
+\end{equation}
+scheme \eqref{eq:final_scheme} can be expressed as
+\begin{equation}
+\label{eq:final_scheme3adjoint}
+\tag{12}
+\mathbf{P}^{k} = \left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\mathbf{L}}{\kappa^2}-p_k\mathbf{C}\right)^{-1}\right) (\mathbf{C}\mathbf{P}^{k+1}+\tau \mathbf{U}^{k+1}).
+\end{equation}
+
+## Fixed point iteration
+
+\begin{align}
+\tag{10}
+    \label{numstate}
+    \begin{cases}
+    &\mathbf{\bar{U}}_{k+1}  = \mathbf{R}\mathbf{C}\mathbf{\bar{U}}_k+\tau \mathbf{R}(\mathbf{F}_{k+1}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{k+1}),\quad k = 0,\dots, N-1,\\
+    &\mathbf{\bar{U}}_{0}  = P_h u_0,
+    \end{cases}
+\end{align}
+and
+\begin{align}
+\tag{12}
+    \label{numadjoint}
+    \begin{cases}
+    &\mathbf{\bar{P}}_{k}  = \mathbf{R}\mathbf{C}\mathbf{\bar{P}}_{k+1}+\tau \mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{k+1}-\mathbf{D}_{k+1}),\quad k = N-1,\dots, 0,\\
+    &\mathbf{\bar{P}}_{N}  = \mathbf{0},
+    \end{cases}
+\end{align}
+
+Let $N=3$. Then
+\begin{align}
+\mathbf{\bar{U}}_{0} & = \mathbf{\bar{U}}_{0} \\
+& \\
+\mathbf{\bar{U}}_{1} & =  (\mathbf{R}\mathbf{C})^1\mathbf{\bar{U}}_0+\tau \mathbf{R}(\mathbf{F}_{1}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{1})\\
+& \\
+\mathbf{\bar{U}}_{2} & =  \mathbf{R}\mathbf{C}\mathbf{\bar{U}}_1+\tau \mathbf{R}(\mathbf{F}_{2}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{2})\\
+& = \mathbf{R}\mathbf{C}((\mathbf{R}\mathbf{C})^1\mathbf{\bar{U}}_0+\tau \mathbf{R}(\mathbf{F}_{1}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{1}))+\tau \mathbf{R}(\mathbf{F}_{2}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{2})\\
+& = (\mathbf{R}\mathbf{C})^2\mathbf{\bar{U}}_0+\tau (\mathbf{R}\mathbf{C})^1\mathbf{R}(\mathbf{F}_{1}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{1})+\tau \mathbf{R}(\mathbf{F}_{2}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{2})\\
+& \\
+\mathbf{\bar{U}}_{3} & =  \mathbf{R}\mathbf{C}\mathbf{\bar{U}}_2+\tau \mathbf{R}(\mathbf{F}_{3}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{3})\\
+& =  \mathbf{R}\mathbf{C}((\mathbf{R}\mathbf{C})^2\mathbf{\bar{U}}_0+\tau (\mathbf{R}\mathbf{C})^1\mathbf{R}(\mathbf{F}_{1}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{1})+\tau \mathbf{R}(\mathbf{F}_{2}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{2}))+\tau \mathbf{R}(\mathbf{F}_{3}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{3})\\
+& =  (\mathbf{R}\mathbf{C})^3\mathbf{\bar{U}}_0+\tau (\mathbf{R}\mathbf{C})^2\mathbf{R}(\mathbf{F}_{1}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{1})+\tau (\mathbf{R}\mathbf{C})^1\mathbf{R}(\mathbf{F}_{2}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{2})+\tau \mathbf{R}(\mathbf{F}_{3}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{3})
+\end{align}
+and
+\begin{align}
+\mathbf{\bar{P}}_{3} &= \mathbf{0}, \\
+&\\
+\mathbf{\bar{P}}_{2} &= \mathbf{R}\mathbf{C}\mathbf{\bar{P}}_{3} + \tau\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{3}-\mathbf{D}_{3})\\
+&= \tau\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{3}-\mathbf{D}_{3}), \\
+&\\
+\mathbf{\bar{P}}_{1} &= \mathbf{R}\mathbf{C}\mathbf{\bar{P}}_{2} + \tau\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{2}-\mathbf{D}_{2}) \\
+&= \tau(\mathbf{R}\mathbf{C})^1\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{3}-\mathbf{D}_{3})
++ \tau\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{2}-\mathbf{D}_{2}), \\
+&\\
+\mathbf{\bar{P}}_{0} &= \mathbf{R}\mathbf{C}\mathbf{\bar{P}}_{1} + \tau\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{1}-\mathbf{D}_{1}) \\
+&= \tau(\mathbf{R}\mathbf{C})^{2}\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{3}-\mathbf{D}_{3})
++ \tau(\mathbf{R}\mathbf{C})^1\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{2}-\mathbf{D}_{2})
++ \tau\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{1}-\mathbf{D}_{1}).
+\end{align}
+
+
+
+In block-matrix notation
+\begin{align}
+\begin{bmatrix}
+\mathbf{\bar{U}}_{0} \\[1mm]
+\mathbf{\bar{U}}_{1} \\[1mm]
+\mathbf{\bar{U}}_{2} \\[1mm]
+\mathbf{\bar{U}}_{3}
+\end{bmatrix}
+= 
+\begin{bmatrix}
+\mathbf{\bar{U}}_{0} \\[1mm]
+(\mathbf{R}\mathbf{C})^1\mathbf{\bar{U}}_{0} \\[1mm]
+(\mathbf{R}\mathbf{C})^2\mathbf{\bar{U}}_{0} \\[1mm]
+(\mathbf{R}\mathbf{C})^3\mathbf{\bar{U}}_{0}
+\end{bmatrix}
++\tau
+\begin{bmatrix}
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0}  \\[1mm]
+\mathbf{0} & \mathbf{I} & \mathbf{0} & \mathbf{0}  \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^1 & \mathbf{I} & \mathbf{0}  \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^2 & (\mathbf{R}\mathbf{C})^1 & \mathbf{I} 
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{R}(\mathbf{\bar{F}}_{0}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{0}) \\[1mm]
+\mathbf{R}(\mathbf{\bar{F}}_{1}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{1}) \\[1mm]
+\mathbf{R}(\mathbf{\bar{F}}_{2}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{2}) \\[1mm]
+\mathbf{R}(\mathbf{\bar{F}}_{3}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{3})
+\end{bmatrix}
+\end{align}
+and
+\begin{align}
+\begin{bmatrix}
+\mathbf{\bar{P}}_{0} \\[1mm]
+\mathbf{\bar{P}}_{1} \\[1mm]
+\mathbf{\bar{P}}_{2} \\[1mm]
+\mathbf{\bar{P}}_{3}
+\end{bmatrix}
+=
+\tau
+\begin{bmatrix}
+\mathbf{0} & \mathbf{I} & (\mathbf{R}\mathbf{C}) & (\mathbf{R}\mathbf{C})^{2} \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{I} & (\mathbf{R}\mathbf{C}) \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{I} \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{0}
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{0}-\mathbf{D}_{0}) \\[1mm]
+\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{1}-\mathbf{D}_{1}) \\[1mm]
+\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{2}-\mathbf{D}_{2}) \\[1mm]
+\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{3}-\mathbf{D}_{3})
+\end{bmatrix}.
+\end{align}
+
+
+
+In general
+\begin{align}
+\begin{bmatrix}
+\mathbf{\bar{U}}_{0} \\[1mm]
+\mathbf{\bar{U}}_{1} \\[1mm]
+\mathbf{\bar{U}}_{2} \\[1mm]
+\vdots \\[1mm]
+\mathbf{\bar{U}}_{N}
+\end{bmatrix}
+&=
+\begin{bmatrix}
+\mathbf{\bar{U}}_{0} \\[1mm]
+(\mathbf{R}\mathbf{C})^1\mathbf{\bar{U}}_{0} \\[1mm]
+(\mathbf{R}\mathbf{C})^2\mathbf{\bar{U}}_{0} \\[1mm]
+\vdots \\[1mm]
+(\mathbf{R}\mathbf{C})^N\mathbf{\bar{U}}_{0}
+\end{bmatrix}
+
++\tau
+\begin{bmatrix}
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \cdots & \mathbf{0} \\[1mm]
+\mathbf{0} & \mathbf{I} & \mathbf{0} & \cdots & \mathbf{0} \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^1 & \mathbf{I} & \cdots & \mathbf{0} \\[1mm]
+\vdots & \vdots & \vdots & \ddots & \vdots \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^{N-1} & (\mathbf{R}\mathbf{C})^{N-2} & \cdots & \mathbf{I}
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{R}(\mathbf{\bar{F}}_{0}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{0}) \\[1mm]
+\mathbf{R}(\mathbf{\bar{F}}_{1}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{1}) \\[1mm]
+\mathbf{R}(\mathbf{\bar{F}}_{2}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{2}) \\[1mm]
+\vdots \\[1mm]
+\mathbf{R}(\mathbf{\bar{F}}_{N}+\mathbf{C}\mathbf{\bar{\mathcal{Z}}}_{N})
+\end{bmatrix}.
+\end{align}
+and \begin{align}
+\begin{bmatrix}
+\mathbf{\bar{P}}_{0} \\[1mm]
+\mathbf{\bar{P}}_{1} \\[1mm]
+\vdots \\[1mm]
+\mathbf{\bar{P}}_{N-1} \\[1mm]
+\mathbf{\bar{P}}_{N}
+\end{bmatrix}
+=
+\tau
+\begin{bmatrix}
+\mathbf{0} & \mathbf{I} & (\mathbf{R}\mathbf{C}) & \cdots & (\mathbf{R}\mathbf{C})^{N-1} \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{I} & \cdots & (\mathbf{R}\mathbf{C})^{N-2} \\[1mm]
+\vdots & \vdots & \vdots & \ddots & \vdots \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \cdots & \mathbf{I} \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \cdots & \mathbf{0}
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{0}-\mathbf{D}_{0}) \\[1mm]
+\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{1}-\mathbf{D}_{1}) \\[1mm]
+\vdots \\[1mm]
+\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{N-1}-\mathbf{D}_{N-1}) \\[1mm]
+\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{N}-\mathbf{D}_{N})
+\end{bmatrix}.
+\end{align}
+By defining stacked vectors of length $(N+1)N_h$ 
+\begin{align*}
+ \mathbf{\bar{u}} = \text{vec}(\mathbf{\bar{U}}),\quad 
+\mathbf{\bar{p}} = \text{vec}(\mathbf{\bar{P}}),\quad
+\boldsymbol{\bar{z}} = \text{vec}(\boldsymbol{\bar{\mathcal{Z}}}),\quad \mathbf{f} = \text{vec}(\mathbf{F}),\quad
+\mathbf{d} =\text{vec}(\mathbf{D}),
+\end{align*}
+\begin{align*}
+    \mathbf{a} =\text{vec}(\mathbf{A}),\quad
+\mathbf{b} = \text{vec}(\mathbf{B}),\quad\mathbf{h}= [\mathbf{\bar{U}}_{0}^\top ((\mathbf{R}\mathbf{C})^{1}\mathbf{\bar{U}}_{0})^\top ((\mathbf{R}\mathbf{C})^{2} \mathbf{\bar{U}}_{0})^\top\dots ((\mathbf{R}\mathbf{C})^{N}\mathbf{\bar{U}}_{0})^\top]^\top,
+\end{align*}
+and block matrices of dimension $(N+1)N_h\times (N+1)N_h$
+\begin{align*}
+\mathbf{M} = \mathbf{I}_{N+1}\otimes  \mathbf{C},\quad \mathbf{\hat{J}} = \mathbf{J}_{N+1}\otimes \mathbf{I}_{N_h},\quad \mathbf{\hat{R}} = \mathbf{I}_{N+1}\otimes  \mathbf{R} ,
+\end{align*}
+\begin{align}
+\mathbf{S}_{\mathrm{F}}
+= \tau
+\begin{bmatrix}
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \cdots & \mathbf{0} \\[1mm]
+\mathbf{0} & \mathbf{I} & \mathbf{0} & \cdots & \mathbf{0} \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^1 & \mathbf{I} & \cdots & \mathbf{0} \\[1mm]
+\vdots & \vdots & \vdots & \ddots & \vdots \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^{N-1} & (\mathbf{R}\mathbf{C})^{N-2} & \cdots & \mathbf{I}
+\end{bmatrix}\quad \text{and}\quad
+\mathbf{S}_{\mathrm{B}}
+= \tau
+\begin{bmatrix}
+\mathbf{0} & \mathbf{I} & (\mathbf{R}\mathbf{C}) & \cdots & (\mathbf{R}\mathbf{C})^{N-1} \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{I} & \cdots & (\mathbf{R}\mathbf{C})^{N-2} \\[1mm]
+\vdots & \vdots & \vdots & \ddots & \vdots \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \cdots & \mathbf{I} \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \cdots & \mathbf{0}
+\end{bmatrix}
+\end{align}
+then the vectorized form 
+\begin{align}
+\label{iterationvectorized}
+    \begin{cases}
+    \mathbf{\bar{u}} &= \mathbf{h} + \mathbf{S}_{\mathrm{F}}\mathbf{\hat{R}}(\mathbf{f}+\mathbf{M}\boldsymbol{\bar{z}})\\
+    \mathbf{\bar{p}} & = \mathbf{S}_{\mathrm{B}}\mathbf{\hat{R}}(\mathbf{M}\mathbf{\bar{u}} - \mathbf{d})\\
+    \boldsymbol{\bar{z}} & = \max\{\mathbf{a}, \min\{\mathbf{b}, -\mathbf{\bar{p}}/\mu\}\} \quad \text{(componentwise)}.
+     \end{cases}
+\end{align}
+We need to estimate $\gamma = (1/\mu)\|\boldsymbol{\mathfrak{L}}\|_{\mathbf{C}_{N+1}}$ and $\boldsymbol{\mathfrak{L}} = \mathbf{S}_{\mathrm{B}}\mathbf{\hat{R}}\mathbf{M}\mathbf{S}_{\mathrm{F}}\mathbf{\hat{R}}\mathbf{M}$
+
+Now 
+\begin{align}
+\mathbf{S}_{\mathrm{F}}\mathbf{\hat{R}}\mathbf{M}
+= \tau
+\begin{bmatrix}
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \cdots & \mathbf{0} \\[1mm]
+\mathbf{0} & \mathbf{R}\mathbf{C} & \mathbf{0} & \cdots & \mathbf{0} \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^2 & \mathbf{R}\mathbf{C} & \cdots & \mathbf{0} \\[1mm]
+\vdots & \vdots & \vdots & \ddots & \vdots \\[1mm]
+\mathbf{0} & (\mathbf{R}\mathbf{C})^{N} & (\mathbf{R}\mathbf{C})^{N-1} & \cdots & \mathbf{R}\mathbf{C}
+\end{bmatrix}\quad \text{and}\quad
+\mathbf{S}_{\mathrm{B}}\mathbf{\hat{R}}\mathbf{M}
+= \tau
+\begin{bmatrix}
+\mathbf{0} & \mathbf{R}\mathbf{C} & (\mathbf{R}\mathbf{C})^2 & \cdots & (\mathbf{R}\mathbf{C})^{N} \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{R}\mathbf{C} & \cdots & (\mathbf{R}\mathbf{C})^{N-1} \\[1mm]
+\vdots & \vdots & \vdots & \ddots & \vdots \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \cdots & \mathbf{R}\mathbf{C} \\[1mm]
+\mathbf{0} & \mathbf{0} & \mathbf{0} & \cdots & \mathbf{0}
+\end{bmatrix}
+\end{align}
+
+For example, with $N=3$
 
 
 ## Construction of an exact solution to the optimal control problem {#exact_sol_for_optim_control_prob}

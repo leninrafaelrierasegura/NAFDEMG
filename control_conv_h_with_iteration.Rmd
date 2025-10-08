@@ -292,11 +292,15 @@ for (j in 1:length(alpha_vector)) {
     PP <- overkill_p_bar - projected_p_bar_piecewise
     ZZ <- overkill_z_bar - projected_z_bar_piecewise
     
-    errors_u_bar[i,j] <- sqrt(as.double(overkill_time_step * sum(UU * (overkill_C %*% UU))))
-    errors_p_bar[i,j] <- sqrt(as.double(overkill_time_step * sum(PP * (overkill_C %*% PP))))
-    errors_z_bar[i,j] <- sqrt(as.double(overkill_time_step * sum(ZZ * (overkill_C %*% ZZ))))
+    DDD <- sqrt(as.double(overkill_time_step * sum(UU * (overkill_C %*% UU))))
+    HHH <- sqrt(as.double(overkill_time_step * sum(PP * (overkill_C %*% PP))))
+    KKK <- sqrt(as.double(overkill_time_step * sum(ZZ * (overkill_C %*% ZZ))))
+
+    errors_u_bar[i,j] <- DDD
+    errors_p_bar[i,j] <- HHH
+    errors_z_bar[i,j] <- KKK
     print(paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step))
-    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
+    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step, ", converged = ", res$converged, ", iterations = ", res$iterations, ", error u = ", DDD, ", error p = ", HHH, ", error z = ", KKK), channel = "#research")
   }
 }
 save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_h.RData"))
