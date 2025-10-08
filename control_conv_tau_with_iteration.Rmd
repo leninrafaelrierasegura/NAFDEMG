@@ -103,7 +103,7 @@ source(here::here("control_functionality.R"))
 # Parameters
 T_final <- 2
 kappa <- 4#readRDS("old/kappa.RDS") #16
-divider <- readRDS("old/divider.RDS") #1
+divider <- 1#readRDS("old/divider.RDS") #1
 mu <- 1
 a <- - 0.5*10
 b <- 0.5*10
@@ -118,6 +118,7 @@ coeff_elliptic_f[2] <- 10
 POWERS <- seq(6.125, 5.625, by = -0.1)
 tau_vector <- 0.1 * 2^-POWERS
 
+tau_vector <- c(0.002, 0.004, 0.01, 0.025, 0.05, 0.1)
 h_star <- 0.001
 
 # Overkill parameters
