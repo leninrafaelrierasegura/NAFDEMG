@@ -45,7 +45,9 @@ for (i in 1:length(KAPPAS)) {
 
 
 
+rmarkdown::render("control_conv_h_with_iteration.Rmd")
 rmarkdown::render("control_conv_m_with_iteration.Rmd")
+
 KAPPAS <- c(4,8,16,32)
 DIVIDER <- c(1,2,4,8,16)
 for (i in 1:length(KAPPAS)) {

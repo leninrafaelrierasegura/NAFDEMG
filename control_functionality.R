@@ -167,8 +167,8 @@ solve_backward_evolution <- function(my_op_frac, time_step, time_seq, RHST) {
   SOL <- matrix(NA, nrow = nrow(CC), ncol = N)
   SOL[, N] <- 0
   for (k in (N - 1):1) {
-    #rhs <- CC %*% SOL[, k + 1] + time_step * RHST[, k + 1] #this is how it should be in theory
-    rhs <- CC %*% SOL[, k + 1] + time_step * RHST[, k]
+    rhs <- CC %*% SOL[, k + 1] + time_step * RHST[, k + 1] #this is how it should be in theory
+    #rhs <- CC %*% SOL[, k + 1] + time_step * RHST[, k]
     SOL[, k] <- as.matrix(my.solver.frac(my_op_frac, rhs))
   }
   return(SOL)
