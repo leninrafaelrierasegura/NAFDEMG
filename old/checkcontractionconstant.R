@@ -14,9 +14,79 @@ build_T <- function(a, N){
   }
   return(R)
 }
+build_block_matrix <- function(egs, Nh) {
+  N <- length(egs)
+  # total size
+  m <- N * Nh
+  AA <- matrix(0, nrow = m, ncol = m)
+  
+  for (j in 1:N) {
+    rows <- ((j - 1) * Nh + 1):(j * Nh)
+    cols <- ((j - 1) * Nh + 1):(j * Nh)
+    AA[rows, cols] <- build_T(egs[j], Nh)
+  }
+  return(AA)
+}
+build_perm_matrix_general <- function(N, Nh) {
+  m <- N * Nh
+  # target indices
+  perm <- as.vector(sapply(1:Nh, function(i) i + Nh*(0:(N-1))))
+  P <- diag(m)[perm, ]
+  return(P)
+}
 
+build_perm_matrix <- function(N, Nh) {
+  # total size
+  m <- N * Nh
+  
+  # initialize zero matrix
+  P <- matrix(0, nrow = m, ncol = m)
+  
+  # fill according to permutation rule
+  for (j in 1:N) {
+    for (i in 1:Nh) {
+      k <- (j - 1) * Nh + i     # row index
+      l <- (i - 1) * N + j      # column index
+      P[k, l] <- 1
+    }
+  }
+  return(P)
+}
 
-build_T(2,4)
+Nh <- 3
+egs <- c(1, 3)
+P <- build_perm_matrix_general(length(egs), Nh)
+
+AA <- build_block_matrix(egs, Nh)
+AA
+P %*% AA %*% t(P)
+P
+build_perm_matrix(length(egs), Nh)
+# P <- matrix(c(
+#   1,0,0,0,0,0,0,0,0,
+#   0,0,0,1,0,0,0,0,0,
+#   0,0,0,0,0,0,1,0,0,
+#   0,1,0,0,0,0,0,0,0,
+#   0,0,0,0,1,0,0,0,0,
+#   0,0,0,0,0,0,0,1,0,
+#   0,0,1,0,0,0,0,0,0,
+#   0,0,0,0,0,1,0,0,0,
+#   0,0,0,0,0,0,0,0,1
+# ), nrow = 9, byrow = TRUE)
+# 
+# P
+
+Nh <- 3
+eg1 <- 1
+eg2 <- 3
+eg3 <- 5
+AA <- cbind(rbind(build_T(eg1,Nh), build_T(eg1,Nh)*0, build_T(eg1,Nh)*0),
+            rbind(build_T(eg2,Nh)*0, build_T(eg2,Nh), build_T(eg2,Nh)*0),
+            rbind(build_T(eg3,Nh)*0, build_T(eg3,Nh)*0, build_T(eg3,Nh)))
+AA
+
+P %*% AA %*% P
+
 
 
 T_final <- 2

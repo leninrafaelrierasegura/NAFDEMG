@@ -15,8 +15,30 @@ build_T <- function(a, N){
   return(R)
 }
 
+P <- matrix(c(
+  1,0,0,0,0,0,0,0,0,
+  0,0,0,1,0,0,0,0,0,
+  0,0,0,0,0,0,1,0,0,
+  0,1,0,0,0,0,0,0,0,
+  0,0,0,0,1,0,0,0,0,
+  0,0,0,0,0,0,0,1,0,
+  0,0,1,0,0,0,0,0,0,
+  0,0,0,0,0,1,0,0,0,
+  0,0,0,0,0,0,0,0,1
+), nrow = 9, byrow = TRUE)
 
-build_T(2,4)
+P
+
+eg1 <- 1
+eg2 <- 3
+eg3 <- 5
+AA <- cbind(rbind(build_T(eg1,3), build_T(eg1,3)*0, build_T(eg1,3)*0),
+            rbind(build_T(eg2,3)*0, build_T(eg2,3), build_T(eg2,3)*0),
+            rbind(build_T(eg3,3)*0, build_T(eg3,3)*0, build_T(eg3,3)))
+AA
+
+P %*% AA %*% P
+
 
 
 T_final <- 2
