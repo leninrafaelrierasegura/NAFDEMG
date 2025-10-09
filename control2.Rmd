@@ -1102,6 +1102,8 @@ F_proj <- R %*% f
 V_d <- R %*% U_d
 ```
 
+
+
 ```{r, message = TRUE}
 tol <- 1e-12
 maxit <- 25

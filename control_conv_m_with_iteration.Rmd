@@ -141,13 +141,6 @@ overkill_psi <- cos(overkill_time_seq)
 overkill_phi <- sin(T_final - overkill_time_seq)
 overkill_psi_prime <- - sin(overkill_time_seq)
 overkill_phi_prime <- - cos(T_final - overkill_time_seq)
-# psi_rate <- -2
-# phi_rate <- -2
-# phi_coefficient <- 10
-# overkill_psi <- exp(psi_rate*overkill_time_seq)
-# overkill_psi_prime <- psi_rate * exp(psi_rate*overkill_time_seq)
-# overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
-# overkill_phi_prime <- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)
 
 alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
@@ -213,10 +206,6 @@ for (j in 1:length(alpha_vector)) {
     phi <- sin(T_final - time_seq)
     psi_prime <- - sin(time_seq)
     phi_prime <- - cos(T_final - time_seq)
-    # psi <- exp(psi_rate*time_seq)
-    # psi_prime <- psi_rate * exp(psi_rate*time_seq)
-    # phi <- phi_coefficient * exp(phi_rate*time_seq) - phi_coefficient * exp(phi_rate*T_final)
-    # phi_prime <- phi_coefficient * phi_rate * exp(phi_rate*time_seq)
     
     A <- matrix(a, nrow = nrow(C), ncol = length(time_seq))
     B <- matrix(b, nrow = nrow(C), ncol = length(time_seq))
@@ -247,14 +236,11 @@ for (j in 1:length(alpha_vector)) {
       mu * outer(elliptic_v, phi_prime) +
       mu * outer(elliptic_g, phi)
     
-    V_d <- C %*% u_d
-    f <- elliptic_u %*% t(psi_prime) + elliptic_f %*% t(psi) - z_bar
-    F_proj <- C %*% f
     
     tol <- 1e-12
     maxit <- 25
     verbose <- TRUE
-    nested_spatial_mesh <- FALSE
+    nested_spatial_mesh <- TRUE
     res <- solve_coupled_system_multi_tol(
       my_op_frac = my_op_frac,
       time_step = time_step, 

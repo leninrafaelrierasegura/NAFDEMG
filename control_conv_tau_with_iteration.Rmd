@@ -214,10 +214,6 @@ for (j in 1:length(alpha_vector)) {
     psi_prime <- - sin(time_seq)
     phi <- sin(T_final - time_seq)
     phi_prime <- - cos(T_final - time_seq)
-    # psi <- exp(psi_rate*time_seq)
-    # psi_prime <- psi_rate * exp(psi_rate*time_seq)
-    # phi <- phi_coefficient * exp(phi_rate*time_seq) - phi_coefficient * exp(phi_rate*T_final)
-    # phi_prime <- phi_coefficient * phi_rate * exp(phi_rate*time_seq)
     
     A <- matrix(a, nrow = nrow(C), ncol = length(time_seq))
     B <- matrix(b, nrow = nrow(C), ncol = length(time_seq))
@@ -248,9 +244,6 @@ for (j in 1:length(alpha_vector)) {
       mu * outer(elliptic_v, phi_prime) +
       mu * outer(elliptic_g, phi)
     
-    V_d <- C %*% u_d
-    f <- elliptic_u %*% t(psi_prime) + elliptic_f %*% t(psi) - z_bar
-    F_proj <- C %*% f
     
     tol <- 1e-12
     maxit <- 25

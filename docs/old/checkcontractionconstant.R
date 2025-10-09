@@ -10,10 +10,14 @@ build_T <- function(a, N){
   for (k in N:1) {
     aux <- diag(c(rep(1, k), rep(0, N - k)))
     temp <- a^(2*(N - k + 1)) * aux %*% M %*% aux
+    #print(temp)
     R <- R + temp
   }
   return(R)
 }
+build_T(2,4)
+
+
 build_block_matrix <- function(egs, Nh) {
   N <- length(egs)
   # total size
@@ -199,3 +203,21 @@ p <- ggplot(results, aes(x = N, y = L_c,
 p
 
 ggsave(here::here("data_files/fixedpointconvergence_sharp.png"), width = 7, height = 7, plot = p, dpi = 300)
+
+
+
+# CHECK NESTEDNESS
+
+V_d_aux <- C %*% u_d
+f_aux <- elliptic_u %*% t(psi_prime) + elliptic_f %*% t(psi) - z_bar
+F_proj_aux <- C %*% f_aux
+
+WW <- V_d - V_d_aux
+VV <- F_proj - F_proj_aux
+sqrt(as.double(time_step * sum(WW * (C %*% WW))))
+sqrt(as.double(time_step * sum(VV * (C %*% VV))))
+
+g1 <- C %*% elliptic_f
+g2 <- R %*% overkill_elliptic_f
+SS <- g1 - g2
+sqrt(as.double(1 * sum(SS * (C %*% SS))))
