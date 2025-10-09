@@ -174,6 +174,9 @@ for (j in 1:length(alpha_vector)) {
   overkill_u_bar <- outer(overkill_elliptic_u, overkill_psi)
   overkill_p_bar <- - mu * outer(overkill_elliptic_v, overkill_phi)
   overkill_z_bar <- pmax(overkill_A, pmin(overkill_B, - overkill_p_bar / mu))
+  
+  maxabs <- max(abs(overkill_p_bar / mu))
+    
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
     time_step <- (h^alpha)/divider
@@ -289,7 +292,7 @@ for (j in 1:length(alpha_vector)) {
     errors_p_bar[i,j] <- HHH
     errors_z_bar[i,j] <- KKK
     print(paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step))
-    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step, ", converged = ", res$converged, ", iterations = ", res$iterations, ", error u = ", DDD, ", error p = ", HHH, ", error z = ", KKK, ", range = ", range(- p_bar / mu)), channel = "#research")
+    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step, ", converged = ", res$converged, ", iterations = ", res$iterations, ", error u = ", DDD, ", error p = ", HHH, ", error z = ", KKK, ", maxabs = ", maxabs), channel = "#research")
   }
 }
 save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_h.RData"))
