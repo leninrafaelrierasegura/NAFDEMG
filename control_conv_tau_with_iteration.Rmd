@@ -123,7 +123,7 @@ h_star <- 0.001
 
 # Overkill parameters
 overkill_time_step <- 0.1 * 2^-14
-overkill_h <- (0.1 * 2^-14)^(1/2)
+overkill_h <- h_star#(0.1 * 2^-14)^(1/2)
 
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
@@ -183,7 +183,7 @@ for (j in 1:length(alpha_vector)) {
     time_step <- tau_vector[i]
     h <- (time_step^(1/alpha))/divider
     m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
-    #h <- largest_nested_h(h_star, h) # makes them nested
+    h <- largest_nested_h(h_star, h) # makes them nested
     m_values <- c(m_values, m)
     time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
     graph <- gets.graph.tadpole(h = h)
@@ -248,11 +248,14 @@ for (j in 1:length(alpha_vector)) {
       mu * outer(elliptic_v, phi_prime) +
       mu * outer(elliptic_g, phi)
     
+    V_d <- C %*% u_d
+    f <- elliptic_u %*% t(psi_prime) + elliptic_f %*% t(psi) - z_bar
+    F_proj <- C %*% f
     
     tol <- 1e-12
     maxit <- 25
     verbose <- TRUE
-    nested_spatial_mesh <- FALSE
+    nested_spatial_mesh <- TRUE
     res <- solve_coupled_system_multi_tol(
       my_op_frac = my_op_frac,
       time_step = time_step, 
