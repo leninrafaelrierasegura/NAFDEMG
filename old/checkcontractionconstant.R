@@ -10,10 +10,14 @@ build_T <- function(a, N){
   for (k in N:1) {
     aux <- diag(c(rep(1, k), rep(0, N - k)))
     temp <- a^(2*(N - k + 1)) * aux %*% M %*% aux
+    #print(temp)
     R <- R + temp
   }
   return(R)
 }
+build_T(2,4)
+
+
 build_block_matrix <- function(egs, Nh) {
   N <- length(egs)
   # total size
