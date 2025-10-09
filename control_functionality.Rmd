@@ -672,7 +672,7 @@ solve_coupled_system_multi_tol <- function(
   u_d,
   Psi,                  # Psi matrix
   R,                    # R matrix
-  A, B, C,                # lower/upper bounds (vector or matrix broadcastable to time grid)
+  a, b, C,                # lower/upper bounds (vector or matrix broadcastable to time grid)
   mu,                   # positive scalar
   tol = 1e-8,           # scalar or named list: list(Z=..., U=..., P=...)
   maxit = 200,
@@ -708,9 +708,8 @@ solve_coupled_system_multi_tol <- function(
 
     U_mat <- solve_forward_evolution(my_op_frac, time_step, time_seq, RHST = F_proj + Z_mat, val_at_0 = u_0)
     if(nested_spatial_mesh == TRUE){V_mat <- C %*% U_mat}else{V_mat <- R %*% Psi %*% U_mat}
-    Q_mat <- solve_backward_evolution(my_op_frac, time_step, time_seq, RHST = V_mat - V_d)
-    P_mat <- Q_mat
-    z_new <- pmax(A, pmin(B, - P_mat / mu))
+    P_mat <- solve_backward_evolution(my_op_frac, time_step, time_seq, RHST = V_mat - V_d)
+    z_new <- matrix(pmax(a, pmin(b, - P_mat / mu)), dim(P_mat))
     if(nested_spatial_mesh == TRUE){Z_mat <- C %*% z_new}else{Z_mat <- R %*% Psi %*% z_new}
     
     # relative changes

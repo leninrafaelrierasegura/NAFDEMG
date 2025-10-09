@@ -69,3 +69,9 @@ for (j in 1:length(DIVIDER)) {
   saveRDS(divider, "old/divider.RDS")
   rmarkdown::render("control_conv_m_with_iteration.Rmd")
 }
+
+
+
+M <- matrix(1:16,4,4)
+M
+matrix(pmax(4, pmin(10, M)), dim(M))
