@@ -136,9 +136,6 @@ overkill_graph <- gets.graph.tadpole(h = overkill_h)
 overkill_graph$compute_fem() # This is needed to compute the weights
 overkill_C <- overkill_graph$mesh$C
 
-overkill_A <- matrix(a, nrow = nrow(overkill_C), ncol = length(overkill_time_seq))
-overkill_B <- matrix(b, nrow = nrow(overkill_C), ncol = length(overkill_time_seq))
-
 overkill_psi <- cos(overkill_time_seq)
 overkill_phi <- sin(T_final - overkill_time_seq)
 overkill_psi_prime <- - sin(overkill_time_seq)
@@ -174,7 +171,7 @@ for (j in 1:length(alpha_vector)) {
   overkill_elliptic_v <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
   overkill_u_bar <- outer(overkill_elliptic_u, overkill_psi)
   overkill_p_bar <- - mu * outer(overkill_elliptic_v, overkill_phi)
-  overkill_z_bar <- pmax(overkill_A, pmin(overkill_B, - overkill_p_bar / mu))
+  overkill_z_bar <- matrix(pmax(a, pmin(b, - overkill_p_bar / mu)), dim(overkill_p_bar))
   
   maxabs <- max(abs(overkill_p_bar / mu))
     
@@ -214,20 +211,15 @@ for (j in 1:length(alpha_vector)) {
     psi_prime <- - sin(time_seq)
     phi_prime <- - cos(T_final - time_seq)
     
-    A <- matrix(a, nrow = nrow(C), ncol = length(time_seq))
-    B <- matrix(b, nrow = nrow(C), ncol = length(time_seq))
-    
     u_bar <- elliptic_u %*% t(psi)
     p_bar <- - mu * (elliptic_v %*% t(phi))
-    z_bar <- pmax(A, pmin(B, - p_bar / mu))
+    z_bar <- matrix(pmax(a, pmin(b, - p_bar / mu)), dim(p_bar))
     
     # Construct the projection matrix
     Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
     R <- t(Psi) %*% overkill_graph$mesh$C
-    
-    A_aux <- matrix(a, nrow = nrow(overkill_C), ncol = length(time_seq))
-    B_aux <- matrix(b, nrow = nrow(overkill_C), ncol = length(time_seq))
-    z_aux <- pmax(A_aux, pmin(B_aux, overkill_elliptic_v %*% t(phi)))
+    minus_p_bar_over_mu <- overkill_elliptic_v %*% t(phi)
+    z_aux <- matrix(pmax(a, pmin(b, minus_p_bar_over_mu)), dim(minus_p_bar_over_mu))
     f <- overkill_elliptic_u %*% t(psi_prime) + overkill_elliptic_f %*% t(psi) - z_aux
     
     
@@ -259,8 +251,8 @@ for (j in 1:length(alpha_vector)) {
       u_d = u_d,
       Psi = Psi, 
       R = R,
-      A = A, 
-      B = B, 
+      a = a, 
+      b = b, 
       C = C,
       mu = mu,
       tol = tol, 
@@ -285,9 +277,13 @@ for (j in 1:length(alpha_vector)) {
     PP <- overkill_p_bar - projected_p_bar_piecewise
     ZZ <- overkill_z_bar - projected_z_bar_piecewise
     
+    rm(projected_u_bar_piecewise, projected_p_bar_piecewise, projected_z_bar_piecewise)
+    
     DDD <- sqrt(as.double(overkill_time_step * sum(UU * (overkill_C %*% UU))))
     HHH <- sqrt(as.double(overkill_time_step * sum(PP * (overkill_C %*% PP))))
     KKK <- sqrt(as.double(overkill_time_step * sum(ZZ * (overkill_C %*% ZZ))))
+    
+    rm(UU, PP, ZZ)
 
     errors_u_bar[i,j] <- DDD
     errors_p_bar[i,j] <- HHH
