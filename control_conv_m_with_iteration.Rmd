@@ -117,7 +117,7 @@ coeff_elliptic_f <- rep(0, adjusted_N_finite)
 coeff_elliptic_f[2] <- 10
 
 # Time step and mesh size
-m_vector <- c(1, 2, 3, 4)
+m_vector <- c(1, 2, 3, 4, 5, 6)
 
 h_star <- 0.001
 

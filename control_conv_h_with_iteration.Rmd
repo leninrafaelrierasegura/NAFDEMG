@@ -104,6 +104,7 @@ source(here::here("control_functionality.R"))
 T_final <- 2
 kappa <- 4#readRDS("old/kappa.RDS")#16
 divider <- 2#readRDS("old/divider.RDS") #1
+m_cut <- readRDS("old/m_cut.RDS")
 mu <- 1
 a <- - 0.5*10
 b <- 0.5*10
@@ -180,7 +181,7 @@ for (j in 1:length(alpha_vector)) {
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
     time_step <- (h^alpha)/divider
-    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
+    m <- min(m_cut, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) #4
     h <- largest_nested_h(h_star, h) # makes them nested
     m_values <- c(m_values, m)
     time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))

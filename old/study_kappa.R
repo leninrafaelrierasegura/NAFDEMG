@@ -75,3 +75,13 @@ for (j in 1:length(DIVIDER)) {
 M <- matrix(1:16,4,4)
 M
 matrix(pmax(4, pmin(10, M)), dim(M))
+
+
+MS <- c(4,5,6,7,8)
+for (j in 1:length(MS)) {
+  m_cut <- MS[j]
+  saveRDS(m_cut, "old/m_cut.RDS")
+  rmarkdown::render("control_conv_h_with_iteration.Rmd")
+  rmarkdown::render("control_conv_tau_with_iteration.Rmd")
+}
+
