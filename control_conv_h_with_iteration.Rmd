@@ -121,7 +121,7 @@ coeff_elliptic_f[2] <- 10
 # 
 # time_steps <- 0.1 * 2^-POWERS
 # h_vector <- time_steps^(1/2)
-h_vector <- c(0.005, 0.0075, 0.01, 0.025, 0.05, 0.075, 0.1)
+h_vector <- 10^seq(log10(0.005), log10(0.1), length.out = 7)#c(0.005, 0.0075, 0.01, 0.025, 0.05, 0.075, 0.1)
 h_star <- 0.001
 
 # Overkill parameters
