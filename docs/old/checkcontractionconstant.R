@@ -221,3 +221,29 @@ g1 <- C %*% elliptic_f
 g2 <- R %*% overkill_elliptic_f
 SS <- g1 - g2
 sqrt(as.double(1 * sum(SS * (C %*% SS))))
+
+
+C_aux <- R %*% Psi
+norm(C - C_aux, type = "2")
+
+
+ai <- as.vector(Psi %*% EIGENFUN[,3])
+bi <- as.vector(overkill_EIGENFUN[,3])
+SS <- ai - bi
+sqrt(as.double(1 * sum(SS * (Cstar %*% SS))))
+library(ggplot2)
+
+# Example: assume ai and bi are numeric vectors of the same length
+df <- data.frame(
+  x = seq_along(ai),
+  ai = ai,
+  bi = bi
+)
+
+p <- ggplot(df, aes(x = x)) +
+  geom_line(aes(y = ai, color = "ai")) +
+  geom_line(aes(y = bi, color = "bi")) +
+  scale_color_manual(values = c("ai" = "red", "bi" = "blue")) +
+  theme_minimal() +
+  labs(x = "Index", y = "Value", color = "Series")
+plotly::ggplotly(p)
