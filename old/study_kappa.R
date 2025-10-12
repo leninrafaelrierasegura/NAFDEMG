@@ -87,3 +87,15 @@ for (j in 1:length(MS)) {
 
 rmarkdown::render("control_conv_tau_with_iteration.Rmd")
 rmarkdown::render("control_conv_m_with_iteration.Rmd")
+
+
+
+
+points <- 10^seq(log10(0.005), log10(0.1), length.out = 7)
+points
+
+v <- c(0.005, 0.0075, 0.01, 0.025, 0.05, 0.075, 0.1)
+v <- seq(from = 0.005, to = 0.1, length.out = 7)
+plot(log(points), rep(1, 7), xlab="Alpha", ylab="", yaxt="n", pch=19, cex=2)
+
+

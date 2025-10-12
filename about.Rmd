@@ -51,6 +51,7 @@ captioner <- function(caption) {
       
 ```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 library(patchwork)
+library(ggplot2)
 load(here::here("data_files/p_tau.RData"))
 load(here::here("data_files/p_m.RData"))
 load(here::here("data_files/p_h.RData"))
@@ -96,17 +97,26 @@ knitr::include_graphics(here::here("data_files/control_conv_rates_m_all.png"))
 load(here::here("data_files/p_h_u.RData"))
 load(here::here("data_files/p_tau_u.RData"))
 load(here::here("data_files/p_m_u.RData"))
-p_all_u <- (p_h_u | p_tau_u | p_m_u) 
+p_all_u <- (p_h_u | p_tau_u | p_m_u) + 
+  plot_annotation(
+    title = expression("         Convergence behavior for the optimal state variable " * italic(bar(u))),
+    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
+        family = "Palatino"))
+  )
 p_all_u
 ggplot2::ggsave(here::here("data_files/p_all_u.png"), width = 12, height = 5, plot = p_all_u, dpi = 300)
 ```
 
 ```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6)}
-
 load(here::here("data_files/p_h_z.RData"))
 load(here::here("data_files/p_tau_z.RData"))
 load(here::here("data_files/p_m_z.RData"))
-p_all_z <- (p_h_z | p_tau_z | p_m_z) 
+p_all_z <- (p_h_z | p_tau_z | p_m_z) + 
+  plot_annotation(
+    title = expression("         Convergence behavior for the optimal control variable " * italic(bar(z))),
+    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
+        family = "Palatino"))
+  )
 p_all_z
 ggplot2::ggsave(here::here("data_files/p_all.png"), width = 12, height = 5, plot = p_all_z, dpi = 300)
 ```
