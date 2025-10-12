@@ -104,7 +104,7 @@ source(here::here("control_functionality.R"))
 # Parameters
 T_final <- 2
 kappa <- 4#16 # readRDS("old/kappa.RDS") #4
-divider <- readRDS("old/divider.RDS") # 1
+divider <- 4# readRDS("old/divider.RDS") # 1
 mu <- 1
 a <- - 0.5*10
 b <- 0.5*10
@@ -117,7 +117,7 @@ coeff_elliptic_f <- rep(0, adjusted_N_finite)
 coeff_elliptic_f[2] <- 10
 
 # Time step and mesh size
-m_vector <- c(1, 2, 3, 4, 5, 6)
+m_vector <- c(2, 3, 4, 5, 6)
 
 h_star <- 0.001
 

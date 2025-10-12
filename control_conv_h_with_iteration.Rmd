@@ -104,7 +104,7 @@ source(here::here("control_functionality.R"))
 T_final <- 2
 kappa <- 4#readRDS("old/kappa.RDS")#16
 divider <- 2#readRDS("old/divider.RDS") #1
-m_cut <- readRDS("old/m_cut.RDS")
+m_cut <- 8#readRDS("old/m_cut.RDS")
 mu <- 1
 a <- - 0.5*10
 b <- 0.5*10
@@ -121,7 +121,7 @@ POWERS <- seq(12, 6, by = -1.5)
 
 time_steps <- 0.1 * 2^-POWERS
 h_vector <- time_steps^(1/2)
-
+h_vector <- c(0.002, 0.004, 0.01, 0.1)
 h_star <- 0.001
 
 # Overkill parameters
@@ -143,6 +143,7 @@ overkill_phi_prime <- - cos(T_final - overkill_time_seq)
 
 m_values <- c()
 alpha_vector <- seq(1, 1.8, by = 0.2)
+alpha_vector <- c(1, 1.8)
 ```
 
 
