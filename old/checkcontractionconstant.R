@@ -9,13 +9,24 @@ build_T <- function(a, N){
   R <- M*0
   for (k in N:1) {
     aux <- diag(c(rep(1, k), rep(0, N - k)))
+    #print(norm(aux, type = "2"))
     temp <- a^(2*(N - k + 1)) * aux %*% M %*% aux
     #print(temp)
     R <- R + temp
   }
   return(R)
 }
-build_T(2,4)
+
+omega <- 0.9
+N <- 10
+A <- make_matrix(omega,N)
+#eigen(A, symmetric = TRUE, only.values = TRUE)$values
+norm(A, type = "2")
+k <- 1:N
+lambda <- (1 - omega^2) / (1 + omega^2 - 2 * omega * cos(k * pi / (N + 1)))
+max(lambda)
+
+(1+omega)/(1-omega)
 
 
 build_block_matrix <- function(egs, Nh) {
@@ -57,8 +68,8 @@ build_perm_matrix <- function(N, Nh) {
   return(P)
 }
 
-Nh <- 3
-egs <- c(1, 3)
+Nh <- 2
+egs <- c(3, 5)
 P <- build_perm_matrix_general(length(egs), Nh)
 
 AA <- build_block_matrix(egs, Nh)
