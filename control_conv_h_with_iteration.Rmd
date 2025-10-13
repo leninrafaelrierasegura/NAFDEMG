@@ -106,8 +106,8 @@ kappa <- 4#readRDS("old/kappa.RDS")#16
 divider <- 2#readRDS("old/divider.RDS") #1
 m_cut <- 8#readRDS("old/m_cut.RDS")
 mu <- 1
-a <- - 0.5*10
-b <- 0.5*10
+a <- - 0.5*10/2
+b <- 0.5*10/2
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g

@@ -86,8 +86,8 @@ for (j in 1:length(MS)) {
 }
 
 rmarkdown::render("control_conv_tau_with_iteration.Rmd")
+rmarkdown::render("control_conv_m_with_iteration.Rmd")
 rmarkdown::render("control_conv_h_with_iteration.Rmd")
-
 
 
 
