@@ -53,6 +53,29 @@ norm2 <- sqrt(eig$values)
 
 
 
+
+
+
+
+# check contraction constant
+make_matrix <- function(a, N) {
+  M <- outer(1:N, 1:N, function(i, j) a^abs(i - j))
+  return(M)
+}
+
+build_T <- function(a, N){
+  M <- make_matrix(a, N) 
+  R <- M*0
+  for (k in N:1) {
+    aux <- diag(c(rep(1, k), rep(0, N - k)))
+    temp <- a^(2*(N - k + 1)) * aux %*% M %*% aux
+    R <- R + temp
+  }
+  return(R)
+}
+
+build_T(2,4)
+T_final <- 2
 tau_vector <- c(0.0001, 0.05, 0.1, 0.5)
 N_vector <- T_final/tau_vector
 kappa_vector <- c(0.5, 1, 10)
@@ -70,15 +93,15 @@ for (i in 1:nrow(results)) {
   omega <- 1/(1+tau*kappa^(2*beta))
   N <- T_final/tau
   
-  A <- assemble_matrix(N, omega)
-  
-  eig <- eigs_sym(t(A) %*% A, 1)   
-  norm2 <- sqrt(eig$values)
-  
-  results$L_c[i] <- tau^2 * norm2 / mu
+  A <- build_T(omega, N)
+  results$L_c[i] <-(tau^2 * norm(A, type = "2")) / mu
   print(i)
 }
 
+save(results, file = here::here("data_files/contraction_constant_results.RData"))
+
+
+load(here::here("data_files/contraction_constant_results.RData"))
 all_results <- results %>% 
   mutate(upperbound = 1/(mu*kappa^(4*beta))) %>%
   mutate(limit = upperbound * (1 - exp(-T_final * kappa^(2*beta))*(1+T_final*kappa^(2*beta)))) %>%

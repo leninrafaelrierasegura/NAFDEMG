@@ -104,7 +104,7 @@ p_all_u <- (p_h_u | p_tau_u | p_m_u) +
         family = "Palatino"))
   )
 p_all_u
-ggplot2::ggsave(here::here("data_files/p_all_u.png"), width = 12, height = 5, plot = p_all_u, dpi = 300)
+ggplot2::ggsave(here::here("data_files/p_all_u.png"), width = 12, height = 6, plot = p_all_u, dpi = 300)
 ```
 
 ```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6)}
@@ -118,7 +118,7 @@ p_all_z <- (p_h_z | p_tau_z | p_m_z) +
         family = "Palatino"))
   )
 p_all_z
-ggplot2::ggsave(here::here("data_files/p_all_z.png"), width = 12, height = 5, plot = p_all_z, dpi = 300)
+ggplot2::ggsave(here::here("data_files/p_all_z.png"), width = 12, height = 6, plot = p_all_z, dpi = 300)
 ```
     
       
