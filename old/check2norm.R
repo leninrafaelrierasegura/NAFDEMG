@@ -59,22 +59,25 @@ norm2 <- sqrt(eig$values)
 
 # check contraction constant
 make_matrix <- function(a, N) {
-  M <- outer(1:N, 1:N, function(i, j) a^abs(i - j))
-  return(M)
+  v <- a^(0:(N - 1))
+  toeplitz(v)
 }
 
-build_T <- function(a, N){
-  M <- make_matrix(a, N) 
-  R <- M*0
+
+# --- 2. Efficient T builder with precomputed powers ---
+build_T_fast <- function(a, N) {
+  M <- make_matrix(a, N)
+  R <- matrix(0, N, N)
+  coef <- (a^2)^(1:N)  # correct power order
   for (k in N:1) {
-    aux <- diag(c(rep(1, k), rep(0, N - k)))
-    temp <- a^(2*(N - k + 1)) * aux %*% M %*% aux
-    R <- R + temp
+    R[1:k, 1:k] <- R[1:k, 1:k] + coef[N - k + 1] * M[1:k, 1:k]
   }
-  return(R)
+  R
 }
 
-build_T(2,4)
+
+build_T_fast(2,5)
+
 T_final <- 2
 tau_vector <- c(0.0001, 0.05, 0.1, 0.5)
 N_vector <- T_final/tau_vector
@@ -84,19 +87,20 @@ mu_vector <- c(0.1, 1, 10)
 
 results <- expand.grid(tau = tau_vector, kappa = kappa_vector, beta = beta_vector, mu = mu_vector)
 
-for (i in 1:nrow(results)) {
+library(parallel)
+results$L_c <- mclapply(1:nrow(results), function(i) {
   tau <- results$tau[i]
   kappa <- results$kappa[i]
   beta <- results$beta[i]
   mu <- results$mu[i]
   
-  omega <- 1/(1+tau*kappa^(2*beta))
-  N <- T_final/tau
-  
-  A <- build_T(omega, N)
-  results$L_c[i] <-(tau^2 * norm(A, type = "2")) / mu
+  omega <- 1 / (1 + tau * kappa^(2 * beta))
+  N <- T_final / tau
   print(i)
-}
+  A <- build_T_fast(omega, N)
+  norm2 <- max(eigen(A, symmetric = TRUE, only.values = TRUE)$values)
+  (tau^2 * norm2) / mu
+}, mc.cores = parallel::detectCores())
 
 save(results, file = here::here("data_files/contraction_constant_results.RData"))
 
