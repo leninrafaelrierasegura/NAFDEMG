@@ -146,7 +146,7 @@ alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
-```{r, eval = TRUE, class.source = "fold-show"}
+```{r, eval = FALSE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_u_bar <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
 errors_p_bar <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
@@ -292,14 +292,14 @@ for (j in 1:length(alpha_vector)) {
     slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step, ", converged = ", res$converged, ", iterations = ", res$iterations, ", error u = ", DDD, ", error p = ", HHH, ", error z = ", KKK, ", maxabs = ", maxabs), channel = "#research")
   }
 }
-save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_h.RData"))
+save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_h_with_iteration.RData"))
 ```
 
 # Convergence results
 
 ```{r}
 # Load the errors data
-load(here::here("data_files/control_error_h.RData"))
+load(here::here("data_files/control_error_h_with_iteration.RData"))
 
 observed_rates_u_bar <- numeric(length(alpha_vector))
 observed_rates_p_bar <- numeric(length(alpha_vector))
@@ -364,30 +364,31 @@ save(p_h_z, file = here::here("data_files/p_h_z.RData"))
 p_all_h <- (p_u_bar | p_p_bar | p_z_bar) + 
   plot_annotation(
     title = expression("         Convergence in " * italic(h)),
-    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5))
+    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
+        family = "Palatino"))
   )
 p_all_h
 ```
 
 
 ```{r}
-# ggsave(here::here("data_files/control_conv_rates_h_u_bar.png"), width = 4, height = 5, plot = p_u_bar, dpi = 300)
-# ggsave(here::here("data_files/control_conv_rates_h_p_bar.png"), width = 4, height = 5, plot = p_p_bar, dpi = 300)
-# ggsave(here::here("data_files/control_conv_rates_h_z_bar.png"), width = 4, height = 5, plot = p_z_bar, dpi = 300)
-ggsave(here::here("data_files/control_conv_rates_h_all.png"), width = 12, height = 6, plot = p_all_h, dpi = 300)
+# ggsave(here::here("data_files/control_conv_rates_h_u_bar_with_iteration.png"), width = 4, height = 5, plot = p_u_bar, dpi = 300)
+# ggsave(here::here("data_files/control_conv_rates_h_p_bar_with_iteration.png"), width = 4, height = 5, plot = p_p_bar, dpi = 300)
+# ggsave(here::here("data_files/control_conv_rates_h_z_bar_with_iteration.png"), width = 4, height = 5, plot = p_z_bar, dpi = 300)
+ggsave(here::here("data_files/control_conv_rates_h_all_with_iteration.png"), width = 12, height = 6, plot = p_all_h, dpi = 300)
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
 initial_comment <- paste0("Here’s the latest plot update for the convergence in h for the optimal control problem! with kappa = ", kappa, " and divider = ", divider)
 # option 1
 slackr_upload(
-  filename = "data_files/control_conv_rates_h_all.png",        # path to your image
+  filename = "data_files/control_conv_rates_h_all_with_iteration.png",        # path to your image
   initial_comment = initial_comment,
   channels = "#research"
 )
 ```
 
-```{r}
+```{r, eval = TRUE, echo = FALSE}
 get_numeric_scalars <- function() {
   vars <- ls(envir = .GlobalEnv)
   scalars <- sapply(vars, function(v) {
