@@ -99,3 +99,6 @@ v <- seq(from = 0.005, to = 0.1, length.out = 7)
 plot(log(points), rep(1, 7), xlab="Alpha", ylab="", yaxt="n", pch=19, cex=2)
 
 
+rmarkdown::render("new_conv_in_h.Rmd")
+rmarkdown::render("new_conv_in_tau.Rmd")
+rmarkdown::render("new_conv_in_m.Rmd")
