@@ -75,8 +75,14 @@ build_T_fast <- function(a, N) {
   R
 }
 
+N <- 10
+a <- 0.5
+norm(make_matrix(a, N), type = "2") * a^2 * (1 - a^(2*N)) / (1 - a^2)
 
-build_T_fast(2,5)
+((1 - a^2) / (1 + a^2 - 2 * a * cos(1 * pi / (N + 1)))) * (a^2 * (1 - a^(2*N)) / (1 - a^2))
+norm(build_T_fast(a, N), type = "2")
+
+
 
 T_final <- 2
 tau_vector <- c(0.0001, 0.05, 0.1, 0.5)
