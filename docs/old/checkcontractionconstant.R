@@ -1,8 +1,14 @@
 library(dplyr)
 make_matrix <- function(a, N) {
+  v <- a^(0:(N - 1))
+  toeplitz(v)
+}
+make_matrix(2,10)
+make_matrix <- function(a, N) {
   M <- outer(1:N, 1:N, function(i, j) a^abs(i - j))
   return(M)
 }
+make_matrix(2,10)
 
 build_T <- function(a, N){
   M <- make_matrix(a, N) 
@@ -17,10 +23,20 @@ build_T <- function(a, N){
   return(R)
 }
 
+build_T <- function(a, N){
+  M <- make_matrix(a, N) 
+  R <- M*0
+  for (k in N:1) {
+    temp <- a^(2*(N - k + 1)) * M[1:k, 1:k]
+    R[1:k, 1:k] <- R[1:k, 1:k] + temp
+  }
+  return(R)
+}
+
 omega <- 0.9
 N <- 10
 A <- make_matrix(omega,N)
-#eigen(A, symmetric = TRUE, only.values = TRUE)$values
+max(eigen(A, symmetric = TRUE, only.values = TRUE)$values)
 norm(A, type = "2")
 k <- 1:N
 lambda <- (1 - omega^2) / (1 + omega^2 - 2 * omega * cos(k * pi / (N + 1)))

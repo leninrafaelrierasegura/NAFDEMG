@@ -92,22 +92,21 @@ slackr_setup(token = token) # token comes from keys.R
 
 ```{r}
 capture.output(
-  knitr::purl(here::here("control_functionality.Rmd"), output = here::here("control_functionality.R")),
+  knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R")),
   file = here::here("purl_log.txt")
 )
-source(here::here("control_functionality.R"))
+source(here::here("functionality.R"))
 ```
 
 
 ```{r}
 # Parameters
 T_final <- 2
-kappa <- 4#readRDS("old/kappa.RDS")#16
-divider <- 2#readRDS("old/divider.RDS") #1
-m_cut <- 8#readRDS("old/m_cut.RDS")
-mu <- 1
-a <- - 1
-b <- 1
+kappa <- readRDS("old/kappa.RDS") #4
+divider <- readRDS("old/divider.RDS") 
+mu <- 0.1
+a <- - 0.5
+b <- 0.5
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
@@ -117,16 +116,14 @@ coeff_elliptic_f <- rep(0, adjusted_N_finite)
 coeff_elliptic_f[2] <- 10
 
 # Time step and mesh size
-# POWERS <- seq(12, 6, by = -1.5)
-# 
-# time_steps <- 0.1 * 2^-POWERS
-# h_vector <- time_steps^(1/2)
-h_vector <- 10^seq(log10(0.005), log10(0.1), length.out = 7)#c(0.005, 0.0075, 0.01, 0.025, 0.05, 0.075, 0.1)
-h_star <- 0.001
+POWERS <- seq(12, 6, by = -1.5)
+
+time_steps <- 0.1 * 2^-POWERS
+h_vector <- time_steps^(1/2)
 
 # Overkill parameters
 overkill_time_step <- 0.1 * 2^-(14)
-overkill_h <- h_star#(0.1 * 2^-(14))^(1/2)
+overkill_h <- (0.1 * 2^-(14))^(1/2)
 
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
@@ -134,15 +131,37 @@ overkill_graph <- gets.graph.tadpole(h = overkill_h)
 
 # Compute the weights on the finest mesh
 overkill_graph$compute_fem() # This is needed to compute the weights
-overkill_C <- overkill_graph$mesh$C
+overkill_weights <- overkill_graph$mesh$weights
+
+overkill_A <- matrix(a, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
+overkill_B <- matrix(b, nrow = length(overkill_weights), ncol = length(overkill_time_seq))
 
 overkill_psi <- cos(overkill_time_seq)
 overkill_phi <- sin(T_final - overkill_time_seq)
 overkill_psi_prime <- - sin(overkill_time_seq)
 overkill_phi_prime <- - cos(T_final - overkill_time_seq)
+# psi_rate <- -2
+# phi_rate <- -2
+# phi_coefficient <- 1
+# overkill_psi <- exp(psi_rate*overkill_time_seq)
+# overkill_psi_prime <- psi_rate * exp(psi_rate*overkill_time_seq)
+# overkill_phi <- phi_coefficient * exp(psi_rate*overkill_time_seq) - phi_coefficient*exp(psi_rate*T_final)
+# overkill_phi_prime <- phi_coefficient * psi_rate * exp(psi_rate*overkill_time_seq)
 
 m_values <- c()
 alpha_vector <- seq(1, 1.8, by = 0.2)
+```
+
+```{r, eval = FALSE, echo = FALSE}
+for (j in 1:length(alpha_vector)) {
+  alpha <- alpha_vector[j] 
+  for (i in 1:length(h_vector)) {
+  h <- h_vector[i]/1
+  time_step <- (h^alpha)/10
+  m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
+  print(paste("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step))
+  }
+}
 ```
 
 
@@ -171,15 +190,11 @@ for (j in 1:length(alpha_vector)) {
   overkill_elliptic_v <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
   overkill_u_bar <- outer(overkill_elliptic_u, overkill_psi)
   overkill_p_bar <- - mu * outer(overkill_elliptic_v, overkill_phi)
-  overkill_z_bar <- matrix(pmax(a, pmin(b, - overkill_p_bar / mu)), dim(overkill_p_bar))
-  
-  maxabs <- max(abs(overkill_p_bar / mu))
-    
+  overkill_z_bar <- pmax(overkill_A, pmin(overkill_B, - overkill_p_bar / mu))
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
     time_step <- (h^alpha)/divider
-    m <- min(m_cut, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) #4
-    h <- largest_nested_h(h_star, h) # makes them nested
+    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) # min(4, ceiling(25 * (log(h))^2 / (16 * pi^2 * (1 - alpha / 2))))
     m_values <- c(m_values, m)
     time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
     graph <- gets.graph.tadpole(h = h)
@@ -210,96 +225,61 @@ for (j in 1:length(alpha_vector)) {
     phi <- sin(T_final - time_seq)
     psi_prime <- - sin(time_seq)
     phi_prime <- - cos(T_final - time_seq)
-    
-    u_bar <- elliptic_u %*% t(psi)
-    p_bar <- - mu * (elliptic_v %*% t(phi))
-    z_bar <- matrix(pmax(a, pmin(b, - p_bar / mu)), dim(p_bar))
+    # psi <- exp(psi_rate*time_seq)
+    # psi_prime <- psi_rate * exp(psi_rate*time_seq)
+    # phi <- phi_coefficient * exp(phi_rate*time_seq) - phi_coefficient * exp(phi_rate*T_final)
+    # phi_prime <- phi_coefficient * phi_rate * exp(phi_rate*time_seq)
     
     # Construct the projection matrix
     Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
     R <- t(Psi) %*% overkill_graph$mesh$C
-    minus_p_bar_over_mu <- overkill_elliptic_v %*% t(phi)
-    z_aux <- matrix(pmax(a, pmin(b, minus_p_bar_over_mu)), dim(minus_p_bar_over_mu))
-    f <- overkill_elliptic_u %*% t(psi_prime) + overkill_elliptic_f %*% t(psi) - z_aux
     
-    
-    U_d <- overkill_elliptic_u %*% t(psi) -
-      mu * (overkill_elliptic_v %*% t(phi_prime)) +
-      mu * (overkill_elliptic_g %*% t(phi))
-    
-    V_d <- R %*% U_d
+    f_plus_z_bar <- outer(elliptic_u, psi_prime) + outer(elliptic_f, psi)
+    f_plus_z_bar_innerproduct <- R %*% Psi %*% f_plus_z_bar
     u_0 <- elliptic_u
-    F_proj <- R %*% f
+    # Solve the forward problem
+    u_bar <- solve_fractional_evolution(my_op_frac, 
+                                        time_step, 
+                                        time_seq, 
+                                        val_at_0 = u_0, 
+                                        RHST = f_plus_z_bar_innerproduct)
     
     u_d <- outer(elliptic_u, psi) -
       mu * outer(elliptic_v, phi_prime) +
       mu * outer(elliptic_g, phi)
+    v_d <- reversecolumns(R %*% Psi %*% u_d)
+    v_bar <- reversecolumns(R %*% Psi %*% u_bar)
+    # Solve the adjoint problem
+    q_bar <- solve_fractional_evolution(my_op_frac, 
+                                        time_step, 
+                                        time_seq, 
+                                        val_at_0 = u_0*0, 
+                                        RHST = v_bar - v_d)
+    p_bar <- reversecolumns(q_bar)
+    # Compute the control variable
+    A <- matrix(a, nrow = nrow(C), ncol = length(time_seq))
+    B <- matrix(b, nrow = nrow(C), ncol = length(time_seq))
+    z_bar <- pmax(A, pmin(B, - p_bar / mu))
     
+    projected_u_bar_piecewise <- construct_piecewise_projection(Psi %*% u_bar, time_seq, overkill_time_seq)
+    projected_p_bar_piecewise <- construct_piecewise_projection(Psi %*% p_bar, time_seq, overkill_time_seq)
+    projected_z_bar_piecewise <- construct_piecewise_projection(Psi %*% z_bar, time_seq, overkill_time_seq)
     
-    tol <- 1e-12
-    maxit <- 25
-    verbose <- TRUE
-    nested_spatial_mesh <- TRUE
-    res <- solve_coupled_system_multi_tol(
-      my_op_frac = my_op_frac,
-      time_step = time_step, 
-      time_seq = time_seq, 
-      u_0 = u_0, 
-      F_proj = F_proj, 
-      Z_ini = F_proj*0,
-      V_d = V_d, 
-      u_d = u_d,
-      Psi = Psi, 
-      R = R,
-      a = a, 
-      b = b, 
-      C = C,
-      mu = mu,
-      tol = tol, 
-      maxit = maxit, 
-      verbose = verbose,
-      nested_spatial_mesh = nested_spatial_mesh,
-      true_sol = list(
-        u_bar = u_bar, 
-        p_bar = p_bar, 
-        z_bar = z_bar
-      ))
-    
-    U_bar <- res$U
-    P_bar <- res$P
-    Z_bar <- res$Z
-    
-    projected_u_bar_piecewise <- construct_piecewise_projection(Psi %*% U_bar, time_seq, overkill_time_seq)
-    projected_p_bar_piecewise <- construct_piecewise_projection(Psi %*% P_bar, time_seq, overkill_time_seq)
-    projected_z_bar_piecewise <- construct_piecewise_projection(Psi %*% Z_bar, time_seq, overkill_time_seq)
-    
-    UU <- overkill_u_bar - projected_u_bar_piecewise
-    PP <- overkill_p_bar - projected_p_bar_piecewise
-    ZZ <- overkill_z_bar - projected_z_bar_piecewise
-    
-    rm(projected_u_bar_piecewise, projected_p_bar_piecewise, projected_z_bar_piecewise)
-    
-    DDD <- sqrt(as.double(overkill_time_step * sum(UU * (overkill_C %*% UU))))
-    HHH <- sqrt(as.double(overkill_time_step * sum(PP * (overkill_C %*% PP))))
-    KKK <- sqrt(as.double(overkill_time_step * sum(ZZ * (overkill_C %*% ZZ))))
-    
-    rm(UU, PP, ZZ)
-
-    errors_u_bar[i,j] <- DDD
-    errors_p_bar[i,j] <- HHH
-    errors_z_bar[i,j] <- KKK
+    errors_u_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_u_bar - projected_u_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
+    errors_p_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_p_bar - projected_p_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
+    errors_z_bar[i,j] <- sqrt(as.double(t(overkill_weights) %*% (overkill_z_bar - projected_z_bar_piecewise)^2 %*% rep(overkill_time_step, length(overkill_time_seq))))
     print(paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step))
-    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step, ", converged = ", res$converged, ", iterations = ", res$iterations, ", error u = ", DDD, ", error p = ", HHH, ", error z = ", KKK, ", maxabs = ", maxabs), channel = "#research")
+    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
-save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_h_with_iteration.RData"))
+#save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_h.RData"))
 ```
 
 # Convergence results
 
 ```{r}
 # Load the errors data
-load(here::here("data_files/control_error_h_with_iteration.RData"))
+load(here::here("data_files/control_error_h.RData"))
 
 observed_rates_u_bar <- numeric(length(alpha_vector))
 observed_rates_p_bar <- numeric(length(alpha_vector))
@@ -338,25 +318,6 @@ p_z_bar <- error.convergence.plotter(x_axis_vector = h_vector,
                                line_equation_fun = loglog_line_equation,
                                fig_title = expression(italic(bar(z))),
                                x_axis_label = expression(italic(h)))
-
-p_h_u <- error.convergence.plotter(x_axis_vector = h_vector, 
-                               alpha_vector, 
-                               errors_u_bar, 
-                               theoretical_rates, 
-                               observed_rates_u_bar,
-                               line_equation_fun = loglog_line_equation,
-                               fig_title = expression("Convergence in " * italic(h)),
-                               x_axis_label = expression(italic(h)))
-p_h_z <- error.convergence.plotter(x_axis_vector = h_vector, 
-                               alpha_vector, 
-                               errors_z_bar, 
-                               theoretical_rates, 
-                               observed_rates_z_bar,
-                               line_equation_fun = loglog_line_equation,
-                               fig_title = expression("Convergence in " * italic(h)),
-                               x_axis_label = expression(italic(h)))
-save(p_h_u, file = here::here("data_files/p_h_u.RData"))
-save(p_h_z, file = here::here("data_files/p_h_z.RData"))
 ```
 
 ```{r, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $h$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
@@ -364,53 +325,26 @@ save(p_h_z, file = here::here("data_files/p_h_z.RData"))
 p_all_h <- (p_u_bar | p_p_bar | p_z_bar) + 
   plot_annotation(
     title = expression("         Convergence in " * italic(h)),
-    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
-        family = "Palatino"))
+    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5))
   )
 p_all_h
 ```
 
 
 ```{r}
-# ggsave(here::here("data_files/control_conv_rates_h_u_bar_with_iteration.png"), width = 4, height = 5, plot = p_u_bar, dpi = 300)
-# ggsave(here::here("data_files/control_conv_rates_h_p_bar_with_iteration.png"), width = 4, height = 5, plot = p_p_bar, dpi = 300)
-# ggsave(here::here("data_files/control_conv_rates_h_z_bar_with_iteration.png"), width = 4, height = 5, plot = p_z_bar, dpi = 300)
-ggsave(here::here("data_files/control_conv_rates_h_all_with_iteration.png"), width = 12, height = 6, plot = p_all_h, dpi = 300)
+# ggsave(here::here("data_files/control_conv_rates_h_u_bar.png"), width = 4, height = 5, plot = p_u_bar, dpi = 300)
+# ggsave(here::here("data_files/control_conv_rates_h_p_bar.png"), width = 4, height = 5, plot = p_p_bar, dpi = 300)
+# ggsave(here::here("data_files/control_conv_rates_h_z_bar.png"), width = 4, height = 5, plot = p_z_bar, dpi = 300)
+ggsave(here::here("data_files/control_conv_rates_h_all.png"), width = 12, height = 6, plot = p_all_h, dpi = 300)
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
 initial_comment <- paste0("Here’s the latest plot update for the convergence in h for the optimal control problem! with kappa = ", kappa, " and divider = ", divider)
 # option 1
 slackr_upload(
-  filename = "data_files/control_conv_rates_h_all_with_iteration.png",        # path to your image
+  filename = "data_files/control_conv_rates_h_all.png",        # path to your image
   initial_comment = initial_comment,
   channels = "#research"
-)
-```
-
-```{r, eval = TRUE, echo = FALSE}
-get_numeric_scalars <- function() {
-  vars <- ls(envir = .GlobalEnv)
-  scalars <- sapply(vars, function(v) {
-    val <- get(v, envir = .GlobalEnv)
-    is.numeric(val) && length(val) == 1
-  })
-  mget(vars[scalars], envir = .GlobalEnv)
-}
-
-# Collect the scalars
-num_scalars <- get_numeric_scalars()
-
-# Format as message
-msg <- paste(
-  sprintf("%s = %s", names(num_scalars), unlist(num_scalars)),
-  collapse = "\n"
-)
-
-# Send to Slack
-slackr::slackr_msg(
-  text = paste("Numeric scalars in this run:\n", msg),
-  channel = "#research"
 )
 ```
 
