@@ -188,30 +188,30 @@ From the [Functionality](functionality.html#num_scheme) page, we know that the s
 \begin{equation}
 \label{eq:final_scheme2}
 \tag{6}
-\boldsymbol{U}^{k+1} = \boldsymbol{C}^{-1}\left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1} + r\boldsymbol{I}\right) (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1})
+\mathbf{U}^{k+1} = \mathbf{R}(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}),\quad \mathbf{R} = \sum_{k=1}^{m+1} a_k\left( \dfrac{\mathbf{L}}{\kappa^2}-p_k\mathbf{C}\right)^{-1}
 \end{equation}
-Let $\boldsymbol{F}$ be the matrix with columns $\boldsymbol{F}^k$. This matrix has entries $\boldsymbol{F}_{ik}$ given by
+Let $\mathbf{F}$ be the matrix with columns $\mathbf{F}^k$. This matrix has entries $\mathbf{F}_{ik}$ given by
 \begin{align}
 \label{eq:innerprod}
 \tag{7}
     (f^{k},\psi^i_h)_{L_2(\Gamma)} = (f(\cdot,t_k),\psi^i_h)_{L_2(\Gamma)} = \sum_{j=1}^{N_f} y_j g(t_k) (e_j,\psi^i_h)_{L_2(\Gamma)}.
 \end{align}
-To approximate the inner products $(e_j,\psi^i_h)_{L_2(\Gamma)}$, we use the quadrature formula $\boldsymbol{\psi}_i^\top\boldsymbol{C}^{\text{ok}}\boldsymbol{e}_j$, where $\boldsymbol{e}_j=[e_j(s_1)\dots e_j(s_{N_{h_{\text{ok}}}})]^\top$ and $\boldsymbol{\psi}_i=[\psi^i_h(s_1)\dots \psi^i_h(s_{N_{h_{\text{ok}}}})]^\top$  are vectors of function evaluations on a fine spatial mesh with mesh size $h_{\text{ok}}$ and nodes $\{s_\ell\}_{\ell=1}^{N_{h_{\text{ok}}}}$. Matrix $\boldsymbol{C}^{\text{ok}}$ contains the corresponding quadrature weights, with entries $\boldsymbol{C}^{\text{ok}}_{nm} = (\psi_{h_\text{ok}}^n,\psi_{h_\text{ok}}^m)_{L_2(\Gamma)}$ for $n,m = 1,\dots, N_{h_\text{ok}}$. We emphasize that two spatial meshes are involved in this construction. The basis functions $\{\psi^i_h\}_{i=1}^{N_h}$ are defined on a coarse spatial mesh with mesh size $h$, while the quadrature is carried out over a finer mesh with associated basis functions $\{\psi^\ell_{h_\text{ok}}\}_{\ell=1}^{N_{h_\text{ok}}}$ and mesh size $h_\text{ok}$. If $\boldsymbol{N}$ denotes the matrix with entries $\boldsymbol{N}_{jk} = y_j g(t_k)$, then $\boldsymbol{F}$ can be approximated as $[\boldsymbol{\psi}_1\dots \boldsymbol{\psi}_{N_h}]^\top \boldsymbol{C}^{\text{ok}} [\boldsymbol{e}_1\dots \boldsymbol{e}_{N_f}] \boldsymbol{N}$. In $\texttt{R}$,  $\boldsymbol{F}$ and $\boldsymbol{U}^{k+1}$ are implemented as
+To approximate the inner products $(e_j,\psi^i_h)_{L_2(\Gamma)}$, we use the quadrature formula $\boldsymbol{\psi}_i^\top\mathbf{C}^{\star}\mathbf{e}_j$, where $\mathbf{e}_j=[e_j(s_1)\dots e_j(s_{N_{h_{\star}}})]^\top$ and $\boldsymbol{\psi}_i=[\psi^i_h(s_1)\dots \psi^i_h(s_{N_{h_{\star}}})]^\top$  are vectors of function evaluations on a fine spatial mesh with mesh size $h_{\star}$ and nodes $\{s_\ell\}_{\ell=1}^{N_{h_{\star}}}$. Matrix $\mathbf{C}^{\star}$ contains the corresponding quadrature weights, with entries $\mathbf{C}^{\star}_{nm} = (\psi_{h_\star}^n,\psi_{h_\star}^m)_{L_2(\Gamma)}$ for $n,m = 1,\dots, N_{h_\star}$. We emphasize that two spatial meshes are involved in this construction. The basis functions $\{\psi^i_h\}_{i=1}^{N_h}$ are defined on a coarse spatial mesh with mesh size $h$, while the quadrature is carried out over a finer mesh with associated basis functions $\{\psi^\ell_{h_\star}\}_{\ell=1}^{N_{h_\star}}$ and mesh size $h_\star$. If $\mathbf{N}$ denotes the matrix with entries $\mathbf{N}_{jk} = y_j g(t_k)$, then $\mathbf{F}$ can be approximated as $[\boldsymbol{\psi}_1\dots \boldsymbol{\psi}_{N_h}]^\top \mathbf{C}^{\star} [\mathbf{e}_1\dots \mathbf{e}_{N_f}] \mathbf{N}$. In $\texttt{R}$,  $\mathbf{F}$ and $\mathbf{U}^{k+1}$ are implemented as
 \begin{aligned}
 \text{expression} \iff&\quad \text{In } \texttt{R}\\
 [\boldsymbol{\psi}_1\dots \boldsymbol{\psi}_{N_h}]^\top \iff&\quad \texttt{t(graph\$fem_basis(overkill_graph\$get_mesh_locations()))}\\
-\boldsymbol{C}^{\text{ok}} \iff&\quad \texttt{overkill_graph\$mesh\$C}\\
-[\boldsymbol{e}_1\dots \boldsymbol{e}_{N_f}] \iff&\quad \texttt{overkill_EIGENFUN}\\
-\boldsymbol{N} \iff&\quad \texttt{outer(1:length(coeff_FF),}\\
+\mathbf{C}^{\star} \iff&\quad \texttt{overkill_graph\$mesh\$C}\\
+[\mathbf{e}_1\dots \mathbf{e}_{N_f}] \iff&\quad \texttt{overkill_EIGENFUN}\\
+\mathbf{N} \iff&\quad \texttt{outer(1:length(coeff_FF),}\\
 &\qquad\quad\;\;\texttt{ 1:length(time_seq),}\\
 &\qquad\quad\;\;\texttt{ function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))}\\
-\boldsymbol{F}\iff&\quad  \texttt{FF_innerprod <- t(graph\$fem_basis(overkill_graph\$get_mesh_locations())) %*%}\\
+\mathbf{F}\iff&\quad  \texttt{FF_innerprod <- t(graph\$fem_basis(overkill_graph\$get_mesh_locations())) %*%}\\
 &\quad\texttt{overkill_graph\$mesh\$C %*%}\\
 &\quad\texttt{overkill_EIGENFUN %*%}\\
 &\quad\texttt{outer(1:length(coeff_FF),}\\
 &\qquad\qquad\texttt{1:length(time_seq),}\\
 &\qquad\qquad\texttt{function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))}\\
-\boldsymbol{U}^{k+1}\iff&\quad \texttt{U_approx[, k + 1] <- as.matrix(my.solver.frac(my_op_frac, my_op_frac\$C %*% U_approx[, k] + time_step * FF_innerprod[, k + 1]))}
+\mathbf{U}^{k+1}\iff&\quad \texttt{U_approx[, k + 1] <- as.matrix(my.solver.frac(my_op_frac, my_op_frac\$C %*% U_approx[, k] + time_step * FF_innerprod[, k + 1]))}
 \end{aligned}
 
 ```{r}
@@ -275,7 +275,9 @@ my_op_frac <- my.fractional.operators.frac(L, beta, C, scale.factor = kappa^2, m
 
 U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0, RHST = FF_innerprod)
 
-error <- sqrt(as.double(t(graph$mesh$weights) %*% (U_true - U_approx)^2 %*% rep(time_step, ncol(U_true))))
+XX <- U_true - U_approx
+
+error <- sqrt(as.double(time_step * sum(XX * (C %*% XX))))
 ```
 
 The following is the error reported in the paper for the considered experiment.

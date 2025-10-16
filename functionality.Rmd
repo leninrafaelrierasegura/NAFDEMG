@@ -60,7 +60,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = FALSE,       
+  eval = TRUE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -119,76 +119,104 @@ Here $\Gamma = (\mathcal{V},\mathcal{E})$ is a metric graph, $\kappa>0$, $\alpha
 
 ## Numerical Scheme {#num_scheme}
 
-Let $\alpha\in(0,2]$ and $U_h^\tau$ denote the sequence of approximations of the solution to the weak form of problem \eqref{eq:maineq} at each time step on a mesh indexed by $h$. Let $U^0_h = P_hu_0$. For $k=0,\dots, N-1$, $U_h^{k+1}\in V_h$ solves the following scheme
-\begin{align}
+Let $\alpha\in(0,2]$ and $U_h^\tau$ denote the sequence of approximations of the solution to the weak form of problem \eqref{eq:maineq} at each time step on a mesh indexed by $h$. The scheme computes $U_h^{\tau}\subset V_h$, which solves
+\begin{equation}
+    \left\{
+\begin{aligned}
+    \langle\delta U_h^{k+1},\phi\rangle + \mathfrak{a}(
+        U_h^{k+1},\phi) &= \langle f^{k+1},\phi\rangle, \quad\forall\phi\in V_h,\quad k=0,\dots, N-1, \\
+    U^0_h &= P_hu_0, 
+\end{aligned}
+\right.
+\end{equation}
+where $f^{k+1} = \displaystyle\dfrac{1}{\tau}\int_{t_k}^{t_{k+1}}f(t)dt$. The above expression can be equivalently written as
+\begin{equation}
+    \left\{
+\begin{aligned}
+    \langle\dfrac{U_h^{k+1} - U_h^{k}}{\tau},\phi\rangle + \mathfrak{a}(
+        U_h^{k+1},\phi) &= \langle f^{k+1},\phi\rangle, \quad\forall\phi\in V_h,\quad k=0,\dots, N-1, \\
+    U^0_h &= P_hu_0, 
+\end{aligned}
+\right.
+\end{equation}
+or
+\begin{equation}
 \label{system:fully_discrete_scheme}
 \tag{3}
-        \langle\delta U_h^{k+1},\phi\rangle + \mathfrak{a}(U_h^{k+1},\phi) = \langle f^{k+1},\phi\rangle ,\quad\forall\phi\in V_h,
-\end{align}
-where $f^{k+1} = \displaystyle\dfrac{1}{\tau}\int_{t_k}^{t^{k+1}}f(t)dt$. At each time step $t_k$, the finite element solution $U_h^k\in V_h$ to \eqref{system:fully_discrete_scheme} can be expressed as a linear combination of the basis functions  $\{\psi^i_h\}_{i=1}^{N_h}$ introduced in the [Preliminaries](preliminaries.html#fem-basis) page, namely, 
+    \left\{
+\begin{aligned}
+    \langle U_h^{k+1},\phi\rangle + \tau\mathfrak{a}(
+        U_h^{k+1},\phi) &= \langle U_h^{k},\phi\rangle + \tau\langle f^{k+1},\phi\rangle, \quad\forall\phi\in V_h,\quad k=0,\dots, N-1, \\
+    U^0_h &= P_hu_0.
+\end{aligned}
+\right.
+\end{equation}
+
+At each time step $t_k$, the finite element solution $U_h^k\in V_h$ to \eqref{system:fully_discrete_scheme} can be expressed as a linear combination of the basis functions  $\{\psi^i_h\}_{i=1}^{N_h}$ introduced in the [Preliminaries](preliminaries.html#fem-basis) page, namely, 
 \begin{align}
 \label{num_sol}
 \tag{4}
     U_h^k(s) =  \sum_{i=1}^{N_h}u_i^k\psi^i_h(s), \;s\in\Gamma.
 \end{align}
+
 Replacing \eqref{num_sol} into \eqref{system:fully_discrete_scheme} yields the following linear system
 \begin{align*}
-    \sum_{j=1}^{N_h}u_j^{k+1}[(\psi_j,\psi_i)_{L_2(\Gamma)}+ \tau\mathfrak{a}(\psi_j,\psi_i)] = \sum_{j=1}^{N_h}u_j^{k}(\psi_j,\psi_i)_{L_2(\Gamma)}+\tau( f^{k+1},\psi_i)_{L_2(\Gamma)},
+    \sum_{j=1}^{N_h}u_j^{k+1}[(\psi_h^j,\psi_h^i)_{L_2(\Gamma)}+ \tau\mathfrak{a}(\psi_h^j,\psi_h^i)] = \sum_{j=1}^{N_h}u_j^{k}(\psi_h^j,\psi_h^i)_{L_2(\Gamma)}+\tau( f^{k+1},\psi_h^i)_{L_2(\Gamma)},\quad i = 1,\dots, N_h.
 \end{align*}
-for $i = 1,\dots, N_h$. In matrix notation,
+In matrix notation,
 \begin{align}
 \label{diff_eq_discrete}
-    (\boldsymbol{C}+\tau \boldsymbol{L}^{\alpha/2})\boldsymbol{U}^{k+1} = \boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1},
+    (\mathbf{C}+\tau \mathbf{L}^{\alpha/2})\mathbf{U}^{k+1} = \mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1},
 \end{align}
 or by introducing the scaling parameter $\kappa^2>0$,
 \begin{align}
-    (\boldsymbol{C}+\tau (\kappa^2)^{\alpha/2}(\boldsymbol{L}/\kappa^2)^{\alpha/2})\boldsymbol{U}^{k+1} = \boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1},
+    (\mathbf{C}+\tau (\kappa^2)^{\alpha/2}(\mathbf{L}/\kappa^2)^{\alpha/2})\mathbf{U}^{k+1} = \mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1},
 \end{align}
-where $\boldsymbol{C}$ has entries $\boldsymbol{C}_{ij} = (\psi_j,\psi_i)_{L_2(\Gamma)}$, $\boldsymbol{L}^{\alpha/2}$ has entries $\mathfrak{a}(\psi_j,\psi_i)$, $\boldsymbol{U}^k$ has entries $u_j^k$, and $\boldsymbol{F}^k$ has entries $( f^{k},\psi_i)_{L_2(\Gamma)}$.  To reduce computational cost and promote sparsity, we replace the mass matrix $\boldsymbol{C}$ with a lumped mass matrix $\tilde{\boldsymbol{C}}$, which is diagonal with entries $\tilde{\boldsymbol{C}}_{ii}=\sum_{j=1}^{N_h}\boldsymbol{C}_{ij}$.  For convenience, we write $\boldsymbol{C}$ instead of $\tilde{\boldsymbol{C}}$ in the following. Applying $(\boldsymbol{L}/\kappa^2)^{-\alpha/2}$ to both sides yields
+where $\mathbf{C}$ has entries $\mathbf{C}_{i,j} = (\psi_h^i,\psi_h^j)_{L_2(\Gamma)}$, $\mathbf{L}^{\alpha/2}$ has entries $\mathfrak{a}(\psi_h^i,\psi_h^j)$, $\mathbf{U}^k$ has components $u_j^k$, and $\mathbf{F}^k$ has components $( f^{k},\psi_h^i)_{L_2(\Gamma)}$. Applying $(\mathbf{L}/\kappa^2)^{-\alpha/2}$ to both sides yields
 \begin{equation}
-((\boldsymbol{L}/\kappa^2)^{-\alpha/2}\boldsymbol{C}+\tau (\kappa^2)^{\alpha/2}\boldsymbol{I})\boldsymbol{U}^{k+1} = (\boldsymbol{L}/\kappa^2)^{-\alpha/2}(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}).
+((\mathbf{L}/\kappa^2)^{-\alpha/2}\mathbf{C}+\tau (\kappa^2)^{\alpha/2}\mathbf{I})\mathbf{U}^{k+1} = (\mathbf{L}/\kappa^2)^{-\alpha/2}(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
 \end{equation}
-Following @rSPDE2020, we approximate $(\boldsymbol{L}/\kappa^2)^{-\alpha/2}$ by $\boldsymbol{P}_\ell^{-\top}\boldsymbol{P}_r^\top$ to arrive at
+Following @rSPDE2020, we approximate $(\mathbf{L}/\kappa^2)^{-\alpha/2}$ by $\mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top$ to arrive at
 \begin{equation}
 \label{eq:scheme2}
 \tag{5}
-(\boldsymbol{P}_\ell^{-\top}\boldsymbol{P}_r^\top \boldsymbol{C}+\tau(\kappa^2)^{\alpha/2} \boldsymbol{I})\boldsymbol{U}^{k+1} = \boldsymbol{P}_\ell^{-\top}\boldsymbol{P}_r^\top(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}).
+(\mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top \mathbf{C}+\tau(\kappa^2)^{\alpha/2} \mathbf{I})\mathbf{U}^{k+1} = \mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
 \end{equation}
 where
 \begin{equation}
 \label{eq:PLPR}
 \tag{6}
-\boldsymbol{P}_r = \prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right)\quad\text{and}\quad \boldsymbol{P}_\ell = \dfrac{1}{\texttt{factor}}\boldsymbol{C}\prod_{j=1}^{m+1} \left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right),
+\mathbf{P}_r = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{C}^{-1}\mathbf{L}}{\kappa^2}\right)\quad\text{and}\quad \mathbf{P}_\ell = \dfrac{1}{\texttt{factor}}\mathbf{C}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{C}^{-1}\mathbf{L}}{\kappa^2}\right),
 \end{equation}
 and $\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, and
-$\{r_{1i}\}_{i=1}^m$ and $\{r_{2j}\}_{j=1}^{m+1}$ are the roots of $q_1(x) =\sum_{i=0}^mc_ix^{i}$ and  $q_2(x)=\sum_{j=0}^{m+1}b_jx^{j}$, respectively. The coefficients  $\{c_i\}_{i=0}^m$ and  $\{b_j\}_{j=0}^{m+1}$ are determined as the best rational approximation $\hat{r}_m =q_1/q_2$ of the function $\hat{f}(x) := x^{\alpha/2-1}$ over the interval $J_h: = [\kappa^{2}\lambda_{N_h,h}^{-1}, \kappa^{2}\lambda_{1,h}^{-1}]$, where $\lambda_{1,h}, \lambda_{N_h,h}>0$ are the smallest and the largest eigenvalue of $L_h$, respectively.
+$\{r_{1i}\}_{i=1}^m$ and $\{r_{2j}\}_{j=1}^{m+1}$ are the roots of $q_1(x) =\sum_{i=0}^mc_ix^{i}$ and  $q_2(x)=\sum_{j=0}^{m+1}b_jx^{j}$, respectively. The coefficients  $\{c_i\}_{i=0}^m$ and  $\{b_j\}_{j=0}^{m+1}$ are determined as the best rational approximation $q_1/q_2$ of the function $x^{\alpha/2-1}$ over the interval $J_h: = [\kappa^{2}\lambda_{N_h,h}^{-1}, \kappa^{2}\lambda_{1,h}^{-1}]$, where $\lambda_{1,h}, \lambda_{N_h,h}>0$ are the smallest and the largest eigenvalue of $L_h$, respectively.
 
 
-For the sake of clarity, we note that the numerical implementation of @rSPDE2020 actually defines $\boldsymbol{P}_r$ and $\boldsymbol{P}_\ell$ as
+For the sake of clarity, we note that the numerical implementation of @rSPDE2020 actually defines $\mathbf{P}_r$ and $\mathbf{P}_\ell$ as
 \begin{equation}
 \label{eq:PLPRbolin}
 \tag{7}
-\boldsymbol{P}_r = \prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right)\quad\text{and}\quad \boldsymbol{P}_\ell = \dfrac{\kappa^{2\beta}}{\texttt{factor}}\boldsymbol{C}\prod_{j=1}^{m+1} \left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{C}^{-1}\boldsymbol{L}}{\kappa^2}\right),
+\mathbf{P}_r = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{C}^{-1}\mathbf{L}}{\kappa^2}\right)\quad\text{and}\quad \mathbf{P}_\ell = \dfrac{\kappa^{2\beta}}{\texttt{factor}}\mathbf{C}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{C}^{-1}\mathbf{L}}{\kappa^2}\right),
 \end{equation}
-where $\beta = \alpha/2$ and the scaling factor $(\kappa^2)^{\alpha/2}$ or $\kappa^{2\beta}$ is already incorporated in $\boldsymbol{P}_\ell$, a convention we adopt in the following. With this under consideration, we can rewrite \eqref{eq:scheme2} as
+where $\beta = \alpha/2$ and the scaling factor $(\kappa^2)^{\alpha/2}$ or $\kappa^{2\beta}$ is already incorporated in $\mathbf{P}_\ell$, a convention we adopt in the following. With this under consideration, we can rewrite \eqref{eq:scheme2} as
 \begin{equation}
 \tag{8}
-(\boldsymbol{P}_r^\top \boldsymbol{C}+\tau \boldsymbol{P}_\ell^\top)\boldsymbol{U}^{k+1} = \boldsymbol{P}_r^\top(\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}),
+(\mathbf{P}_r^\top \mathbf{C}+\tau \mathbf{P}_\ell^\top)\mathbf{U}^{k+1} = \mathbf{P}_r^\top(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}),
 \label{eq:scheme}
 \end{equation}
 where  
 \begin{equation}
-\boldsymbol{P}_r^\top = \prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\quad\text{and}\quad \boldsymbol{P}_\ell^\top = \dfrac{\kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\cdot \boldsymbol{C}
+\mathbf{P}_r^\top = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\quad\text{and}\quad \mathbf{P}_\ell^\top = \dfrac{\kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot \mathbf{C}
 \end{equation}
-since $\boldsymbol{L}$ and $\boldsymbol{C}^{-1}$ are symmetric and the factors in the product commute. Replacing these two into \eqref{eq:scheme} yields
+since $\mathbf{L}$ and $\mathbf{C}^{-1}$ are symmetric and the factors in the product commute. Replacing these two into \eqref{eq:scheme} yields
 \begin{equation}
-\left(\prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\right)\boldsymbol{C}\boldsymbol{U}^{k+1} = \prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\cdot (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}),
+\left(\prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\right)\mathbf{C}\mathbf{U}^{k+1} = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot (\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}),
 \end{equation}
 that is,
 \begin{equation}
 \label{eq:final_scheme}
 \tag{9}
-\boldsymbol{U}^{k+1} = \boldsymbol{C}^{-1}\left(\prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\boldsymbol{I}-r_{2j}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\right)^{-1} \prod_{i=1}^m \left(\boldsymbol{I}-r_{1i}\dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}\right)\cdot (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}).
+\mathbf{U}^{k+1} = \mathbf{C}^{-1}\left(\prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\right)^{-1} \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot (\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
 \end{equation}
 Considering the partial fraction decomposition
 \begin{equation}
@@ -200,15 +228,15 @@ scheme \eqref{eq:final_scheme} can be expressed as
 \begin{equation}
 \label{eq:final_scheme2}
 \tag{11}
-\boldsymbol{U}^{k+1} = \boldsymbol{C}^{-1}\left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1} + r\boldsymbol{I}\right) (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1})
+\mathbf{U}^{k+1} = \mathbf{C}^{-1}\left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}-p_k\mathbf{I}\right)^{-1} + r\mathbf{I}\right) (\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1})
 \end{equation}
 
-In practice, since the rational function in \eqref{eq:partial_fraction} is proper, there is no remainder $r$. Moreover, since $\left( \dfrac{\boldsymbol{L}\boldsymbol{C}^{-1}}{\kappa^2}-p_k\boldsymbol{I}\right)^{-1}  = \boldsymbol{C}\left( \dfrac{\boldsymbol{L}}{\kappa^2}-p_k\boldsymbol{C}\right)^{-1}$, we have that \eqref{eq:final_scheme2} can be rewritten as
+In practice, since the rational function in \eqref{eq:partial_fraction} is proper, there is no remainder $r$. Moreover, since $\left( \dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}-p_k\mathbf{I}\right)^{-1}  = \mathbf{C}\left( \dfrac{\mathbf{L}}{\kappa^2}-p_k\mathbf{C}\right)^{-1}$, we have that \eqref{eq:final_scheme2} can be rewritten as
 
 \begin{equation}
 \label{eq:final_scheme3}
 \tag{12}
-\boldsymbol{U}^{k+1} = \left(\sum_{k=1}^{m+1} a_k\left( \dfrac{\boldsymbol{L}}{\kappa^2}-p_k\boldsymbol{C}\right)^{-1}\right) (\boldsymbol{C}\boldsymbol{U}^k+\tau \boldsymbol{F}^{k+1}).
+\mathbf{U}^{k+1} = \mathbf{R}(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}),\quad \mathbf{R} = \sum_{k=1}^{m+1} a_k\left( \dfrac{\mathbf{L}}{\kappa^2}-p_k\mathbf{C}\right)^{-1}.
 \end{equation}
 
 ## Numerical implementation {#num_implementation}
@@ -372,34 +400,6 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 }
 ```
 
-```{r}
-solve_forward_evolution <- function(my_op_frac, time_step, time_seq, RHST, val_at_0) {
-  CC <- my_op_frac$C
-  N <- length(time_seq)
-  SOL <- matrix(NA, nrow = nrow(CC), ncol = N)
-  SOL[, 1] <- val_at_0
-  for (k in 1:(N - 1)) {
-    rhs <- CC %*% SOL[, k] + time_step * RHST[, k + 1]
-    SOL[, k + 1] <- as.matrix(my.solver.frac(my_op_frac, rhs))
-  }
-  return(SOL)
-}
-```
-
-```{r}
-solve_backward_evolution <- function(my_op_frac, time_step, time_seq, RHST) {
-  CC <- my_op_frac$C
-  N <- length(time_seq)
-  SOL <- matrix(NA, nrow = nrow(CC), ncol = N)
-  SOL[, N] <- 0
-  for (k in (N - 1):1) {
-    #rhs <- CC %*% SOL[, k + 1] + time_step * RHST[, k + 1] #this is how it should be in theory
-    rhs <- CC %*% SOL[, k + 1] + time_step * RHST[, k]
-    SOL[, k] <- as.matrix(my.solver.frac(my_op_frac, rhs))
-  }
-  return(SOL)
-}
-```
 
 ## Auxiliary functions {#auxiliary_functions}
 
@@ -525,7 +525,9 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
 }
 ```
 
-### Functions for computing the true line rates
+### Function `compute_guiding_lines()`
+
+Given a vector `x_axis_vector`, a matrix `errors` with error values, a vector `theoretical_rates` with theoretical convergence rates, and a function `line_equation_fun` (either `loglog_line_equation` or `exp_line_equation`), function `compute_guiding_lines()` computes guiding lines for convergence plots.
 
 ```{r}
 loglog_line_equation <- function(x1, y1, slope) {
@@ -635,213 +637,6 @@ reversecolumns <- function(mat) {
 }
 ```
 
-
-```{r}
-# helper: measure change relative to the size of the previous iterate 
-change_comparer <- function(X_new, X_old, time_step, C, relative = TRUE) {
-  XX <- X_new - X_old
-  num <- sqrt(as.double(time_step * sum(XX * (C %*% XX))))
-  if (!relative) {
-    return(num)
-    }
-  den <- sqrt(as.double(time_step * sum(X_new * (C %*% X_new))))
-  if (den < .Machine$double.eps) {
-    return(ifelse(num < .Machine$double.eps, 0, num))
-  } else {
-    return(num / den)
-  }
-}
-```
-
-
-```{r}
-# Coupled solver with multi-criteria convergence
-solve_coupled_system_multi_tol <- function(
-  my_op_frac,           # operator
-  time_step,            # tau
-  time_seq,             # vector of times 
-  u_0,                  # initial state U^0 
-  F_proj,               # matrix of F 
-  Z_ini,
-  V_d,                  # matrix of 
-  u_d,
-  Psi,                  # Psi matrix
-  R,                    # R matrix
-  A, B, C,                # lower/upper bounds (vector or matrix broadcastable to time grid)
-  mu,                   # positive scalar
-  tol = 1e-8,           # scalar or named list: list(Z=..., U=..., P=...)
-  maxit = 200,
-  verbose = FALSE,
-  nested_spatial_mesh = FALSE,
-  true_sol
-) {
-
-  if (is.numeric(tol) && length(tol) == 1) {
-    tol_list <- list(Z = tol, U = tol, P = tol)
-  } else if (is.list(tol)) {
-    tol_list <- modifyList(list(Z = 1e-8, U = 1e-8, P = 1e-8), tol)
-  } else stop("tol must be scalar or list(Z=...,U=...,P=...)")
-
-  it <- 0
-  converged <- FALSE
-  
-  rel_history <- data.frame(iter = integer(0), variable = character(0), value = numeric(0))
-  abs_history <- data.frame(iter = integer(0), variable = character(0), value = numeric(0))
-  min_history <- data.frame(iter = integer(0), variable = character(0), value = numeric(0))
-
-  Z_list <- list()
-  U_list <- list()
-  P_list <- list()
-  
-  z_prev <- Z_ini
-  if(nested_spatial_mesh == TRUE){Z_mat <- C %*% z_prev}else{Z_mat <- R %*% Psi %*% z_prev}
-  U_prev <- F_proj*0
-  P_prev <- F_proj*0
-
-  repeat {
-    it <- it + 1
-
-    U_mat <- solve_forward_evolution(my_op_frac, time_step, time_seq, RHST = F_proj + Z_mat, val_at_0 = u_0)
-    if(nested_spatial_mesh == TRUE){V_mat <- C %*% U_mat}else{V_mat <- R %*% Psi %*% U_mat}
-    Q_mat <- solve_backward_evolution(my_op_frac, time_step, time_seq, RHST = V_mat - V_d)
-    P_mat <- Q_mat
-    z_new <- pmax(A, pmin(B, - P_mat / mu))
-    if(nested_spatial_mesh == TRUE){Z_mat <- C %*% z_new}else{Z_mat <- R %*% Psi %*% z_new}
-    
-    # relative changes
-    rel_changes_Z <- change_comparer(z_new, z_prev, time_step, C, relative = TRUE)  
-    rel_changes_U <- change_comparer(U_mat, U_prev, time_step, C, relative = TRUE)
-    rel_changes_P <- change_comparer(P_mat, P_prev, time_step, C, relative = TRUE)
-    abs_changes_Z <- change_comparer(z_new, true_sol$z_bar, time_step, C, relative = FALSE)
-    abs_changes_U <- change_comparer(U_mat, true_sol$u_bar, time_step, C, relative = FALSE)
-    abs_changes_P <- change_comparer(P_mat, true_sol$p_bar, time_step, C, relative = FALSE)
-    XX <- U_mat - u_d
-    min_change <- 0.5 * as.double(time_step * sum(XX * (C %*% XX)))  + 0.5 * mu * as.double(time_step * sum(z_new * (C %*% z_new)))
-    rel_history <- rbind(rel_history,
-      data.frame(iter = it, variable = "Z", value = rel_changes_Z),
-      data.frame(iter = it, variable = "U", value = rel_changes_U),
-      data.frame(iter = it, variable = "P", value = rel_changes_P))
-    abs_history <- rbind(abs_history,
-      data.frame(iter = it, variable = "Z", value = abs_changes_Z),
-      data.frame(iter = it, variable = "U", value = abs_changes_U),
-      data.frame(iter = it, variable = "P", value = abs_changes_P))
-    min_history <- rbind(min_history,
-      data.frame(iter = it, variable = "min", value = min_change))
-    
-    if (verbose) {message(sprintf("iter %3d: rel(Z) = %.3e, rel(U) = %.3e, rel(P) = %.3e", it, rel_changes_Z, rel_changes_U, rel_changes_P))}
-
-    # update stored previous iterates
-    z_prev <- z_new
-    U_prev <- U_mat
-    P_prev <- P_mat
-    
-    Z_list[[paste0("iteration ", it)]] <- z_new
-    U_list[[paste0("iteration ",it)]] <- U_mat
-    P_list[[paste0("iteration ",it)]] <- P_mat
-
-    # convergence check: require all rel_changes <= respective tol
-    cond_Z <- rel_changes_Z <= tol_list$Z
-    cond_U <- rel_changes_U <= tol_list$U
-    cond_P <- rel_changes_P <= tol_list$P
-
-    if ((cond_Z && cond_U && cond_P) || it >= maxit) {
-      converged <- (cond_Z && cond_U && cond_P)
-      break
-    }
-  }
-
-  if (verbose && !converged) {
-    message(sprintf(
-      "Stopped at maxit=%d; rel_changes: Z = %.3e (tol %.3e), U = %.3e (tol %.3e), P = %.3e (tol %.3e)",
-      it, rel_changes_Z, tol_list$Z, rel_changes_U, tol_list$U, rel_changes_P, tol_list$P
-    ))
-  }
-
-  return(list(U = U_mat,  # solution U
-              Z = z_new,  # solution z
-              P = P_mat, # solution P
-              iterations = it,
-              converged = converged,
-              tol_list = tol_list,
-              rel_history = rel_history,
-              abs_history = abs_history,
-              min_history = min_history,
-              Z_list = Z_list,
-              U_list = U_list,
-              P_list = P_list))
-}
-```
-
-
-```{r}
-plot_convergence_history <- function(history_df, tol_list = NULL, type = "relative") {
-  if (type == "relative"){
-    text_title <- "|X_{iter} - X_{iter-1}| / |X_{iter}|"
-  } else if (type == "absolute") {
-    text_title <- "|X_{exact} - X_{iter}|"
-  } else if (type == "minimum") {
-    text_title <- "J(U_{iter},z_{iter})"
-  }
-
-  p <- ggplot(history_df, aes(x = iter, y = value, color = variable)) +
-    geom_line() +
-    geom_point(size = 1.5) +
-    scale_y_log10() +
-    labs(
-      title = text_title,
-      x = "Iteration",
-      y = "Error",
-      color = "Quantity"
-    ) +
-    theme_minimal()
-  
-  # Add tolerance lines if provided
-  if (!is.null(tol_list)) {
-    tol_df <- data.frame(
-      variable = names(tol_list),
-      tol = unlist(tol_list)
-    )
-    p <- p + geom_hline(
-      data = tol_df,
-      aes(yintercept = tol, color = variable),
-      linetype = "dashed"
-    )
-  }
-  
-  return(plotly::ggplotly(p))
-}
-```
-
-```{r}
-largest_nested_h <- function(h_fine, h_candidate) {
-  Nfine <- round(1 / h_fine)       # number of intervals in fine mesh
-  m0 <- floor(h_candidate / h_fine)
-  
-  best <- 0
-  r <- floor(sqrt(Nfine))
-  
-  for (a in 1:r) {
-    if (Nfine %% a == 0) {
-      b <- Nfine / a
-      if (a <= m0 && a > best) best <- a
-      if (b <= m0 && b > best) best <- b
-    }
-  }
-  
-  # if no divisor found, default to h_fine
-  if (best == 0) best <- 1
-  
-  h_coarse <- best * h_fine
-  return(h_coarse)
-}
-```
-
-```{r}
-trunc_first_signi_digit <- function(x){
-  aux <- floor(log10(x))
-  return(floor(x / 10^aux) * 10^aux)
-}
-```
 
 ## Plotting functions {#plotting_functions}
 
@@ -984,6 +779,11 @@ graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
   return(p)
 }
 ```
+
+
+### Function `graph.plotter.3d()`
+
+Given a graph object `graph`, a sequence of time points `time_seq`, a vector `frame_val_to_display` with values to display at each frame, and a list `U_list` representing function values defined on the mesh of `graph` at each time in `time_seq`, the `graph.plotter.3d()` function generates an interactive 3D visualization of these functions over time.
 
 ```{r}
 graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
@@ -1341,6 +1141,8 @@ graph.plotter.3d.single <- function(graph, U_true, time_seq) {
 
 ### Function `error.convergence.plotter()`
 
+Given a vector `x_axis_vector`, a vector `alpha_vector` of parameter values, a matrix `errors` with error values, vectors `theoretical_rates` and `observed_rates` with convergence rates, a function `line_equation_fun` (either `loglog_line_equation` or `exp_line_equation`), and plot titles and labels, function `error.convergence.plotter()` generates a convergence plot showing errors and guiding lines.
+
 ```{r}
 # Function to plot the error convergence
 error.convergence.plotter <- function(x_axis_vector, 
@@ -1417,6 +1219,10 @@ error.convergence.plotter <- function(x_axis_vector,
 ```
 
 
+### Function `graph.plotter.3d.static()`
+
+Given a graph object `graph` and a list `z_list` of function values defined on the mesh of `graph`, function `graph.plotter.3d.static()` generates a static 3D plot of these values.
+
 ```{r}
 graph.plotter.3d.static <- function(graph, z_list) {
   x <- plotting.order(graph$mesh$V[, 1], graph)
@@ -1470,6 +1276,11 @@ graph.plotter.3d.static <- function(graph, z_list) {
 }
 
 ```
+
+
+### Function `graph.plotter.3d.two.meshes.time()`
+
+Given two graph objects `graph_finer` and `graph_coarser`, sequences of time points `time_seq` and `frame_val_to_display`, and lists `fs_finer` and `fs_coarser` of function values defined on the meshes of `graph_finer` and `graph_coarser` respectively, function `graph.plotter.3d.two.meshes.time()` generates an interactive 3D visualization comparing these functions over time.
 
 
 ```{r}
