@@ -33,8 +33,8 @@ build_T <- function(a, N){
   return(R)
 }
 
-omega <- 0.99
-N <- 100
+omega <- 0.1
+N <- 1000
 A <- make_matrix(omega,N)
 #max(eigen(A, symmetric = TRUE, only.values = TRUE)$values)
 norm(A, type = "2")

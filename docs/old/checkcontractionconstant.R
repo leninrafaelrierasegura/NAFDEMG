@@ -33,10 +33,10 @@ build_T <- function(a, N){
   return(R)
 }
 
-omega <- 0.9
-N <- 10
+omega <- 0.99
+N <- 100
 A <- make_matrix(omega,N)
-max(eigen(A, symmetric = TRUE, only.values = TRUE)$values)
+#max(eigen(A, symmetric = TRUE, only.values = TRUE)$values)
 norm(A, type = "2")
 k <- 1:N
 lambda <- (1 - omega^2) / (1 + omega^2 - 2 * omega * cos(k * pi / (N + 1)))
