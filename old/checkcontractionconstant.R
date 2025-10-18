@@ -109,7 +109,7 @@ build_perm_matrix(length(egs), Nh)
 
 
 # check norm identity
-source(here::here("functionality.R"))
+source(here::here("control_functionality.R"))
 T_final <- 2
 time_step <- 0.001 
 h <- 1

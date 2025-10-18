@@ -159,7 +159,7 @@ At each time step $t_k$, the finite element solution $U_h^k\in V_h$ to \eqref{sy
     U_h^k(s) =  \sum_{i=1}^{N_h}u_i^k\psi^i_h(s), \;s\in\Gamma.
 \end{align}
 
-Replacing \eqref{num_sol} into \eqref{system:fully_discrete_scheme} yields the following linear system
+Replacing \eqref{num_sol} into \eqref{system:fully_discrete_scheme} yields the following system
 \begin{align*}
     \sum_{j=1}^{N_h}u_j^{k+1}[(\psi_h^j,\psi_h^i)_{L_2(\Gamma)}+ \tau\mathfrak{a}(\psi_h^j,\psi_h^i)] = \sum_{j=1}^{N_h}u_j^{k}(\psi_h^j,\psi_h^i)_{L_2(\Gamma)}+\tau( f^{k+1},\psi_h^i)_{L_2(\Gamma)},\quad i = 1,\dots, N_h.
 \end{align*}
@@ -358,7 +358,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 
 ### Function `my.solver.frac()`
 
-Given the object returned by `my.fractional.operators.frac()` and a vector `v`, function `my.solver.frac()` solves the linear system \eqref{eq:final_scheme2} for the vector `v`. If `beta = 1`, it solves the linear system directly; otherwise, it uses the partial fraction decomposition.
+Given the object returned by `my.fractional.operators.frac()` and a vector `v`, function `my.solver.frac()` solves the linear \eqref{eq:final_scheme2} for the vector `v`. If `beta = 1`, it solves the system directly; otherwise, it uses the partial fraction decomposition.
 
 ```{r}
 # Function to solve the iteration
