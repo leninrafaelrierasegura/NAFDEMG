@@ -57,7 +57,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = TRUE,       
+  eval = FALSE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -174,7 +174,43 @@ with
 
 ## Numerical scheme {#num_scheme_optim_control}
 
-Go back to the [Control Functionality](control_functionality.html) page to see the details of the numerical scheme for solving the optimal control problem \eqref{eq:costfun}-\eqref{control_constraints}.
+Go to the [Control Functionality](control_functionality.html) page to see the details of the numerical scheme for solving the optimal control problem \eqref{eq:costfun}-\eqref{control_constraints}. Here is a short summary of the numerical scheme.
+
+- **1. Initialization:** Initialize $\mathbf{\bar{Z}}\in \mathbb{R}^{N_{h}\times (N+1)}$.
+
+- **2. State solve:** Given $\mathbf{\bar{Z}}$, compute $\mathbf{\bar{U}}\in \mathbb{R}^{N_{h}\times (N+1)}$ with the iteration
+
+\begin{align}
+\label{statesolve}
+\tag{FS}
+    \begin{cases}
+    \mathbf{\bar{U}}_{k+1}  &= \mathbf{R}\mathbf{C}\mathbf{\bar{U}}_k+\tau \mathbf{R}(\mathbf{F}_{k+1}+\mathbf{C}\mathbf{\bar{Z}}_{k+1})\\
+    & = (\mathbf{R}\mathbf{C})^{k+1}\mathbf{\bar{U}}_0
++ \tau \sum_{i=0}^{k} (\mathbf{R}\mathbf{C})^{k-i}\mathbf{R}(\mathbf{F}_{i+1}+\mathbf{C} \mathbf{\bar{Z}}_{i+1}), \quad k = 0,\dots, N-1,\\
+    \mathbf{\bar{U}}_{0}  &= [u_0(s_1), \dots, u_0(s_{N_h})]^\top,
+    \end{cases}
+\end{align}
+
+- **3. Adjoint solve:** Given $\mathbf{\bar{U}}$ from before, compute $\mathbf{\bar{P}}\in \mathbb{R}^{N_{h}\times (N+1)}$ with the iteration
+
+\begin{align}
+\label{adjointsolve}
+\tag{BS}
+    \begin{cases}
+    \mathbf{\bar{P}}_{k}  & = \mathbf{R}\mathbf{C}\mathbf{\bar{P}}_{k+1}+\tau \mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{k+1}-\mathbf{D}_{k+1})\\
+    &=  \tau \sum_{i=0}^{N-k-1} (\mathbf{R}\mathbf{C})^{i}\mathbf{R}(\mathbf{C}\mathbf{\bar{U}}_{k+i+1}-\mathbf{D}_{k+i+1}), \quad k = N-1,\dots, 0,\\
+    \mathbf{\bar{P}}_{N} &  = \mathbf{0},
+    \end{cases}
+\end{align}
+
+- **4. Control update:** Given $\mathbf{\bar{P}}$ from before, update 
+
+\begin{align}
+  \label{entrywisez}
+  \mathbf{\bar{Z}} = \max\{\mathbf{A},\min\{\mathbf{B},-\mathbf{\bar{P}}/\mu\}\}\quad \text{(entry-wise)}.
+\end{align}
+
+- **5. Iteration:** Repeat steps 2--4 until convergence.
 
 ## Construction of an exact solution to the optimal control problem {#exact_sol_for_optim_control_prob}
 
