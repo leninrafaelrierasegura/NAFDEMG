@@ -175,20 +175,20 @@ with
 
 ## Discretization by time reversal strategy
 
-By considering the change of variable $\bar{q}(s,t) = \bar{p}(s,T-t)$, the fractional adjoint problem \eqref{eq:adjointeq} becomes a forward-in-time problem where the transformed adjoint state $\bar{q}$ solves
-\begin{equation}
-\label{transformed_adjoint_state}
-\tag{9}
-\left\{
-\begin{aligned}
-    \partial_t \bar{q}(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2} \bar{q}(s,t) &= \bar{v}(s,t)-v_d(s,t), && \quad (s,t) \in \Gamma \times (0, T), \\
-    \bar{q}(s,0) &= 0, && \quad s \in \Gamma,
-\end{aligned}
-\right.
-\end{equation}
-since $\partial_t\bar{q}(s,t) = -\partial_t\bar{p}(s,T-t)$ and $\bar{q}(s, 0) =\bar{p}(s,T-0)= \bar{p}(s,T)=0$. Here, $\bar{v}(s,t) = \bar{u}(s,T-t)$ and $v_d(s,t) = u_d(s,T-t)$. 
-
-
+By considering the change of variable $t^* = T-t$ and defining $\bar{q}(s,t^*): = \bar{p}(s,T-t^*)$, the fractional adjoint problem \eqref{eq:adjointeq} becomes a forward-in-time problem where the transformed adjoint state $\bar{q}$ satisfies the Kirchhoff vertex conditions \eqref{eq:Kcond} and solves
+    \begin{equation}
+    \label{transformed_adjoint_state}
+    \tag{9}
+    \left\{
+    \begin{aligned}
+        \partial_{t^*} \bar{q}(s,t^*) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2} \bar{q}(s,t^*) &= \bar{v}(s,t^*)-v_d(s,t^*), && \quad (s,t^*) \in \Gamma \times (0, T), \\
+        \bar{q}(s,0) &= 0, && \quad s \in \Gamma,
+    \end{aligned}
+    \right.
+    \end{equation}
+    since $\partial_t\bar{p}(s,t) = -\partial_{t^*}\bar{q}(s,t^*)$ and $\bar{q}(s, 0)= \bar{p}(s,T)=0$. Here, $\bar{v}(s,t^*) = \bar{u}(s,T-t^*)$ and $v_d(s,t^*) = u_d(s,T-t^*)$.
+    
+    
 Given $\bar{u}$ and $u_d$, we can time-reverse them to obtain $\bar{v}$ and $v_d$ and then use the same numerical scheme we use for the forward problem \eqref{eq:maineqoptimal} to solve the adjoint problem \eqref{transformed_adjoint_state}. The control variable $\bar{z}$ is then computed using \eqref{zz}.
 
 
