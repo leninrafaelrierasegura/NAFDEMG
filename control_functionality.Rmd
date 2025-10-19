@@ -723,6 +723,8 @@ In general,
 
 By letting $\mathbf{\Omega} = \mathbf{C}^{\frac{1}{2}}\mathbf{R}\mathbf{C}^{\frac{1}{2}}$, we can write
 \begin{align}
+\label{matrixB}
+\tag{23}
 \boldsymbol{\mathfrak{B}}  = \tau^2
 \begin{bmatrix}
 \mathbf{0} & \mathbf{\Omega}^2 + \mathbf{\Omega}^4 + \mathbf{\Omega}^6 
@@ -863,6 +865,8 @@ then
 \end{bmatrix}
 \end{align}
 
+The code below shows matrix how to build matrix $\mathbf{V}^\top \boldsymbol{\hat{\mathfrak{B}}} \mathbf{V}$ and $\mathbf{P}$ and verifies that $\mathbf{P}\mathbf{V}^\top \boldsymbol{\hat{\mathfrak{B}}} \mathbf{V}\mathbf{P}^\top$ is block diagonal with blocks $\mathbf{T}(\mu_i)$.
+
 ```{r, purl = FALSE}
 make_matrix <- function(a, N) {
   v <- a^(0:(N - 1))
@@ -922,7 +926,20 @@ where
 \sum_{k=1}^{1}\mu_i^{2k+(N-1)}   & \cdots  & \sum_{k=1}^{1}\mu_i^{2k+2}   & \sum_{k=1}^{1}\mu_i^{2k+1}  & \sum_{k=1}^{1}\mu_i^{2k} 
 \end{bmatrix}
 \end{align}
-Now
+Let $\mathbf{T} = \mathbf{T}(\omega)$. That is,
+\begin{align}
+\label{matrixT}
+\tag{24}
+\mathbf{T} = \mathbf{T}(\omega) = 
+ \begin{bmatrix}
+\sum_{k=1}^{N}\omega^{2k+(N-N)}   & \cdots  & \sum_{k=1}^{3}\omega^{2k+(N-3)} & \sum_{k=1}^{2}\omega^{2k+(N-2)}  & \sum_{k=1}^{1}\omega^{2k+(N-1)}  \\[1mm]
+\vdots & \ddots & \vdots & \vdots & \vdots  \\[1mm]
+\sum_{k=1}^{3}\omega^{2k+(N-3)} & \cdots & \sum_{k=1}^{3}\omega^{2k}  & \sum_{k=1}^{2}\omega^{2k+1}  & \sum_{k=1}^{1}\omega^{2k+2} \\[1mm]
+\sum_{k=1}^{2}\omega^{2k+(N-2)}    & \cdots & \sum_{k=1}^{2}\omega^{2k+1}  & \sum_{k=1}^{2}\omega^{2k}  & \sum_{k=1}^{1}\omega^{2k+1} \\[1mm]
+\sum_{k=1}^{1}\omega^{2k+(N-1)}   & \cdots  & \sum_{k=1}^{1}\omega^{2k+2}   & \sum_{k=1}^{1}\omega^{2k+1}  & \sum_{k=1}^{1}\omega^{2k} 
+\end{bmatrix}
+\end{align}
+Then
 \begin{align}
 \label{chain2}
     \|\boldsymbol{\mathfrak{L}}\|_{\mathbf{C}_{N+1}}   = \tau^2
@@ -932,11 +949,149 @@ Now
 
 To see an example where we show that $\|\boldsymbol{\mathfrak{B}}\|_2 = \tau^2 \|\mathbf{T}\|_2$, go to the [this](control_functionality.html#norm_identity) section.
 
+Following with our example, we have that 
+\begin{align*}
+    \mathbf{T} & =  
+\begin{bmatrix}
+\omega^2 & \omega^3 & \omega^4  \\[1mm]
+\omega^3& \omega^2 & \omega^3  \\[1mm]
+\omega^4 & \omega^3 & \omega^2  \\[2mm]
+\end{bmatrix}
++
+\begin{bmatrix}
+\omega^4 & \omega^5 & 0  \\[1mm]
+\omega^5 & \omega^4 & 0  \\[1mm]
+0 & 0 & 0  \\[2mm]
+\end{bmatrix}
++ 
+\begin{bmatrix}
+\omega^6 & 0 & 0  \\[1mm]
+0 & 0 & 0  \\[1mm]
+0 & 0 & 0  \\[2mm]
+\end{bmatrix}
+\end{align*}
+or equivalently,
+\begin{align*}
+    \mathbf{T}& = 
+    \omega^2 \begin{bmatrix}
+1 & \omega & \omega^2  \\[1mm]
+\omega& 1 & \omega  \\[1mm]
+\omega^2 & \omega & 1  \\[2mm]
+\end{bmatrix}
++
+\omega^4\begin{bmatrix}
+1 & \omega & 0  \\[1mm]
+\omega & 1 & 0  \\[1mm]
+0 & 0 & 0  \\[2mm]
+\end{bmatrix}
++ 
+\omega^6\begin{bmatrix}
+1 & 0 & 0  \\[1mm]
+0 & 0 & 0  \\[1mm]
+0 & 0 & 0  \\[2mm]
+\end{bmatrix}
+\\
+& = \omega^2 
+\begin{bmatrix}
+1 & 0 & 0  \\[1mm]
+0 & 1 & 0  \\[1mm]
+0 & 0 & 1  \\[2mm]
+\end{bmatrix}
+\begin{bmatrix}
+1 & \omega & \omega^2  \\[1mm]
+\omega& 1 & \omega  \\[1mm]
+\omega^2 & \omega & 1  \\[2mm]
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0 & 0  \\[1mm]
+0 & 1 & 0  \\[1mm]
+0 & 0 & 1  \\[2mm]
+\end{bmatrix}
+\\
+&+
+\omega^4
+\begin{bmatrix}
+1 & 0 & 0  \\[1mm]
+0 & 1 & 0  \\[1mm]
+0 & 0 & 0  \\[2mm]
+\end{bmatrix}
+\begin{bmatrix}
+1 & \omega & \omega^2  \\[1mm]
+\omega& 1 & \omega  \\[1mm]
+\omega^2 & \omega & 1  \\[2mm]
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0 & 0  \\[1mm]
+0 & 1 & 0  \\[1mm]
+0 & 0 & 0  \\[2mm]
+\end{bmatrix}\\
+&+ 
+\omega^6
+\begin{bmatrix}
+1 & 0 & 0  \\[1mm]
+0 & 0 & 0  \\[1mm]
+0 & 0 & 0  \\[2mm]
+\end{bmatrix}
+\begin{bmatrix}
+1 & \omega & \omega^2  \\[1mm]
+\omega& 1 & \omega  \\[1mm]
+\omega^2 & \omega & 1  \\[2mm]
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0 & 0  \\[1mm]
+0 & 0 & 0  \\[1mm]
+0 & 0 & 0  \\[2mm]
+\end{bmatrix}
+\end{align*}
+
+The code below builds matrix $\mathbf{T}$ and shows the intermediate steps.
+
+```{r, purl = FALSE}
+build_T <- function(a, N){
+  H <- make_matrix(a, N) 
+  R <- H*0
+  for (i in N:1) {
+    K_i <- diag(c(rep(1, i), rep(0, N - i)))
+    temp <- a^(2*(N - i + 1)) * K_i %*% H %*% K_i
+    print(a^(2*(N - i + 1)))
+    print(cbind(rep("|", N), K_i, rep("|", N), H, rep("|", N), K_i, rep("|", N)), quote = FALSE)
+    R <- R + temp
+  }
+  return(R)
+}
+
+T_aux <- build_T(2, 3)
+```
+
+
+That is, in general,
+\begin{align*}
+    \mathbf{T} = \sum_{i=1}^N \omega^{2(N-i+1)} \mathbf{K}_i\mathbf{H}\mathbf{K}_i,
+\end{align*}
+where 
+\begin{align*}
+\mathbf{H} = \begin{bmatrix}
+1 & \omega & \omega^2 & \cdots & \omega^{N-1} \\
+\omega & 1 & \omega & \cdots & \omega^{N-2} \\
+\omega^2 & \omega & 1 & \cdots & \omega^{N-3} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+\omega^{N-1} & \omega^{N-2} & \omega^{N-3} & \cdots & 1
+\end{bmatrix},\quad 
+\mathbf{K}_i = 
+\mathrm{diag}(\underbrace{1, \dots, 1}_{i}, \underbrace{0, \dots, 0}_{N-i}).
+\end{align*}
+and $\mathbf{K}_i$ satisfies $\|\mathbf{K}_i\|_2 = 1$ for all $i=1,\dots, N$.
+
+
+
+
 ## Numerical implementation {#num_implementation}
 
 ### Function `my.get.roots()`
 
 For each rational order $m$ (1,2,3,4,5,6,7,8) and smoothness parameter $\beta$ (= $\alpha/2$ with $\alpha$ between 0.5 and 2), function `my.get.roots()` (adapted from the `rSPDE` package) returns $\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, and the roots $\{r_{1i}\}_{i=1}^m$ and $\{r_{2j}\}_{j=1}^{m+1}$.
+
+The file [`data_files/chebfun_tables.RDS`](https://github.com/leninrafaelrierasegura/NAFDEMG/blob/main/data_files/chebfun_tables.RDS) contains the precomputed tables for the roots and factors for rational orders 1 to 8. These tables were generated using the [`matlab/chebfun.m`](https://github.com/leninrafaelrierasegura/NAFDEMG/blob/main/matlab/chebfun.m) and [`matlab/chebfun_tables.R`](https://github.com/leninrafaelrierasegura/NAFDEMG/blob/main/matlab/chebfun_tables.R) scripts.
 
 ```{r}
 # Function to compute the roots and factor for the rational approximation
@@ -2344,6 +2499,8 @@ if (!is.null(vertical_coarser)) {
 
 ## Check norm identity {#norm_identity}
 
+The following code builds matrix $\boldsymbol{\mathfrak{B}}$ in \eqref{matrixB} (object `big_matrix` below) and compares its 2-norm to that of matrix $\mathbf{T}$ in \eqref{matrixT} (object `TT` below) times $\tau^2$.
+
 ```{r, purl = FALSE}
 # check norm identity
 T_final <- 2
@@ -2397,7 +2554,7 @@ B42 <- matrix(0, nrow = n, ncol = n)
 B43 <- matrix(0, nrow = n, ncol = n)
 B44 <- matrix(0, nrow = n, ncol = n)
 
-big_matrix <- rbind(
+big_matrix <- time_step^2 * rbind(
   cbind(B11, B12, B13, B14),
   cbind(B21, B22, B23, B24),
   cbind(B31, B32, B33, B34),
@@ -2408,9 +2565,144 @@ omega <- 1/(1+time_step * kappa^(2*beta))
 
 TT <- build_T_fast(omega, 3)
 
-norm(TT, type = "2")
+time_step^2 * norm(TT, type = "2")
 norm(big_matrix, type = "2")
+```
 
+## Compares $\gamma$ and its upper bound $1/(\mu \kappa^{4 \beta})$ {#contraction_constant_comparison}
+
+```{r, eval = FALSE, purl = FALSE}
+# --- 3. Parameter grid ---
+T_final <- 2
+tau_vector <- c(0.001, 0.01, 0.1)
+N_vector <- T_final / tau_vector
+kappa_vector <- c(1, 4, 16)
+beta_vector <- c(0.5, 0.7, 0.9)
+mu_vector <- c(0.1, 1, 10)
+
+results <- expand.grid(
+  tau = tau_vector,
+  kappa = kappa_vector,
+  beta = beta_vector,
+  mu = mu_vector
+)
+
+# --- 4. Parallel computation with caching (A depends on ω and N only) ---
+cache <- new.env(hash = TRUE)
+
+results$L_c <- unlist(pbmclapply(
+  1:nrow(results),
+  function(i) {
+    tau <- results$tau[i]
+    kappa <- results$kappa[i]
+    beta <- results$beta[i]
+    mu <- results$mu[i]
+    
+    omega <- 1 / (1 + tau * kappa^(2 * beta))
+    N <- as.integer(T_final / tau)
+    key <- paste0(round(omega, 10), "_", N)
+    
+    if (exists(key, envir = cache)) {
+      lambda_max <- get(key, envir = cache)
+    } else {
+      A <- build_T_fast(omega, N)
+      lambda_max <- max(eigen(A, symmetric = TRUE, only.values = TRUE)$values)
+      assign(key, lambda_max, envir = cache)
+    }
+    
+    (tau^2 * lambda_max) / mu
+  },
+  mc.cores = parallel::detectCores()
+))
+
+save(results, file = here::here("data_files/contraction_constant_results2.RData"))
+```
+
+
+```{r, eval = TRUE, purl = FALSE}
+library(pbmcapply)
+library(ggplot2)
+library(scales)
+library(dplyr)
+library(patchwork)
+T_final <- 2
+load(here::here("data_files/contraction_constant_results2.RData"))
+all_results <- results %>% 
+  mutate(upperbound = 1/(mu*kappa^(4*beta))) %>%
+  mutate(T_final = T_final) %>%
+  mutate(N = T_final/tau) %>%
+  mutate(L_cless1 = L_c < 1) %>%
+  mutate(Tlessmukappa2beta = T_final < (mu * kappa^(2*beta))) %>%
+  mutate(onelessmukappa4beta  = upperbound < 1) 
+
+
+# Find combined y-limits
+ymin <- min(all_results$L_c, all_results$upperbound, na.rm = TRUE)
+ymax <- max(all_results$L_c, all_results$upperbound, na.rm = TRUE)
+
+p <- ggplot(all_results, aes(x = N, y = L_c,
+                             color = factor(kappa),
+                             shape = factor(beta),
+                             linetype = factor(mu))) +
+  geom_point(size = 3) +
+  geom_line(aes(group = interaction(kappa, beta, mu)), alpha = 1) +
+  scale_x_log10() +
+  scale_y_log10(
+    limits = c(ymin, ymax),
+    breaks = trans_breaks("log10", function(x) 10^x),
+    labels = label_scientific()
+  ) +
+  scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
+  labs(x = "N",
+       y = expression(gamma),
+       color = expression(kappa),
+       shape = expression(beta),
+       linetype = expression(mu)) +
+  theme_minimal(base_size = 14, base_family = "Palatino")
+
+q <- ggplot(all_results, aes(x = N, y = upperbound,
+                             color = factor(kappa),
+                             shape = factor(beta),
+                             linetype = factor(mu))) +
+  geom_point(size = 3) +
+  geom_line(aes(group = interaction(kappa, beta, mu)), alpha = 1) +
+  scale_x_log10() +
+  scale_y_log10(
+    limits = c(ymin, ymax),
+    breaks = trans_breaks("log10", function(x) 10^x),
+    labels = label_scientific(),
+    position = "right"
+  ) +
+  scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
+  labs(x = "N",
+       y = expression(1 / mu * kappa^{4 * beta}),
+       color = expression(kappa),
+       shape = expression(beta),
+       linetype = expression(mu)) +
+  theme_minimal(base_size = 14, base_family = "Palatino")
+
+
+combined2 <- (p | q) + 
+  plot_annotation(
+    title = expression("Contraction constant " * gamma * " and its upper bound " * 1 / mu * kappa^{4 * beta}),
+    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
+                                            family = "Palatino"))
+  ) +
+  plot_layout(guides = "collect") & 
+  theme(legend.position = "bottom")
+```
+
+
+```{r, eval = TRUE, purl = FALSE, fig.align='center', fig.dim= c(12,7), fig.cap = captioner("Comparison of the contraction constant $\\gamma =  \\tau^2\\|\\mathbf{T}\\|_2/\\mu$ and its theoretical upper bound $1 / (\\mu \\kappa^{4 \\beta})$ as functions of the sample size $N$ for $T = 2$. Different colors, shapes, and line types correspond to variations in $\\kappa$, $\\beta$, and $\\mu$, respectively. Both plots have their x- and y-axes on a $\\log_{10}$ scale, and they share the same y-axis limits for direct comparability.")}
+combined2
+```
+
+
+```{r, eval = TRUE, purl = FALSE}
+ggsave(
+  here::here("data_files/fixedpointconvergence_combined2.png"),
+  width = 12, height = 7, plot = combined2, dpi = 300
+)
 ```
 
 

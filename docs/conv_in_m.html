@@ -468,19 +468,19 @@ div.tocify {
 <li>
   <a href="preliminaries.html">Preliminaries</a>
 </li>
-<li>
-  <a href="functionality.html">Functionality</a>
-</li>
-<li>
-  <a href="exp1.html">Experiment</a>
-</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Convergence rates
+    Fractional Diffusion
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="functionality.html">Functionality</a>
+    </li>
+    <li>
+      <a href="exp1.html">Experiment</a>
+    </li>
     <li>
       <a href="conv_in_h.html">Convergence in 𝘩</a>
     </li>
@@ -506,13 +506,13 @@ div.tocify {
       <a href="control2.html">Optimal Control</a>
     </li>
     <li>
-      <a href="control_conv_h.html">Convergence in 𝘩</a>
+      <a href="control_conv_h_with_iteration.html">Convergence in 𝘩</a>
     </li>
     <li>
-      <a href="control_conv_tau.html">Convergence in τ</a>
+      <a href="control_conv_tau_with_iteration.html">Convergence in τ</a>
     </li>
     <li>
-      <a href="control_conv_m.html">Convergence in 𝑚</a>
+      <a href="control_conv_m_with_iteration.html">Convergence in 𝑚</a>
     </li>
   </ul>
 </li>
@@ -550,7 +550,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Convergence in 𝑚</h1>
-<h4 class="date">Last modified: 18-10-2025.</h4>
+<h4 class="date">Last modified: 19-10-2025.</h4>
 
 </div>
 
@@ -748,7 +748,7 @@ theoretical (‘theo’), and observed (‘obs’) rates for each case.
 <h1><span class="header-section-number">1</span> References</h1>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
 <p>We used R version 4.5.0 <span class="citation">(R Core Team
-2025a)</span> and the following R packages: expm v. 1.0.0 <span
+2025)</span> and the following R packages: expm v. 1.0.0 <span
 class="citation">(Maechler, Dutang, and Goulet 2024)</span>, gsignal v.
 0.3.7 <span class="citation">(Van Boxtel, G.J.M., et al. 2021)</span>,
 here v. 1.0.1 <span class="citation">(Müller 2020)</span>, htmltools v.
@@ -756,8 +756,7 @@ here v. 1.0.1 <span class="citation">(Müller 2020)</span>, htmltools v.
 <span class="citation">(Xie 2014, 2015, 2025)</span>, Matrix v. 1.7.3
 <span class="citation">(Bates, Maechler, and Jagan 2025)</span>,
 MetricGraph v. 1.5.0.9000 <span class="citation">(Bolin, Simas, and
-Wallin 2023a, 2023b, 2024, 2025; Bolin et al. 2024)</span>, parallel v.
-4.5.0 <span class="citation">(R Core Team 2025b)</span>, patchwork v.
+Wallin 2023a, 2023b, 2024, 2025; Bolin et al. 2024)</span>, patchwork v.
 1.3.1 <span class="citation">(Pedersen 2025)</span>, pbmcapply v. 1.5.1
 <span class="citation">(Kuang, Kong, and Napolitano 2022)</span>, plotly
 v. 4.11.0 <span class="citation">(Sievert 2020)</span>, pracma v. 2.4.4
@@ -900,13 +899,7 @@ Large-Scale Eigenvalue and SVD Problems</em>. <a
 href="https://doi.org/10.32614/CRAN.package.RSpectra">https://doi.org/10.32614/CRAN.package.RSpectra</a>.
 </div>
 <div id="ref-base" class="csl-entry">
-R Core Team. 2025a. <em><span>R</span>: A Language and Environment for
-Statistical Computing</em>. Vienna, Austria: R Foundation for
-Statistical Computing. <a
-href="https://www.R-project.org/">https://www.R-project.org/</a>.
-</div>
-<div id="ref-parallel" class="csl-entry">
-———. 2025b. <em><span>R</span>: A Language and Environment for
+R Core Team. 2025. <em><span>R</span>: A Language and Environment for
 Statistical Computing</em>. Vienna, Austria: R Foundation for
 Statistical Computing. <a
 href="https://www.R-project.org/">https://www.R-project.org/</a>.

@@ -49,7 +49,7 @@ captioner <- function(caption) {
 
      
       
-```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 library(patchwork)
 library(ggplot2)
 load(here::here("data_files/p_h.RData"))
@@ -70,7 +70,7 @@ ggplot2::ggsave(here::here("data_files/p_all.png"), width = 12, height = 5, plot
   - [Convergence in 𝘩](control_conv_h.html): This page shows 
     - [the convergence with respect to the spatial mesh size 𝘩.](control_conv_h.html)
       
-```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $h$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $h$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 knitr::include_graphics(here::here("data_files/control_conv_rates_h_all_with_iteration.png"))
 ```
      
@@ -78,7 +78,7 @@ knitr::include_graphics(here::here("data_files/control_conv_rates_h_all_with_ite
   - [Convergence in τ](control_conv_tau.html): This page shows 
     - [the convergence with respect to the temporal mesh size τ.](control_conv_tau.html)
       
-```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 knitr::include_graphics(here::here("data_files/control_conv_rates_tau_all_with_iteration.png"))
 ```
          
@@ -87,13 +87,12 @@ knitr::include_graphics(here::here("data_files/control_conv_rates_tau_all_with_i
     - [the convergence with respect to the order 𝑚 of the rational approximation.](control_conv_m.html)
       
       
-```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 knitr::include_graphics(here::here("data_files/control_conv_rates_m_all_with_iteration.png"))
 ```    
       
-      
 
-```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6)}
+```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the error $\\|\\bar{u}-\\bar{U}_{h,m}^\\tau\\|_{L_2(\\Gamma\\times(0,T))}$ with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 load(here::here("data_files/p_h_u.RData"))
 load(here::here("data_files/p_tau_u.RData"))
 load(here::here("data_files/p_m_u.RData"))
@@ -107,7 +106,7 @@ p_all_u
 ggplot2::ggsave(here::here("data_files/p_all_u.png"), width = 12, height = 6, plot = p_all_u, dpi = 300)
 ```
 
-```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6)}
+```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the error $\\|\\bar{z}- \\bar{\\mathcal{Z}}_{h,m}^\\tau\\|_{L_2(\\Gamma\\times(0,T))}$ with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 load(here::here("data_files/p_h_z.RData"))
 load(here::here("data_files/p_tau_z.RData"))
 load(here::here("data_files/p_m_z.RData"))
@@ -123,7 +122,9 @@ ggplot2::ggsave(here::here("data_files/p_all_z.png"), width = 12, height = 6, pl
     
       
       
-      
+```{r, echo = FALSE, fig.align='center', fig.dim= c(12,7), fig.cap = captioner("Comparison of the contraction constant $\\gamma =  \\tau^2\\|\\mathbf{T}\\|_2/\\mu$ and its theoretical upper bound $1 / (\\mu \\kappa^{4 \\beta})$ as functions of the sample size $N$ for $T = 2$. Different colors, shapes, and line types correspond to variations in $\\kappa$, $\\beta$, and $\\mu$, respectively. Both plots have their x- and y-axes on a $\\log_{10}$ scale, and they share the same y-axis limits for direct comparability.")}
+knitr::include_graphics(here::here("data_files/fixedpointconvergence_combined2.png"))
+```
       
       
       

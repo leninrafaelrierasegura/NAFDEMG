@@ -9,12 +9,12 @@ navbar:
       href: about.html
     - text: "Preliminaries"
       href: preliminaries.html
-    - text: "Functionality"
-      href: functionality.html
-    - text: "Experiment"
-      href: exp1.html
-    - text: "Convergence rates"
+    - text: "Fractional Diffusion"
       menu:
+        - text: "Functionality"
+          href: functionality.html
+        - text: "Experiment"
+          href: exp1.html
         - text: "Convergence in 𝘩"
           href: conv_in_h.html
         - text: "Convergence in τ"
@@ -28,11 +28,11 @@ navbar:
         - text: "Optimal Control"
           href: control2.html
         - text: "Convergence in 𝘩"
-          href: control_conv_h.html
+          href: control_conv_h_with_iteration.html
         - text: "Convergence in τ"
-          href: control_conv_tau.html
+          href: control_conv_tau_with_iteration.html
         - text: "Convergence in 𝑚"
-          href: control_conv_m.html
+          href: control_conv_m_with_iteration.html
           
   right:
     - icon: fa-file-pdf
