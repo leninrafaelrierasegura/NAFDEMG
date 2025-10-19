@@ -141,7 +141,7 @@ and the control constraints
 \end{align}
 
 
-## Optimal solution {#num_scheme_optim_control}
+## Optimal solution 
 
 The optimal variables $(\bar{u}, \bar{p}, \bar{z})$ satisfy
 
@@ -173,7 +173,9 @@ with
         \bar{z}(s,t) = \max\left\{a(s,t),\min\left\{b(s,t),-\dfrac{1}{\mu}\bar{p}(s,t)\right\}\right\}.
 \end{align}
 
-## Discretization by time reversal strategy
+## Numerical Scheme {#num_scheme_optim_control}
+
+### Discretization by time reversal strategy
 
 By considering the change of variable $t^* = T-t$ and defining $\bar{q}(s,t^*): = \bar{p}(s,T-t^*)$, the fractional adjoint problem \eqref{eq:adjointeq} becomes a forward-in-time problem where the transformed adjoint state $\bar{q}$ satisfies the Kirchhoff vertex conditions \eqref{eq:Kcond} and solves
     \begin{equation}
@@ -233,7 +235,7 @@ If we change \eqref{thenumericalscheme2} to $\mathbf{\bar{P}}$, then we obtain
     \end{cases}
 \end{align}
 
-## Discretization by directly solving the adjoint problem
+### Discretization by directly solving the adjoint problem
 
 The discrete version $\bar{P}_h^\tau\subset V_h$ of the adjoint optimal state $\bar{p}$ in problem \eqref{eq:adjointeq} solves 
 
@@ -406,7 +408,7 @@ Let $(h_\star, \tau_\star)$ denote the integration space–time mesh parameters,
 
 - **5. Iteration:** Repeat steps 2--4 until convergence.
     
-## Convergence analysis of the FBSM iteration
+## Convergence analysis of the FBSM iteration {#conv_FBSM}
 
 For illustration purposes, along with the general case $N$, we consider the particular case $N=3$. From \eqref{statesolve} and \eqref{adjointsolve}, we have
 
