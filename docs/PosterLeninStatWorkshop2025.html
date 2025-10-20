@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<!--
+Font-awesome icons ie github or twitter
+-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/brands.css" integrity="sha384-n9+6/aSqa9lBidZMRCQHTHKJscPq6NW4pCQBiMmHdUCvPN8ZOg2zJJTkC7WIezWv" crossorigin="anonymous">
+
+<!--
+Google fonts api stuff
+-->
+
+
+
+<title>Numerical approximation and optimal control of fractional diffusion equations on metric graphs</title>
+
+
+
+
+
+<link rel="stylesheet" href="custom2.css" type="text/css" />
+
+<style>
+@page {
+size: 55.0in 28.5in;
+margin: 0;
+padding: 0;
+}
+body {
+margin: 0;
+font-size: 45px;
+width: 55.0in;
+height: 28.5in;
+padding: 0;
+text-align: justify;
+font-family: Palatino;
+}
+.poster_wrap {
+width: 55.0in;
+height: 28.5in;
+padding: 0cm;
+}
+.title_container {
+width: calc(100% - 0.6cm - 0.6cm);
+height: calc(15% - 0.6cm - 0.6cm);
+overflow: hidden;
+background-color: #EDE3FF;
+border: 0.6cm solid #a8a4d0;
+}
+.logo_left {
+float: left;
+width: 10%;
+height: 100%;
+background-color: #EDE3FF;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.logo_right {
+float: right;
+width: 10%;
+height: 100%;
+background-color: #EDE3FF;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.poster_title {
+text-align: center;
+position: relative;
+float: left;
+width: 80%;
+height: 100%;
+color: #4a4798;
+top: 50%;
+transform: translateY(-50%);
+-webkit-transform: translateY(-50%);
+}
+#title {
+font-family: Palatino;
+}
+/* unvisited link */
+a:link {
+color: #008080;
+text-decoration: none;
+}
+.mybreak {
+  break-before: column;
+}
+/* visited link */
+a:visited {
+color: #008080;
+text-decoration: none;
+}
+
+/* mouse over link */
+a:hover {
+color: #008080;
+text-decoration: none;
+}
+
+/* selected link */
+a:active {
+color: #008080;
+text-decoration: none;
+}
+.poster_body {
+-webkit-column-count: 4; /* Chrome, Safari, Opera */
+-moz-column-count: 4; /* Firefox */
+column-count: 4;
+-webkit-column-fill: auto;
+-moz-column-fill: auto;
+column-fill: auto;
+-webkit-column-rule-width: 1mm;
+-moz-column-rule-width: 1mm;
+column-rule-width: 1mm;
+-webkit-column-rule-style: dashed;
+-moz-column-rule-style: dashed;
+column-rule-style: dashed;
+-webkit-column-rule-color: #EDE3FF;
+-moz-column-rule-color: #EDE3FF;
+column-rule-color: #EDE3FF;
+column-gap: 1em;
+padding-left: 0.5em;
+padding-right: 0.5em;
+height: 100%;
+color: #000000
+background-color: #ffffff;
+}
+.poster_title h1 {
+font-size: 75pt;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+.poster_body_wrap{
+width: 55.0in;
+height: calc(100% - 17%);
+padding-top: calc(28.5in * 0.01);
+padding-bottom: calc(28.5in * 0.01);
+background-color: #ffffff;
+}
+.poster_title h3 {
+color: #603913;
+font-size: 50pt;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+.poster_title h3 > sup {
+  font-size: 35pt;
+  margin-left: 0.02em;
+}
+.poster_title h5 {
+color: #4a4798;
+font-size: 35pt;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+img {
+margin-top: 0;
+margin-bottom: 0;
+}
+.section {
+  padding: 0.2em;
+}
+.poster_body h1 {
+text-align: center;
+color: #4a4798;
+font-size: 65pt;
+border: 2mm solid #a8a4d0;
+background-color: #a8a4d0;
+border-radius: 0;
+margin-top: 2mm;
+margin-bottom: 2mm;
+font-weight: normal;
+}
+.poster_body h2 {
+color: #000000;
+font-size: 40pt;
+padding-left: 4mm;
+font-weight: normal;
+}
+.span {
+width: 200%;
+}
+/* center align leaflet map,
+from https://stackoverflow.com/questions/52112119/center-leaflet-in-a-rmarkdown-document */
+.html-widget {
+margin: auto;
+position: sticky;
+margin-top: 2cm;
+margin-bottom: 2cm;
+}
+.leaflet.html-widget.html-widget-static-bound.leaflet-container.leaflet-touch.leaflet-fade-anim.leaflet-grab.leaflet-touch-drag.leaflet-touch-zoom {
+position: sticky;
+width: 100%;
+}
+pre.sourceCode.r, pre.sourceCode.python {
+background-color: #ffffff20;
+border: solid #4a4798 1mm;
+border-radius: 0.5em;
+padding: 4mm;
+margin: auto;
+margin-top: 1em;
+margin-bottom: 1em;
+/* align-items: center; */
+}
+div.sourceCode {
+background-color: transparent;
+width: 85%;
+margin-left: auto;
+margin-right: auto;
+}
+code.sourceCode.r, code.sourceCode.python {
+background-color: transparent;
+font-size: 20pt;
+border-radius: 2mm;
+}
+code {
+font-size: 25pt;
+font-family: monospace;
+background-color: #4a479824;
+color: #4a4798;
+padding: 1.2mm;
+line-height: 1;
+border-radius: 2mm;
+}
+.caption {
+font-size: 20pt;
+}
+.table caption {
+font-size: 20pt;
+padding-bottom: 3mm;
+
+}
+code {
+font-size: 1em;
+font-family: monospace;
+background-color: #4a479824;
+color: #EDE3FF;
+padding: 1.2mm;
+border-radius: 2mm;
+}
+.poster_title code {
+font-size: 1em;
+}
+table {
+font-size: 40px;
+margin: auto;
+border-top: 3px solid #666;
+border-bottom: 3px solid #666;
+}
+table thead th {
+border-bottom: 3px solid #ddd;
+}
+td {
+padding: 8px;
+}
+th {
+padding: 15px;
+}
+caption {
+margin-bottom: 10px;
+}
+.poster_body p {
+margin-right: 4mm;
+margin-left: 4mm;
+margin-top: 6mm;
+margin-bottom: 10mm;
+color: #000000
+}
+.poster_body ol {
+margin-right: 4mm;
+margin-left: 4mm;
+}
+#ul {
+margin-right: 4mm;
+margin-left: 4mm;
+}
+.references p {
+font-size: 20pt;
+}
+.orcid img {
+  width: 1em;
+}
+</style>
+</head>
+<body>
+
+
+<div class="poster_wrap">
+<div class="title_container">
+<!-- Left Logo  -->
+<div class="logo_left">
+<img src=https://raw.githubusercontent.com/vpnsctl/posterdown/master/images/stat_logo.png style="width: 80%">
+</div>
+<!-- Poster Title -->
+<div class= "poster_title">
+<h1 id="title">Numerical approximation and optimal control of fractional diffusion equations on metric graphs</h1>
+<h3 id="author">Lenin Rafael Riera Segura<sup>1</sup>, David Bolin<sup>1</sup>, Alexandre B. Simas<sup>1</sup></h3>
+<h5 id="affiliation"><sup>1</sup> Statistics Program, CEMSE, King Abdullah University of Science and Technology (KAUST), Thuwal, 23955-6900, Kingdom of Saudi Arabia</h5>
+</div>
+<!-- Right Logo  -->
+<div class="logo_right">
+<img src=https://raw.githubusercontent.com/vpnsctl/posterdown/master/images/group_logo2.png style="width: 80%">
+</div>
+</div>
+
+<div class='poster_body_wrap'>
+<div class='poster_body'>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>We analyze and numerically approximate solutions to fractional diffusion equations on metric graphs of the form
+<span class="math display">\[\begin{equation}
+\label{eq:maineqfirstpart}
+\tag{1}
+\left\{
+\begin{aligned}
+    \partial_t u(s,t) + L^{\alpha/2} u(s,t) &amp;= f(s,t), \\
+    u(s,0) &amp;= u_0(s),
+\end{aligned}
+\right.
+\end{equation}\]</span>
+where <span class="math inline">\(L = \kappa^2 \! - \! \Delta_\Gamma\)</span> and <span class="math inline">\(u(\cdot,t)\)</span> satisfies the Kirchhoff vertex conditions
+<span class="math display">\[\begin{equation}
+\label{eq:Kcondfirstpart}
+\tag{2}
+   \textstyle\mathcal{K} =  \left\{\phi\in C(\Gamma)\;\middle|\; \forall v\in \mathcal{V}:\;  \sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}.
+\end{equation}\]</span>
+Here <span class="math inline">\(\Gamma = (\mathcal{V},\mathcal{E})\)</span> is a compact metric graph, <span class="math inline">\(\kappa&gt;0\)</span>, <span class="math inline">\(\alpha\in(0,2]\)</span> determines the smoothness of <span class="math inline">\(u(\cdot,t)\)</span>, <span class="math inline">\(\Delta_{\Gamma}\)</span> is the so-called Kirchhoff–Laplacian. The fractional operator <span class="math inline">\(L^{\alpha/2} : D(L^{\alpha/2}) \longmapsto L_2(\Gamma)\)</span> is defined via
+<span class="math display">\[\begin{equation}
+\label{lfractional}
+\textstyle
+         \phi \longmapsto L^{\alpha/2}\phi = \sum_{j\in\mathbb{N}}\lambda_j^{\alpha/2}(\phi, e_j)_{L_2(\Gamma)}e_j,
+\end{equation}\]</span>
+and <span class="math inline">\(-L^{\alpha/2}\)</span> generates <span class="math inline">\(T(t)\phi = \sum_{j\in\mathbb{N}}e^{-\lambda^{\alpha/2}_jt}\left(\phi, e_j\right)_{L_2(\Gamma)}e_j\)</span>.</p>
+<p>We interpret <span class="math inline">\(\eqref{eq:maineqfirstpart}\)</span> as an abstract Cauchy problem in <span class="math inline">\(L_2(\Gamma)\)</span>, given by
+<span class="math display">\[\begin{equation}
+\label{eq:cauchyproblem}
+\tag{3}
+    \begin{cases}
+    \partial_tu(t)+L^{\alpha/2}u(t)=f(t),\quad t\in (0, T),\\  
+    u(0)=u_0\in D(L^{\alpha/2}).
+\end{cases}
+\end{equation}\]</span></p>
+<p><strong>Theorem 1</strong>. If <span class="math inline">\(f\in L_2((0,T);L_2(\Gamma))\)</span> and <span class="math inline">\(u_0\in \dot{H}^{\alpha}(\Gamma)\)</span>, then <span class="math inline">\(\eqref{eq:cauchyproblem}\)</span> has a unique mild solution given by the variation of parameters formula
+<span class="math display">\[\begin{equation}
+    \label{eq:mildsolution}
+    u(t) = T(t)u_0 + \int_0^t T(t-r)f(r)dr,\quad t\geq 0.
+\end{equation}\]</span></p>
+</div>
+<div id="numerical-approximation" class="section level1">
+<h1>Numerical Approximation</h1>
+<p>Let <span class="math inline">\(\kappa=1\)</span>. For all <span class="math inline">\(\phi\in V_h\)</span> and <span class="math inline">\(k=0,\dots, N-1\)</span>, the discrete scheme computes <span class="math inline">\(U_h^{\tau}\subset V_h\)</span>, which solves
+<span class="math display">\[\begin{equation}
+\label{system:fully_discrete_scheme}
+\tag{4}
+    \left\{
+\begin{aligned}
+    \langle\delta U_h^{k+1},\phi\rangle + \mathfrak{a}(
+        U_h^{k+1},\phi) &amp;= \langle f^{k+1},\phi\rangle, \\
+    U^0_h &amp;= P_hu_0,
+\end{aligned}
+\right.
+\end{equation}\]</span></p>
+<p>The corresponding strong form of <span class="math inline">\(\eqref{system:fully_discrete_scheme}\)</span> is given by
+<span class="math display">\[\begin{align}
+\label{weak_form_m1}
+\tag{5}
+       \textstyle (I_{V_h}+\tau L_h^{\alpha/2})U_h^{k+1} = U_h^{k}+\tau f^{k+1}.
+\end{align}\]</span>
+By applying <span class="math inline">\(L_h^{-\alpha/2}\)</span> to <span class="math inline">\(\eqref{weak_form_m1}\)</span>, replacing <span class="math inline">\(L_h^{-\alpha/2}\)</span> with the rational approximation <span class="math inline">\(r_m(L_h^{-1})\)</span> <span class="math inline">\(=\)</span> <span class="math inline">\(p_\ell(L_h)^{-1}p_r(L_h)\)</span>, and using the partial-fraction expansion <span class="math inline">\(p_r(x)/(p_r(x)+\tau p_\ell(x))\)</span> <span class="math inline">\(=\)</span> <span class="math inline">\(\sum_{k=1}^{m+1}a_k(x-p_k)^{-1}\)</span>, we obtain
+<!-- \begin{align} -->
+<!-- \tag{3} -->
+<!-- \label{weak_form_m21} -->
+<!--         (r_m(L_h^{-1})+\tau I_{V_h})U_{h,m}^{k+1}=r_m(L_h^{-1})(U_{h,m}^{k}+\tau f^{k+1}). -->
+<!-- \end{align} -->
+<span class="math display">\[\begin{align}
+\tag{6}
+\label{weak_form_m4}
+\textstyle
+U_{h,m}^{k+1}= \left(\sum_{k=1}^{m+1}a_k(L_h-p_kI_{V_h})^{-1}\right) (U_{h,m}^{k}+\tau f^{k+1}),
+\end{align}\]</span>
+or in matrix form,
+<span class="math display">\[\begin{align}
+\label{thenumericalscheme}
+\textstyle\mathbf{U}_{k+1} = \mathbf{R}(\mathbf{C}\mathbf{U}_k+\tau \mathbf{F}_{k+1}),\quad \mathbf{R} = \sum_{k=1}^{m+1} a_k\left(\mathbf{L}-p_k\mathbf{C}\right)^{-1}.
+\end{align}\]</span></p>
+<p><strong>Theorem 2</strong>. Let <span class="math inline">\(u\)</span> be the solution to <span class="math inline">\(\eqref{eq:maineqfirstpart}\)</span> and <span class="math inline">\(U^{\tau}_{h,m}\subset V_h\)</span> solve the weak form of <span class="math inline">\(\eqref{weak_form_m4}\)</span>. If <span class="math inline">\(f\in L_\infty((0,T);L_2(\Gamma))\)</span> and <span class="math inline">\(u_0\in\dot{H}^{\alpha}(\Gamma)\)</span>, then</p>
+<div class="custom-box">
+<p><span class="math display">\[\begin{align}
+    \label{finalfinalestfirstpart}
+        {\left\|u-U_{h,m}^\tau\right\|}_{L_2(\Gamma\times(0,T))}\lesssim\tau+h^\alpha +  h^{\alpha-2}e^{-2\pi\sqrt{(1-\alpha/2)m}}.
+\end{align}\]</span></p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-1"></span>
+<img src="data_files/p_all.png" alt="Comparison between theoretical and observed convergence behavior for the error $\|u- U_{h,m}^\tau\|_{L_2(\Gamma\times(0,T))}$ with respect to $h$, $\tau$, and $m$, where $\Gamma$ is the tadpole graph. The left and center plots display the convergence rates in $h$ and $\tau$, respectively, on a $\text{log}_{10}$–$\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case." width="100%" />
+<p class="caption">
+Figure 1: Comparison between theoretical and observed convergence behavior for the error <span class="math inline">\(\|u- U_{h,m}^\tau\|_{L_2(\Gamma\times(0,T))}\)</span> with respect to <span class="math inline">\(h\)</span>, <span class="math inline">\(\tau\)</span>, and <span class="math inline">\(m\)</span>, where <span class="math inline">\(\Gamma\)</span> is the tadpole graph. The left and center plots display the convergence rates in <span class="math inline">\(h\)</span> and <span class="math inline">\(\tau\)</span>, respectively, on a <span class="math inline">\(\text{log}_{10}\)</span>–<span class="math inline">\(\text{log}_{10}\)</span> scale, while the right plot shows the exponential decay in <span class="math inline">\(m\)</span> on a semi-<span class="math inline">\(\text{log}_{e}\)</span> scale, with <span class="math inline">\(m\)</span> plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of <span class="math inline">\(\alpha\)</span> along with the corresponding theoretical (‘theo’), and observed (‘obs’) rates for each case.
+</p>
+</div>
+</div>
+<div id="optimal-control-problem" class="section level1">
+<h1>Optimal Control Problem</h1>
+<p>Let <span class="math inline">\(u_d\)</span> be the desired state, <span class="math inline">\(z\)</span> denote the control variable, and <span class="math inline">\(\mu&gt;0\)</span> a regularization parameter. We are concerned with the following PDE-constrained optimization problem: Find
+<span class="math display">\[\begin{equation}
+\label{eq:min_pro}
+\tag{7}
+    \min\; J(u, z)=  \frac{1}{2} \int_0^T\left(\left\|u-u_d\right\|_{L_2(\Gamma)}^2+\mu\|z\|_{L_2(\Gamma)}^2\right) dt
+\end{equation}\]</span>
+subject to the fractional diffusion equation <span class="math inline">\(\eqref{eq:maineqfirstpart}\)</span> with right-hand side <span class="math inline">\(f+z\)</span>,
+<!-- \begin{equation} -->
+<!-- \tag{8} -->
+<!-- \label{eq:maineq} -->
+<!-- \left\{ -->
+<!-- \begin{aligned} -->
+<!--     \partial_t u(s,t) + (\kappa^2 \! - \! \Delta_\Gamma)^{\alpha/2} u(s,t) &= f(s,t)+z(s,t), \\ -->
+<!--     u(s,0) &= u_0(s), -->
+<!-- \end{aligned} -->
+<!-- \right. -->
+<!-- \end{equation} -->
+where <span class="math inline">\(u\)</span> satisfies the Kirchhoff vertex conditions <span class="math inline">\(\eqref{eq:Kcondfirstpart}\)</span>, and <span class="math inline">\(z\)</span> satisfies the control constraints
+<span class="math display">\[\begin{align}
+\tag{9}
+\label{control_constraints}
+    a(s,t)\leq z(s,t)\leq b(s,t)\;\mathrm{a.e.}\;(s,t)\in\Gamma \times(0, T).
+\end{align}\]</span>
+Associated to <span class="math inline">\(u = u(z)\)</span>, the adjoint state <span class="math inline">\(p=p(z)\)</span> solves
+<span class="math display">\[\begin{equation}
+\tag{10}
+\label{eq:adjointeq}
+\left\{
+\begin{aligned}
+    \!-\partial_t p(s,t)\! + \! (\kappa^2 \! - \! \Delta_\Gamma)^{\alpha/2} p(s,t) &amp;= \! u(s,t) \! - \! u_d(s,t),\\
+    p(s,T) &amp;= \! 0.
+\end{aligned}
+\right.
+\end{equation}\]</span></p>
+<p>The optimal control variable <span class="math inline">\(\bar{z}\)</span> is related to the optimal adjoint state <span class="math inline">\(\bar{p}\)</span> via the projection formula
+<span class="math display">\[\begin{align}
+\tag{11}
+\label{proj_formula}
+    \bar{z}  = \min\left\{b ,\max\left\{a ,-\bar{p}/\mu \right\}\right\}.
+\end{align}\]</span></p>
+<p><strong>Theorem 3</strong>. Let <span class="math inline">\(\bar{z}\)</span> be the optimal control of problem <span class="math inline">\(\eqref{eq:min_pro}\)</span>-<span class="math inline">\(\eqref{control_constraints}\)</span> and <span class="math inline">\(\bar{Z}_{h,m}^\tau\)</span> be the optimal discrete control. If <span class="math inline">\(f,u_d\in L_\infty((0,T);L_2(\Gamma))\)</span> and <span class="math inline">\(u_0\in\dot{H}^{\alpha}(\Gamma)\)</span>, then</p>
+<div class="custom-box">
+<p><span class="math display">\[\begin{align}
+  {\left\|\bar{z}- \bar{Z}_{h,m}^\tau\right\|}_{L_2(\Gamma\times(0,T))}\lesssim \tau+h^\alpha+ h^{\alpha-2}e^{-2\pi\sqrt{(1-\alpha/2)m}}.
+\end{align}\]</span></p>
+</div>
+</div>
+<div id="fbsm-algorithm" class="section level1">
+<h1>FBSM Algorithm</h1>
+<p>At a high level, FBSM follows these steps.</p>
+<ol style="list-style-type: lower-alpha">
+<li><em>Initialization:</em> Choose an initial approximation for <span class="math inline">\(\bar{z}\)</span>.</li>
+<li><em>State solve:</em> Using <span class="math inline">\(\bar{z}\)</span>, solve <span class="math inline">\(\eqref{eq:maineqfirstpart}\)</span> with RHS <span class="math inline">\(f+\bar{z}\)</span> to obtain <span class="math inline">\(\bar{u}\)</span>.</li>
+<li><em>Adjoint solve:</em> Using <span class="math inline">\(\bar{u}\)</span>, solve <span class="math inline">\(\eqref{eq:adjointeq}\)</span> to obtain <span class="math inline">\(\bar{p}\)</span>.</li>
+<li><em>Control update:</em> Update <span class="math inline">\(\bar{z}\)</span> via the projection formula <span class="math inline">\(\eqref{proj_formula}\)</span>.</li>
+<li><em>Iteration:</em> Repeat steps b - d until convergence.</li>
+</ol>
+<p>The fully discrete and vectorized form is given by
+<!-- \begin{align} -->
+<!-- \label{iterationvectorizedversion} -->
+<!-- \begin{cases} -->
+<!--      (1) \text{ Initialize } \mathbf{\bar{z}},\\ -->
+<!--     (2) \text{ Compute }\mathbf{\bar{u}} = \mathbf{h} + \mathbf{S}_{\mathrm{F}}\mathbf{\hat{R}}(\mathbf{f}+\mathbf{M}\mathbf{\bar{z}}),\\ -->
+<!--     (3) \text{ Compute }\mathbf{\bar{p}}  = \mathbf{S}_{\mathrm{B}}\mathbf{\hat{R}}(\mathbf{M}\mathbf{\bar{u}} - \mathbf{d}),\\ -->
+<!--     (4)\text{ Update }\mathbf{\bar{z}}  = \max\{\mathbf{a}, \min\{\mathbf{b}, -\mathbf{\bar{p}}/\mu\}\},\\ -->
+<!--     (5)\text{ Repeat }(2) - (4) \text{ until convergence}. -->
+<!--      \end{cases} -->
+<!-- \end{align} --></p>
+<ol style="list-style-type: decimal">
+<li>Initialize <span class="math inline">\(\mathbf{\bar{z}}\)</span>,</li>
+<li>Compute <span class="math inline">\(\mathbf{\bar{u}} = \mathbf{h} + \mathbf{S}_{\mathrm{F}}\mathbf{\hat{R}}(\mathbf{f}+\mathbf{M}\mathbf{\bar{z}})\)</span>,</li>
+<li>Compute <span class="math inline">\(\mathbf{\bar{p}}  = \mathbf{S}_{\mathrm{B}}\mathbf{\hat{R}}(\mathbf{M}\mathbf{\bar{u}} - \mathbf{d})\)</span>,</li>
+<li>Update <span class="math inline">\(\mathbf{\bar{z}}  = \max\{\mathbf{a}, \min\{\mathbf{b}, -\mathbf{\bar{p}}/\mu\}\}\)</span>,</li>
+<li>Repeat 2 - 4 until convergence.</li>
+</ol>
+<p>Let <span class="math inline">\(\Pi(\mathbf{x}) := \max\{\mathbf{a}, \min\{\mathbf{b}, -\mathbf{x}/\mu\}\}\)</span>. Then the control update can be expressed as
+<span class="math display">\[\begin{align*}
+    \mathbf{\bar{z}}  = \underbrace{\Pi(\mathbf{S}_{\mathrm{B}}\mathbf{\hat{R}}(\mathbf{M}(\mathbf{h} + \mathbf{S}_{\mathrm{F}}\mathbf{\hat{R}}(\mathbf{f}+\mathbf{M}\mathbf{\bar{z}})) - \mathbf{d}))}_{\mathfrak{T}(\mathbf{\bar{z}})},
+\end{align*}\]</span>
+which leads to the fixed-point formulation <span class="math inline">\(\mathbf{\bar{z}}^{(n+1)}  = \mathfrak{T}(\mathbf{\bar{z}}^{(n)})\)</span>.</p>
+<p><strong>Proposition 1</strong>. If <span class="math inline">\(\mu\kappa^{2\alpha}&gt;1\)</span>, then <span class="math inline">\(\mathfrak{T}\)</span> is a contraction and <span class="math inline">\((\mathbf{\bar{z}}^{(n)})_{n\in\mathbb{N}}\)</span> converges to a unique fixed point <span class="math inline">\(\mathbf{\bar{z}}^\star\)</span>, which uniquely determines the optimal state via <span class="math inline">\(\mathbf{\bar{u}}^{\star} = \mathbf{h} + \mathbf{S}_{\mathrm{F}}\mathbf{\hat{R}}(\mathbf{f}+\mathbf{M}\mathbf{\bar{z}}^{\star})\)</span>.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-2"></span>
+<img src="data_files/p_all_z.png" alt="Comparison between theoretical and observed convergence behavior for the error $\|\bar{z}- \bar{Z}_{h,m}^\tau\|_{L_2(\Gamma\times(0,T))}$ with respect to $h$, $\tau$, and $m$." width="100%" />
+<p class="caption">
+Figure 2: Comparison between theoretical and observed convergence behavior for the error <span class="math inline">\(\|\bar{z}- \bar{Z}_{h,m}^\tau\|_{L_2(\Gamma\times(0,T))}\)</span> with respect to <span class="math inline">\(h\)</span>, <span class="math inline">\(\tau\)</span>, and <span class="math inline">\(m\)</span>.
+</p>
+</div>
+</div>
+<div id="more-information" class="section level1">
+<h1>More Information</h1>
+<p><img src="PosterLeninStatWorkshop2025_files/figure-html/unnamed-chunk-3-1.png" width="20%" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+var script = document.createElement("script");
+script.type = "text/javascript";
+var src = "true";
+if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+if (location.protocol !== "file:" && /^https?:/.test(src))
+src = src.replace(/^https?:/, '');
+script.src = src;
+document.getElementsByTagName("head")[0].appendChild(script);
+})();
+</script>
+
+
+</body>
+</html>

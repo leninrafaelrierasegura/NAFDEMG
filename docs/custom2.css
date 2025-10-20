@@ -1,0 +1,13 @@
+.logo_right {
+        position: relative;
+        top: 5px; /* Adjust this value as needed */
+      }
+      
+.custom-box {
+  background-color: #f5f7fa; /* Light grey-blue background */
+  border-color: #e1e8ed; /* Light border color */
+  color: #2c3e50; /* Dark text color */
+  padding: 1px; /* Padding inside the box */
+  border-radius: 5px; /* Rounded corners */
+  margin-bottom: 0px; /* Spacing below the box */
+}
