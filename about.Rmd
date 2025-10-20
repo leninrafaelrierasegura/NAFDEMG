@@ -212,6 +212,15 @@ capture.output(
   file = here::here("purl_log.txt")
 )
 ```
+    
       
-      
+```{r echo=FALSE, message = FALSE, warning = FALSE}
+capture.output(
+  rmarkdown::render(
+  input = "Presentation.Rmd",
+  output_file = "docs/Presentation.html"
+),
+  file = here::here("purl_log.txt")
+)
+```
       

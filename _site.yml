@@ -34,7 +34,9 @@ navbar:
         - text: "Convergence in 𝑚"
           href: control_conv_m_with_iteration.html
     - text: "Poster"
-      href: PosterLeninStatWorkshop2025.html        
+      href: PosterLeninStatWorkshop2025.html
+    - text: "Presentation"
+      href: Presentation.html
   right:
     - icon: fa-file-pdf
       href: https://arxiv.org/abs/0000.00000
@@ -49,3 +51,5 @@ output:
 exclude:
   - PosterLeninStatWorkshop2025.Rmd
   - PosterLeninStatWorkshop2025.html
+  - Presentation.Rmd
+  - Presentation.html

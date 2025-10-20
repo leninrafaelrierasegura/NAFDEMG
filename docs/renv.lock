@@ -76,6 +76,30 @@
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
     },
+    "Deriv": {
+      "Package": "Deriv",
+      "Version": "4.2.0",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Symbolic Differentiation",
+      "Date": "2025-06-20",
+      "Authors@R": "c(person(given=\"Andrew\", family=\"Clausen\", role=\"aut\"), person(given=\"Serguei\", family=\"Sokol\", role=c(\"aut\", \"cre\"), email=\"sokol@insa-toulouse.fr\", comment = c(ORCID = \"0000-0002-5674-3327\")), person(given=\"Andreas\", family=\"Rappold\", role=\"ctb\", email=\"arappold@gmx.at\"))",
+      "Description": "R-based solution for symbolic differentiation. It admits user-defined function as well as function substitution in arguments of functions to be differentiated. Some symbolic simplification is part of the work.",
+      "License": "GPL (>= 3)",
+      "Suggests": [
+        "testthat (>= 0.11.0)"
+      ],
+      "BugReports": "https://github.com/sgsokol/Deriv/issues",
+      "RoxygenNote": "7.3.1",
+      "Imports": [
+        "methods"
+      ],
+      "Encoding": "UTF-8",
+      "NeedsCompilation": "no",
+      "Author": "Andrew Clausen [aut], Serguei Sokol [aut, cre] (ORCID: <https://orcid.org/0000-0002-5674-3327>), Andreas Rappold [ctb]",
+      "Maintainer": "Serguei Sokol <sokol@insa-toulouse.fr>",
+      "Repository": "CRAN"
+    },
     "KernSmooth": {
       "Package": "KernSmooth",
       "Version": "2.23-26",
@@ -419,6 +443,44 @@
       "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
       "Repository": "CRAN"
     },
+    "RefManageR": {
+      "Package": "RefManageR",
+      "Version": "1.4.0",
+      "Source": "Repository",
+      "Title": "Straightforward 'BibTeX' and 'BibLaTeX' Bibliography Management",
+      "Authors@R": "person(c(\"Mathew\", \"W.\"), \"McLean\", role = c(\"aut\", \"cre\"), email = \"mathew.w.mclean@gmail.com\", comment = c(ORCID = \"0000-0002-7891-9645\"))",
+      "Maintainer": "Mathew W. McLean <mathew.w.mclean@gmail.com>",
+      "Description": "Provides tools for importing and working with bibliographic references. It greatly enhances the 'bibentry' class by providing a class 'BibEntry' which stores 'BibTeX' and 'BibLaTeX' references, supports 'UTF-8' encoding, and can be easily searched by any field, by date ranges, and by various formats for name lists (author by last names, translator by full names, etc.). Entries can be updated, combined, sorted, printed in a number of styles, and exported. 'BibTeX' and 'BibLaTeX' '.bib' files can be read into 'R' and converted to 'BibEntry' objects. Interfaces to 'NCBI Entrez', 'CrossRef', and 'Zotero' are provided for importing references and references can be created from locally stored 'PDF' files using 'Poppler'. Includes functions for citing and generating a bibliography with hyperlinks for documents prepared with 'RMarkdown' or 'RHTML'.",
+      "License": "GPL-2 | GPL-3 | BSD_3_clause + file LICENSE",
+      "Imports": [
+        "xml2",
+        "jsonlite",
+        "utils",
+        "plyr",
+        "tools",
+        "httr",
+        "lubridate (>= 1.5.0)",
+        "stringr",
+        "methods",
+        "bibtex (>= 0.4.1)"
+      ],
+      "Suggests": [
+        "knitr",
+        "markdown",
+        "testthat"
+      ],
+      "Encoding": "UTF-8",
+      "Depends": [
+        "R (>= 3.0)"
+      ],
+      "VignetteBuilder": "knitr",
+      "BugReports": "https://github.com/ropensci/RefManageR/issues",
+      "URL": "https://github.com/ropensci/RefManageR/",
+      "RoxygenNote": "7.2.1",
+      "NeedsCompilation": "no",
+      "Author": "Mathew W. McLean [aut, cre] (<https://orcid.org/0000-0002-7891-9645>)",
+      "Repository": "CRAN"
+    },
     "askpass": {
       "Package": "askpass",
       "Version": "1.2.1",
@@ -505,6 +567,35 @@
       "License": "GPL-2 | GPL-3",
       "URL": "http://www.rforge.net/base64enc",
       "NeedsCompilation": "yes",
+      "Repository": "CRAN"
+    },
+    "bibtex": {
+      "Package": "bibtex",
+      "Version": "0.5.1",
+      "Source": "Repository",
+      "Title": "Bibtex Parser",
+      "Authors@R": "c( person(given = \"Romain\",  family = \"Francois\",  role = c(\"aut\", \"cph\"),  email = \"romain@purrple.cat\", comment = c(ORCID = \"0000-0002-2444-4226\", \"principal developer of bibtex R package\")), person(given = c(\"James\", \"Joseph\"), family = \"Balamuta\", role = c(\"ctb\", \"cre\"), email = \"balamut2@illinois.edu\", comment = c(ORCID = \"0000-0003-2826-8458\")), person(given = \"Diego\",  family = \"Hernangómez\",  role = c(\"aut\"),  email = \"diego.hernangomezherrero@gmail.com\", comment = c(ORCID = \"0000-0001-8457-4658\")), person(given = \"Scott\", family = \"Chamberlain\", role = c(\"ctb\"), email = \"myrmecocystus@gmail.com\", comment = c(ORCID = \"0000-0003-1444-9135\")), person(given = \"Kurt\",  family = \"Hornik\",  role = \"ctb\",  email = \"Kurt.Hornik@R-project.org\", comment = c(ORCID = \"0000-0003-4198-9911\")), person(given = \"Brian\", family = \"Ripley\",  role = \"ctb\",  email = \"ripley@stats.ox.ac.uk\", comment = \"compilation fixes\"), person(given = \"Michael\", family = \"Koohafkan\", role = \"ctb\",  email = \"michael.koohafkan@gmail.com\"),  person(given = c(\"Mathew\", \"W.\"),  family = \"McLean\", role = \"ctb\",  email = \"mathew.w.mclean@gmail.com\", comment = c(ORCID = \"0000-0002-7891-9645\") ) )",
+      "Description": "Utility to parse a bibtex file.",
+      "BugReports": "https://github.com/ropensci/bibtex/issues",
+      "URL": "https://github.com/ropensci/bibtex, https://docs.ropensci.org/bibtex/",
+      "License": "GPL (>= 2)",
+      "Depends": [
+        "R (>= 3.0.2)"
+      ],
+      "Imports": [
+        "backports (>= 1.4.0)",
+        "utils"
+      ],
+      "Suggests": [
+        "testthat (>= 3.0.0)"
+      ],
+      "LazyLoad": "yes",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.2.3",
+      "Config/testthat/edition": "3",
+      "NeedsCompilation": "no",
+      "Author": "Romain Francois [aut, cph] (<https://orcid.org/0000-0002-2444-4226>, principal developer of bibtex R package), James Joseph Balamuta [ctb, cre] (<https://orcid.org/0000-0003-2826-8458>), Diego Hernangómez [aut] (<https://orcid.org/0000-0001-8457-4658>), Scott Chamberlain [ctb] (<https://orcid.org/0000-0003-1444-9135>), Kurt Hornik [ctb] (<https://orcid.org/0000-0003-4198-9911>), Brian Ripley [ctb] (compilation fixes), Michael Koohafkan [ctb], Mathew W. McLean [ctb] (<https://orcid.org/0000-0002-7891-9645>)",
+      "Maintainer": "James Joseph Balamuta <balamut2@illinois.edu>",
       "Repository": "CRAN"
     },
     "bookdown": {
@@ -875,6 +966,60 @@
       "NeedsCompilation": "yes",
       "Author": "Gábor Csárdi [aut, cre], Hadley Wickham [ctb], Kirill Müller [ctb], Salim Brüggemann [ctb] (<https://orcid.org/0000-0002-5329-5987>), Posit Software, PBC [cph, fnd]",
       "Maintainer": "Gábor Csárdi <gabor@posit.co>",
+      "Repository": "CRAN"
+    },
+    "colorspace": {
+      "Package": "colorspace",
+      "Version": "2.1-2",
+      "Source": "Repository",
+      "Date": "2025-09-22",
+      "Title": "A Toolbox for Manipulating and Assessing Colors and Palettes",
+      "Authors@R": "c(person(given = \"Ross\", family = \"Ihaka\", role = \"aut\", email = \"ihaka@stat.auckland.ac.nz\"), person(given = \"Paul\", family = \"Murrell\", role = \"aut\", email = \"paul@stat.auckland.ac.nz\", comment = c(ORCID = \"0000-0002-3224-8858\")), person(given = \"Kurt\", family = \"Hornik\", role = \"aut\", email = \"Kurt.Hornik@R-project.org\", comment = c(ORCID = \"0000-0003-4198-9911\")), person(given = c(\"Jason\", \"C.\"), family = \"Fisher\", role = \"aut\", email = \"jfisher@usgs.gov\", comment = c(ORCID = \"0000-0001-9032-8912\")), person(given = \"Reto\", family = \"Stauffer\", role = \"aut\", email = \"Reto.Stauffer@uibk.ac.at\", comment = c(ORCID = \"0000-0002-3798-5507\")), person(given = c(\"Claus\", \"O.\"), family = \"Wilke\", role = \"aut\", email = \"wilke@austin.utexas.edu\", comment = c(ORCID = \"0000-0002-7470-9261\")), person(given = c(\"Claire\", \"D.\"), family = \"McWhite\", role = \"aut\", email = \"claire.mcwhite@utmail.utexas.edu\", comment = c(ORCID = \"0000-0001-7346-3047\")), person(given = \"Achim\", family = \"Zeileis\", role = c(\"aut\", \"cre\"), email = \"Achim.Zeileis@R-project.org\", comment = c(ORCID = \"0000-0003-0918-3766\")))",
+      "Description": "Carries out mapping between assorted color spaces including RGB, HSV, HLS, CIEXYZ, CIELUV, HCL (polar CIELUV), CIELAB, and polar CIELAB. Qualitative, sequential, and diverging color palettes based on HCL colors are provided along with corresponding ggplot2 color scales. Color palette choice is aided by an interactive app (with either a Tcl/Tk or a shiny graphical user interface) and shiny apps with an HCL color picker and a color vision deficiency emulator. Plotting functions for displaying and assessing palettes include color swatches, visualizations of the HCL space, and trajectories in HCL and/or RGB spectrum. Color manipulation functions include: desaturation, lightening/darkening, mixing, and simulation of color vision deficiencies (deutanomaly, protanomaly, tritanomaly). Details can be found on the project web page at <https://colorspace.R-Forge.R-project.org/> and in the accompanying scientific paper: Zeileis et al. (2020, Journal of Statistical Software, <doi:10.18637/jss.v096.i01>).",
+      "Depends": [
+        "R (>= 3.0.0)",
+        "methods"
+      ],
+      "Imports": [
+        "graphics",
+        "grDevices",
+        "stats"
+      ],
+      "Suggests": [
+        "datasets",
+        "utils",
+        "KernSmooth",
+        "MASS",
+        "kernlab",
+        "mvtnorm",
+        "vcd",
+        "tcltk",
+        "shiny",
+        "shinyjs",
+        "ggplot2",
+        "dplyr",
+        "scales",
+        "grid",
+        "png",
+        "jpeg",
+        "knitr",
+        "rmarkdown",
+        "RColorBrewer",
+        "rcartocolor",
+        "scico",
+        "viridis",
+        "wesanderson"
+      ],
+      "VignetteBuilder": "knitr",
+      "License": "BSD_3_clause + file LICENSE",
+      "URL": "https://colorspace.R-Forge.R-project.org/, https://hclwizard.org/",
+      "BugReports": "https://colorspace.R-Forge.R-project.org/contact.html",
+      "LazyData": "yes",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.2",
+      "NeedsCompilation": "yes",
+      "Author": "Ross Ihaka [aut], Paul Murrell [aut] (ORCID: <https://orcid.org/0000-0002-3224-8858>), Kurt Hornik [aut] (ORCID: <https://orcid.org/0000-0003-4198-9911>), Jason C. Fisher [aut] (ORCID: <https://orcid.org/0000-0001-9032-8912>), Reto Stauffer [aut] (ORCID: <https://orcid.org/0000-0002-3798-5507>), Claus O. Wilke [aut] (ORCID: <https://orcid.org/0000-0002-7470-9261>), Claire D. McWhite [aut] (ORCID: <https://orcid.org/0000-0001-7346-3047>), Achim Zeileis [aut, cre] (ORCID: <https://orcid.org/0000-0003-0918-3766>)",
+      "Maintainer": "Achim Zeileis <Achim.Zeileis@R-project.org>",
       "Repository": "CRAN"
     },
     "cpp11": {
@@ -2279,6 +2424,52 @@
       "Maintainer": "Lionel Henry <lionel@posit.co>",
       "Repository": "CRAN"
     },
+    "lubridate": {
+      "Package": "lubridate",
+      "Version": "1.9.4",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Make Dealing with Dates a Little Easier",
+      "Authors@R": "c( person(\"Vitalie\", \"Spinu\", , \"spinuvit@gmail.com\", role = c(\"aut\", \"cre\")), person(\"Garrett\", \"Grolemund\", role = \"aut\"), person(\"Hadley\", \"Wickham\", role = \"aut\"), person(\"Davis\", \"Vaughan\", role = \"ctb\"), person(\"Ian\", \"Lyttle\", role = \"ctb\"), person(\"Imanuel\", \"Costigan\", role = \"ctb\"), person(\"Jason\", \"Law\", role = \"ctb\"), person(\"Doug\", \"Mitarotonda\", role = \"ctb\"), person(\"Joseph\", \"Larmarange\", role = \"ctb\"), person(\"Jonathan\", \"Boiser\", role = \"ctb\"), person(\"Chel Hee\", \"Lee\", role = \"ctb\") )",
+      "Maintainer": "Vitalie Spinu <spinuvit@gmail.com>",
+      "Description": "Functions to work with date-times and time-spans: fast and user friendly parsing of date-time data, extraction and updating of components of a date-time (years, months, days, hours, minutes, and seconds), algebraic manipulation on date-time and time-span objects. The 'lubridate' package has a consistent and memorable syntax that makes working with dates easy and fun.",
+      "License": "GPL (>= 2)",
+      "URL": "https://lubridate.tidyverse.org, https://github.com/tidyverse/lubridate",
+      "BugReports": "https://github.com/tidyverse/lubridate/issues",
+      "Depends": [
+        "methods",
+        "R (>= 3.2)"
+      ],
+      "Imports": [
+        "generics",
+        "timechange (>= 0.3.0)"
+      ],
+      "Suggests": [
+        "covr",
+        "knitr",
+        "rmarkdown",
+        "testthat (>= 2.1.0)",
+        "vctrs (>= 0.6.5)"
+      ],
+      "Enhances": [
+        "chron",
+        "data.table",
+        "timeDate",
+        "tis",
+        "zoo"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/Needs/website": "tidyverse/tidytemplate",
+      "Config/testthat/edition": "3",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "RoxygenNote": "7.2.3",
+      "SystemRequirements": "C++11, A system with zoneinfo data (e.g. /usr/share/zoneinfo). On Windows the zoneinfo included with R is used.",
+      "Collate": "'Dates.r' 'POSIXt.r' 'util.r' 'parse.r' 'timespans.r' 'intervals.r' 'difftimes.r' 'durations.r' 'periods.r' 'accessors-date.R' 'accessors-day.r' 'accessors-dst.r' 'accessors-hour.r' 'accessors-minute.r' 'accessors-month.r' 'accessors-quarter.r' 'accessors-second.r' 'accessors-tz.r' 'accessors-week.r' 'accessors-year.r' 'am-pm.r' 'time-zones.r' 'numeric.r' 'coercion.r' 'constants.r' 'cyclic_encoding.r' 'data.r' 'decimal-dates.r' 'deprecated.r' 'format_ISO8601.r' 'guess.r' 'hidden.r' 'instants.r' 'leap-years.r' 'ops-addition.r' 'ops-compare.r' 'ops-division.r' 'ops-integer-division.r' 'ops-m+.r' 'ops-modulo.r' 'ops-multiplication.r' 'ops-subtraction.r' 'package.r' 'pretty.r' 'round.r' 'stamp.r' 'tzdir.R' 'update.r' 'vctrs.R' 'zzz.R'",
+      "NeedsCompilation": "yes",
+      "Author": "Vitalie Spinu [aut, cre], Garrett Grolemund [aut], Hadley Wickham [aut], Davis Vaughan [ctb], Ian Lyttle [ctb], Imanuel Costigan [ctb], Jason Law [ctb], Doug Mitarotonda [ctb], Joseph Larmarange [ctb], Jonathan Boiser [ctb], Chel Hee Lee [ctb]",
+      "Repository": "CRAN"
+    },
     "magrittr": {
       "Package": "magrittr",
       "Version": "2.0.4",
@@ -2392,6 +2583,38 @@
       "NeedsCompilation": "yes",
       "Author": "Yihui Xie [aut, cre] (<https://orcid.org/0000-0003-0645-5666>, https://yihui.org), Jeffrey Horner [ctb], Beilei Bian [ctb]",
       "Maintainer": "Yihui Xie <xie@yihui.name>",
+      "Repository": "CRAN"
+    },
+    "neuralnet": {
+      "Package": "neuralnet",
+      "Version": "1.44.2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Training of Neural Networks",
+      "Date": "2019-02-07",
+      "Authors@R": "c( person(given=\"Stefan\", family=\"Fritsch\", role=\"aut\"),  person(given=\"Frauke\", family=\"Guenther\", role=c(\"aut\")), person(given=\"Marvin N.\", family=\"Wright\", role=c(\"aut\",\"cre\"),email=\"wright@leibniz-bips.de\"), person(given=\"Marc\", family=\"Suling\", role=\"ctb\"),\t person(given=\"Sebastian M.\", family=\"Mueller\", role = \"ctb\"))",
+      "Depends": [
+        "R (>= 2.9.0)"
+      ],
+      "Imports": [
+        "grid",
+        "MASS",
+        "grDevices",
+        "stats",
+        "utils",
+        "Deriv"
+      ],
+      "Description": "Training of neural networks using backpropagation, resilient backpropagation with (Riedmiller, 1994) or without weight backtracking (Riedmiller and Braun, 1993) or the modified globally convergent version by Anastasiadis et al. (2005). The package allows flexible settings through custom-choice of error and activation function. Furthermore, the calculation of generalized weights (Intrator O & Intrator N, 1993) is implemented.",
+      "License": "GPL (>= 2)",
+      "Suggests": [
+        "testthat"
+      ],
+      "URL": "https://github.com/bips-hb/neuralnet",
+      "BugReports": "https://github.com/bips-hb/neuralnet/issues",
+      "RoxygenNote": "6.1.0",
+      "NeedsCompilation": "no",
+      "Author": "Stefan Fritsch [aut], Frauke Guenther [aut], Marvin N. Wright [aut, cre], Marc Suling [ctb], Sebastian M. Mueller [ctb]",
+      "Maintainer": "Marvin N. Wright <wright@leibniz-bips.de>",
       "Repository": "CRAN"
     },
     "nlme": {
@@ -4053,6 +4276,34 @@
       "Maintainer": "Lionel Henry <lionel@posit.co>",
       "Repository": "CRAN"
     },
+    "timechange": {
+      "Package": "timechange",
+      "Version": "0.3.0",
+      "Source": "Repository",
+      "Title": "Efficient Manipulation of Date-Times",
+      "Authors@R": "c(person(\"Vitalie\", \"Spinu\", email = \"spinuvit@gmail.com\", role = c(\"aut\", \"cre\")), person(\"Google Inc.\", role = c(\"ctb\", \"cph\")))",
+      "Description": "Efficient routines for manipulation of date-time objects while accounting for time-zones and daylight saving times. The package includes utilities for updating of date-time components (year, month, day etc.), modification of time-zones, rounding of date-times, period addition and subtraction etc. Parts of the 'CCTZ' source code, released under the Apache 2.0 License, are included in this package. See <https://github.com/google/cctz> for more details.",
+      "Depends": [
+        "R (>= 3.3)"
+      ],
+      "License": "GPL (>= 3)",
+      "Encoding": "UTF-8",
+      "LinkingTo": [
+        "cpp11 (>= 0.2.7)"
+      ],
+      "Suggests": [
+        "testthat (>= 0.7.1.99)",
+        "knitr"
+      ],
+      "SystemRequirements": "A system with zoneinfo data (e.g. /usr/share/zoneinfo) as well as a recent-enough C++11 compiler (such as g++-4.8 or later). On Windows the zoneinfo included with R is used.",
+      "BugReports": "https://github.com/vspinu/timechange/issues",
+      "URL": "https://github.com/vspinu/timechange/",
+      "RoxygenNote": "7.2.1",
+      "NeedsCompilation": "yes",
+      "Author": "Vitalie Spinu [aut, cre], Google Inc. [ctb, cph]",
+      "Maintainer": "Vitalie Spinu <spinuvit@gmail.com>",
+      "Repository": "CRAN"
+    },
     "tinytex": {
       "Package": "tinytex",
       "Version": "0.57",
@@ -4280,6 +4531,25 @@
       "Maintainer": "Winston Chang <winston@posit.co>",
       "Repository": "CRAN"
     },
+    "whisker": {
+      "Package": "whisker",
+      "Version": "0.4.1",
+      "Source": "Repository",
+      "Maintainer": "Edwin de Jonge <edwindjonge@gmail.com>",
+      "License": "GPL-3",
+      "Title": "{{mustache}} for R, Logicless Templating",
+      "Type": "Package",
+      "LazyLoad": "yes",
+      "Author": "Edwin de Jonge",
+      "Description": "Implements 'Mustache' logicless templating.",
+      "URL": "https://github.com/edwindj/whisker",
+      "Suggests": [
+        "markdown"
+      ],
+      "RoxygenNote": "6.1.1",
+      "NeedsCompilation": "no",
+      "Repository": "CRAN"
+    },
     "withr": {
       "Package": "withr",
       "Version": "3.0.2",
@@ -4347,6 +4617,40 @@
       "Author": "Dewey Dunnington [aut, cre] (<https://orcid.org/0000-0002-9415-4582>), Edzer Pebesma [aut] (<https://orcid.org/0000-0001-8049-7069>), Anthony North [ctb]",
       "Repository": "CRAN"
     },
+    "xaringan": {
+      "Package": "xaringan",
+      "Version": "0.31",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Presentation Ninja",
+      "Authors@R": "c( person(\"Yihui\", \"Xie\", role = c(\"aut\", \"cre\"), email = \"xie@yihui.name\", comment = c(ORCID = \"0000-0003-0645-5666\", URL = \"https://yihui.org\")), person(given = \"Posit Software, PBC\", role = c(\"cph\", \"fnd\")), # contributors ordered alphabetically below person(\"Alessandro\", \"Gasparini\", role = \"ctb\", comment = c(ORCID = \"0000-0002-8319-7624\")), person(\"Benjie\", \"Gillam\", role = \"ctb\"), person(\"Claus Thorn\", \"Ekstrøm\", role = \"ctb\"), person(\"Daniel\", \"Anderson\", role = \"ctb\"), person(\"Dawei\", \"Lang\", role = \"ctb\"), person(\"Deo\", \"Salil\", role = \"ctb\"), person(\"Emi\", \"Tanaka\", role = \"ctb\"), person(\"Garrick\", \"Aden-Buie\", role = \"ctb\", comment = c(ORCID = \"0000-0002-7111-0077\")), person(\"Iñaki\", \"Ucar\", role = \"ctb\", comment = c(ORCID = \"0000-0001-6403-5550\")), person(\"John\", \"Little\", role = \"ctb\"), person(\"Joselyn\", \"Chávez\", role = \"ctb\", comment = c(ORCID = \"0000-0002-4974-4591\")), person(\"Joseph\", \"Casillas\", role = \"ctb\"), person(\"JooYoung\", \"Seo\", role = \"ctb\", comment = c(ORCID = \"0000-0002-4064-6012\")), person(\"Lucy\", \"D'Agostino McGowan\", role = \"ctb\", comment = c(ORCID = \"0000-0001-7297-9359\")), person(\"Malcolm\", \"Barrett\", role = \"ctb\", comment = c(ORCID = \"0000-0003-0299-5825\")), person(c(\"Matthew\", \"Mark\"), \"Strasiotto\", role = \"ctb\", comment = c(github = \"mstr3336\")), person(\"Michael Wayne\", \"Kearney\", role = \"ctb\"), person(\"Nan-Hung\", \"Hsieh\", role = \"ctb\"), person(\"Ole Petter\", \"Bang\", role = \"ctb\", comment = \"CSS in rmarkdown/templates/xaringan/resources/default.css\"), person(\"Orlando\", \"Olaya Bucaro\", role = \"ctb\"), person(\"Patrick\", \"Schratz\", role = \"ctb\"), person(\"Paul\", \"Klemm\", role = \"ctb\", comment = c(ORCID = \"0000-0002-5985-1737\")), person(\"Paul\", \"Lemmens\", role = \"ctb\"), person(\"Robert\", \"Fromont\", role = \"ctb\", email = \"robert.fromont@canterbury.ac.nz\", comment = c(ORCID = \"0000-0001-5271-5487\")), person(\"Sean\", \"Lopp\", role = \"ctb\"), person(\"Silvia\", \"Canelon\", role = \"ctb\", comment = c(ORCID = \"0000-0003-1709-1394\")), person(\"Susan\", \"VanderPlas\", role = \"ctb\", comment = c(ORCID = \"0000-0002-3803-0972\")), person(\"Tuo\", \"Wang\", role = \"ctb\"),   person(\"Waldir\", \"Leoncio\", role = \"ctb\", email = \"w.l.netto@medisin.uio.no\"), person(\"Yongfu\", \"Liao\", role = \"ctb\"), person(\"Yue\", \"Jiang\", role = \"ctb\", comment = c(ORCID = \"0000-0002-9798-5517\")), person(c(\"Zhian\", \"N.\"), \"Kamvar\", role = c(\"ctb\"), email = \"zkamvar@gmail.com\", comment = c(ORCID = \"0000-0003-1458-7108\")), person() )",
+      "Description": "Create HTML5 slides with R Markdown and the JavaScript library 'remark.js' (<https://remarkjs.com>).",
+      "Depends": [
+        "R (>= 3.5.0)"
+      ],
+      "Imports": [
+        "htmltools",
+        "knitr (>= 1.30)",
+        "servr (>= 0.30)",
+        "xfun (>= 0.18)",
+        "rmarkdown (>= 2.8)"
+      ],
+      "Suggests": [
+        "rstudioapi",
+        "jsonlite",
+        "testit"
+      ],
+      "License": "MIT + file LICENSE",
+      "URL": "https://github.com/yihui/xaringan",
+      "BugReports": "https://github.com/yihui/xaringan/issues",
+      "VignetteBuilder": "knitr",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.2",
+      "NeedsCompilation": "no",
+      "Author": "Yihui Xie [aut, cre] (ORCID: <https://orcid.org/0000-0003-0645-5666>, URL: https://yihui.org), Posit Software, PBC [cph, fnd], Alessandro Gasparini [ctb] (ORCID: <https://orcid.org/0000-0002-8319-7624>), Benjie Gillam [ctb], Claus Thorn Ekstrøm [ctb], Daniel Anderson [ctb], Dawei Lang [ctb], Deo Salil [ctb], Emi Tanaka [ctb], Garrick Aden-Buie [ctb] (ORCID: <https://orcid.org/0000-0002-7111-0077>), Iñaki Ucar [ctb] (ORCID: <https://orcid.org/0000-0001-6403-5550>), John Little [ctb], Joselyn Chávez [ctb] (ORCID: <https://orcid.org/0000-0002-4974-4591>), Joseph Casillas [ctb], JooYoung Seo [ctb] (ORCID: <https://orcid.org/0000-0002-4064-6012>), Lucy D'Agostino McGowan [ctb] (ORCID: <https://orcid.org/0000-0001-7297-9359>), Malcolm Barrett [ctb] (ORCID: <https://orcid.org/0000-0003-0299-5825>), Matthew Mark Strasiotto [ctb] (github: mstr3336), Michael Wayne Kearney [ctb], Nan-Hung Hsieh [ctb], Ole Petter Bang [ctb] (CSS in rmarkdown/templates/xaringan/resources/default.css), Orlando Olaya Bucaro [ctb], Patrick Schratz [ctb], Paul Klemm [ctb] (ORCID: <https://orcid.org/0000-0002-5985-1737>), Paul Lemmens [ctb], Robert Fromont [ctb] (ORCID: <https://orcid.org/0000-0001-5271-5487>), Sean Lopp [ctb], Silvia Canelon [ctb] (ORCID: <https://orcid.org/0000-0003-1709-1394>), Susan VanderPlas [ctb] (ORCID: <https://orcid.org/0000-0002-3803-0972>), Tuo Wang [ctb], Waldir Leoncio [ctb], Yongfu Liao [ctb], Yue Jiang [ctb] (ORCID: <https://orcid.org/0000-0002-9798-5517>), Zhian N. Kamvar [ctb] (ORCID: <https://orcid.org/0000-0003-1458-7108>)",
+      "Maintainer": "Yihui Xie <xie@yihui.name>",
+      "Repository": "CRAN"
+    },
     "xaringanExtra": {
       "Package": "xaringanExtra",
       "Version": "0.8.0",
@@ -4376,6 +4680,50 @@
       "Collate": "'animate.R' 'banner.R' 'broadcast.R' 'clipboard.R' 'editable.R' 'fit-screen.R' 'freezeframe.R' 'panelset.R' 'progress-bar.R' 'scribble.R' 'share_again.R' 'slide-tone.R' 'styles.R' 'search.R' 'tachyons.R' 'tile-view.R' 'use_logo.R' 'utils.R' 'webcam.R' 'xaringanExtra-package.R'",
       "NeedsCompilation": "no",
       "Author": "Garrick Aden-Buie [aut, cre] (<https://orcid.org/0000-0002-7111-0077>), Matthew T. Warkentin [aut] (Contributed scribble, <https://orcid.org/0000-0001-8730-3511>), Yotam Mann [cph] (tone.js), Daniel Eden [cph] (animate.css), Tachyons authors [cph], Klaus Hartl, Fagner Brack, GitHub Contributors [cph] (js-cookie), Chris Andrejewski [cph] (himalaya), Eric Londaits [cph] (text-poster.js), Zeno Rocha [cph] (clipboard.js), Nikita Karamov [cph] (shareon.js), Ross Zurowski [cph] (fitvids.js), Michelle Bu and Eric Zhang [cph] (peerjs), Kiril Vatev [cph] (tiny.toast), André Restive [cph] (remark.search), Printio (Juriy Zaytsev, Maxim Chernyak) [cph] (fabric.js), Christpher Antonellis [cph] (freezeframe.js)",
+      "Maintainer": "Garrick Aden-Buie <garrick@adenbuie.com>",
+      "Repository": "CRAN"
+    },
+    "xaringanthemer": {
+      "Package": "xaringanthemer",
+      "Version": "0.4.4",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Custom 'xaringan' CSS Themes",
+      "Authors@R": "person(\"Garrick\", \"Aden-Buie\", , \"garrick@adenbuie.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-7111-0077\"))",
+      "Description": "Create beautifully color-coordinated and customized themes for your 'xaringan' slides, without writing any CSS. Complete your slide theme with 'ggplot2' themes that match the font and colors used in your slides.  Customized styles can be created directly in your slides' 'R Markdown' source file or in a separate external script.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://pkg.garrickadenbuie.com/xaringanthemer/, https://github.com/gadenbuie/xaringanthemer",
+      "BugReports": "https://github.com/gadenbuie/xaringanthemer/issues",
+      "Depends": [
+        "R (>= 2.10)"
+      ],
+      "Imports": [
+        "colorspace",
+        "glue",
+        "methods",
+        "purrr",
+        "utils",
+        "whisker"
+      ],
+      "Suggests": [
+        "callr",
+        "ggplot2",
+        "knitr",
+        "mockery",
+        "rmarkdown",
+        "scales",
+        "showtext",
+        "sysfonts",
+        "testthat (>= 2.1.0)",
+        "xaringan"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/Needs/website": "gadenbuie/grkgdown, pkgdown",
+      "Config/testthat/edition": "3",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.2",
+      "NeedsCompilation": "no",
+      "Author": "Garrick Aden-Buie [aut, cre] (ORCID: <https://orcid.org/0000-0002-7111-0077>)",
       "Maintainer": "Garrick Aden-Buie <garrick@adenbuie.com>",
       "Repository": "CRAN"
     },
@@ -4425,6 +4773,47 @@
       "NeedsCompilation": "yes",
       "Author": "Yihui Xie [aut, cre, cph] (ORCID: <https://orcid.org/0000-0003-0645-5666>, URL: https://yihui.org), Wush Wu [ctb], Daijiang Li [ctb], Xianying Tan [ctb], Salim Brüggemann [ctb] (ORCID: <https://orcid.org/0000-0002-5329-5987>), Christophe Dervieux [ctb]",
       "Maintainer": "Yihui Xie <xie@yihui.name>",
+      "Repository": "CRAN"
+    },
+    "xml2": {
+      "Package": "xml2",
+      "Version": "1.4.0",
+      "Source": "Repository",
+      "Title": "Parse XML",
+      "Authors@R": "c( person(\"Hadley\", \"Wickham\", role = \"aut\"), person(\"Jim\", \"Hester\", role = \"aut\"), person(\"Jeroen\", \"Ooms\", email = \"jeroenooms@gmail.com\", role = c(\"aut\", \"cre\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")), person(\"R Foundation\", role = \"ctb\", comment = \"Copy of R-project homepage cached as example\") )",
+      "Description": "Bindings to 'libxml2' for working with XML data using a simple,  consistent interface based on 'XPath' expressions. Also supports XML schema validation; for 'XSLT' transformations see the 'xslt' package.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://xml2.r-lib.org, https://r-lib.r-universe.dev/xml2",
+      "BugReports": "https://github.com/r-lib/xml2/issues",
+      "Depends": [
+        "R (>= 3.6.0)"
+      ],
+      "Imports": [
+        "cli",
+        "methods",
+        "rlang (>= 1.1.0)"
+      ],
+      "Suggests": [
+        "covr",
+        "curl",
+        "httr",
+        "knitr",
+        "magrittr",
+        "mockery",
+        "rmarkdown",
+        "testthat (>= 3.2.0)",
+        "xslt"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/Needs/website": "tidyverse/tidytemplate",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.2",
+      "SystemRequirements": "libxml2: libxml2-dev (deb), libxml2-devel (rpm)",
+      "Collate": "'S4.R' 'as_list.R' 'xml_parse.R' 'as_xml_document.R' 'classes.R' 'format.R' 'import-standalone-obj-type.R' 'import-standalone-purrr.R' 'import-standalone-types-check.R' 'init.R' 'nodeset_apply.R' 'paths.R' 'utils.R' 'xml2-package.R' 'xml_attr.R' 'xml_children.R' 'xml_document.R' 'xml_find.R' 'xml_missing.R' 'xml_modify.R' 'xml_name.R' 'xml_namespaces.R' 'xml_node.R' 'xml_nodeset.R' 'xml_path.R' 'xml_schema.R' 'xml_serialize.R' 'xml_structure.R' 'xml_text.R' 'xml_type.R' 'xml_url.R' 'xml_write.R' 'zzz.R'",
+      "Config/testthat/edition": "3",
+      "NeedsCompilation": "yes",
+      "Author": "Hadley Wickham [aut], Jim Hester [aut], Jeroen Ooms [aut, cre], Posit Software, PBC [cph, fnd], R Foundation [ctb] (Copy of R-project homepage cached as example)",
+      "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
       "Repository": "CRAN"
     },
     "yaml": {
