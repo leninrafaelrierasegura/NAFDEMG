@@ -1,6 +1,6 @@
 .remark-slide-content h4 {
   font-size:          100px;
-  color:              #005EB8;
+  color:              #0D2244;
   line-height:        1em;
 }
 .pull-left35 {
@@ -61,7 +61,7 @@
 .content-box-red,
 .content-box-orangepython {
   box-sizing: border-box;
-  border-radius: 15px;
+  border-radius: 0px;
   margin: 0 0 15px;
   overflow: hidden;
   padding: 0px 20px 0px 20px;
@@ -92,3 +92,17 @@
     width: 100%;
     flex: 1 1 auto;
 }
+
+
+
+.content-box-myblue {
+  box-sizing: border-box;
+  border-radius: 0px;
+  margin: 50px 0 0;
+  overflow: hidden;
+  padding: 0px 20px 0px 20px;
+  width: 100%;
+  background-color: #0D2244;
+  color: white !important; /* 👈 ensure text is white */
+}
+

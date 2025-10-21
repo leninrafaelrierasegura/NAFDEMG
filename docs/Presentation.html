@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Numerical Analysis and Optimal Control of fractional diffusion equations on metric graphs</title>
+    <title>Numerical analysis and optimal control of fractional diffusion equations on metric graphs</title>
     <meta charset="utf-8" />
     <meta name="author" content="Lenin Rafael Riera Segura Joint work with David Bolin and Alexandre B. Simas" />
     <script src="site_libs/header-attrs/header-attrs.js"></script>
@@ -20,7 +20,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# Numerical Analysis and Optimal Control of fractional diffusion equations on metric graphs
+# Numerical analysis and optimal control of fractional diffusion equations on metric graphs
 ]
 .author[
 ### Lenin Rafael Riera Segura
@@ -39,45 +39,115 @@ Joint work with David Bolin and Alexandre B. Simas
 
 
 
+
+
+class: center, middle
+
+&lt;div style="position:absolute; top:40px; right:40px;"&gt;
+  &lt;img src="kaustlogo.svg" width="120"&gt;
+&lt;/div&gt;
+
+# Part I
+
+
+#### State equation
+
+---
+
 class: left, top
 
-## Introduction | Neural Networks | 1
+&lt;div style="position:absolute; top:40px; right:40px;"&gt;
+  &lt;img src="kaustlogo.svg" width="120"&gt;
+&lt;/div&gt;
 
-Neural Networks (NNs) are universal function approximators, meaning that given a set of input-output pairs `\((x,y)\)`, where `\(y= f(x)\)`, a NN `\(N\)` can approximate `\(f\)` with arbitrary precision.  
+## Problem setting
+
+*********
+
+We analyze and numerically approximate solutions to fractional diffusion equations on metric graphs of the form
+
+.content-box-gray[
+$$
+`\begin{cases}
+  \partial_t u(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s,t) &amp; = f(s,t), \quad (s,t) \in \Gamma \times (0, T), \\
+  u(s,0) &amp; = u_0(s), \quad s \in \Gamma,
+\end{cases}`
+\tag{1}
+$$
+]
+
+with `\(u(\cdot,t)\)` satisfying the Kirchhoff vertex conditions
+
+`\begin{equation}
+\label{eq:Kcondfirstpart}
+\tag{2}
+   \mathcal{K} =  \left\{\phi\in C(\Gamma)\;\middle|\; \forall v\in \mathcal{V}:\;  \sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}.
+\end{equation}`
+
+Here `\(\Gamma = (\mathcal{V},\mathcal{E})\)` is a compact metric graph, `\(\kappa&gt;0\)`, `\(\alpha\in(0,2]\)` determines the smoothness of `\(u(\cdot,t)\)`, `\(\Delta_{\Gamma}\)` is the so-called Kirchhoff--Laplacian.
 
 ---
 
-## Introduction | Neural Networks | 2
+class: left, top
 
-.pull-left35[
-&lt;img src="Presentation_files/figure-html/plot-first-1.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
---
-.pull-right65[
+&lt;div style="position:absolute; top:40px; right:40px;"&gt;
+  &lt;img src="kaustlogo.svg" width="120"&gt;
+&lt;/div&gt;
 
-``` r
-library(neuralnet)
-x &lt;- seq(-1, 1, by = 0.05)
-y &lt;- x^2 + rnorm(length(x), mean = 0, sd = 0.01)
-data &lt;- data.frame(x, y)
-*model &lt;- neuralnet(y ~ x, data = data, hidden = c(5))
-new_data &lt;- data.frame(x = seq(-1, 1, by = 0.01))
-predictions &lt;- compute(model, new_data)$net.result
-par(family = "Palatino", cex = 1.5)
-plot(x, x^2, type = "l", lwd = 2, col = "blue", 
-     ylim = c(0, 1.2), xlab = bquote(x), ylab = bquote(y), 
-     main = bquote("Aproximation of"~f(x) == x^2))
-lines(new_data$x, predictions, col = "red", lwd = 2, lty = "dotted")
-legend("topright", legend = c("f", "N"), col = c("blue", "red"), lwd = 2)
-```
-]
+## Problem setting
 
-This is a 1 hidden layer NN with 5 neurons and sigmoid activation function.
+*********
+
+The fractional operator `\(L^{\alpha/2} : D(L^{\alpha/2}) \longmapsto L_2(\Gamma)\)` is defined via
+
+`\begin{equation}
+\label{lfractional}
+         \phi \longmapsto L^{\alpha/2}\phi = \sum_{j\in\mathbb{N}}\lambda_j^{\alpha/2}(\phi, e_j)_{L_2(\Gamma)}e_j,
+\end{equation}`
+
+and `\(-L^{\alpha/2}\)` generates
+
+`\begin{align}
+\label{spectral_semigroup}
+    T(t)\phi = \sum_{j\in\mathbb{N}}e^{-\lambda^{\alpha/2}_jt}\left(\phi, e_j\right)_{L_2(\Gamma)}e_j,
+\end{align}`
 
 ---
 
-## Introduction | Neural Networks | 3
+class: left, top
 
+&lt;div style="position:absolute; top:40px; right:40px;"&gt;
+  &lt;img src="kaustlogo.svg" width="120"&gt;
+&lt;/div&gt;
+
+## Exsistence and uniqueness
+
+*********
+
+We interpret `\((1)\)` as an abstract Cauchy problem in `\(L_2(\Gamma)\)`, given by
+
+.content-box-gray[
+$$
+`\begin{cases}
+    \partial_tu(t)+L^{\alpha/2}u(t)=f(t),\quad t\in (0, T),\\  
+    u(0)=u_0\in D(L^{\alpha/2}).
+\end{cases}`
+\tag{3}
+$$
+]
+
+
+&lt;div class="content-box-myblue"&gt;
+Theorem 1
+&lt;/div&gt;
+
+.content-box-gray[
+If `\(f\in L_2((0,T);L_2(\Gamma))\)`  and `\(u_0\in \dot{H}^{\alpha}(\Gamma)\)`, then `\((3)\)` has a unique mild solution given by the variation of parameters formula
+`\begin{equation}
+    \label{eq:mildsolution}
+    u(t) = T(t)u_0 + \int_0^t T(t-r)f(r)dr,\quad t\geq 0.
+\end{equation}`
+]
 
 ---
 

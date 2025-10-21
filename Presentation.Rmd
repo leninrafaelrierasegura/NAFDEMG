@@ -1,5 +1,5 @@
 ---
-title: "Numerical Analysis and Optimal Control of fractional diffusion equations on metric graphs"
+title: "Numerical analysis and optimal control of fractional diffusion equations on metric graphs"
 subtitle: ""
 author: "Lenin Rafael Riera Segura \n Joint work with David Bolin and Alexandre B. Simas"
 institute: "KAUST"
@@ -22,6 +22,7 @@ output:
       - lenin.css
 mathjax: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"
 ---
+
 ```{r, load_refs, include=FALSE, cache=FALSE}
 library(RefManageR)
 BibOptions(check.entries = FALSE,
@@ -36,7 +37,7 @@ myBib <- ReadBib("./references.bib", check = FALSE)
 ```{r setup, echo = FALSE}
 options(htmltools.dir.version = FALSE)
 library(xaringanthemer)
-style_mono_accent(base_color = "#005EB8")
+style_mono_accent(base_color = "#0D2244")
 htmltools::tagList(
   xaringanExtra::use_clipboard(
     button_text = "<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"></i>",
@@ -60,45 +61,114 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+class: center, middle
+
+<div style="position:absolute; top:40px; right:40px;">
+  <img src="kaustlogo.svg" width="120">
+</div>
+
+# Part I
+
+
+#### State equation
+
+---
+
 class: left, top
 
-## Introduction | Neural Networks | 1
+<div style="position:absolute; top:40px; right:40px;">
+  <img src="kaustlogo.svg" width="120">
+</div>
 
-Neural Networks (NNs) are universal function approximators, meaning that given a set of input-output pairs $(x,y)$, where $y= f(x)$, a NN $N$ can approximate $f$ with arbitrary precision.  
+## Problem setting
+
+*********
+
+We analyze and numerically approximate solutions to fractional diffusion equations on metric graphs of the form
+
+.content-box-gray[
+$$
+\begin{cases}
+  \partial_t u(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s,t) & = f(s,t), \quad (s,t) \in \Gamma \times (0, T), \\
+  u(s,0) & = u_0(s), \quad s \in \Gamma,
+\end{cases}
+\tag{1}
+$$
+]
+
+with $u(\cdot,t)$ satisfying the Kirchhoff vertex conditions
+
+\begin{equation}
+\label{eq:Kcondfirstpart}
+\tag{2}
+   \mathcal{K} =  \left\{\phi\in C(\Gamma)\;\middle|\; \forall v\in \mathcal{V}:\;  \sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}.
+\end{equation}
+
+Here $\Gamma = (\mathcal{V},\mathcal{E})$ is a compact metric graph, $\kappa>0$, $\alpha\in(0,2]$ determines the smoothness of $u(\cdot,t)$, $\Delta_{\Gamma}$ is the so-called Kirchhoff--Laplacian.
 
 ---
 
-## Introduction | Neural Networks | 2
+class: left, top
 
-.pull-left35[
-```{r plot-first, out.width="100%", echo = FALSE}
-library(neuralnet)
-x <- seq(-1, 1, by = 0.05)
-y <- x^2 + rnorm(length(x), mean = 0, sd = 0.01)
-data <- data.frame(x, y)
-model <- neuralnet(y ~ x, data = data, hidden = c(5)) #<<
-new_data <- data.frame(x = seq(-1, 1, by = 0.01))
-predictions <- compute(model, new_data)$net.result
-par(family = "Palatino", cex = 1.5)
-plot(x, x^2, type = "l", lwd = 2, col = "blue", 
-     ylim = c(0, 1.2), xlab = bquote(x), ylab = bquote(y), 
-     main = bquote("Aproximation of"~f(x) == x^2))
-lines(new_data$x, predictions, col = "red", lwd = 2, lty = "dotted")
-legend("topright", legend = c("f", "N"), col = c("blue", "red"), lwd = 2)
-```
-]
---
-.pull-right65[
-```{r ref.label = 'plot-first', eval = FALSE, echo = TRUE}
-```
-]
+<div style="position:absolute; top:40px; right:40px;">
+  <img src="kaustlogo.svg" width="120">
+</div>
 
-This is a 1 hidden layer NN with 5 neurons and sigmoid activation function.
+## Problem setting
+
+*********
+
+The fractional operator $L^{\alpha/2} : D(L^{\alpha/2}) \longmapsto L_2(\Gamma)$ is defined via
+
+\begin{equation}
+\label{lfractional}
+         \phi \longmapsto L^{\alpha/2}\phi = \sum_{j\in\mathbb{N}}\lambda_j^{\alpha/2}(\phi, e_j)_{L_2(\Gamma)}e_j,
+\end{equation}
+
+and $-L^{\alpha/2}$ generates
+
+\begin{align}
+\label{spectral_semigroup}
+    T(t)\phi = \sum_{j\in\mathbb{N}}e^{-\lambda^{\alpha/2}_jt}\left(\phi, e_j\right)_{L_2(\Gamma)}e_j,
+\end{align}
 
 ---
 
-## Introduction | Neural Networks | 3
+class: left, top
 
+<div style="position:absolute; top:40px; right:40px;">
+  <img src="kaustlogo.svg" width="120">
+</div>
+
+## Exsistence and uniqueness
+
+*********
+
+We interpret $(1)$ as an abstract Cauchy problem in $L_2(\Gamma)$, given by
+
+.content-box-gray[
+$$
+\begin{cases}
+    \partial_tu(t)+L^{\alpha/2}u(t)=f(t),\quad t\in (0, T),\\  
+    u(0)=u_0\in D(L^{\alpha/2}).
+\end{cases}
+\tag{3}
+$$
+]
+
+
+<div class="content-box-myblue">
+Theorem 1
+</div>
+
+.content-box-gray[
+If $f\in L_2((0,T);L_2(\Gamma))$  and $u_0\in \dot{H}^{\alpha}(\Gamma)$, then $(3)$ has a unique mild solution given by the variation of parameters formula
+\begin{equation}
+    \label{eq:mildsolution}
+    u(t) = T(t)u_0 + \int_0^t T(t-r)f(r)dr,\quad t\geq 0.
+\end{equation}
+]
 
 ---
 
