@@ -264,14 +264,14 @@ which leads to the fixed-point formulation $\mathbf{\bar{z}}^{(n+1)}  = \mathfra
 knitr::include_graphics("data_files/p_all_z.png")
 ```
 
-# More Information
+_____
 
-```{r, fig.align='center', out.width='20%'}
+
+```{r, fig.align='center', out.width='25%', fig.cap = "Visit https://leninrafaelrierasegura.github.io/NAFDEMG/ for more information."}
 library(qrcode)
 # Generate QR code
 myqrcode <- qr_code("https://leninrafaelrierasegura.github.io/NAFDEMG/about.html") 
 plot(myqrcode)
 ```
-
 
 
