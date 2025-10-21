@@ -76,30 +76,6 @@
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
     },
-    "Deriv": {
-      "Package": "Deriv",
-      "Version": "4.2.0",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Symbolic Differentiation",
-      "Date": "2025-06-20",
-      "Authors@R": "c(person(given=\"Andrew\", family=\"Clausen\", role=\"aut\"), person(given=\"Serguei\", family=\"Sokol\", role=c(\"aut\", \"cre\"), email=\"sokol@insa-toulouse.fr\", comment = c(ORCID = \"0000-0002-5674-3327\")), person(given=\"Andreas\", family=\"Rappold\", role=\"ctb\", email=\"arappold@gmx.at\"))",
-      "Description": "R-based solution for symbolic differentiation. It admits user-defined function as well as function substitution in arguments of functions to be differentiated. Some symbolic simplification is part of the work.",
-      "License": "GPL (>= 3)",
-      "Suggests": [
-        "testthat (>= 0.11.0)"
-      ],
-      "BugReports": "https://github.com/sgsokol/Deriv/issues",
-      "RoxygenNote": "7.3.1",
-      "Imports": [
-        "methods"
-      ],
-      "Encoding": "UTF-8",
-      "NeedsCompilation": "no",
-      "Author": "Andrew Clausen [aut], Serguei Sokol [aut, cre] (ORCID: <https://orcid.org/0000-0002-5674-3327>), Andreas Rappold [ctb]",
-      "Maintainer": "Serguei Sokol <sokol@insa-toulouse.fr>",
-      "Repository": "CRAN"
-    },
     "KernSmooth": {
       "Package": "KernSmooth",
       "Version": "2.23-26",
@@ -2583,38 +2559,6 @@
       "NeedsCompilation": "yes",
       "Author": "Yihui Xie [aut, cre] (<https://orcid.org/0000-0003-0645-5666>, https://yihui.org), Jeffrey Horner [ctb], Beilei Bian [ctb]",
       "Maintainer": "Yihui Xie <xie@yihui.name>",
-      "Repository": "CRAN"
-    },
-    "neuralnet": {
-      "Package": "neuralnet",
-      "Version": "1.44.2",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Training of Neural Networks",
-      "Date": "2019-02-07",
-      "Authors@R": "c( person(given=\"Stefan\", family=\"Fritsch\", role=\"aut\"),  person(given=\"Frauke\", family=\"Guenther\", role=c(\"aut\")), person(given=\"Marvin N.\", family=\"Wright\", role=c(\"aut\",\"cre\"),email=\"wright@leibniz-bips.de\"), person(given=\"Marc\", family=\"Suling\", role=\"ctb\"),\t person(given=\"Sebastian M.\", family=\"Mueller\", role = \"ctb\"))",
-      "Depends": [
-        "R (>= 2.9.0)"
-      ],
-      "Imports": [
-        "grid",
-        "MASS",
-        "grDevices",
-        "stats",
-        "utils",
-        "Deriv"
-      ],
-      "Description": "Training of neural networks using backpropagation, resilient backpropagation with (Riedmiller, 1994) or without weight backtracking (Riedmiller and Braun, 1993) or the modified globally convergent version by Anastasiadis et al. (2005). The package allows flexible settings through custom-choice of error and activation function. Furthermore, the calculation of generalized weights (Intrator O & Intrator N, 1993) is implemented.",
-      "License": "GPL (>= 2)",
-      "Suggests": [
-        "testthat"
-      ],
-      "URL": "https://github.com/bips-hb/neuralnet",
-      "BugReports": "https://github.com/bips-hb/neuralnet/issues",
-      "RoxygenNote": "6.1.0",
-      "NeedsCompilation": "no",
-      "Author": "Stefan Fritsch [aut], Frauke Guenther [aut], Marvin N. Wright [aut, cre], Marc Suling [ctb], Sebastian M. Mueller [ctb]",
-      "Maintainer": "Marvin N. Wright <wright@leibniz-bips.de>",
       "Repository": "CRAN"
     },
     "nlme": {
