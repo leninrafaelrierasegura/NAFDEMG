@@ -9,7 +9,7 @@ navbar:
       href: about.html
     - text: "Preliminaries"
       href: preliminaries.html
-    - text: "Fractional Diffusion"
+    - text: "Numerical Approximation"
       menu:
         - text: "Functionality"
           href: functionality.html

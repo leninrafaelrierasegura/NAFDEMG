@@ -296,7 +296,7 @@ X_red <- rep(x[idx], each = 3)
 Y_red <- rep(y[idx], each = 3)
 
 # Start plot
-p <- plot_ly() %>% 
+p_basis <- plot_ly() %>% 
   add_trace(x = rep(x, times = graph$nV), 
             y = rep(y, times = graph$nV), 
             z = as.vector(A_with_NA_zeroed[, 1:graph$nV]), 
@@ -346,7 +346,8 @@ Go back to the [Contents](about.html) page.
 Go back to the [Preliminaries](preliminaries.html#fem-basis) page.
 
 ```{r, fig.height = 8, out.width = "100%", fig.cap = captioner("Illustration of the basis function system $\\{\\psi^i_h\\}_{i=1}^{N_h}$ on the hat-basis-functions graph (in black). Standard hat functions associated with internal edge nodes are shown in blue, while special vertex-centered functions are highlighted in red.")}
-p
+p_basis
+save(p_basis, file = here::here("data_files/p_basis.RData"))
 ```
 
 ## References

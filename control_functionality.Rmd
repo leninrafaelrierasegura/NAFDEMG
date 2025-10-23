@@ -2571,7 +2571,7 @@ time_step^2 * norm(TT, type = "2")
 norm(big_matrix, type = "2")
 ```
 
-## Compares $\gamma$ and its upper bound $1/(\mu \kappa^{4 \beta})$ {#contraction_constant_comparison}
+## Comparison between $\gamma$ and its upper bound $1/(\mu \kappa^{4 \beta})$ {#contraction_constant_comparison}
 
 ```{r, eval = FALSE, purl = FALSE}
 # --- 3. Parameter grid ---

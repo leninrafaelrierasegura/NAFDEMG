@@ -1,7 +1,8 @@
 ---
 title: "Contents"
-# output:
-#   html_document:
+output:
+  html_document:
+    number_sections: true
 #     css: visual.css
 ---
 
@@ -27,9 +28,10 @@ captioner <- function(caption) {
 }
 ```
 
+This page shows a brief description of the contents of this website.
 
 ::: {.custom-box}
-1. Contents
+# Contents
 :::
 
 __________
@@ -39,7 +41,7 @@ __________
 __________
 
 ::: {.custom-box}
-2. Preliminaries
+# Preliminaries
 :::
 
 __________
@@ -49,11 +51,21 @@ __________
     - [how the eigenvalues and eigenfunctions of the shifted Kirchhoff–Laplacian $(\kappa^2-\Delta_\Gamma)$ operator are computed on the tadpole graph,](preliminaries.html#eigenfunctions)
     - [and how to project onto a fine space-time mesh.](preliminaries.html#piecewise_projection)
      
+
 __________
 
 ::: {.custom-box}
-3. Fractional Diffusion
+# Results for the *Numerical approximation of fractional diffusion equations on metric graphs* paper
 :::
+
+__________
+
+The illustration below was produced [here](preliminaries.html#fem-basis).
+
+```{r, echo = FALSE, fig.height = 6, out.width = "100%", fig.cap = captioner("Illustration of the system of basis functions $\\{\\varphi_j^e, \\phi_v\\}$ on the tadpole graph. Notice that the sets $\\mathcal{N}_{v}$ are depicted in green and their corresponding basis functions are shown in red.")}
+load(here::here("data_files/fem_basis_tadpole.RData"))
+p_b1
+```
 
 __________
 
@@ -68,6 +80,18 @@ __________
   - [Experiment](exp1.html): This page shows 
     - [how to construct an exact solution to the addressed problem for error analysis purposes.](exp1.html#eigensolconst)
     
+    
+
+```{r, echo = FALSE, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the right-hand side function $f$.")}
+load(file = here::here("data_files/exp1_fig.RData"))
+exp1_fig
+```
+
+
+```{r, echo = FALSE, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+load(file = here::here("data_files/exp1_error.RData"))
+exp1_error
+```
 __________
 
   - [Convergence in 𝘩](conv_in_h.html): This page shows 
@@ -100,9 +124,16 @@ ggplot2::ggsave(here::here("data_files/p_all.png"), width = 12, height = 5, plot
 __________
   
 ::: {.custom-box}    
-4. Optimal Control
+# Results for the *Optimal control of fractional diffusion equations on metric graphs* paper
 :::
 __________
+
+
+```{r, echo = FALSE, fig.height = 8, out.width = "100%", fig.cap = captioner("Illustration of the basis function system $\\{\\psi^i_h\\}_{i=1}^{N_h}$ on the hat-basis-functions graph (in black). Standard hat functions associated with internal edge nodes are shown in blue, while special vertex-centered functions are highlighted in red.")}
+load(file = here::here("data_files/p_basis.RData"))
+p_basis
+```
+
 
   - [Control Functionality](control_functionality.html): This page shows 
     - [the description of the optimal control problem,](control_functionality.html#optimal_control_problem)
@@ -147,11 +178,8 @@ knitr::include_graphics(here::here("data_files/control_conv_rates_m_all_with_ite
 __________ 
 
 
-::: {.custom-box}    
-5. Convergence behavior for $\bar{u}$ and $\bar{z}$
-:::
+ - The following figures show the convergence results for the optimal state and control variables. They contain the same information as the above plots, but are combined into two single figures for each variable.
 
-__________ 
 
 
 ```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the error $\\|\\bar{u}-\\bar{U}_{h,m}^\\tau\\|_{L_2(\\Gamma\\times(0,T))}$ with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
@@ -188,19 +216,31 @@ ggplot2::ggsave(here::here("data_files/p_all_z.png"), width = 12, height = 6, pl
 
 __________ 
 
-   
-::: {.custom-box}    
-6. Contraction Constant
-:::
-
-__________ 
+ 
+  - The following illustration was produced [here](control_functionality.html#contraction_constant_comparison).
 
       
 ```{r, echo = FALSE, fig.align='center', fig.dim= c(12,7), fig.cap = captioner("Comparison of the contraction constant $\\gamma =  \\tau^2\\|\\mathbf{T}\\|_2/\\mu$ and its theoretical upper bound $1 / (\\mu \\kappa^{4 \\beta})$ as functions of the sample size $N$ for $T = 2$. Different colors, shapes, and line types correspond to variations in $\\kappa$, $\\beta$, and $\\mu$, respectively. Both plots have their x- and y-axes on a $\\log_{10}$ scale, and they share the same y-axis limits for direct comparability.")}
 knitr::include_graphics(here::here("data_files/fixedpointconvergence_combined2.png"))
 ```
       
-__________ 
-    
+__________
+  
+::: {.custom-box}    
+# Poster
+:::
 
+ - [Poster](PosterLeninStatWorkshop2025.html): This page shows the poster presented at [The KAUST 2025 Workshop on Statistics](https://cemse.kaust.edu.sa/events/by-type/workshop/2025/11/02/kaust-2025-workshop-statistics).
+ 
+__________
+
+::: {.custom-box}    
+# Presentation
+:::
+
+- [Presentation](Presentation.html): This page shows a presentation about the two papers.
+
+__________
+
+      
       

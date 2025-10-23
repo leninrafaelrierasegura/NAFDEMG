@@ -143,7 +143,7 @@ y_range <- range(y, na.rm = TRUE)
 z_range <- c(0,1)
 
 # Start plot
-p <- plot_ly() |> 
+p_b1 <- plot_ly() |> 
   add_trace(x = rep(x, times = graph$nV), 
             y = rep(y, times = graph$nV), 
             z = as.vector(A[, 1:graph$nV]), 
@@ -181,7 +181,8 @@ p <- plot_ly() |>
             line = list(color = "green", width = 3), 
             showlegend = FALSE) |>
   layout(scene = global.scene.setter(x_range, y_range, z_range, z_aspectratio = 1))
-p
+p_b1
+save(p_b1, file = here::here("data_files/fem_basis_tadpole.RData"))
 ```
 
 
