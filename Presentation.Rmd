@@ -297,8 +297,8 @@ Theorem 2
 </div>
 
 .content-box-gray[
-Let $\alpha>0$ and $u$ be the solution to $(7)$. Let $\tilde{U}^\tau$ be the piecewise constant function constructed from the solution to $(8)$. If $f\in L_\infty(\Gamma\times(0,T))$ and $u_0\in\dot{H}^{\alpha/2}(\Gamma)$, then
-$$\|u-\tilde{U}^\tau\|_{L_2(\Gamma\times(0,T))}\lesssim \tau \left(\|u_0\|_{\dot{H}^{\alpha/2}(\Gamma)}+\|f\|_{L_\infty(\Gamma\times(0,T))}\right).$$
+Let $\alpha>0$ and $u$ be the solution to $(7)$. Let $\tilde{U}^\tau$ be the piecewise constant function constructed from the solution to $(8)$. If $f\in L_\infty((0,T);L_2(\Gamma))$ and $u_0\in\dot{H}^{\alpha/2}(\Gamma)$, then
+$$\|u-\tilde{U}^\tau\|_{L_2(\Gamma\times(0,T))}\lesssim \tau \left(\|u_0\|_{\dot{H}^{\alpha/2}(\Gamma)}+\|f\|_{L_\infty((0,T);L_2(\Gamma))}\right).$$
 ]
 
 ---
@@ -381,9 +381,9 @@ Theorem 4
 </div>
 
 .content-box-gray[
-Let $\alpha\in[0,2]$ and $u$ be the solution to $(7)$. Assume further that for $k=0,\dots,N-1$, $U^{k+1}_{h,m}\in V_h$ solves the weak form of $(13)$ with $U^{0}_{h,m}= U^{0}_{h}$. If $f\in L_\infty(\Gamma\times(0,T))$ and $u_0\in\dot{H}^{\alpha}(\Gamma)$, then
+Let $\alpha\in[0,2]$ and $u$ be the solution to $(7)$. Assume further that for $k=0,\dots,N-1$, $U^{k+1}_{h,m}\in V_h$ solves the weak form of $(13)$ with $U^{0}_{h,m}= U^{0}_{h}$. If $f\in L_\infty((0,T);L_2(\Gamma))$ and $u_0\in\dot{H}^{\alpha}(\Gamma)$, then
 $$\|u-U_{h,m}^\tau\|_{L_2(\Gamma\times(0,T))}\lesssim\tau+h^\alpha + h^{\alpha-2}e^{-2\pi\sqrt{(1-\alpha/2)m}},\tag{14}$$
-where the hidden constant depends on $\|u_0\|_{L_2(\Gamma)} +\|f\|_{L_\infty(\Gamma\times(0,T))}$.
+where the hidden constant depends on $\|u_0\|_{L_2(\Gamma)} +\|f\|_{L_\infty((0,T);L_2(\Gamma))}$.
 ]
 
 ---
@@ -654,7 +654,7 @@ Theorem 5
 </div>
 
 .content-box-gray[
-Let $\alpha\in[0,2]$ and $\bar{u}$ be the solution to $(21)$ corresponding to the optimal control $\bar{z}$ of $(20)$ - $(22)$. Let $\bar{U}_{h,m}^\tau$ denote the piecewise linear approximation of the optimal discrete state obtained from the discrete scheme after the rational approximation. Let $\bar{Z}_{h,m}^\tau$ denote the corresponding piecewise constant approximation of the optimal discrete control. If $f,u_d\in L_2((0,T);\dot{H}^\beta(\Gamma)) \cap L_\infty(\Gamma\times(0,T))$ for $\beta<1$ and $u_0\in\dot{H}^{\alpha}(\Gamma)$ , then
+Let $\alpha\in[0,2]$ and $\bar{u}$ be the solution to $(21)$ corresponding to the optimal control $\bar{z}$ of $(20)$ - $(22)$. Let $\bar{U}_{h,m}^\tau$ denote the piecewise linear approximation of the optimal discrete state obtained from the discrete scheme after the rational approximation. Let $\bar{Z}_{h,m}^\tau$ denote the corresponding piecewise constant approximation of the optimal discrete control. If $f,u_d\in L_2((0,T);\dot{H}^\beta(\Gamma)) \cap L_\infty((0,T);L_2(\Gamma))$ for $\beta<1$ and $u_0\in\dot{H}^{\alpha}(\Gamma)$ , then
 
 $$\|\bar{u}-\bar{U}_{h,m}^\tau\|_{L_2(\Gamma\times(0,T))}\lesssim\tau+h^\alpha + h^{\alpha-2}e^{-2\pi\sqrt{(1-\alpha/2)m}}$$
 
