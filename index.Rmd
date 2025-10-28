@@ -14,29 +14,29 @@ Visit this [GitHub](https://github.com/leninrafaelrierasegura/NAFDEMG) repositor
 Go to the [Contents](about.html) page for a brief description of the contents of this website.
 
       
-      
-      
-```{r, render-poster, echo=FALSE, message = FALSE, warning = FALSE}
-capture.output(
-  rmarkdown::render(
-  input = "PosterLeninStatWorkshop2025.Rmd",
-  output_file = "docs/PosterLeninStatWorkshop2025.html"
-),
-  file = here::here("old/purl_log1.txt")
-)
-```
-    
-  
-      
-```{r, render-presentation, echo=FALSE, message = FALSE, warning = FALSE}
-capture.output(
-  rmarkdown::render(
-  input = "Presentation.Rmd",
-  output_file = "docs/Presentation.html"
-),
-  file = here::here("old/purl_log2.txt")
-)
-```
+
+
+<!-- ```{r, render-poster, echo=FALSE, message = FALSE, warning = FALSE} -->
+<!-- capture.output( -->
+<!--   rmarkdown::render( -->
+<!--   input = "PosterLeninStatWorkshop2025.Rmd", -->
+<!--   output_file = "docs/PosterLeninStatWorkshop2025.html" -->
+<!-- ), -->
+<!--   file = here::here("old/purl_log1.txt") -->
+<!-- ) -->
+<!-- ``` -->
+
+
+
+<!-- ```{r, render-presentation, echo=FALSE, message = FALSE, warning = FALSE} -->
+<!-- capture.output( -->
+<!--   rmarkdown::render( -->
+<!--   input = "Presentation.Rmd", -->
+<!--   output_file = "docs/Presentation.html" -->
+<!-- ), -->
+<!--   file = here::here("old/purl_log2.txt") -->
+<!-- ) -->
+<!-- ``` -->
 
 
 
