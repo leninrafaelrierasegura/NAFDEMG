@@ -1,0 +1,215 @@
+---
+title: "Something"
+date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+    code_download: true
+    css: visual.css
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+---
+
+Go back to the [Contents](about.html) page.
+
+<div style="color: #2c3e50; text-align: right;">
+********  
+<strong>Press Show to reveal the code chunks.</strong>  
+
+********
+</div>
+
+
+```{r, purl = FALSE, echo = FALSE}
+# Create a clipboard button on the rendered HTML page
+source(here::here("clipboard.R")); clipboard
+```
+
+
+```{r, purl = FALSE, class.source = "fold-hide"}
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+```
+
+
+
+```{r setup, include = FALSE}
+# to install in terminal
+# conda activate fenicsenv
+# conda install -c conda-forge matplotlib plotly ipywidgets
+library(reticulate)
+# VERY IMPORTANT: tell reticulate to use your conda env
+use_condaenv("fenicsenv", required = TRUE)
+py_config()
+```
+
+
+```{python}
+from dolfin import *
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import plotly.graph_objects as go
+from ipywidgets import interact, IntSlider
+```
+
+
+```{python}
+# Domain parameters
+a = 2.0     # rectangle width
+b = 1.0     # rectangle height
+kappa = 1.0 # shift parameter
+
+# Mesh
+nx, ny = 10, 10   # resolution
+mesh = RectangleMesh(Point(0, 0), Point(a, b), nx, ny)
+
+# Function space
+V = FunctionSpace(mesh, "Lagrange", 1)
+
+# Trial and test
+u = TrialFunction(V)
+v = TestFunction(V)
+
+# Weak form for shifted Laplacian with Neumann BCs:
+#   kappa^2 * (u,v) + (grad u, grad v)
+a_form = inner(grad(u), grad(v))*dx + kappa**2 * u*v*dx
+m_form = u*v*dx
+
+# Assemble matrices
+A = assemble(a_form)
+M = assemble(m_form)
+```
+
+
+
+```{python}
+def theoretical_shifted_eigen_rectangle(a, b, Nx, Ny, kappa=1.0, m_max=3, n_max=3):
+    """
+    Compute the theoretical eigenvalues and eigenfunctions of the shifted Laplacian
+    (kappa^2 - Δ) on a rectangle [0,a]x[0,b] with homogeneous Neumann BCs.
+    
+    Parameters
+    ----------
+    a, b : float
+        Rectangle dimensions
+    Nx, Ny : int
+        Mesh subdivisions in x and y
+    kappa : float
+        Shift in Laplacian
+    m_max, n_max : int
+        Maximum mode indices in x and y
+
+    Returns
+    -------
+    eigvals : numpy.ndarray
+        Sorted vector of eigenvalues
+    eigfuncs_vals : list of numpy.ndarray
+        Each entry contains the values of the corresponding eigenfunction
+        at the FEM DOFs
+    mesh : dolfin.Mesh
+        The FEniCS mesh object
+    """
+    # Create mesh and function space
+    mesh = RectangleMesh(Point(0.0, 0.0), Point(a, b), Nx, Ny)
+    V = FunctionSpace(mesh, "Lagrange", 1)
+    
+    eigvals = []
+    eigfuncs_vals = []
+    
+    dofs = V.tabulate_dof_coordinates().reshape((-1,2))
+    
+    for m in range(m_max+1):
+        for n in range(n_max+1):
+            lam = kappa**2 + (np.pi**2)*(m**2/a**2 + n**2/b**2)
+            eigvals.append(lam)
+            
+            # Evaluate eigenfunction at mesh DOFs
+            vals = np.cos(m*np.pi*dofs[:,0]/a) * np.cos(n*np.pi*dofs[:,1]/b)
+            eigfuncs_vals.append(vals)
+    
+    # Sort eigenvalues and eigenfunctions
+    idx = np.argsort(eigvals)
+    eigvals = np.array([eigvals[i] for i in idx])
+    eigfuncs_vals = [eigfuncs_vals[i] for i in idx]
+    
+    return eigvals, eigfuncs_vals, mesh
+
+# --- Example usage ---
+eigvals, eigfuncs_vals, mesh = theoretical_shifted_eigen_rectangle(a=2.0, b=1.0, Nx=100, Ny=100, kappa=1.0, m_max=3, n_max=3)
+
+print("Eigenvalues:", eigvals)
+print("Number of eigenfunctions:", len(eigfuncs_vals))
+print("Eigenfunction shape (per DOF array):", eigfuncs_vals[0].shape)
+
+```
+
+
+```{python}
+V = FunctionSpace(mesh, "Lagrange", 1)
+
+fig = plt.figure(figsize=(12,4))
+for i in range(min(4,len(eigfuncs_vals))):
+    ax = fig.add_subplot(1,4,i+1, projection='3d')
+    f = Function(V)
+    f.vector()[:] = eigfuncs_vals[i]
+    # Evaluate on mesh coordinates for plotting
+    coords = mesh.coordinates()
+    ax.plot_trisurf(coords[:,0], coords[:,1], f.vector().get_local(), cmap='viridis')
+    ax.set_title(f"lambda={eigvals[i]:.3f}")
+plt.tight_layout()
+plt.show()
+
+```
+
+
