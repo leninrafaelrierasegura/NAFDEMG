@@ -13,7 +13,7 @@ navbar:
       menu:
         - text: "Functionality"
           href: functionality.html
-        - text: "Experiment"
+        - text: "Example"
           href: exp1.html
         - text: "Convergence in 𝘩"
           href: conv_in_h.html
@@ -33,6 +33,12 @@ navbar:
           href: control_conv_tau_with_iteration.html
         - text: "Convergence in 𝑚"
           href: control_conv_m_with_iteration.html
+    - text: "On manifolds"
+      menu:
+        - text: "Manifold functionality"
+          href: manifold_functionality.html
+        - text: "Example"
+          href: on_manifolds.html
     - text: "Poster"
       href: PosterLeninStatWorkshop2025.html
     - text: "Presentation"
