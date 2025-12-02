@@ -173,9 +173,55 @@ def fem_shifted_laplacian_sparse(a, b, nx, ny):
         'C': C,
         'coords': coords,
         'x': x,
-        'y': y
+        'y': y,
+        'mesh': mesh,
+        'V': V
     }
+
+def transfer_solution_to_fine(V_coarse, U_coarse_matrix, a, b, nx_fine, ny_fine):
+    nx_fine = int(nx_fine)
+    ny_fine = int(ny_fine)
+    
+    fine_mesh = RectangleMesh(Point(0,0), Point(a,b), nx_fine, ny_fine)
+    V_fine = FunctionSpace(fine_mesh, 'Lagrange', 1)
+    fine_coords = fine_mesh.coordinates()
+    x_fine = np.linspace(0, a, nx_fine+1)
+    y_fine = np.linspace(0, b, ny_fine+1)
+    
+    U_fine_list = []
+    
+    # Loop over time steps / columns of U_coarse_matrix
+    for j in range(U_coarse_matrix.shape[1]):
+        u_coarse = Function(V_coarse)
+        u_coarse.vector()[:] = U_coarse_matrix[:, j]
+        
+        # Interpolate to fine mesh, if you prefer projection, use project(u_coarse, V_fine)
+        u_fine = interpolate(u_coarse, V_fine)
+        
+        # Store as matrix compatible with x_fine, y_fine
+        U_fine_list.append(np.reshape(u_fine.vector().get_local(), (nx_fine+1, ny_fine+1), order='F'))
+    
+    return {
+    'U_fine_list': U_fine_list,
+    'fine_coords': fine_coords,
+    'x_fine': x_fine, 
+    'y_fine': y_fine}
 ")
+
+
+## -----------------------------------------------------------------------------
+quad_weights <- function(z) {
+  n <- length(z)
+  w <- numeric(n)
+  w[1] <- (z[2] - z[1]) / 2
+  w[n] <- (z[n] - z[n-1]) / 2
+  if (n > 2) {
+    for (i in 2:(n-1)) {
+      w[i] <- (z[i+1] - z[i-1]) / 2
+    }
+  }
+  return(w)
+}
 
 
 ## -----------------------------------------------------------------------------
@@ -265,9 +311,11 @@ plot_3d_slider <- function(x, y, eigvals, eigfuncs) {
   x_range <- range(x)
   y_range <- range(y)
   
+  frame_name <- deparse(substitute(eigvals))
+  
   # Layout + slider
   p <- p %>% layout(
-    title = paste0("eigenvalue: ", eigvals[1]),
+    title = paste0(frame_name, ": ", eigvals[1]),
     scene = global.scene.setter(x_range, y_range, z_range),
     sliders = list(
       list(
@@ -308,9 +356,8 @@ plot_3d_slider <- function(x, y, eigvals, eigfuncs) {
     )
   ) %>% plotly_build()
   for (i in seq_along(p$x$frames)) {
-    p$x$frames[[i]]$layout <- list(title = paste0("eigenvalue: ", eigvals[i]))
+    p$x$frames[[i]]$layout <- list(title = paste0(frame_name, ": ", eigvals[i]))
   }
   return(p)
 }
-
 
