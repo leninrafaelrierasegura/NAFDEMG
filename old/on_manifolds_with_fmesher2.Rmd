@@ -112,8 +112,8 @@ time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
 overkill_time_step <- 0.001
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
 
-nx_coarse <- 5
-ny_coarse <- 5
+nx_coarse <- 15
+ny_coarse <- 15
 nx_fine <- 2*nx_coarse
 ny_fine <- 2*ny_coarse
 
@@ -121,9 +121,9 @@ m_max <- 5
 n_max <- 5
 N_eig <- (m_max + 1) * (n_max + 1)
 coeff_U_0 <- rep(0, N_eig)
-coeff_U_0[3] <- 1
+coeff_U_0[3] <- 0.1
 coeff_FF <- rep(0, N_eig)
-coeff_FF[2] <- 1
+coeff_FF[9] <- 1
 
 AAA = 1
 OMEGA = pi
@@ -133,8 +133,16 @@ OMEGA = pi
 ```{r}
 x_fine <- seq(0, a, length.out = nx_fine + 1)
 y_fine <- seq(0, b, length.out = ny_fine + 1)
-loc_fine <- as.matrix(expand.grid(x_fine, y_fine))
-mesh_fine <- fm_mesh_2d(loc = loc_fine, offset = 0)
+lattice_fine <- fm_lattice_2d(
+  x = x_fine,
+  y = y_fine
+)
+
+mesh_fine <- fm_rcdt_2d(
+  lattice = lattice_fine,
+  extend = FALSE
+)
+plot(mesh_fine)
 ```
 
 
@@ -164,8 +172,16 @@ U_true <- eigfuncs_fine %*%
 ```{r}
 x_coarse <- seq(0, a, length.out = nx_coarse + 1)
 y_coarse <- seq(0, b, length.out = ny_coarse + 1)
-loc_coarse <- as.matrix(expand.grid(x_coarse, y_coarse))
-mesh_coarse <- fm_mesh_2d(loc = loc_coarse, offset = 0)
+
+lattice_coarse <- fm_lattice_2d(
+  x = x_coarse,
+  y = y_coarse
+)
+
+mesh_coarse <- fm_rcdt_2d(
+  lattice = lattice_coarse,
+  extend = FALSE
+)
 plot(mesh_coarse)
 ```
 

@@ -93,6 +93,7 @@ source(here::here("manifold_functionality.R"))
 
 ```{r}
 library(fmesher)
+library(Matrix)
 ```
 
 
@@ -134,6 +135,16 @@ x_fine <- seq(0, a, length.out = nx_fine + 1)
 y_fine <- seq(0, b, length.out = ny_fine + 1)
 loc_fine <- as.matrix(expand.grid(x_fine, y_fine))
 mesh_fine <- fm_mesh_2d(loc = loc_fine, offset = 0)
+lattice_fine <- fm_lattice_2d(
+  x = x_fine,
+  y = y_fine
+)
+
+mesh_fine <- fm_rcdt_2d(
+  lattice = lattice_fine,
+  extend = FALSE
+)
+plot(mesh_fine)
 ```
 
 
@@ -162,6 +173,15 @@ x_coarse <- seq(0, a, length.out = nx_coarse + 1)
 y_coarse <- seq(0, b, length.out = ny_coarse + 1)
 loc_coarse <- as.matrix(expand.grid(x_coarse, y_coarse))
 mesh_coarse <- fm_mesh_2d(loc = loc_coarse, offset = 0)
+lattice_coarse <- fm_lattice_2d(
+  x = x_coarse,
+  y = y_coarse
+)
+
+mesh_coarse <- fm_rcdt_2d(
+  lattice = lattice_coarse,
+  extend = FALSE
+)
 ```
 
 
@@ -192,7 +212,7 @@ eigfuncs_coarse <- eig_coarse$eigfuncs
 ```{r}
 U_0_coarse <- coeff * eigfuncs_coarse[, which_eig]
 my_op_frac <- my.fractional.operators.frac(L, beta, C, scale.factor = kappa^2, m = m, time_step)
-U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0_coarse)
+U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0_coarse, RHST = matrix(0, nrow = nrow(C), ncol = length(time_seq)))
 
 U_approx_proj <- as.matrix(A_mat %*% U_approx)
 U_approx_proj <- construct_piecewise_projection(U_approx_proj, time_seq, overkill_time_seq)
