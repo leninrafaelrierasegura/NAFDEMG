@@ -165,13 +165,13 @@ def fem_shifted_laplacian_sparse(a, b, nx, ny):
     C = assemble(C)
     G = scipy.sparse.csr_matrix(G.array())
     C = scipy.sparse.csr_matrix(C.array())
-    coords = mesh.coordinates()
+    mesh_loc = mesh.coordinates()
     x = np.linspace(0, a, nx+1)
     y = np.linspace(0, b, ny+1)
     return {
         'G': G,
         'C': C,
-        'coords': coords,
+        'mesh_loc': mesh_loc,
         'x': x,
         'y': y,
         'mesh': mesh,
@@ -184,7 +184,7 @@ def transfer_solution_to_fine(V_coarse, U_coarse_matrix, a, b, nx_fine, ny_fine)
     
     fine_mesh = RectangleMesh(Point(0,0), Point(a,b), nx_fine, ny_fine)
     V_fine = FunctionSpace(fine_mesh, 'Lagrange', 1)
-    fine_coords = fine_mesh.coordinates()
+    mesh_loc = fine_mesh.coordinates()
     x_fine = np.linspace(0, a, nx_fine+1)
     y_fine = np.linspace(0, b, ny_fine+1)
     
@@ -203,10 +203,19 @@ def transfer_solution_to_fine(V_coarse, U_coarse_matrix, a, b, nx_fine, ny_fine)
     
     return {
     'U_fine_list': U_fine_list,
-    'fine_coords': fine_coords,
+    'mesh_loc': mesh_loc,
     'x_fine': x_fine, 
     'y_fine': y_fine}
 ")
+
+
+## -----------------------------------------------------------------------------
+from_matrix_to_list <- function(M, nrow, ncol) {
+  return(lapply(1:ncol(M), function(j) matrix(M[, j], nrow = nrow, ncol = ncol, byrow = FALSE)))
+}
+from_list_to_matrix <- function(L) {
+  return(do.call(cbind, lapply(L, function(M) as.vector(M))))
+}
 
 
 ## -----------------------------------------------------------------------------
@@ -227,31 +236,33 @@ quad_weights <- function(z) {
 ## -----------------------------------------------------------------------------
 compute_true_eigen_rectangle <- function(a = 1,
                                          b = 1,
-                                         x, 
-                                         y, 
+                                         loc,
                                          kappa = 1, 
                                          m_max = 3, 
                                          n_max = 3) {
-  
+  loc_x <- loc[,1]
+  loc_y <- loc[,2]
+  N <- (m_max+1)*(n_max+1)
   # Prepare lists
-  eigvals <- c()
-  eigfuncs <- list()
+  eigvals <- numeric(N)
+  eigfuncs <- matrix(0, nrow = nrow(loc), ncol = N)
   
+  i <- 0 
   # Loop over mode indices
   for (m in 0:m_max) {
     for (n in 0:n_max) {
       lambda_mn <- kappa^2 + pi^2 * ((m^2 / a^2) + (n^2 / b^2))
-      eigvals <- c(eigvals, lambda_mn)
-      
+      eigvals[i + 1] <- lambda_mn
       # Evaluate eigenfunction on mesh grid
-      phi_mn <- outer(x, y, function(xi, yi) cos(m*pi*xi/a) * cos(n*pi*yi/b))
-      eigfuncs[[length(eigfuncs)+1]] <- phi_mn
+      phi_mn <-  cos(m*pi*loc_x/a) * cos(n*pi*loc_y/b)
+      eigfuncs[, i + 1] <- phi_mn
+      i <- i + 1
     }
   }
   # Sort eigenvalues and corresponding eigenfunctions
   idx <- order(eigvals)
   eigvals <- eigvals[idx]
-  eigfuncs <- eigfuncs[idx]
+  eigfuncs <- eigfuncs[, idx]
   
   return(list(eigvals = eigvals,
               eigfuncs = eigfuncs))
@@ -277,7 +288,8 @@ global.scene.setter <- function(x_range, y_range, z_range) {
 
 
 ## -----------------------------------------------------------------------------
-plot_3d_slider <- function(x, y, eigvals, eigfuncs) {
+plot_3d_slider <- function(loc, nx, ny, eigvals, eigfuncs) {
+  eigfuncs <- from_matrix_to_list(eigfuncs, nx+1, ny+1)
   colorscale <- "Viridis"
   # Build frames (each frame *must* include the colorscale)
   frames <- lapply(seq_along(eigfuncs), function(i) {
@@ -292,8 +304,8 @@ plot_3d_slider <- function(x, y, eigvals, eigfuncs) {
     )
   })
   
-  X <- matrix(rep(x, length(y)), nrow = length(x))
-  Y <- matrix(rep(y, length(x)), nrow = length(x), byrow = TRUE)
+  X <- matrix(loc[,1], nx+1,ny+1)
+  Y <- matrix(loc[,2], nx+1,ny+1)
   # Initial plot
   p <- plot_ly(
     x = X,
