@@ -130,15 +130,15 @@ plt.show()
 
 ```{r}
 # Parameters
-a <- 20
-b <- 10
+a <- 2
+b <- 1
 kappa <- 4
 alpha <- 1.8
 m = 4
 beta <- alpha/2
 
-nx <- 2
-ny <- 10
+nx <- 3
+ny <- 5
 T_final <- 0.5
 time_step <- 0.001
 time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))

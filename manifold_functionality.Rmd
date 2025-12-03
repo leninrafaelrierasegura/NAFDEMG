@@ -256,6 +256,29 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 ```
 
 
+### Function `construct_piecewise_projection()` {#construct_piecewise_projection}
+
+Given a matrix `projected_U_approx` with approximated values at discrete time points, a sequence of time points `time_seq`, and an extended sequence of time points `overkill_time_seq`, function `construct_piecewise_projection()` constructs a piecewise constant projection of the approximated values over the extended time sequence.
+
+```{r}
+# Function to construct a piecewise constant projection of approximated values
+construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
+  projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
+  
+  # Assign value at t = 0
+  projected_U_piecewise[, which(overkill_time_seq == 0)] <- projected_U_approx[, 1]
+  
+  # Assign values for intervals (t_{k-1}, t_k]
+  for (k in 2:length(time_seq)) {
+    idxs <- which(overkill_time_seq > time_seq[k - 1] & overkill_time_seq <= time_seq[k])
+    projected_U_piecewise[, idxs] <- projected_U_approx[, k]
+  }
+  
+  return(projected_U_piecewise)
+}
+```
+
+
 ```{r}
 # Call the Python function
 fem <- py_run_string("

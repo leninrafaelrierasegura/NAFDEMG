@@ -1,9 +1,9 @@
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(plotly)
 library(akima)
 
 
-## ----setup, include = FALSE-----------------------------------------------------------------------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 # to install in terminal
 # conda activate fenicsenv
 # conda install -c conda-forge matplotlib plotly ipywidgets
@@ -13,7 +13,7 @@ use_condaenv("fenicsenv", required = TRUE)
 py_config()
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
@@ -43,7 +43,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
 }
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
@@ -52,7 +52,7 @@ poly.from.roots <- function(roots) {
 }
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
@@ -72,7 +72,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
 }
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
@@ -112,7 +112,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 }
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -133,7 +133,7 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 }
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0) {
   CC <- my_op_frac$C
   SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
@@ -146,7 +146,25 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 }
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
+# Function to construct a piecewise constant projection of approximated values
+construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
+  projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
+  
+  # Assign value at t = 0
+  projected_U_piecewise[, which(overkill_time_seq == 0)] <- projected_U_approx[, 1]
+  
+  # Assign values for intervals (t_{k-1}, t_k]
+  for (k in 2:length(time_seq)) {
+    idxs <- which(overkill_time_seq > time_seq[k - 1] & overkill_time_seq <= time_seq[k])
+    projected_U_piecewise[, idxs] <- projected_U_approx[, k]
+  }
+  
+  return(projected_U_piecewise)
+}
+
+
+## -----------------------------------------------------------------------------
 # Call the Python function
 fem <- py_run_string("
 from dolfin import *
@@ -210,7 +228,7 @@ def transfer_solution_to_fine(V_coarse, U_coarse_matrix, a, b, nx_fine, ny_fine)
 ")
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 from_matrix_to_list <- function(M, nrow, ncol) {
   return(lapply(1:ncol(M), function(j) matrix(M[, j], nrow = nrow, ncol = ncol, byrow = FALSE)))
 }
@@ -219,7 +237,7 @@ from_list_to_matrix <- function(L) {
 }
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 quad_weights <- function(z) {
   n <- length(z)
   w <- numeric(n)
@@ -234,7 +252,7 @@ quad_weights <- function(z) {
 }
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 compute_true_eigen_rectangle <- function(a = 1,
                                          b = 1,
                                          loc,
@@ -278,7 +296,7 @@ compute_true_eigen_rectangle <- function(a = 1,
 }
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 global.scene.setter <- function(x_range, y_range, z_range) {
   
   return(list(xaxis = list(title = "x", range = x_range),
@@ -296,7 +314,7 @@ global.scene.setter <- function(x_range, y_range, z_range) {
 }
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 simple3d_plotter <- function(mesh_loc, U_0) {
 interp_res <- interp(
   x = mesh_loc[,2],
@@ -313,7 +331,7 @@ plot_ly(
 )}
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 plot_3d_slider <- function(loc, nx, ny, eigvals, eigfuncs) {
   eigfuncs <- from_matrix_to_list(eigfuncs, nx+1, ny+1)
   colorscale <- "Viridis"
@@ -400,7 +418,7 @@ plot_3d_slider <- function(loc, nx, ny, eigvals, eigfuncs) {
 }
 
 
-## -------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 plot_3d_slider_scatter <- function(loc, eigvals, eigfuncs) {
 
   x <- loc[,1]
