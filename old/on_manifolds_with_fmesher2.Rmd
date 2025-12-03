@@ -121,9 +121,9 @@ m_max <- 5
 n_max <- 5
 N_eig <- (m_max + 1) * (n_max + 1)
 coeff_U_0 <- rep(0, N_eig)
-coeff_U_0[3] <- 0.1
+coeff_U_0[9] <- 1
 coeff_FF <- rep(0, N_eig)
-coeff_FF[9] <- 1
+coeff_FF[3] <- 10
 
 AAA = 1
 OMEGA = pi
