@@ -84,6 +84,7 @@ captioner <- function(caption) {
 
 ```{r}
 library(plotly)
+library(akima)
 ```
 
 
@@ -470,6 +471,8 @@ compute_true_eigen_rectangle <- function(a = 1,
   N <- (m_max+1)*(n_max+1)
   # Prepare lists
   eigvals <- numeric(N)
+  m_vector <- numeric(N)
+  n_vector <- numeric(N)
   eigfuncs <- matrix(0, nrow = nrow(loc), ncol = N)
   
   i <- 0 
@@ -481,6 +484,8 @@ compute_true_eigen_rectangle <- function(a = 1,
       # Evaluate eigenfunction on mesh grid
       phi_mn <-  cos(m*pi*loc_x/a) * cos(n*pi*loc_y/b)
       eigfuncs[, i + 1] <- phi_mn
+      m_vector[i + 1] <- m
+      n_vector[i + 1] <- n
       i <- i + 1
     }
   }
@@ -488,9 +493,13 @@ compute_true_eigen_rectangle <- function(a = 1,
   idx <- order(eigvals)
   eigvals <- eigvals[idx]
   eigfuncs <- eigfuncs[, idx]
+  m_vector <- m_vector[idx]
+  n_vector <- n_vector[idx]
   
   return(list(eigvals = eigvals,
-              eigfuncs = eigfuncs))
+              eigfuncs = eigfuncs,
+              m_vector = m_vector,
+              n_vector = n_vector))
 }
 ```
 
@@ -513,6 +522,24 @@ global.scene.setter <- function(x_range, y_range, z_range) {
 }
 ```
 
+
+
+```{r}
+simple3d_plotter <- function(mesh_loc, U_0) {
+interp_res <- interp(
+  x = mesh_loc[,2],
+  y = mesh_loc[,1],
+  z = U_0,
+  duplicate = "mean"
+)
+
+plot_ly(
+  x = interp_res$y,
+  y = interp_res$x,
+  z = interp_res$z,
+  type = "surface"
+)}
+```
 
 ```{r}
 plot_3d_slider <- function(loc, nx, ny, eigvals, eigfuncs) {
@@ -600,3 +627,128 @@ plot_3d_slider <- function(loc, nx, ny, eigvals, eigfuncs) {
   return(p)
 }
 ```
+
+
+```{r}
+plot_3d_slider_scatter <- function(loc, eigvals, eigfuncs) {
+
+  x <- loc[,1]
+  y <- loc[,2]
+
+  colorscale <- "Viridis"
+
+  # Frames ----------------------------------------------------------------
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = eigfuncs[,i],
+        type = "scatter3d",
+        mode = "markers",
+        marker = list(
+          size = 5,
+          color = eigfuncs[,i],
+          colorscale = colorscale,
+          showscale = TRUE
+        )
+      ))
+    )
+  })
+
+  # Initial Plot ----------------------------------------------------------
+  p <- plot_ly(
+    x = x,
+    y = y,
+    z = eigfuncs[,1],
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(
+      size = 5,
+      color = eigfuncs[,1],
+      colorscale = colorscale,
+      showscale = TRUE
+    ),
+    frame = "1"
+  )
+
+  p$x$frames <- frames
+
+  z_range <- range(eigfuncs)
+  x_range <- range(x)
+  y_range <- range(y)
+
+  frame_name <- deparse(substitute(eigvals))
+
+  # Layout + slider -------------------------------------------------------
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    scene = global.scene.setter(x_range, y_range, z_range),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Frame: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(
+              list(as.character(i)),
+              list(frame = list(duration = 300, redraw = TRUE),
+                   mode = "immediate")
+            )
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(label = "Play",
+               method = "animate",
+               args = list(
+                 NULL,
+                 list(frame = list(duration = 300, redraw = TRUE),
+                      fromcurrent = TRUE)
+               )),
+          list(label = "Pause",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 0))))
+        )
+      )
+    )
+  ) %>% plotly_build()
+
+  # Update title in each frame --------------------------------------------
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+
+  return(p)
+}
+
+# x <- mesh_fine$loc[,1]
+# y <- mesh_fine$loc[,2]
+# z <- eigfuncs[,9]
+# 
+# plotly::plot_ly(
+#   x = x,
+#   y = y,
+#   z = z,
+#   type = "scatter3d",
+#   mode = "markers",
+#   marker = list(size = 5, color = z, colorscale = "Viridis")
+# )
+
+```
+

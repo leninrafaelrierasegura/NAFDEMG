@@ -1,8 +1,9 @@
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 library(plotly)
+library(akima)
 
 
-## ----setup, include = FALSE---------------------------------------------------
+## ----setup, include = FALSE-----------------------------------------------------------------------------------------------------------
 # to install in terminal
 # conda activate fenicsenv
 # conda install -c conda-forge matplotlib plotly ipywidgets
@@ -12,7 +13,7 @@ use_condaenv("fenicsenv", required = TRUE)
 py_config()
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
@@ -42,7 +43,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
 }
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
@@ -51,7 +52,7 @@ poly.from.roots <- function(roots) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
@@ -71,7 +72,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
 }
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
@@ -111,7 +112,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 }
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -132,7 +133,7 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 }
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0) {
   CC <- my_op_frac$C
   SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
@@ -145,7 +146,7 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 }
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 # Call the Python function
 fem <- py_run_string("
 from dolfin import *
@@ -209,7 +210,7 @@ def transfer_solution_to_fine(V_coarse, U_coarse_matrix, a, b, nx_fine, ny_fine)
 ")
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 from_matrix_to_list <- function(M, nrow, ncol) {
   return(lapply(1:ncol(M), function(j) matrix(M[, j], nrow = nrow, ncol = ncol, byrow = FALSE)))
 }
@@ -218,7 +219,7 @@ from_list_to_matrix <- function(L) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 quad_weights <- function(z) {
   n <- length(z)
   w <- numeric(n)
@@ -233,7 +234,7 @@ quad_weights <- function(z) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 compute_true_eigen_rectangle <- function(a = 1,
                                          b = 1,
                                          loc,
@@ -245,6 +246,8 @@ compute_true_eigen_rectangle <- function(a = 1,
   N <- (m_max+1)*(n_max+1)
   # Prepare lists
   eigvals <- numeric(N)
+  m_vector <- numeric(N)
+  n_vector <- numeric(N)
   eigfuncs <- matrix(0, nrow = nrow(loc), ncol = N)
   
   i <- 0 
@@ -256,6 +259,8 @@ compute_true_eigen_rectangle <- function(a = 1,
       # Evaluate eigenfunction on mesh grid
       phi_mn <-  cos(m*pi*loc_x/a) * cos(n*pi*loc_y/b)
       eigfuncs[, i + 1] <- phi_mn
+      m_vector[i + 1] <- m
+      n_vector[i + 1] <- n
       i <- i + 1
     }
   }
@@ -263,13 +268,17 @@ compute_true_eigen_rectangle <- function(a = 1,
   idx <- order(eigvals)
   eigvals <- eigvals[idx]
   eigfuncs <- eigfuncs[, idx]
+  m_vector <- m_vector[idx]
+  n_vector <- n_vector[idx]
   
   return(list(eigvals = eigvals,
-              eigfuncs = eigfuncs))
+              eigfuncs = eigfuncs,
+              m_vector = m_vector,
+              n_vector = n_vector))
 }
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
 global.scene.setter <- function(x_range, y_range, z_range) {
   
   return(list(xaxis = list(title = "x", range = x_range),
@@ -287,7 +296,24 @@ global.scene.setter <- function(x_range, y_range, z_range) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------
+simple3d_plotter <- function(mesh_loc, U_0) {
+interp_res <- interp(
+  x = mesh_loc[,2],
+  y = mesh_loc[,1],
+  z = U_0,
+  duplicate = "mean"
+)
+
+plot_ly(
+  x = interp_res$y,
+  y = interp_res$x,
+  z = interp_res$z,
+  type = "surface"
+)}
+
+
+## -------------------------------------------------------------------------------------------------------------------------------------
 plot_3d_slider <- function(loc, nx, ny, eigvals, eigfuncs) {
   eigfuncs <- from_matrix_to_list(eigfuncs, nx+1, ny+1)
   colorscale <- "Viridis"
@@ -372,4 +398,127 @@ plot_3d_slider <- function(loc, nx, ny, eigvals, eigfuncs) {
   }
   return(p)
 }
+
+
+## -------------------------------------------------------------------------------------------------------------------------------------
+plot_3d_slider_scatter <- function(loc, eigvals, eigfuncs) {
+
+  x <- loc[,1]
+  y <- loc[,2]
+
+  colorscale <- "Viridis"
+
+  # Frames ----------------------------------------------------------------
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = eigfuncs[,i],
+        type = "scatter3d",
+        mode = "markers",
+        marker = list(
+          size = 5,
+          color = eigfuncs[,i],
+          colorscale = colorscale,
+          showscale = TRUE
+        )
+      ))
+    )
+  })
+
+  # Initial Plot ----------------------------------------------------------
+  p <- plot_ly(
+    x = x,
+    y = y,
+    z = eigfuncs[,1],
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(
+      size = 5,
+      color = eigfuncs[,1],
+      colorscale = colorscale,
+      showscale = TRUE
+    ),
+    frame = "1"
+  )
+
+  p$x$frames <- frames
+
+  z_range <- range(eigfuncs)
+  x_range <- range(x)
+  y_range <- range(y)
+
+  frame_name <- deparse(substitute(eigvals))
+
+  # Layout + slider -------------------------------------------------------
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    scene = global.scene.setter(x_range, y_range, z_range),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Frame: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(
+              list(as.character(i)),
+              list(frame = list(duration = 300, redraw = TRUE),
+                   mode = "immediate")
+            )
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(label = "Play",
+               method = "animate",
+               args = list(
+                 NULL,
+                 list(frame = list(duration = 300, redraw = TRUE),
+                      fromcurrent = TRUE)
+               )),
+          list(label = "Pause",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 0))))
+        )
+      )
+    )
+  ) %>% plotly_build()
+
+  # Update title in each frame --------------------------------------------
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+
+  return(p)
+}
+
+# x <- mesh_fine$loc[,1]
+# y <- mesh_fine$loc[,2]
+# z <- eigfuncs[,9]
+# 
+# plotly::plot_ly(
+#   x = x,
+#   y = y,
+#   z = z,
+#   type = "scatter3d",
+#   mode = "markers",
+#   marker = list(size = 5, color = z, colorscale = "Viridis")
+# )
+
 

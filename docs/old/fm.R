@@ -1,28 +1,59 @@
 library(fmesher)
 
-a <- 100
-b <- 100
+kappa <- 1
+a <- 20
+b <- 10
 
-nx <- 10
+nx <- 2
 ny <- 10
 
-FEM_matrices_coarse <- fem$fem_shifted_laplacian_sparse(
-  a = a,
-  b = b, 
-  nx = nx, 
-  ny = ny
-)
+alpha <- 1.8
+m = 4
+beta <- alpha/2
 
-FEM_matrices_fine <- fem$fem_shifted_laplacian_sparse(
-  a = a,
-  b = b, 
-  nx = 2*nx, 
-  ny = 2*ny
-)
+T_final <- 0.5
+time_step <- 0.001
+time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
+coeff <- 1
+which_eig <- 9
 
+
+
+FEM_matrices_coarse <- fem$fem_shifted_laplacian_sparse(a = a, b = b, nx = nx, ny = ny)
+FEM_matrices_fine <-   fem$fem_shifted_laplacian_sparse(a = a, b = b, nx = 2*nx, ny = 2*ny)
 
 mesh_coarse <- fm_mesh_2d(loc = FEM_matrices_coarse$mesh_loc, offset = 0)
 mesh_fine <- fm_mesh_2d(loc = FEM_matrices_fine$mesh_loc, offset = 0)
+
+true_eig <- compute_true_eigen_rectangle(
+  a = a, 
+  b = b, 
+  loc = mesh_fine$loc,
+  kappa = kappa,
+  m_max = 5, 
+  n_max = 5
+)
+
+eigvals <- true_eig$eigvals
+eigfuncs <- true_eig$eigfuncs
+
+
+U_0 <- coeff * eigfuncs[, which_eig]
+U_true_matrix <- outer(U_0, exp(-(eigvals[which_eig]^(alpha/2)) * time_seq), FUN = "*")
+
+
+
+x <- mesh_fine$loc[,1]
+y <- mesh_fine$loc[,2]
+z <- eigfuncs[,9]
+plotly::plot_ly(
+  x = x,
+  y = y,
+  z = z,
+  type = "scatter3d",
+  mode = "markers",
+  marker = list(size = 5, color = z, colorscale = "Viridis")
+)
 
 
 
