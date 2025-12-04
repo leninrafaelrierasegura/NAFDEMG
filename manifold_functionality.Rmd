@@ -506,6 +506,26 @@ L[ord, ord]
 ```
 
 ```{r}
+# Function to find globe for a given h via interpolation
+globe_from_h <- function(h) {
+  readed_data <- readRDS(
+    file = here::here("data_files/h_min_max_vs_globe.RDS")
+  )
+  
+  globe_vector <- readed_data$globe_vector
+  h_min_vector <- readed_data$h_min_vector
+  h_max_vector <- readed_data$h_max_vector
+  
+  ord <- order(h_max_vector)
+  h_sorted <- h_max_vector[ord]
+  globe_sorted <- globe_vector[ord]
+  
+  return(round(approx(x = h_sorted, y = globe_sorted, xout = h)$y))
+}
+```
+
+
+```{r}
 from_matrix_to_list <- function(M, nrow, ncol) {
   return(lapply(1:ncol(M), function(j) matrix(M[, j], nrow = nrow, ncol = ncol, byrow = FALSE)))
 }

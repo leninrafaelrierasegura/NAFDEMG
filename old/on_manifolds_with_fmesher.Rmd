@@ -178,7 +178,7 @@ mesh_coarse <- fm_rcdt_2d(
 
 
 ```{r}
-FEM_coarse <- fm_fem(mesh_coarse, order = 2)
+FEM_coarse <- fm_fem(mesh_coarse, order = 1)
 Cl <- FEM_coarse$c0
 C <- FEM_coarse$c1
 G <- FEM_coarse$g1
@@ -209,7 +209,7 @@ U_approx_proj <- Psi %*% U_approx
 U_approx_proj <- construct_piecewise_projection(U_approx_proj, time_seq, overkill_time_seq)
 diff <- U_true - U_approx_proj
 
-C_fine <- fm_fem(mesh_fine, order = 2)$c1
+C_fine <- fm_fem(mesh_fine, order = 1)$c1
 error <- sqrt(as.double(overkill_time_step * sum(diff * (C_fine %*% diff))))
 error
 ```
