@@ -85,6 +85,9 @@ captioner <- function(caption) {
 ```{r}
 library(plotly)
 library(akima)
+library(orthopolynom)
+library(Matrix)
+library(pracma) 
 ```
 
 
@@ -315,12 +318,12 @@ G_sin <- function(t, A, lambda_j_alpha_half, omega) {
   numerator <- exp(lambda_j_alpha_half * t) * (lambda_j_alpha_half * sin(omega * t) - omega * cos(omega * t)) + omega
   return(A * numerator / denom)
 }
-g_cos <- function(r, A, theta) {
-  return(A * cos(theta * r)) 
+g_cos <- function(r, A, omega) {
+  return(A * cos(omega * r)) 
 }
-G_cos <- function(t, A, lambda_j_alpha_half, theta) {
-  denom <- lambda_j_alpha_half^2 + theta^2
-  numerator <- exp(lambda_j_alpha_half * t) * (lambda_j_alpha_half * cos(theta * t) + theta * sin(theta * t)) - lambda_j_alpha_half
+G_cos <- function(t, A, lambda_j_alpha_half, omega) {
+  denom <- lambda_j_alpha_half^2 + omega^2
+  numerator <- exp(lambda_j_alpha_half * t) * (lambda_j_alpha_half * cos(omega * t) + omega * sin(omega * t)) - lambda_j_alpha_half
   return(A * numerator / denom)
 }
 ```
@@ -570,6 +573,108 @@ compute_true_eigen_rectangle <- function(a = 1,
               m_vector = m_vector,
               n_vector = n_vector))
 }
+
+compute_true_eigen_sphere <- function(mesh, 
+                                      kappa,
+                                      L_max,
+                                      rot.inv){
+  eigfucs <- fmesher::fm_raw_basis(mesh = mesh, 
+                                   type = "sph.harm",
+                                   n = L_max, 
+                                   rot.inv = rot.inv)
+  eigvals <- calculate_laplace_beltrami_eigenvalues(kappa = kappa, 
+                                                    L_max = L_max, 
+                                                    rot.inv = rot.inv)
+  return(list(eigvals = eigvals,
+              eigfuncs = eigfucs))
+}
+```
+
+```{r}
+# Function to calculate real spherical harmonics R_lm(theta, phi)
+calculate_real_spherical_harmonics_vectorized <- function(l, m, theta, phi) {
+  # theta and phi are vectors of length N (number of points)
+  N <- length(theta)
+  Y_lm_real_values <- numeric(N)
+  abs_m <- abs(m)
+
+  # Normalization constant (can be calculated once outside the loop over N points)
+  norm_const <- sqrt((2*l + 1) / (4 * pi) * factorial(l - abs_m) / factorial(l + abs_m))
+
+  # Iterate over all N points to apply the pracma::legendre function correctly
+  for (i in 1:N) {
+    # pracma::legendre returns a 1x(l+1) matrix for a single input cos(theta[i])
+    Plm_val <- pracma::legendre(l, cos(theta[i]))[abs_m + 1]
+    
+    # Calculate the Y_lm value for this specific point
+    if (m > 0) {
+      Y_lm_real_values[i] <- sqrt(2) * norm_const * Plm_val * cos(m * phi[i])
+    } else if (m < 0) {
+      Y_lm_real_values[i] <- sqrt(2) * norm_const * Plm_val * sin(abs_m * phi[i])
+    } else { # m = 0
+      Y_lm_real_values[i] <- norm_const * Plm_val
+    }
+  }
+  
+  return(Y_lm_real_values)
+}
+calculate_laplace_beltrami_eigens_manual <- function(loc, kappa = 0, L_max = 5) {
+  
+  # Convert Cartesian to Spherical (Physics convention: theta inclination, phi azimuth)
+  theta <- acos(loc[, 3])
+  phi <- atan2(loc[, 2], loc[, 1])
+  phi <- ifelse(phi < 0, phi + 2 * pi, phi) 
+
+  eigenvalues <- numeric(0)
+  eigenfunctions_matrix <- matrix(nrow = nrow(loc), ncol = 0)
+  col_names <- character(0)
+  
+  for (l in 0:L_max) {
+    # The eigenvalue for the Laplace-Beltrami is actually just l*(l+1). 
+    # Your definition "kappa^2 + l*(l+1)" might be for a modified Helmholtz equation/operator.
+    # Sticking to your provided calculation:
+    lambda_l <- kappa^2 + l * (l + 1)
+    
+    for (m in -l:l) {
+      # Use the new vectorized function:
+      Y_lm_values <- calculate_real_spherical_harmonics_vectorized(l, m, theta, phi)
+      
+      eigenvalues <- c(eigenvalues, lambda_l)
+      eigenfunctions_matrix <- cbind(eigenfunctions_matrix, Y_lm_values)
+      col_names <- c(col_names, paste0("Y_", l, "_", m, "_k_", kappa))
+    }
+  }
+  
+  colnames(eigenfunctions_matrix) <- col_names
+  
+  return(list(
+    eigenvalues = eigenvalues,
+    eigenfunctions = eigenfunctions_matrix
+  ))
+}
+
+
+calculate_laplace_beltrami_eigenvalues <- function(kappa = 0, L_max = 5, rot.inv = FALSE) {
+  
+  eigenvalues <- numeric(0)
+  
+  for (l in 0:L_max) {
+    lambda_l <- kappa^2 + l * (l + 1)
+    
+    if (rot.inv) {
+      # Only one eigenvalue per l (rotational invariance)
+      eigenvalues <- c(eigenvalues, lambda_l)
+    } else {
+      # Full multiplicity: (m = -l,...,l)
+      multiplicity <- 2 * l + 1
+      eigenvalues <- c(eigenvalues, rep(lambda_l, multiplicity))
+    }
+  }
+  
+  return(eigenvalues)
+}
+
+
 ```
 
 
@@ -819,5 +924,279 @@ plot_3d_slider_scatter <- function(loc, eigvals, eigfuncs) {
 #   marker = list(size = 5, color = z, colorscale = "Viridis")
 # )
 
+```
+
+
+```{r}
+plot_3d_slider_sphere <- function(mesh, eigvals, eigfuncs, fixed_colorscale = TRUE) {
+  
+  colorscale = "Viridis"
+  opacity = 1
+  
+  x <- mesh$loc[, 1]
+  y <- mesh$loc[, 2]
+  z <- mesh$loc[, 3]
+  tri <- mesh$graph$tv
+  
+  # Global intensity limits if fixed
+  if (fixed_colorscale) {
+    cmin <- min(eigfuncs)
+    cmax <- max(eigfuncs)
+  } else {
+    cmin <- NULL
+    cmax <- NULL
+  }
+  
+  # Create frames
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    fvals <- eigfuncs[,i]
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = z,
+        i = tri[,1] - 1,
+        j = tri[,2] - 1,
+        k = tri[,3] - 1,
+        type = "mesh3d",
+        intensity = fvals,
+        colorscale = colorscale,
+        opacity = opacity,
+        flatshading = TRUE,
+        cmin = cmin,
+        cmax = cmax,
+        text = paste0(
+          "x: ", sprintf("%.3f", x), "<br>",
+          "y: ", sprintf("%.3f", y), "<br>",
+          "z: ", sprintf("%.3f", z), "<br>",
+          "f: ", sprintf("%.5f", fvals)
+        ),
+        hoverinfo = "text"
+      ))
+    )
+  })
+  
+  # Initial plot
+  fvals0 <- eigfuncs[,1]
+  
+  p <- plot_ly(
+    x = x, y = y, z = z,
+    i = tri[,1] - 1,
+    j = tri[,2] - 1,
+    k = tri[,3] - 1,
+    type = "mesh3d",
+    intensity = fvals0,
+    colorscale = colorscale,
+    opacity = opacity,
+    flatshading = TRUE,
+    cmin = cmin,
+    cmax = cmax,
+    text = paste0(
+      "x: ", sprintf("%.3f", x), "<br>",
+      "y: ", sprintf("%.3f", y), "<br>",
+      "z: ", sprintf("%.3f", z), "<br>",
+      "f: ", sprintf("%.5f", fvals0)
+    ),
+    hoverinfo = "text",
+    frame = "1"
+  )
+  
+  frame_name <- deparse(substitute(eigvals))
+  
+  p$x$frames <- frames
+  
+  # Layout + slider + buttons
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Frame: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(list(as.character(i)),
+                        list(mode = "immediate",
+                             frame = list(duration = 300, redraw = TRUE),
+                             transition = list(duration = 0)))
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(label = "Play",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 300, redraw = TRUE),
+                                      fromcurrent = TRUE, mode = "immediate"))),
+          list(label = "Pause",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 0, redraw = FALSE),
+                                      mode = "immediate")))
+        )
+      )
+    )
+  ) %>% plotly_build()
+  
+  # Add titles for frames
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+  
+  return(p)
+}
+
+```
+
+```{r}
+plot_3d_slider_sphere_scatter <- function(mesh, eigvals, eigfuncs,
+                                          fixed_colorscale = TRUE) {
+  
+  colorscale = "Viridis"
+  
+  x <- mesh$loc[,1]
+  y <- mesh$loc[,2]
+  z <- mesh$loc[,3]
+  
+  # Compute global color limits if fixed
+  if (fixed_colorscale) {
+    cmin <- min(eigfuncs)
+    cmax <- max(eigfuncs)
+  } else {
+    cmin <- NULL
+    cmax <- NULL
+  }
+  
+  # Create frames
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    
+    fvals <- eigfuncs[,i]
+    
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = z,
+        type = "scatter3d",
+        mode = "markers",
+        marker = list(
+          size = 5,
+          color = fvals,
+          colorscale = colorscale,
+          showscale = TRUE,
+          cmin = cmin,
+          cmax = cmax
+        ),
+        text = paste0(
+          "x: ", sprintf("%.3f", x), "<br>",
+          "y: ", sprintf("%.3f", y), "<br>",
+          "z: ", sprintf("%.3f", z), "<br>",
+          "f: ", sprintf("%.5f", fvals)
+        ),
+        hoverinfo = "text"
+      ))
+    )
+  })
+  
+  # Initial plot (frame 1)
+  fvals0 <- eigfuncs[,1]
+  
+  p <- plot_ly(
+    x = x, y = y, z = z,
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(
+      size = 5,
+      color = fvals0,
+      colorscale = colorscale,
+      showscale = TRUE,
+      cmin = cmin,
+      cmax = cmax
+    ),
+    text = paste0(
+      "x: ", sprintf("%.3f", x), "<br>",
+      "y: ", sprintf("%.3f", y), "<br>",
+      "z: ", sprintf("%.3f", z), "<br>",
+      "f: ", sprintf("%.5f", fvals0)
+    ),
+    hoverinfo = "text",
+    frame = "1"
+  )
+  
+  frame_name <- deparse(substitute(eigvals))
+  
+  p$x$frames <- frames
+  
+  # Slider + play/pause
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Mode: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(list(as.character(i)),
+                        list(mode = "immediate",
+                             frame = list(duration = 300, redraw = TRUE),
+                             transition = list(duration = 0)))
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(
+            label = "Play",
+            method = "animate",
+            args = list(NULL,
+                        list(frame = list(duration = 300, redraw = TRUE),
+                             fromcurrent = TRUE,
+                             mode = "immediate"))
+          ),
+          list(
+            label = "Pause",
+            method = "animate",
+            args = list(NULL,
+                        list(frame = list(duration = 0, redraw = FALSE),
+                             mode = "immediate"))
+          )
+        )
+      )
+    )
+  ) %>% plotly_build()
+  
+  # Update title per frame
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+  
+  return(p)
+}
 ```
 

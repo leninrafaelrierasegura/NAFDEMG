@@ -112,8 +112,8 @@ time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
 overkill_time_step <- 0.001
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
 
-nx_coarse <- 15
-ny_coarse <- 15
+nx_coarse <- 25
+ny_coarse <- 25
 nx_fine <- 2*nx_coarse
 ny_fine <- 2*ny_coarse
 
@@ -123,7 +123,7 @@ N_eig <- (m_max + 1) * (n_max + 1)
 coeff_U_0 <- rep(0, N_eig)
 coeff_U_0[9] <- 1
 coeff_FF <- rep(0, N_eig)
-coeff_FF[3] <- 10
+coeff_FF[2] <- 10
 
 AAA = 1
 OMEGA = pi
@@ -164,7 +164,7 @@ eigfuncs_fine <- eig_fine$eigfuncs
 U_true <- eigfuncs_fine %*% 
     outer(1:length(coeff_U_0), 
           1:length(overkill_time_seq), 
-          function(i, j) (coeff_U_0[i] + coeff_FF[i] * G_sin(t = overkill_time_seq[j], A = AAA, lambda_j_alpha_half = eigvals[i]^(alpha/2), omega = OMEGA)) * exp(-eigvals[i]^(alpha/2) * overkill_time_seq[j]))
+          function(i, j) (coeff_U_0[i] + coeff_FF[i] * G_sin(t = overkill_time_seq[j], A = AAA, lambda_j_alpha_half = eigvals[i]^(alpha/2), omega = OMEGA)) * exp(-(eigvals[i]^(alpha/2)) * overkill_time_seq[j]))
   
 ```
 
@@ -222,6 +222,10 @@ FF_approx <- t(INT_BASIS_EIGEN) %*%
       outer(1:length(coeff_FF), 
             1:length(time_seq), 
         function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))
+
+FF_true <- eigfuncs_coarse %*% outer(1:length(coeff_FF), 
+                         1:length(time_seq), 
+                         function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))
 ```
 
 
@@ -246,6 +250,7 @@ plot_3d_slider_scatter(mesh_coarse$loc, time_seq, U_approx)
 plot_3d_slider_scatter(mesh_fine$loc, overkill_time_seq, U_approx_proj)
 plot_3d_slider_scatter(mesh_fine$loc, overkill_time_seq, abs(diff))
 plot_3d_slider_scatter(mesh_coarse$loc, time_seq, eigfuncs_coarse)
+plot_3d_slider_scatter(mesh_coarse$loc, time_seq, FF_true)
 ```
 
 

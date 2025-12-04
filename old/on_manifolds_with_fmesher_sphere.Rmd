@@ -112,67 +112,45 @@ time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
 overkill_time_step <- 0.001
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
 coeff <- 1
-which_eig <- 9
+which_eig <- 2
 
 
-m_max <- 5
-n_max <- 5
+L_max <- 10
+rot.inv <- TRUE
 
-nx_coarse <- 15
-ny_coarse <- 15
-nx_fine <- 2*nx_coarse
-ny_fine <- 2*ny_coarse
+globe_coarse <- 5
+globe_fine <- 2*globe_coarse
 ```
 
 
-```{r}
-x_fine <- seq(0, a, length.out = nx_fine + 1)
-y_fine <- seq(0, b, length.out = ny_fine + 1)
-lattice_fine <- fm_lattice_2d(
-  x = x_fine,
-  y = y_fine
-)
 
-mesh_fine <- fm_rcdt_2d(
-  lattice = lattice_fine,
-  extend = FALSE
-)
+```{r}
+mesh_fine <- fm_rcdt_2d(globe = globe_fine)
 plot(mesh_fine)
 ```
 
 
-
 ```{r}
-eig_fine <- compute_true_eigen_rectangle(
-  a = a, 
-  b = b, 
-  loc = mesh_fine$loc,
-  kappa = kappa,
-  m_max = m_max, 
-  n_max = n_max
-)
-
+eig_fine <- compute_true_eigen_sphere(
+  mesh = mesh_fine, 
+  kappa = kappa, 
+  L_max = L_max, 
+  rot.inv = rot.inv)
 eigvals <- eig_fine$eigvals
 eigfuncs_fine <- eig_fine$eigfuncs
-
-
 U_0 <- coeff * eigfuncs_fine[, which_eig]
 U_true <- outer(U_0, exp(-(eigvals[which_eig]^(alpha/2)) * overkill_time_seq), FUN = "*")
 ```
 
+```{r}
+plot_3d_slider_sphere(mesh_fine, eigvals, eigfuncs_fine, fixed_colorscale = FALSE)
+plot_3d_slider_sphere_scatter(mesh_fine, eigvals, eigfuncs_fine, fixed_colorscale = FALSE)
+```
+
 
 ```{r}
-x_coarse <- seq(0, a, length.out = nx_coarse + 1)
-y_coarse <- seq(0, b, length.out = ny_coarse + 1)
-lattice_coarse <- fm_lattice_2d(
-  x = x_coarse,
-  y = y_coarse
-)
-
-mesh_coarse <- fm_rcdt_2d(
-  lattice = lattice_coarse,
-  extend = FALSE
-)
+mesh_coarse <- fm_rcdt_2d(globe = globe_coarse)
+plot(mesh_coarse)
 ```
 
 
@@ -189,14 +167,11 @@ Psi <- fm_basis(mesh_coarse, mesh_fine$loc)
 
 
 ```{r}
-eig_coarse <- compute_true_eigen_rectangle(
-  a = a, 
-  b = b, 
-  loc = mesh_coarse$loc,
-  kappa = kappa,
-  m_max = m_max, 
-  n_max = n_max
-)
+eig_coarse <- compute_true_eigen_sphere(
+  mesh = mesh_coarse, 
+  kappa = kappa, 
+  L_max = L_max, 
+  rot.inv = rot.inv)
 eigfuncs_coarse <- eig_coarse$eigfuncs
 ```
 
@@ -218,10 +193,10 @@ error
 
 ```{r}
 # Plot results
-plot_3d_slider_scatter(mesh_fine$loc, overkill_time_seq, U_true)
-plot_3d_slider_scatter(mesh_coarse$loc, time_seq, U_approx)
-plot_3d_slider_scatter(mesh_fine$loc, overkill_time_seq, U_approx_proj)
-plot_3d_slider_scatter(mesh_fine$loc, overkill_time_seq, abs(diff))
+plot_3d_slider_sphere_scatter(mesh_fine, overkill_time_seq, U_true, fixed_colorscale = TRUE)
+plot_3d_slider_sphere_scatter(mesh_coarse, time_seq, U_approx, fixed_colorscale = TRUE)
+plot_3d_slider_sphere_scatter(mesh_fine, overkill_time_seq, U_approx_proj, fixed_colorscale = TRUE)
+plot_3d_slider_sphere_scatter(mesh_fine, overkill_time_seq, abs(diff), fixed_colorscale = TRUE)
 ```
 
 

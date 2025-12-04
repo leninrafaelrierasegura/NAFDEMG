@@ -81,3 +81,246 @@ diff <- U_true_matrix - U_approx_fine_matrix
 plot_3d_slider_scatter(mesh_fine$loc, time_seq, diff)
 
 
+
+
+# to plot on the sphere
+
+f_vals <- eigfucs[,31]
+
+# Compute normal vectors (for bumps)
+normals <- cbind(x, y, z)
+scale <- 0.1
+x_bump <- x + scale * f_vals * normals[,1]
+y_bump <- y + scale * f_vals * normals[,2]
+z_bump <- z + scale * f_vals * normals[,3]
+
+# Plotly
+fig <- plot_ly() %>%
+  # Original sphere
+  add_mesh(
+    x = x, y = y, z = z,
+    i = tri[,1] - 1,
+    j = tri[,2] - 1,
+    k = tri[,3] - 1,
+    color = I("lightblue"),
+    opacity = 0.5,      # transparent
+    name = "Sphere"
+  ) %>%
+  # Bumpy surface
+  add_mesh(
+    x = x_bump, y = y_bump, z = z_bump,
+    i = tri[,1] - 1,
+    j = tri[,2] - 1,
+    k = tri[,3] - 1,
+    intensity = f_vals,
+    colorscale = "Viridis",
+    flatshading = TRUE,
+    opacity = 0.7,      # slightly transparent
+    name = "Function surface"
+  )
+
+fig
+
+
+
+plot_3d_slider_sphere_scatter <- function(mesh, eigvals, eigfuncs) {
+  
+  colorscale = "Viridis"
+  
+  x <- mesh$loc[,1]
+  y <- mesh$loc[,2]
+  z <- mesh$loc[,3]
+  
+  # Create frames for SCATTER
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = z,
+        type = "scatter3d",
+        mode = "markers",
+        marker = list(
+          size = 5,
+          color = eigfuncs[,i],
+          colorscale = colorscale,
+          showscale = TRUE
+        )
+      ))
+    )
+  })
+  
+  # Initial plot (frame 1)
+  p <- plot_ly(
+    x = x, y = y, z = z,
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(
+      size = 5,
+      color = eigfuncs[,1],
+      colorscale = colorscale,
+      showscale = TRUE
+    ),
+    frame = "1"
+  )
+  
+  frame_name <- deparse(substitute(eigvals))
+  
+  p$x$frames <- frames
+  
+  # Layout and slider
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Mode: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(list(as.character(i)),
+                        list(mode = "immediate",
+                             frame = list(duration = 300, redraw = TRUE),
+                             transition = list(duration = 0)))
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(label = "Play",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 300, redraw = TRUE),
+                                      fromcurrent = TRUE, mode = "immediate"))),
+          list(label = "Pause",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 0, redraw = FALSE),
+                                      mode = "immediate")))
+        )
+      )
+    )
+  ) %>% plotly_build()
+  
+  # Update title in each frame
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+  
+  return(p)
+}
+
+
+
+plot_3d_slider_sphere <- function(mesh, eigvals, eigfuncs) {
+  
+  colorscale = "Viridis"
+  opacity = 1
+  
+  
+  x <- mesh$loc[, 1]
+  y <- mesh$loc[, 2]
+  z <- mesh$loc[, 3]
+  tri <- mesh$graph$tv
+  
+  
+  # Create frames
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = z,
+        i = tri[,1] - 1,
+        j = tri[,2] - 1,
+        k = tri[,3] - 1,
+        type = "mesh3d",
+        intensity = eigfuncs[, i],
+        colorscale = colorscale,
+        opacity = opacity,
+        flatshading = TRUE
+      ))
+    )
+  })
+  
+  # Initial plot
+  p <- plot_ly(
+    x = x, y = y, z = z,
+    i = tri[,1] - 1,
+    j = tri[,2] - 1,
+    k = tri[,3] - 1,
+    type = "mesh3d",
+    intensity = eigfuncs[,1],
+    colorscale = colorscale,
+    opacity = opacity,
+    flatshading = TRUE,
+    frame = "1"
+  )
+  
+  frame_name <- deparse(substitute(eigvals))
+  
+  p$x$frames <- frames
+  
+  # Layout with slider
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Frame: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(list(as.character(i)),
+                        list(mode = "immediate",
+                             frame = list(duration = 300, redraw = TRUE),
+                             transition = list(duration = 0)))
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(label = "Play",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 300, redraw = TRUE),
+                                      fromcurrent = TRUE, mode = "immediate"))),
+          list(label = "Pause",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 0, redraw = FALSE),
+                                      mode = "immediate")))
+        )
+      )
+    )
+  ) %>% plotly_build()
+  
+  # Add titles for frames
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+  
+  return(p)
+}
