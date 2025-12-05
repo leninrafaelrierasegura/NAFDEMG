@@ -4,26 +4,30 @@ library(ggplot2)
 library(tidyr)
 library(dplyr)
 
-globe_vector <- c(1:100, seq(110, 200, by = 10), 250, 300, 400, 500)
+globe_vector <- c(1:100, seq(110, 200, by = 10), seq(250, 500, by =50), seq(600, 1000, by =100), 2000, 3000)
 h_min_vector <- numeric(length(globe_vector))
 h_max_vector <- numeric(length(globe_vector))
 for (i in 1:length(globe_vector)) {
   globe <- globe_vector[i]
   C_ii <- diag(fm_fem(fm_rcdt_2d(globe = globe), order = 2)$c0)
   h_min_vector[i] <- sqrt(mean(C_ii))
+  rm(C_ii)
   h_max_vector[i] <- 1/globe
   print(i)
+  if(i>114){
+  saveRDS(
+    list(
+      globe_vector = globe_vector,
+      h_min_vector = h_min_vector,
+      h_max_vector = h_max_vector
+    ),
+    file = here::here("data_files/h_min_max_vs_globe.RDS")
+  )
+  }
 }
 
 
-saveRDS(
-  list(
-    globe_vector = globe_vector,
-    h_min_vector = h_min_vector,
-    h_max_vector = h_max_vector
-  ),
-  file = here::here("data_files/h_min_max_vs_globe.RDS")
-)
+
 
 readed_data <- readRDS(
   file = here::here("data_files/h_min_max_vs_globe.RDS")
@@ -107,7 +111,7 @@ globe_from_h_spline <- function(h) {
 # Example usage
 globe_from_h_spline(0.012)
 
-hh <- 2^-c(1:100)
+hh <- 2^-c(1:16)
 globe_hh <- globe_from_h_spline(hh)
 
 globe_hh2 <- globe_from_h(hh)
