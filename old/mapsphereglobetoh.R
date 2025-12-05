@@ -4,26 +4,26 @@ library(ggplot2)
 library(tidyr)
 library(dplyr)
 
-# globe_vector <-1:100
-# h_min_vector <- numeric(length(globe_vector))
-# h_max_vector <- numeric(length(globe_vector))
-# for (i in 1:length(globe_vector)) {
-#   globe <- globe_vector[i]
-#   rangeof_h <- range(diag(fm_fem(fm_rcdt_2d(globe = globe), order = 2)$c0))
-#   h_min_vector[i] <- rangeof_h[1]
-#   h_max_vector[i] <- rangeof_h[2]
-#   print(i)
-# }
-# 
-# 
-# saveRDS(
-#   list(
-#     globe_vector = globe_vector,
-#     h_min_vector = h_min_vector,
-#     h_max_vector = h_max_vector
-#   ),
-#   file = here::here("data_files/h_min_max_vs_globe.RDS")
-# )
+globe_vector <- c(1:100, seq(110, 200, by = 10), 250, 300, 400, 500)
+h_min_vector <- numeric(length(globe_vector))
+h_max_vector <- numeric(length(globe_vector))
+for (i in 1:length(globe_vector)) {
+  globe <- globe_vector[i]
+  C_ii <- diag(fm_fem(fm_rcdt_2d(globe = globe), order = 2)$c0)
+  h_min_vector[i] <- sqrt(mean(C_ii))
+  h_max_vector[i] <- 1/globe
+  print(i)
+}
+
+
+saveRDS(
+  list(
+    globe_vector = globe_vector,
+    h_min_vector = h_min_vector,
+    h_max_vector = h_max_vector
+  ),
+  file = here::here("data_files/h_min_max_vs_globe.RDS")
+)
 
 readed_data <- readRDS(
   file = here::here("data_files/h_min_max_vs_globe.RDS")
@@ -49,22 +49,20 @@ df_long <- df %>%
 # Plot
 p <- ggplot(df_long, aes(x = globe, y = h_value, color = type)) +
   geom_line(linewidth = 1) +
+  geom_point(size = 2) +
   labs(x = "Globe", y = "h value", color = "Type") +
   theme_minimal()
 
 plotly::ggplotly(p)
 
 closest_globe <- function(h) {
-  idx <- which.min(abs(h_max_vector - h))  # index of closest value
+  idx <- which.min(abs(h_min_vector - h))  # index of closest value
   globe_vector[idx]  # return corresponding globe
 }
 
 # Example usage
-closest_globe(6e-3)
+closest_globe(0.012)
 
-ord <- order(h_max_vector)
-h_sorted <- h_max_vector[ord]
-globe_sorted <- globe_vector[ord]
 
 # Function to find globe for a given h via interpolation
 globe_from_h <- function(h) {
@@ -74,28 +72,45 @@ globe_from_h <- function(h) {
   
   globe_vector <- readed_data$globe_vector
   h_min_vector <- readed_data$h_min_vector
-  h_max_vector <- readed_data$h_max_vector
   
-  ord <- order(h_max_vector)
-  h_sorted <- h_max_vector[ord]
+  ord <- order(h_min_vector)
+  h_sorted <- h_min_vector[ord]
   globe_sorted <- globe_vector[ord]
   
   return(round(approx(x = h_sorted, y = globe_sorted, xout = h)$y))
 }
 
 # Example usage
-globe_from_h(6e-3)
+globe_from_h(0.012)
 
-ord <- order(h_max_vector)
-h_sorted <- h_max_vector[ord]
-globe_sorted <- globe_vector[ord]
-
-# Create a smooth spline function: globe as function of h_max
-spline_func <- splinefun(x = h_sorted, y = globe_sorted, method = "monoH.FC")
 
 # Function to get globe from h using spline
 globe_from_h_spline <- function(h) {
-  spline_func(h)
+  readed_data <- readRDS(
+    file = here::here("data_files/h_min_max_vs_globe.RDS")
+  )
+  
+  globe_vector <- readed_data$globe_vector
+  h_min_vector <- readed_data$h_min_vector
+  
+  ord <- order(h_min_vector)
+  h_sorted <- h_min_vector[ord]
+  globe_sorted <- globe_vector[ord]
+  
+  # Create a smooth spline function: globe as function of h_max
+  spline_func <- splinefun(x = h_sorted, 
+                           y = globe_sorted, 
+                           method = "monoH.FC")
+
+  return(spline_func(h))
 }
 # Example usage
-globe_from_h_spline(6e-3)
+globe_from_h_spline(0.012)
+
+hh <- 2^-c(1:100)
+globe_hh <- globe_from_h_spline(hh)
+
+globe_hh2 <- globe_from_h(hh)
+plot(globe_hh, hh, col = "green", type = "l")
+lines(globe_vector, h_min_vector, col = "red")
+lines(globe_hh2, hh, col = "blue")
