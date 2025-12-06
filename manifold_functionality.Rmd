@@ -506,21 +506,41 @@ L[ord, ord]
 ```
 
 ```{r}
-# Function to find globe for a given h via interpolation
-globe_from_h <- function(h) {
+gets.mesh.and.FEM.on.rectangle <- function(a, b, n) {
+  mesh <- fm_rcdt_2d(
+  lattice = fm_lattice_2d(
+  x = seq(0, a, length.out = n + 1),
+  y = seq(0, b, length.out = n + 1)
+), extend = FALSE)
+  FEM <- fm_fem(mesh, order = 1)
+  return(list(mesh = mesh, 
+              Cl = FEM$c0,
+              C = FEM$c1,
+              G = FEM$g1))
+}
+```
+
+
+```{r}
+# Function to get globe from h using spline
+globe_from_h_spline <- function(h) {
   readed_data <- readRDS(
     file = here::here("data_files/h_min_max_vs_globe.RDS")
   )
   
   globe_vector <- readed_data$globe_vector
   h_min_vector <- readed_data$h_min_vector
-  h_max_vector <- readed_data$h_max_vector
   
-  ord <- order(h_max_vector)
-  h_sorted <- h_max_vector[ord]
+  ord <- order(h_min_vector)
+  h_sorted <- h_min_vector[ord]
   globe_sorted <- globe_vector[ord]
   
-  return(round(approx(x = h_sorted, y = globe_sorted, xout = h)$y))
+  # Create a smooth spline function: globe as function of h_max
+  spline_func <- splinefun(x = h_sorted, 
+                           y = globe_sorted, 
+                           method = "monoH.FC")
+
+  return(spline_func(h))
 }
 ```
 
@@ -556,40 +576,43 @@ compute_true_eigen_rectangle <- function(a = 1,
                                          b = 1,
                                          loc,
                                          kappa = 1, 
+                                         alpha = 1,
                                          m_max = 3, 
                                          n_max = 3) {
   loc_x <- loc[,1]
   loc_y <- loc[,2]
   N <- (m_max+1)*(n_max+1)
   # Prepare lists
-  eigvals <- numeric(N)
+  EIGENVAL <- numeric(N)
   m_vector <- numeric(N)
   n_vector <- numeric(N)
-  eigfuncs <- matrix(0, nrow = nrow(loc), ncol = N)
+  EIGENFUN <- matrix(0, nrow = nrow(loc), ncol = N)
   
   i <- 0 
   # Loop over mode indices
   for (m in 0:m_max) {
     for (n in 0:n_max) {
       lambda_mn <- kappa^2 + pi^2 * ((m^2 / a^2) + (n^2 / b^2))
-      eigvals[i + 1] <- lambda_mn
+      EIGENVAL[i + 1] <- lambda_mn
       # Evaluate eigenfunction on mesh grid
       phi_mn <-  cos(m*pi*loc_x/a) * cos(n*pi*loc_y/b)
-      eigfuncs[, i + 1] <- phi_mn
+      EIGENFUN[, i + 1] <- phi_mn
       m_vector[i + 1] <- m
       n_vector[i + 1] <- n
       i <- i + 1
     }
   }
   # Sort eigenvalues and corresponding eigenfunctions
-  idx <- order(eigvals)
-  eigvals <- eigvals[idx]
-  eigfuncs <- eigfuncs[, idx]
+  idx <- order(EIGENVAL)
+  EIGENVAL <- EIGENVAL[idx]
+  EIGENVAL_ALPHA <- EIGENVAL^(alpha/2)
+  EIGENFUN <- EIGENFUN[, idx]
   m_vector <- m_vector[idx]
   n_vector <- n_vector[idx]
   
-  return(list(eigvals = eigvals,
-              eigfuncs = eigfuncs,
+  return(list(EIGENVAL = EIGENVAL,
+              EIGENVAL_ALPHA = EIGENVAL_ALPHA,
+              EIGENFUN = EIGENFUN,
               m_vector = m_vector,
               n_vector = n_vector))
 }
@@ -598,15 +621,22 @@ compute_true_eigen_sphere <- function(mesh,
                                       kappa,
                                       L_max,
                                       rot.inv){
-  eigfucs <- fmesher::fm_raw_basis(mesh = mesh, 
-                                   type = "sph.harm",
-                                   n = L_max, 
-                                   rot.inv = rot.inv)
-  eigvals <- calculate_laplace_beltrami_eigenvalues(kappa = kappa, 
-                                                    L_max = L_max, 
-                                                    rot.inv = rot.inv)
-  return(list(eigvals = eigvals,
-              eigfuncs = eigfucs))
+  EIGENFUN <- fmesher::fm_raw_basis(
+    mesh = mesh, 
+    type = "sph.harm",
+    n = L_max, 
+    rot.inv = rot.inv)
+  EIGENVAL <- calculate_laplace_beltrami_eigenvalues(
+    kappa = kappa, 
+    L_max = L_max, 
+    rot.inv = rot.inv)
+  idx <- order(EIGENVAL)
+  EIGENVAL <- EIGENVAL[idx]
+  EIGENVAL_ALPHA <- EIGENVAL^(alpha/2)
+  EIGENFUN <- EIGENFUN[, idx]
+  return(list(EIGENVAL = EIGENVAL,
+              EIGENVAL_ALPHA = EIGENVAL_ALPHA,
+              EIGENFUN = EIGENFUN))
 }
 ```
 

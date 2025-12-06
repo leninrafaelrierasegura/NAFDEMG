@@ -1,4 +1,4 @@
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 library(plotly)
 library(akima)
 library(orthopolynom)
@@ -6,7 +6,7 @@ library(Matrix)
 library(pracma) 
 
 
-## ----setup, include = FALSE-------------------------------------------------------------
+## ----setup, include = FALSE-------------------------
 # to install in terminal
 # conda activate fenicsenv
 # conda install -c conda-forge matplotlib plotly ipywidgets
@@ -16,7 +16,7 @@ use_condaenv("fenicsenv", required = TRUE)
 py_config()
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
@@ -46,7 +46,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
@@ -55,7 +55,7 @@ poly.from.roots <- function(roots) {
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
@@ -75,7 +75,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
@@ -115,7 +115,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -136,7 +136,7 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0, RHST) {
   CC <- my_op_frac$C
   SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
@@ -149,7 +149,7 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 # Function to construct a piecewise constant projection of approximated values
 construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
   projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
@@ -167,7 +167,7 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 # Functions to compute the exact solution to the fractional diffusion equation
 g_linear <- function(r, A, lambda_j_alpha_half) {
   return(A * exp(-lambda_j_alpha_half * r))
@@ -212,7 +212,7 @@ G_cos <- function(t, A, lambda_j_alpha_half, omega) {
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 # Call the Python function
 fem <- py_run_string("
 from dolfin import *
@@ -276,26 +276,45 @@ def transfer_solution_to_fine(V_coarse, U_coarse_matrix, a, b, nx_fine, ny_fine)
 ")
 
 
-## ---------------------------------------------------------------------------------------
-# Function to find globe for a given h via interpolation
-globe_from_h <- function(h) {
+## ---------------------------------------------------
+gets.mesh.and.FEM.on.rectangle <- function(a, b, n) {
+  mesh <- fm_rcdt_2d(
+  lattice = fm_lattice_2d(
+  x = seq(0, a, length.out = n + 1),
+  y = seq(0, b, length.out = n + 1)
+), extend = FALSE)
+  FEM <- fm_fem(mesh, order = 1)
+  return(list(mesh = mesh, 
+              Cl = FEM$c0,
+              C = FEM$c1,
+              G = FEM$g1))
+}
+
+
+## ---------------------------------------------------
+# Function to get globe from h using spline
+globe_from_h_spline <- function(h) {
   readed_data <- readRDS(
     file = here::here("data_files/h_min_max_vs_globe.RDS")
   )
   
   globe_vector <- readed_data$globe_vector
   h_min_vector <- readed_data$h_min_vector
-  h_max_vector <- readed_data$h_max_vector
   
-  ord <- order(h_max_vector)
-  h_sorted <- h_max_vector[ord]
+  ord <- order(h_min_vector)
+  h_sorted <- h_min_vector[ord]
   globe_sorted <- globe_vector[ord]
   
-  return(round(approx(x = h_sorted, y = globe_sorted, xout = h)$y))
+  # Create a smooth spline function: globe as function of h_max
+  spline_func <- splinefun(x = h_sorted, 
+                           y = globe_sorted, 
+                           method = "monoH.FC")
+
+  return(spline_func(h))
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 from_matrix_to_list <- function(M, nrow, ncol) {
   return(lapply(1:ncol(M), function(j) matrix(M[, j], nrow = nrow, ncol = ncol, byrow = FALSE)))
 }
@@ -304,7 +323,7 @@ from_list_to_matrix <- function(L) {
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 quad_weights <- function(z) {
   n <- length(z)
   w <- numeric(n)
@@ -319,45 +338,48 @@ quad_weights <- function(z) {
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 compute_true_eigen_rectangle <- function(a = 1,
                                          b = 1,
                                          loc,
                                          kappa = 1, 
+                                         alpha = 1,
                                          m_max = 3, 
                                          n_max = 3) {
   loc_x <- loc[,1]
   loc_y <- loc[,2]
   N <- (m_max+1)*(n_max+1)
   # Prepare lists
-  eigvals <- numeric(N)
+  EIGENVAL <- numeric(N)
   m_vector <- numeric(N)
   n_vector <- numeric(N)
-  eigfuncs <- matrix(0, nrow = nrow(loc), ncol = N)
+  EIGENFUN <- matrix(0, nrow = nrow(loc), ncol = N)
   
   i <- 0 
   # Loop over mode indices
   for (m in 0:m_max) {
     for (n in 0:n_max) {
       lambda_mn <- kappa^2 + pi^2 * ((m^2 / a^2) + (n^2 / b^2))
-      eigvals[i + 1] <- lambda_mn
+      EIGENVAL[i + 1] <- lambda_mn
       # Evaluate eigenfunction on mesh grid
       phi_mn <-  cos(m*pi*loc_x/a) * cos(n*pi*loc_y/b)
-      eigfuncs[, i + 1] <- phi_mn
+      EIGENFUN[, i + 1] <- phi_mn
       m_vector[i + 1] <- m
       n_vector[i + 1] <- n
       i <- i + 1
     }
   }
   # Sort eigenvalues and corresponding eigenfunctions
-  idx <- order(eigvals)
-  eigvals <- eigvals[idx]
-  eigfuncs <- eigfuncs[, idx]
+  idx <- order(EIGENVAL)
+  EIGENVAL <- EIGENVAL[idx]
+  EIGENVAL_ALPHA <- EIGENVAL^(alpha/2)
+  EIGENFUN <- EIGENFUN[, idx]
   m_vector <- m_vector[idx]
   n_vector <- n_vector[idx]
   
-  return(list(eigvals = eigvals,
-              eigfuncs = eigfuncs,
+  return(list(EIGENVAL = EIGENVAL,
+              EIGENVAL_ALPHA = EIGENVAL_ALPHA,
+              EIGENFUN = EIGENFUN,
               m_vector = m_vector,
               n_vector = n_vector))
 }
@@ -366,19 +388,26 @@ compute_true_eigen_sphere <- function(mesh,
                                       kappa,
                                       L_max,
                                       rot.inv){
-  eigfucs <- fmesher::fm_raw_basis(mesh = mesh, 
-                                   type = "sph.harm",
-                                   n = L_max, 
-                                   rot.inv = rot.inv)
-  eigvals <- calculate_laplace_beltrami_eigenvalues(kappa = kappa, 
-                                                    L_max = L_max, 
-                                                    rot.inv = rot.inv)
-  return(list(eigvals = eigvals,
-              eigfuncs = eigfucs))
+  EIGENFUN <- fmesher::fm_raw_basis(
+    mesh = mesh, 
+    type = "sph.harm",
+    n = L_max, 
+    rot.inv = rot.inv)
+  EIGENVAL <- calculate_laplace_beltrami_eigenvalues(
+    kappa = kappa, 
+    L_max = L_max, 
+    rot.inv = rot.inv)
+  idx <- order(EIGENVAL)
+  EIGENVAL <- EIGENVAL[idx]
+  EIGENVAL_ALPHA <- EIGENVAL^(alpha/2)
+  EIGENFUN <- EIGENFUN[, idx]
+  return(list(EIGENVAL = EIGENVAL,
+              EIGENVAL_ALPHA = EIGENVAL_ALPHA,
+              EIGENFUN = EIGENFUN))
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 # Function to calculate real spherical harmonics R_lm(theta, phi)
 calculate_real_spherical_harmonics_vectorized <- function(l, m, theta, phi) {
   # theta and phi are vectors of length N (number of points)
@@ -465,7 +494,7 @@ calculate_laplace_beltrami_eigenvalues <- function(kappa = 0, L_max = 5, rot.inv
 
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 global.scene.setter <- function(x_range, y_range, z_range) {
   
   return(list(xaxis = list(title = "x", range = x_range),
@@ -483,7 +512,7 @@ global.scene.setter <- function(x_range, y_range, z_range) {
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 simple3d_plotter <- function(mesh_loc, U_0) {
 interp_res <- interp(
   x = mesh_loc[,2],
@@ -500,7 +529,7 @@ plot_ly(
 )}
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 plot_3d_slider <- function(loc, nx, ny, eigvals, eigfuncs) {
   eigfuncs <- from_matrix_to_list(eigfuncs, nx+1, ny+1)
   colorscale <- "Viridis"
@@ -587,7 +616,7 @@ plot_3d_slider <- function(loc, nx, ny, eigvals, eigfuncs) {
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 plot_3d_slider_scatter <- function(loc, eigvals, eigfuncs) {
 
   x <- loc[,1]
@@ -710,7 +739,7 @@ plot_3d_slider_scatter <- function(loc, eigvals, eigfuncs) {
 
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 plot_3d_slider_sphere <- function(mesh, eigvals, eigfuncs, fixed_colorscale = TRUE) {
   
   colorscale = "Viridis"
@@ -843,7 +872,7 @@ plot_3d_slider_sphere <- function(mesh, eigvals, eigfuncs, fixed_colorscale = TR
 
 
 
-## ---------------------------------------------------------------------------------------
+## ---------------------------------------------------
 plot_3d_slider_sphere_scatter <- function(mesh, eigvals, eigfuncs,
                                           fixed_colorscale = TRUE) {
   

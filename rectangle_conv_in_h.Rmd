@@ -1,0 +1,289 @@
+---
+title: "Convergence in 𝘩, rectangle case"
+date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+    code_download: true
+    css: visual.css
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+---
+
+Go back to the [Contents](about.html) page.
+
+<div style="color: #2c3e50; text-align: right;">
+********  
+<strong>Press Show to reveal the code chunks.</strong>  
+
+********
+</div>
+
+
+Let us set some global options for all code chunks in this document.
+
+
+```{r}
+# Create a clipboard button
+source(here::here("clipboard.R")); clipboard
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+```
+
+
+::: {.custom-box}
+To observe convergence in $h$, we calibrate $\tau$ and $m$ to $h$ as $\tau \sim h^\alpha$ and $m \sim \lceil\log_e^2(h)/(\pi^2(1-\alpha/2))\rceil$. This ensures that the total convergence rate with respect to the mesh size $h$ is of order $\alpha$, i.e., $\|u-U_{h,m}^\tau\|_{L_2((0,T);L_2(\Gamma))} \leq C_hh^\alpha$. This can be verified by estimating the slope $S_h$ in the regression $\log_{10} E = S_h\log_{10} h+\log_{10} C_h$, where we expect $S_h\sim\alpha$.
+:::
+
+
+```{r}
+# remotes::install_github("davidbolin/rspde", ref = "devel")
+# remotes::install_github("davidbolin/metricgraph", ref = "devel")
+library(rSPDE)
+library(MetricGraph)
+library(fmesher)
+library(grateful)
+library(Matrix)
+
+library(ggplot2)
+library(reshape2)
+library(plotly)
+library(slackr)
+source("keys.R")
+slackr_setup(token = token) # token comes from keys.R
+```
+
+
+
+```{r}
+capture.output(
+  knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R")),
+  file = here::here("purl_log.txt")
+)
+source(here::here("functionality.R"))
+```
+
+
+
+
+```{r}
+# Parameters
+T_final <- 2
+kappa <- 4
+
+a <- b <- 1
+
+m_max <- 2
+n_max <- 2
+N_eig <- (m_max + 1) * (n_max + 1)
+coeff_U_0 <- rep(0, N_eig)
+coeff_U_0[9] <- 1
+coeff_FF <- rep(0, N_eig)
+coeff_FF[2] <- 10
+
+AAA = 1
+OMEGA = pi
+
+h_vector <- sqrt(a*b)*10^seq(log10(0.5), log10(0.1), length.out = 7)
+
+alpha_vector <- seq(1, 1.8, by = 0.2)
+```
+
+
+```{r}
+# Overkill parameters
+overkill_time_step <- 0.01
+overkill_h <- sqrt(a*b)* 0.05
+n_overkill <- ceiling(-1+sqrt(a*b)/overkill_h)
+# Finest time and space mesh
+overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
+
+mesh_and_FEM_overkill <- gets.mesh.and.FEM.on.rectangle(a, b, n_overkill)
+overkill_mesh_loc <- mesh_and_FEM_overkill$mesh$loc
+overkill_C <- mesh_and_FEM_overkill$C
+m_values <- c()
+```
+
+```{r}
+for (j in 1:length(alpha_vector)) {
+  alpha <- alpha_vector[j] 
+  for (i in 1:length(h_vector)) {
+  h <- h_vector[i]
+  time_step <- h^alpha
+  print(time_step)
+  }
+  }
+```
+
+
+
+```{r, eval = FALSE, class.source = "fold-show"}
+# Create a matrix to store the errors
+errors_projected <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
+for (j in 1:length(alpha_vector)) {
+  alpha <- alpha_vector[j] # from 0.5 to 2
+  beta <- alpha / 2
+
+  # Compute the eigenvalues and eigenfunctions on the finest mesh
+  overkill_eigen_params <- compute_true_eigen_rectangle(
+  a = a, 
+  b = b, 
+  loc = overkill_mesh_loc,
+  kappa = kappa,
+  alpha = alpha,
+  m_max = m_max, 
+  n_max = n_max
+)
+  EIGENVAL_ALPHA <- overkill_eigen_params$EIGENVAL_ALPHA # Eigenvalues (they are independent of the meshes)
+  overkill_EIGENFUN <- overkill_eigen_params$EIGENFUN # Eigenfunctions on the finest mesh
+  
+  # Compute the true solution on the finest mesh
+  overkill_U_true <- overkill_EIGENFUN %*% 
+    outer(1:length(coeff_U_0), 
+          1:length(overkill_time_seq), 
+          function(i, j) (coeff_U_0[i] + coeff_FF[i] * G_sin(t = overkill_time_seq[j], A = AAA, lambda_j_alpha_half = EIGENVAL_ALPHA[i], omega = OMEGA)) * exp(-EIGENVAL_ALPHA[i] * overkill_time_seq[j]))
+  
+  for (i in 1:length(h_vector)) {
+    h <- h_vector[i]
+    time_step <- h^alpha
+    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
+    m_values <- c(m_values, m)
+    n <- ceiling(-1+sqrt(a*b)/h)
+    mesh_and_FEM <- gets.mesh.and.FEM.on.rectangle(a, b, n)
+    mesh <- mesh_and_FEM$mesh
+    G <- mesh_and_FEM$G
+    C <- mesh_and_FEM$C
+    L <- kappa^2*C + G
+    eigen_params <- compute_true_eigen_rectangle(
+    a = a, 
+    b = b, 
+    loc = mesh$loc,
+    kappa = kappa,
+    alpha = alpha,
+    m_max = m_max, 
+    n_max = n_max)
+    EIGENFUN <- eigen_params$EIGENFUN
+    U_0 <- EIGENFUN %*% coeff_U_0 # Compute U_0 on the current mesh
+    Psi <- fm_basis(mesh, overkill_mesh_loc)
+  
+    time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
+    my_op_frac <- my.fractional.operators.frac(L, beta, C, scale.factor = kappa^2, m = m, time_step)
+    INT_BASIS_EIGEN <- t(overkill_EIGENFUN) %*% overkill_C %*% Psi
+    # Compute matrix F with columns F^k
+    FF_approx <- t(INT_BASIS_EIGEN) %*% 
+      outer(1:length(coeff_FF), 
+            1:length(time_seq), 
+        function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))
+    
+    U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0, RHST = FF_approx)
+    
+    projected_U_approx <- Psi %*% U_approx
+    projected_U_piecewise <- construct_piecewise_projection(projected_U_approx, time_seq, overkill_time_seq)
+    XX <- overkill_U_true - projected_U_piecewise
+    error_ij <-  sqrt(as.double(overkill_time_step * sum(XX * (overkill_C %*% XX)))) 
+    errors_projected[i,j] <- error_ij
+    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step, ", error =", error_ij), channel = "#research")
+  }
+}
+save(errors_projected, file = here::here("data_files/errors_projected_h_square.RData"))
+```
+
+
+```{r}
+# Load the errors_projected data
+load(here::here("data_files/errors_projected_h_square.RData"))
+```
+
+
+```{r, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $h$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+observed_rates <- numeric(length(alpha_vector))
+for (u in 1:length(alpha_vector)) {
+  observed_rates[u] <- coef(lm(log10(errors_projected[, u]) ~ log10(h_vector)))[2]
+}
+
+theoretical_rates <- alpha_vector
+
+
+p_h <- error.convergence.plotter(x_axis_vector = h_vector, 
+                                 alpha_vector, 
+                                 errors_projected, 
+                                 theoretical_rates, 
+                                 observed_rates,
+                                 line_equation_fun = loglog_line_equation,
+                                 fig_title = expression("Convergence in " * italic(h)),
+                                 x_axis_label = expression(italic(h)))
+p_h
+```
+
+
+```{r}
+ggsave(here::here("data_files/conv_rates_h_square.png"), width = 4, height = 5, plot = p_h, dpi = 300)
+save(p_h, file = here::here("data_files/p_h_square.RData"))
+```
+
+
+```{r, eval = TRUE, echo = FALSE}
+initial_comment <- "Here’s the latest plot update for the convergence in h!"
+# option 1
+slackr_upload(
+  filename = "data_files/conv_rates_h_square.png",        # path to your image
+  initial_comment = initial_comment,
+  channels = "#research"
+)
+```
+
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
+```

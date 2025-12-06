@@ -1,4 +1,4 @@
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
@@ -40,7 +40,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
@@ -49,7 +49,7 @@ poly.from.roots <- function(roots) {
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
@@ -69,7 +69,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
@@ -109,7 +109,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -130,7 +130,7 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0, RHST) {
   CC <- my_op_frac$C
   SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
@@ -143,7 +143,7 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(h){
   edge1 <- rbind(c(0,0),c(1,0))
@@ -157,7 +157,7 @@ gets.graph.tadpole <- function(h){
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to compute the eigenfunctions of the tadpole graph
 tadpole.eig <- function(k,graph){
 x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -188,7 +188,7 @@ return(f)
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to compute the eigenpairs of the tadpole graph
 gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
   EIGENVAL <- NULL
@@ -226,7 +226,7 @@ gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to construct a piecewise constant projection of approximated values
 construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
   projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
@@ -244,7 +244,7 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 loglog_line_equation <- function(x1, y1, slope) {
   b <- log10(y1 / (x1 ^ slope))
   
@@ -281,7 +281,7 @@ compute_guiding_lines <- function(x_axis_vector, errors, theoretical_rates, line
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Functions to compute the exact solution to the fractional diffusion equation
 g_linear <- function(r, A, lambda_j_alpha_half) {
   return(A * exp(-lambda_j_alpha_half * r))
@@ -326,13 +326,144 @@ G_cos <- function(t, A, lambda_j_alpha_half, theta) {
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 reversecolumns <- function(mat) {
   return(mat[, rev(seq_len(ncol(mat)))])
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
+gets.mesh.and.FEM.on.rectangle <- function(a, b, n) {
+  mesh <- fmesher::fm_rcdt_2d(
+  lattice = fmesher::fm_lattice_2d(
+  x = seq(0, a, length.out = n + 1),
+  y = seq(0, b, length.out = n + 1)
+), extend = FALSE)
+  FEM <- fmesher::fm_fem(mesh, order = 1)
+  return(list(mesh = mesh, 
+              Cl = FEM$c0,
+              C = FEM$c1,
+              G = FEM$g1))
+}
+
+
+## --------------------------------------------------------------------------------------------
+compute_true_eigen_rectangle <- function(a = 1,
+                                         b = 1,
+                                         loc,
+                                         kappa = 1, 
+                                         alpha = 1,
+                                         m_max = 3, 
+                                         n_max = 3) {
+  loc_x <- loc[,1]
+  loc_y <- loc[,2]
+  N <- (m_max+1)*(n_max+1)
+  # Prepare lists
+  EIGENVAL <- numeric(N)
+  m_vector <- numeric(N)
+  n_vector <- numeric(N)
+  EIGENFUN <- matrix(0, nrow = nrow(loc), ncol = N)
+  
+  i <- 0 
+  # Loop over mode indices
+  for (m in 0:m_max) {
+    for (n in 0:n_max) {
+      lambda_mn <- kappa^2 + pi^2 * ((m^2 / a^2) + (n^2 / b^2))
+      EIGENVAL[i + 1] <- lambda_mn
+      # Evaluate eigenfunction on mesh grid
+      phi_mn <-  cos(m*pi*loc_x/a) * cos(n*pi*loc_y/b)
+      EIGENFUN[, i + 1] <- phi_mn
+      m_vector[i + 1] <- m
+      n_vector[i + 1] <- n
+      i <- i + 1
+    }
+  }
+  # Sort eigenvalues and corresponding eigenfunctions
+  idx <- order(EIGENVAL)
+  EIGENVAL <- EIGENVAL[idx]
+  EIGENVAL_ALPHA <- EIGENVAL^(alpha/2)
+  EIGENFUN <- EIGENFUN[, idx]
+  m_vector <- m_vector[idx]
+  n_vector <- n_vector[idx]
+  
+  return(list(EIGENVAL = EIGENVAL,
+              EIGENVAL_ALPHA = EIGENVAL_ALPHA,
+              EIGENFUN = EIGENFUN,
+              m_vector = m_vector,
+              n_vector = n_vector))
+}
+
+
+## --------------------------------------------------------------------------------------------
+# Function to get globe from h using spline
+globe_from_h <- function(h) {
+  readed_data <- readRDS(
+    file = here::here("data_files/h_min_max_vs_globe.RDS")
+  )
+  
+  globe_vector <- readed_data$globe_vector
+  h_min_vector <- readed_data$h_min_vector
+  
+  ord <- order(h_min_vector)
+  h_sorted <- h_min_vector[ord]
+  globe_sorted <- globe_vector[ord]
+  
+  # Create a smooth spline function: globe as function of h_max
+  spline_func <- splinefun(x = h_sorted, 
+                           y = globe_sorted, 
+                           method = "monoH.FC")
+
+  return(round(spline_func(h)))
+}
+
+
+## --------------------------------------------------------------------------------------------
+calculate_laplace_beltrami_eigenvalues <- function(kappa = 0, L_max = 5, rot.inv = FALSE) {
+  
+  eigenvalues <- numeric(0)
+  
+  for (l in 0:L_max) {
+    lambda_l <- kappa^2 + l * (l + 1)
+    
+    if (rot.inv) {
+      # Only one eigenvalue per l (rotational invariance)
+      eigenvalues <- c(eigenvalues, lambda_l)
+    } else {
+      # Full multiplicity: (m = -l,...,l)
+      multiplicity <- 2 * l + 1
+      eigenvalues <- c(eigenvalues, rep(lambda_l, multiplicity))
+    }
+  }
+  
+  return(eigenvalues)
+}
+
+
+compute_true_eigen_sphere <- function(mesh, 
+                                      kappa,
+                                      alpha,
+                                      L_max,
+                                      rot.inv){
+  EIGENFUN <- fmesher::fm_raw_basis(
+    mesh = mesh, 
+    type = "sph.harm",
+    n = L_max, 
+    rot.inv = rot.inv)
+  EIGENVAL <- calculate_laplace_beltrami_eigenvalues(
+    kappa = kappa, 
+    L_max = L_max, 
+    rot.inv = rot.inv)
+  idx <- order(EIGENVAL)
+  EIGENVAL <- EIGENVAL[idx]
+  EIGENVAL_ALPHA <- EIGENVAL^(alpha/2)
+  EIGENFUN <- EIGENFUN[, idx]
+  return(list(EIGENVAL = EIGENVAL,
+              EIGENVAL_ALPHA = EIGENVAL_ALPHA,
+              EIGENFUN = EIGENFUN))
+}
+
+
+## --------------------------------------------------------------------------------------------
 # Function to order the vertices for plotting
 plotting.order <- function(v, graph){
   edge_number <- graph$mesh$VtE[, 1]
@@ -341,7 +472,7 @@ plotting.order <- function(v, graph){
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to set the scene for 3D plots
 global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
   
@@ -360,7 +491,25 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
+global.scene.setter.rec.and.sphere <- function(x_range, y_range, z_range) {
+  
+  return(list(xaxis = list(title = "x", range = x_range),
+              yaxis = list(title = "y", range = y_range),
+              zaxis = list(title = "z", range = z_range),
+              aspectratio = list(x = 1, 
+                                 y = 1, 
+                                 z = 1),
+              camera = list(eye = list(x = 1.5, 
+                                       y = 1.5, 
+                                       z = 1.5),
+                            center = list(x = 0, 
+                                          y = 0, 
+                                          z = 0))))
+}
+
+
+## --------------------------------------------------------------------------------------------
 # Function to plot in 3D
 graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
   U_list <- list(...)
@@ -460,7 +609,7 @@ graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
   U_names <- names(U_list) 
   # Spatial coordinates
@@ -561,7 +710,7 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to plot the error at each time step
 error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_step) {
   weights <- graph$mesh$weights
@@ -585,7 +734,7 @@ error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_s
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to plot the 3D comparison of U_true and U_approx
 graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -728,7 +877,7 @@ graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to plot a single 3D line for 
 graph.plotter.3d.single <- function(graph, U_true, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -802,7 +951,7 @@ graph.plotter.3d.single <- function(graph, U_true, time_seq) {
 }
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to plot the error convergence
 error.convergence.plotter <- function(x_axis_vector, 
                                       alpha_vector, 
@@ -877,7 +1026,7 @@ error.convergence.plotter <- function(x_axis_vector,
 
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 graph.plotter.3d.static <- function(graph, z_list) {
   x <- plotting.order(graph$mesh$V[, 1], graph)
   y <- plotting.order(graph$mesh$V[, 2], graph)
@@ -931,7 +1080,7 @@ graph.plotter.3d.static <- function(graph, z_list) {
 
 
 
-## -----------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------
 graph.plotter.3d.two.meshes.time <- function(graph_finer, graph_coarser, 
                                              time_seq, frame_val_to_display,
                                              fs_finer = list(), fs_coarser = list()) {
@@ -1096,4 +1245,255 @@ if (!is.null(vertical_coarser)) {
   return(p)
 }
 
+
+
+## --------------------------------------------------------------------------------------------
+plot_3d_rectangle_scatter <- function(loc, eigvals, eigfuncs) {
+
+  x <- loc[,1]
+  y <- loc[,2]
+
+  colorscale <- "Viridis"
+
+  # Frames ----------------------------------------------------------------
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = eigfuncs[,i],
+        type = "scatter3d",
+        mode = "markers",
+        marker = list(
+          size = 5,
+          color = eigfuncs[,i],
+          colorscale = colorscale,
+          showscale = TRUE
+        )
+      ))
+    )
+  })
+
+  # Initial Plot ----------------------------------------------------------
+  p <- plot_ly(
+    x = x,
+    y = y,
+    z = eigfuncs[,1],
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(
+      size = 5,
+      color = eigfuncs[,1],
+      colorscale = colorscale,
+      showscale = TRUE
+    ),
+    frame = "1"
+  )
+
+  p$x$frames <- frames
+
+  z_range <- range(eigfuncs)
+  x_range <- range(x)
+  y_range <- range(y)
+
+  frame_name <- deparse(substitute(eigvals))
+
+  # Layout + slider -------------------------------------------------------
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    scene = global.scene.setter(x_range, y_range, z_range),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Frame: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(
+              list(as.character(i)),
+              list(frame = list(duration = 300, redraw = TRUE),
+                   mode = "immediate")
+            )
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(label = "Play",
+               method = "animate",
+               args = list(
+                 NULL,
+                 list(frame = list(duration = 300, redraw = TRUE),
+                      fromcurrent = TRUE)
+               )),
+          list(label = "Pause",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 0))))
+        )
+      )
+    )
+  ) %>% plotly_build()
+
+  # Update title in each frame --------------------------------------------
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+
+  return(p)
+}
+
+
+## --------------------------------------------------------------------------------------------
+plot_3d_sphere_scatter <- function(mesh, 
+                                          eigvals, 
+                                          eigfuncs,
+                                          fixed_colorscale = TRUE) {
+  
+  colorscale = "Viridis"
+  
+  x <- mesh$loc[,1]
+  y <- mesh$loc[,2]
+  z <- mesh$loc[,3]
+  
+  # Compute global color limits if fixed
+  if (fixed_colorscale) {
+    cmin <- min(eigfuncs)
+    cmax <- max(eigfuncs)
+  } else {
+    cmin <- NULL
+    cmax <- NULL
+  }
+  
+  # Create frames
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    
+    fvals <- eigfuncs[,i]
+    
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = z,
+        type = "scatter3d",
+        mode = "markers",
+        marker = list(
+          size = 5,
+          color = fvals,
+          colorscale = colorscale,
+          showscale = TRUE,
+          cmin = cmin,
+          cmax = cmax
+        ),
+        text = paste0(
+          "x: ", sprintf("%.3f", x), "<br>",
+          "y: ", sprintf("%.3f", y), "<br>",
+          "z: ", sprintf("%.3f", z), "<br>",
+          "f: ", sprintf("%.5f", fvals)
+        ),
+        hoverinfo = "text"
+      ))
+    )
+  })
+  
+  # Initial plot (frame 1)
+  fvals0 <- eigfuncs[,1]
+  
+  p <- plot_ly(
+    x = x, y = y, z = z,
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(
+      size = 5,
+      color = fvals0,
+      colorscale = colorscale,
+      showscale = TRUE,
+      cmin = cmin,
+      cmax = cmax
+    ),
+    text = paste0(
+      "x: ", sprintf("%.3f", x), "<br>",
+      "y: ", sprintf("%.3f", y), "<br>",
+      "z: ", sprintf("%.3f", z), "<br>",
+      "f: ", sprintf("%.5f", fvals0)
+    ),
+    hoverinfo = "text",
+    frame = "1"
+  )
+  
+  frame_name <- deparse(substitute(eigvals))
+  
+  p$x$frames <- frames
+  
+  # Slider + play/pause
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Mode: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(list(as.character(i)),
+                        list(mode = "immediate",
+                             frame = list(duration = 300, redraw = TRUE),
+                             transition = list(duration = 0)))
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(
+            label = "Play",
+            method = "animate",
+            args = list(NULL,
+                        list(frame = list(duration = 300, redraw = TRUE),
+                             fromcurrent = TRUE,
+                             mode = "immediate"))
+          ),
+          list(
+            label = "Pause",
+            method = "animate",
+            args = list(NULL,
+                        list(frame = list(duration = 0, redraw = FALSE),
+                             mode = "immediate"))
+          )
+        )
+      )
+    )
+  ) %>% plotly_build()
+  
+  # Update title per frame
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+  
+  return(p)
+}
 

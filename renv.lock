@@ -1464,7 +1464,7 @@
     "fmesher": {
       "Package": "fmesher",
       "Version": "0.5.0",
-      "Source": "Repository",
+      "Source": "GitHub",
       "Type": "Package",
       "Title": "Triangle Meshes and Related Geometry Tools",
       "Authors@R": "c( person(\"Finn\", \"Lindgren\", email = \"finn.lindgren@gmail.com\", role = c(\"aut\", \"cre\", \"cph\"), comment = c(ORCID = \"0000-0002-5833-2011\", \"Finn Lindgren wrote the main code\")), person(\"Seaton\", \"Andy\", email = \"andy.e.seaton@gmail.com\", role = c(\"ctb\"), comment = \"Andy Seaton constributed features to the sf support\"), person(\"Suen\", \"Man Ho\", email = \"M.H.Suen@sms.ed.ac.uk\", role = c(\"ctb\"), comment = \"Man Ho Suen contributed features and code structure design for the integration methods\"), person(\"Fabian E.\", \"Bachl\", email = \"bachlfab@gmail.com\", role = c(\"ctb\"), comment = \"Fabian Bachl co-developed precursors of fm_pixels and fm_split_lines in inlabru\") )",
@@ -1508,6 +1508,7 @@
       "NeedsCompilation": "yes",
       "RoxygenNote": "7.3.2",
       "Encoding": "UTF-8",
+      "Roxygen": "list(markdown = TRUE)",
       "Config/testthat/edition": "3",
       "Config/testthat/parallel": "true",
       "SystemRequirements": "C++17",
@@ -1518,9 +1519,14 @@
       "BuildVignettes": "true",
       "Collate": "'RcppExports.R' 'deprecated.R' 'bary.R' 'basis.R' 'bbox.R' 'collect.R' 'components.R' 'print.R' 'crs.R' 'data-fmexample.R' 'diameter.R' 'evaluator.R' 'fem.R' 'fm.R' 'fmesher-package.R' 'fmesher.R' 'ggplot.R' 'integration.R' 'lattice_2d.R' 'lattice_Nd.R' 'list.R' 'local.R' 'manifold.R' 'mapping.R' 'matern.R' 'mesh.R' 'mesh_1d.R' 'mesh_2d.R' 'mesh_3d.R' 'mesh_assessment.R' 'nonconvex_hull.R' 'onload.R' 'plot.R' 'segm.R' 'sf_mesh.R' 'sf_utils.R' 'simplify.R' 'sp_mesh.R' 'split_lines.R' 'tensor.R' 'utils.R'",
       "LazyData": "true",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "fmesher",
+      "RemoteUsername": "inlabru-org",
+      "RemoteRef": "stable",
+      "RemoteSha": "5ce039d2447a8908833872f9fa57c173e18bd460",
       "Author": "Finn Lindgren [aut, cre, cph] (ORCID: <https://orcid.org/0000-0002-5833-2011>, Finn Lindgren wrote the main code), Seaton Andy [ctb] (Andy Seaton constributed features to the sf support), Suen Man Ho [ctb] (Man Ho Suen contributed features and code structure design for the integration methods), Fabian E. Bachl [ctb] (Fabian Bachl co-developed precursors of fm_pixels and fm_split_lines in inlabru)",
-      "Maintainer": "Finn Lindgren <finn.lindgren@gmail.com>",
-      "Repository": "CRAN"
+      "Maintainer": "Finn Lindgren <finn.lindgren@gmail.com>"
     },
     "fontawesome": {
       "Package": "fontawesome",
@@ -2743,6 +2749,26 @@
       "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
       "Repository": "CRAN"
     },
+    "orthopolynom": {
+      "Package": "orthopolynom",
+      "Version": "1.0-6.1",
+      "Source": "Repository",
+      "Date": "2022-05-06",
+      "Title": "Collection of Functions for Orthogonal and Orthonormal Polynomials",
+      "Author": "Frederick Novomestky <fnovomes@poly.edu>",
+      "Maintainer": "Frederick Novomestky <fnovomes@poly.edu>",
+      "Depends": [
+        "R (>= 2.0.1)"
+      ],
+      "Imports": [
+        "polynom",
+        "stats"
+      ],
+      "Description": "A collection of functions to construct sets of orthogonal polynomials and their recurrence relations. Additional functions are provided to calculate the derivative, integral, value and roots of lists of polynomial objects.",
+      "License": "GPL (>= 2)",
+      "NeedsCompilation": "no",
+      "Repository": "CRAN"
+    },
     "pagedown": {
       "Package": "pagedown",
       "Version": "0.23",
@@ -2853,7 +2879,7 @@
     },
     "pillar": {
       "Package": "pillar",
-      "Version": "1.11.0",
+      "Version": "1.11.1",
       "Source": "Repository",
       "Title": "Coloured Formatting for Columns",
       "Authors@R": "c(person(given = \"Kirill\", family = \"M\\u00fcller\", role = c(\"aut\", \"cre\"), email = \"kirill@cynkra.com\", comment = c(ORCID = \"0000-0002-1416-3412\")), person(given = \"Hadley\", family = \"Wickham\", role = \"aut\"), person(given = \"RStudio\", role = \"cph\"))",
@@ -2895,7 +2921,7 @@
       ],
       "VignetteBuilder": "knitr",
       "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.2.9000",
+      "RoxygenNote": "7.3.3.9000",
       "Config/testthat/edition": "3",
       "Config/testthat/parallel": "true",
       "Config/testthat/start-first": "format_multi_fuzz, format_multi_fuzz_2, format_multi, ctl_colonnade, ctl_colonnade_1, ctl_colonnade_2",
@@ -3063,6 +3089,28 @@
       "NeedsCompilation": "yes",
       "Repository": "RSPM",
       "Encoding": "UTF-8"
+    },
+    "polynom": {
+      "Package": "polynom",
+      "Version": "1.4-1",
+      "Source": "Repository",
+      "Title": "A Collection of Functions to Implement a Class for Univariate Polynomial Manipulations",
+      "Authors@R": "c(person(\"Bill\", \"Venables\", role = c(\"aut\", \"cre\"), email = \"Bill.Venables@gmail.com\", comment = \"S original\"), person(\"Kurt\", \"Hornik\", role = \"aut\", email = \"Kurt.Hornik@R-project.org\", comment = \"R port\"), person(\"Martin\", \"Maechler\", role = \"aut\", email = \"maechler@stat.math.ethz.ch\", comment = \"R port\"))",
+      "Description": "A collection of functions to implement a class for univariate polynomial manipulations.",
+      "Imports": [
+        "stats",
+        "graphics"
+      ],
+      "License": "GPL-2",
+      "NeedsCompilation": "no",
+      "Author": "Bill Venables [aut, cre] (S original), Kurt Hornik [aut] (R port), Martin Maechler [aut] (R port)",
+      "Maintainer": "Bill Venables <Bill.Venables@gmail.com>",
+      "Suggests": [
+        "knitr",
+        "rmarkdown"
+      ],
+      "VignetteBuilder": "knitr",
+      "Repository": "CRAN"
     },
     "posterdown": {
       "Package": "posterdown",
