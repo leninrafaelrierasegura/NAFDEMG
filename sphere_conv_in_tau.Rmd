@@ -94,6 +94,7 @@ library(MetricGraph)
 library(fmesher)
 library(grateful)
 library(Matrix)
+library(parallel)
 
 library(ggplot2)
 library(reshape2)
@@ -120,11 +121,11 @@ source(here::here("functionality.R"))
 T_final <- 2
 kappa <- 4
 
-L_max <- 10
+L_max <- 2
 rot.inv <- TRUE
 
 coeff_U_0 <- rep(0, L_max+1)
-coeff_U_0[9] <- 1
+coeff_U_0[3] <- 1
 coeff_FF <- rep(0, L_max+1)
 coeff_FF[2] <- 10
 
@@ -152,8 +153,8 @@ for (j in 1:length(alpha_vector)) {
 
 ```{r}
 # Overkill parameters
-overkill_time_step <- 0.01
-overkill_h <- 0.05
+overkill_time_step <- 0.001
+overkill_h <- 0.005
 globe_overkill <- globe_from_h(overkill_h)
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
@@ -185,7 +186,7 @@ for (j in 1:length(alpha_vector)) {
   overkill_U_true <- overkill_EIGENFUN %*% 
     outer(1:length(coeff_U_0), 
           1:length(overkill_time_seq), 
-          function(i, j) (coeff_U_0[i] + coeff_FF[i] * G_sin(t = overkill_time_seq[j], A = AAA, lambda_j_alpha_half = EIGENVAL_ALPHA[i], omega = OMEGA)) * exp(-EIGENVAL_ALPHA[i] * overkill_time_seq[j]))
+          function(i, k) (coeff_U_0[i] + coeff_FF[i] * G_sin(t = overkill_time_seq[k], A = AAA, lambda_j_alpha_half = EIGENVAL_ALPHA[i], omega = OMEGA)) * exp(-EIGENVAL_ALPHA[i] * overkill_time_seq[k]))
   
   for (i in 1:length(tau_vector)) {
     time_step <- tau_vector[i]
@@ -215,7 +216,7 @@ for (j in 1:length(alpha_vector)) {
     FF_approx <- t(INT_BASIS_EIGEN) %*% 
       outer(1:length(coeff_FF), 
             1:length(time_seq), 
-        function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))
+        function(ii, jj) coeff_FF[ii] * g_sin(r = time_seq[jj], A = AAA, omega = OMEGA))
     
     U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0, RHST = FF_approx)
     
@@ -271,6 +272,33 @@ slackr_upload(
   filename = "data_files/conv_rates_tau_sphere.png",        # path to your image
   initial_comment = initial_comment,
   channels = "#research"
+)
+```
+
+
+```{r, eval = TRUE, echo = FALSE}
+get_numeric_scalars <- function() {
+  vars <- ls(envir = .GlobalEnv)
+  scalars <- sapply(vars, function(v) {
+    val <- get(v, envir = .GlobalEnv)
+    is.numeric(val) && length(val) == 1
+  })
+  mget(vars[scalars], envir = .GlobalEnv)
+}
+
+# Collect the scalars
+num_scalars <- get_numeric_scalars()
+
+# Format as message
+msg <- paste(
+  sprintf("%s = %s", names(num_scalars), unlist(num_scalars)),
+  collapse = "\n"
+)
+
+# Send to Slack
+slackr::slackr_msg(
+  text = paste("Numeric scalars in this run:\n", msg),
+  channel = "#research"
 )
 ```
 

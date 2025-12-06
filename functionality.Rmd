@@ -379,6 +379,29 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
            )
   }
 }
+
+
+# my.solver.frac <- function(obj, v) {
+#   beta <- obj$beta
+#   m <- obj$m
+#   
+#   if (beta == 1) {
+#     return(solve(obj$LHS, v))
+#   } 
+#   
+#   partial_fraction_terms <- obj$partial_fraction_terms
+#   residues <- obj$residues
+#   
+#   # --- PARALLEL PART ---
+#   results <- parallel::mclapply(
+#     1:(m+1),
+#     function(i) residues[i] * solve(partial_fraction_terms[[i]], v),
+#     mc.cores = parallel::detectCores()  
+#   )
+#   
+#   return(Reduce(`+`, results))
+# }
+
 ```
 
 

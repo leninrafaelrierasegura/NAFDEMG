@@ -282,6 +282,33 @@ slackr_upload(
 )
 ```
 
+
+```{r, eval = TRUE, echo = FALSE}
+get_numeric_scalars <- function() {
+  vars <- ls(envir = .GlobalEnv)
+  scalars <- sapply(vars, function(v) {
+    val <- get(v, envir = .GlobalEnv)
+    is.numeric(val) && length(val) == 1
+  })
+  mget(vars[scalars], envir = .GlobalEnv)
+}
+
+# Collect the scalars
+num_scalars <- get_numeric_scalars()
+
+# Format as message
+msg <- paste(
+  sprintf("%s = %s", names(num_scalars), unlist(num_scalars)),
+  collapse = "\n"
+)
+
+# Send to Slack
+slackr::slackr_msg(
+  text = paste("Numeric scalars in this run:\n", msg),
+  channel = "#research"
+)
+```
+
 # References
 
 ```{r}
