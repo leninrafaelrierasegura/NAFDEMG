@@ -116,7 +116,12 @@ library(ggplot2)
 load(here::here("data_files/p_h.RData"))
 load(here::here("data_files/p_tau.RData"))
 load(here::here("data_files/p_m.RData"))
-p_all <- (p_h | p_tau | p_m) 
+p_all <- (p_h | p_tau | p_m) + 
+  plot_annotation(
+    title = expression("Tadpole graph case"),
+    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
+        family = "Palatino"))
+  )
 p_all
 ggplot2::ggsave(here::here("data_files/p_all.png"), width = 12, height = 5, plot = p_all, dpi = 300)
 ```
@@ -129,7 +134,12 @@ library(ggplot2)
 load(here::here("data_files/p_h_square.RData"))
 load(here::here("data_files/p_tau_square.RData"))
 load(here::here("data_files/p_m_square.RData"))
-p_all <- (p_h | p_tau | p_m) 
+p_all <- (p_h | p_tau | p_m) + 
+  plot_annotation(
+    title = expression("Rectangle case"),
+    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
+        family = "Palatino"))
+  )
 p_all
 ggplot2::ggsave(here::here("data_files/p_all_square.png"), width = 12, height = 5, plot = p_all, dpi = 300)
 ```
@@ -142,7 +152,12 @@ library(ggplot2)
 load(here::here("data_files/p_h_sphere.RData"))
 load(here::here("data_files/p_tau_sphere.RData"))
 load(here::here("data_files/p_m_sphere.RData"))
-p_all <- (p_h | p_tau | p_m) 
+p_all <- (p_h | p_tau | p_m) + 
+  plot_annotation(
+    title = expression("Sphere case"),
+    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
+        family = "Palatino"))
+  )
 p_all
 ggplot2::ggsave(here::here("data_files/p_all_sphere.png"), width = 12, height = 5, plot = p_all, dpi = 300)
 ```

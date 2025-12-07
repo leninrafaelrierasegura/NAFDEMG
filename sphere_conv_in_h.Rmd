@@ -150,7 +150,7 @@ for (j in 1:length(alpha_vector)) {
 ```
 
 
-```{r}
+```{r, eval = FALSE}
 # Overkill parameters
 overkill_time_step <- 0.001
 overkill_h <- 0.005
