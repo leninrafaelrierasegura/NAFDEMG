@@ -122,11 +122,11 @@ kappa <- 4
 
 a <- b <- 1
 
-m_max <- 2
-n_max <- 2
+m_max <- 1
+n_max <- 1
 N_eig <- (m_max + 1) * (n_max + 1)
 coeff_U_0 <- rep(0, N_eig)
-coeff_U_0[9] <- 1
+coeff_U_0[3] <- 1
 coeff_FF <- rep(0, N_eig)
 coeff_FF[2] <- 10
 
@@ -134,7 +134,7 @@ AAA = 1
 OMEGA = pi
 
 # Time step and mesh size
-tau_vector <- 10^seq(log10(0.05), log10(0.1), length.out = 7)
+tau_vector <- 10^seq(log10(0.0051), log10(0.1), length.out = 7)
 alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
@@ -145,16 +145,15 @@ for (j in 1:length(alpha_vector)) {
   for (i in 1:length(tau_vector)) {
     time_step <- tau_vector[i]
     h <- time_step^(1/alpha)
-    #print(ceiling(-1+sqrt(a*b)/h))
-    print(time_step)
+    print(ceiling(-1+sqrt(a*b)/h))
   }}
 ```
 
 
-```{r}
+```{r, eval = FALSE}
 # Overkill parameters
-overkill_time_step <- 0.01
-overkill_h <- sqrt(a*b)* 0.05
+overkill_time_step <- 0.0001
+overkill_h <- sqrt(a*b)* 0.005
 n_overkill <- ceiling(-1+sqrt(a*b)/overkill_h)
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
@@ -224,10 +223,20 @@ for (j in 1:length(alpha_vector)) {
             1:length(time_seq), 
         function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))
     
+    rm(INT_BASIS_EIGEN)
+    
     U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0, RHST = FF_approx)
     
+    rm(FF_approx)
+    
     projected_U_approx <- Psi %*% U_approx
+    
+    rm(U_approx)
+    
     projected_U_piecewise <- construct_piecewise_projection(projected_U_approx, time_seq, overkill_time_seq)
+    
+    rm(projected_U_approx)
+    
     XX <- overkill_U_true - projected_U_piecewise
     error_ij <-  sqrt(as.double(overkill_time_step * sum(XX * (overkill_C %*% XX)))) 
     errors_projected[i,j] <- error_ij
