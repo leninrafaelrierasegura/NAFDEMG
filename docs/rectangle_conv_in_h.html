@@ -13,13 +13,13 @@
 
 <title>Convergence in 𝘩, rectangle case</title>
 
-<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
-<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="site_libs/header-attrs/header-attrs.js"></script>
+<script src="site_libs/jquery/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
-<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
-<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
-<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<link href="site_libs/bootstrap/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap/shim/respond.min.js"></script>
 <style>h1 {font-size: 34px;}
        h1.title {font-size: 38px;}
        h2 {font-size: 30px;}
@@ -29,20 +29,20 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
-<script src="site_libs/navigation-1.1/tabsets.js"></script>
-<script src="site_libs/navigation-1.1/codefolding.js"></script>
-<script src="site_libs/navigation-1.1/sourceembed.js"></script>
-<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
-<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
-<script src="site_libs/clipboard-2.0.6/clipboard.min.js"></script>
-<link href="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.css" rel="stylesheet" />
-<script src="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.js"></script>
+<script src="site_libs/jqueryui/jquery-ui.min.js"></script>
+<link href="site_libs/tocify/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify/jquery.tocify.js"></script>
+<script src="site_libs/navigation/tabsets.js"></script>
+<script src="site_libs/navigation/codefolding.js"></script>
+<script src="site_libs/navigation/sourceembed.js"></script>
+<link href="site_libs/pagedtable/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable/js/pagedtable.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<link href="site_libs/xaringanExtra-clipboard/xaringanExtra-clipboard.css" rel="stylesheet" />
+<script src="site_libs/xaringanExtra-clipboard/xaringanExtra-clipboard.js"></script>
 <script>window.xaringanExtraClipboard(null, {"button":"<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"><\/i>","success":"<i class=\"fa fa-check\" style=\"color: #90BE6D\"><\/i>","error":"<i class=\"fa fa-times-circle\" style=\"color: #F94144\"><\/i>"})</script>
-<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
-<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome/css/v4-shims.min.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -826,7 +826,7 @@ theoretical (‘theo’), and observed (‘obs’) rates for each case.
 <h1><span class="header-section-number">1</span> References</h1>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
 <p>We used R version 4.5.0 <span class="citation">(R Core Team
-2025a)</span> and the following R packages: akima v. 0.6.3.6 <span
+2025)</span> and the following R packages: akima v. 0.6.3.6 <span
 class="citation">(Akima and Gebhardt 2025)</span>, expm v. 1.0.0 <span
 class="citation">(Maechler, Dutang, and Goulet 2024)</span>, fmesher v.
 0.5.0 <span class="citation">(Lindgren 2025)</span>, gsignal v. 0.3.7
@@ -839,7 +839,6 @@ v. 1.5.0.9000 <span class="citation">(Bolin, Simas, and Wallin 2023a,
 2023b, 2024, 2025; Bolin et al. 2024)</span>, neuralnet v. 1.44.2 <span
 class="citation">(Fritsch, Guenther, and Wright 2019)</span>,
 orthopolynom v. 1.0.6.1 <span class="citation">(Novomestky 2022)</span>,
-parallel v. 4.5.0 <span class="citation">(R Core Team 2025b)</span>,
 patchwork v. 1.3.1 <span class="citation">(Pedersen 2025)</span>,
 pbmcapply v. 1.5.1 <span class="citation">(Kuang, Kong, and Napolitano
 2022)</span>, plotly v. 4.11.0 <span class="citation">(Sievert
@@ -1033,13 +1032,7 @@ Large-Scale Eigenvalue and SVD Problems</em>. <a
 href="https://doi.org/10.32614/CRAN.package.RSpectra">https://doi.org/10.32614/CRAN.package.RSpectra</a>.
 </div>
 <div id="ref-base" class="csl-entry">
-R Core Team. 2025a. <em><span>R</span>: A Language and Environment for
-Statistical Computing</em>. Vienna, Austria: R Foundation for
-Statistical Computing. <a
-href="https://www.R-project.org/">https://www.R-project.org/</a>.
-</div>
-<div id="ref-parallel" class="csl-entry">
-———. 2025b. <em><span>R</span>: A Language and Environment for
+R Core Team. 2025. <em><span>R</span>: A Language and Environment for
 Statistical Computing</em>. Vienna, Austria: R Foundation for
 Statistical Computing. <a
 href="https://www.R-project.org/">https://www.R-project.org/</a>.

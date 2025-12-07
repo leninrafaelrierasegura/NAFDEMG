@@ -136,7 +136,15 @@ OMEGA = pi
 # Time step and mesh size
 tau_vector <- 10^seq(log10(0.05), log10(0.1), length.out = 7)
 alpha_vector <- seq(1, 1.8, by = 0.2)
+
+# Overkill parameters
+overkill_time_step <- 0.001
+overkill_h <- 0.005
+globe_overkill <- globe_from_h(overkill_h)
+# Finest time and space mesh
+overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
 ```
+
 
 ```{r, eval = FALSE, echo = FALSE}
 # Enforce nestedness
@@ -151,21 +159,10 @@ for (j in 1:length(alpha_vector)) {
 ```
 
 
-```{r, eval = FALSE}
-# Overkill parameters
-overkill_time_step <- 0.001
-overkill_h <- 0.005
-globe_overkill <- globe_from_h(overkill_h)
-# Finest time and space mesh
-overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
-
+```{r, eval = FALSE, class.source = "fold-show"}
 mesh_overkill <- fm_rcdt_2d(globe = globe_overkill)
 overkill_C <- fm_fem(mesh_overkill, order = 1)$c1
 m_values <- c()
-```
-
-
-```{r, eval = FALSE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_projected <- matrix(NA, nrow = length(tau_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {
