@@ -23,6 +23,8 @@ navbar:
           href: conv_in_m.html
     - text: "On a rectangle"
       menu:
+        - text: "Example"
+          href: rectangle_exp1.html
         - text: "Convergence in 𝘩"
           href: rectangle_conv_in_h.html
         - text: "Convergence in τ"
@@ -31,6 +33,8 @@ navbar:
           href: rectangle_conv_in_m.html
     - text: "On a sphere"
       menu:
+        - text: "Example"
+          href: sphere_exp1.html
         - text: "Convergence in 𝘩"
           href: sphere_conv_in_h.html
         - text: "Convergence in τ"

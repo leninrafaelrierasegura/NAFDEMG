@@ -286,6 +286,11 @@ The following is the error reported in the paper for the considered experiment.
 print(paste0("Total error = ", formatC(error, format = "f", digits = 9)))
 ```
 
+
+
+
+
+
 Because of GitHub storage limits, we project the solution (and all other visualizations) to a coarser mesh as follows.
 
 ```{r}
@@ -307,11 +312,16 @@ save(exp1_fig, file = here::here("data_files/exp1_fig.RData"))
 ```
 
 
+
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
 abs_error <- abs(U_true[, idx] - U_approx[, idx])
 exp1_error <- graph.plotter.3d.single(aux_graph, abs_error, time_seq[idx])
 exp1_error
 save(exp1_error, file = here::here("data_files/exp1_error.RData"))
+```
+
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Error at some time point.")}
+graph.plotter.3d.static(aux_graph, list(abs_error[, ncol(abs_error)], abs_error[, ncol(abs_error)]*0))
 ```
 
 

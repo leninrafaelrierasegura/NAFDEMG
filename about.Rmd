@@ -118,7 +118,7 @@ load(here::here("data_files/p_tau.RData"))
 load(here::here("data_files/p_m.RData"))
 p_all <- (p_h | p_tau | p_m) + 
   plot_annotation(
-    title = expression("Tadpole graph case"),
+    title = expression("         Convergence behavior on the tadpole graph"),
     theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
         family = "Palatino"))
   )
@@ -136,7 +136,7 @@ load(here::here("data_files/p_tau_square.RData"))
 load(here::here("data_files/p_m_square.RData"))
 p_all <- (p_h | p_tau | p_m) + 
   plot_annotation(
-    title = expression("Rectangle case"),
+    title = expression("         Convergence behavior on the unit square"),
     theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
         family = "Palatino"))
   )
@@ -154,7 +154,7 @@ load(here::here("data_files/p_tau_sphere.RData"))
 load(here::here("data_files/p_m_sphere.RData"))
 p_all <- (p_h | p_tau | p_m) + 
   plot_annotation(
-    title = expression("Sphere case"),
+    title = expression("         Convergence behavior on the unit sphere"),
     theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
         family = "Palatino"))
   )
