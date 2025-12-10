@@ -186,6 +186,50 @@ error_sphere
 
 
 
+## Functions values
+
+## For the error
+
+
+:::: {style="display: grid; grid-template-columns: 400px 400px 400px; grid-column-gap: 1px;"}
+
+
+::: {}
+
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+load(here::here("data_files/exp1_f_tadpole.RData"))
+f_tadpole
+```
+
+:::
+
+
+::: {}
+
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+load(here::here("data_files/exp_1_f_rect.RData"))
+f_rect
+```
+
+
+:::
+
+
+
+::: {}
+
+
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+load(here::here("data_files/exp_1_f_sphere.RData"))
+f_sphere
+```
+
+
+:::
+
+
+::::
+
 
 
 

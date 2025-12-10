@@ -274,7 +274,7 @@ my_op_frac <- my.fractional.operators.frac(L, beta, C, scale.factor = kappa^2, m
 
 
 U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0, RHST = FF_innerprod)
-
+U_approx2 <- U_approx
 XX <- U_true - U_approx
 
 error <- sqrt(as.double(time_step * sum(XX * (C %*% XX))))
@@ -307,7 +307,7 @@ start_idx <- which.min(abs(time_seq - 0.5))
 end_idx <- which.min(abs(time_seq - 1.5))
 idx <- seq(start_idx, end_idx, by = 4)
 
-idx_for1 <- which.min(abs(time_seq - 1))
+idx_for1 <- which.min(abs(time_seq - 0.5))
 
 exp1_fig <- graph.plotter.3d.single(aux_graph, FF_true[, idx], time_seq[idx])
 exp1_fig
@@ -331,6 +331,12 @@ save(error_tadpole, file = here::here("data_files/exp1_error_tadpole.RData"))
 error_tadpole
 ```
 
+
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Error at some time point.")}
+f_tadpole <- graph.plotter.3d.onecol(graph, U_approx2[,idx_for1])
+save(f_tadpole, file = here::here("data_files/exp1_f_tadpole.RData"))
+f_tadpole
+```
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Comparison of the exact and approximate solution at selected time points.")}
 idx2 <- seq(start_idx, end_idx, by = 10)

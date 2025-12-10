@@ -197,14 +197,18 @@ plot_3d_rectangle_scatter(mesh_coarse$loc, time_seq, abs(diff), fixed_colorscale
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
 # Plot results
-idx <- which.min(abs(time_seq - 1))
+idx <- which.min(abs(time_seq - 0.5))
 error_rectangle <- plot_3d_rectangle_onecol(mesh_coarse, as.vector(abs(diff[,idx])))
 save(error_rectangle, file = here::here("data_files/exp_1_error_rectangle.RData"))
 error_rectangle
 ```
 
 
-
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+f_rect <- plot_3d_rectangle_onecol(mesh_coarse, as.vector(U_approx[,idx]))
+f_rect
+save(f_rect, file = here::here("data_files/exp_1_f_rect.RData"))
+```
 
 
 

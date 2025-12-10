@@ -186,7 +186,7 @@ error
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
 # Plot results
-idx <- which.min(abs(time_seq - 1))
+idx <- which.min(abs(time_seq - 0.5))
 
 #plot_3d_sphere_scatter_onecol(mesh_coarse, abs(diff[,idx]))
 ```
@@ -199,6 +199,11 @@ error_sphere
 ```
 
 
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+f_sphere <- plot_3d_sphere_surface_onecol(mesh_coarse,  U_approx[,idx])
+f_sphere
+save(f_sphere, file = here::here("data_files/exp_1_f_sphere.RData"))
+```
 
 
 

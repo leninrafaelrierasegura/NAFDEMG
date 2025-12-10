@@ -2307,7 +2307,7 @@ graph.plotter.3d.onecol <- function(graph, vec) {
   x_range <- range(x)
   y_range <- range(y)
   z_range <- range(z)
-  z_range[1] <- z_range[1] - 10^-7
+  z_range[1] <- z_range[1] - 10^-4
   
   # Vertical lines (vectorized)
   n <- length(x)
@@ -2344,7 +2344,12 @@ graph.plotter.3d.onecol <- function(graph, vec) {
     layout(
       scene = list(xaxis = list(title = "x", range = x_range),
               yaxis = list(title = "y", range = y_range),
-              zaxis = list(title = "z", range = z_range),
+              zaxis = list(
+      title = "z",
+      range = z_range,
+      exponentformat = "none",
+      tickformat = ".4f"     # prevents SI prefixes like μ, m, k
+    ),
               aspectratio = list(x = 2*(1+2/pi), 
                                  y = 2*(2/pi), 
                                  z = 1*(2/pi)),
