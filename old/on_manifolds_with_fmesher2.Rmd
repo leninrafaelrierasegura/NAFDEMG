@@ -257,9 +257,117 @@ plot_3d_slider_scatter(mesh_coarse$loc, time_seq, FF_true)
 
 
 
+FROM FUNCTIONALITY
 
 
+```{r}
+plot_3d_rectangle_scatter <- function(loc, eigvals, eigfuncs) {
 
+  x <- loc[,1]
+  y <- loc[,2]
+
+  colorscale <- "Viridis"
+
+  # Frames ----------------------------------------------------------------
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = eigfuncs[,i],
+        type = "scatter3d",
+        mode = "markers",
+        marker = list(
+          size = 5,
+          color = eigfuncs[,i],
+          colorscale = colorscale,
+          showscale = TRUE
+        )
+      ))
+    )
+  })
+
+  # Initial Plot ----------------------------------------------------------
+  p <- plot_ly(
+    x = x,
+    y = y,
+    z = eigfuncs[,1],
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(
+      size = 5,
+      color = eigfuncs[,1],
+      colorscale = colorscale,
+      showscale = TRUE
+    ),
+    frame = "1"
+  )
+
+  p$x$frames <- frames
+
+  z_range <- range(eigfuncs)
+  x_range <- range(x)
+  y_range <- range(y)
+
+  frame_name <- deparse(substitute(eigvals))
+
+  # Layout + slider -------------------------------------------------------
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Frame: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(
+              list(as.character(i)),
+              list(frame = list(duration = 300, redraw = TRUE),
+                   mode = "immediate")
+            )
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(label = "Play",
+               method = "animate",
+               args = list(
+                 NULL,
+                 list(frame = list(duration = 300, redraw = TRUE),
+                      fromcurrent = TRUE)
+               )),
+          list(label = "Pause",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 0))))
+        )
+      )
+    )
+  ) %>% plotly_build()
+
+  # Update title in each frame --------------------------------------------
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+
+  return(p)
+}
+```
 
 
 

@@ -1,4 +1,4 @@
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 library(plotly)
 library(akima)
 library(orthopolynom)
@@ -6,7 +6,7 @@ library(Matrix)
 library(pracma) 
 
 
-## ----setup, include = FALSE-------------------------
+## ----setup, include = FALSE------------------------------------------------------------------
 # to install in terminal
 # conda activate fenicsenv
 # conda install -c conda-forge matplotlib plotly ipywidgets
@@ -16,7 +16,7 @@ use_condaenv("fenicsenv", required = TRUE)
 py_config()
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
@@ -46,7 +46,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
@@ -55,7 +55,7 @@ poly.from.roots <- function(roots) {
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
@@ -75,7 +75,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
@@ -115,7 +115,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -136,7 +136,7 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0, RHST) {
   CC <- my_op_frac$C
   SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
@@ -149,7 +149,7 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to construct a piecewise constant projection of approximated values
 construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
   projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
@@ -167,7 +167,7 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Functions to compute the exact solution to the fractional diffusion equation
 g_linear <- function(r, A, lambda_j_alpha_half) {
   return(A * exp(-lambda_j_alpha_half * r))
@@ -212,7 +212,7 @@ G_cos <- function(t, A, lambda_j_alpha_half, omega) {
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Call the Python function
 fem <- py_run_string("
 from dolfin import *
@@ -276,7 +276,7 @@ def transfer_solution_to_fine(V_coarse, U_coarse_matrix, a, b, nx_fine, ny_fine)
 ")
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 gets.mesh.and.FEM.on.rectangle <- function(a, b, n) {
   mesh <- fm_rcdt_2d(
   lattice = fm_lattice_2d(
@@ -291,7 +291,7 @@ gets.mesh.and.FEM.on.rectangle <- function(a, b, n) {
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to get globe from h using spline
 globe_from_h_spline <- function(h) {
   readed_data <- readRDS(
@@ -314,7 +314,7 @@ globe_from_h_spline <- function(h) {
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 from_matrix_to_list <- function(M, nrow, ncol) {
   return(lapply(1:ncol(M), function(j) matrix(M[, j], nrow = nrow, ncol = ncol, byrow = FALSE)))
 }
@@ -323,7 +323,7 @@ from_list_to_matrix <- function(L) {
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 quad_weights <- function(z) {
   n <- length(z)
   w <- numeric(n)
@@ -338,7 +338,7 @@ quad_weights <- function(z) {
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 compute_true_eigen_rectangle <- function(a = 1,
                                          b = 1,
                                          loc,
@@ -407,7 +407,7 @@ compute_true_eigen_sphere <- function(mesh,
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 # Function to calculate real spherical harmonics R_lm(theta, phi)
 calculate_real_spherical_harmonics_vectorized <- function(l, m, theta, phi) {
   # theta and phi are vectors of length N (number of points)
@@ -494,7 +494,7 @@ calculate_laplace_beltrami_eigenvalues <- function(kappa = 0, L_max = 5, rot.inv
 
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 global.scene.setter <- function(x_range, y_range, z_range) {
   
   return(list(xaxis = list(title = "x", range = x_range),
@@ -512,7 +512,7 @@ global.scene.setter <- function(x_range, y_range, z_range) {
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 simple3d_plotter <- function(mesh_loc, U_0) {
 interp_res <- interp(
   x = mesh_loc[,2],
@@ -529,7 +529,7 @@ plot_ly(
 )}
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 plot_3d_slider <- function(loc, nx, ny, eigvals, eigfuncs) {
   eigfuncs <- from_matrix_to_list(eigfuncs, nx+1, ny+1)
   colorscale <- "Viridis"
@@ -616,7 +616,7 @@ plot_3d_slider <- function(loc, nx, ny, eigvals, eigfuncs) {
 }
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 plot_3d_slider_scatter <- function(loc, eigvals, eigfuncs) {
 
   x <- loc[,1]
@@ -739,7 +739,7 @@ plot_3d_slider_scatter <- function(loc, eigvals, eigfuncs) {
 
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 plot_3d_slider_sphere <- function(mesh, eigvals, eigfuncs, fixed_colorscale = TRUE) {
   
   colorscale = "Viridis"
@@ -872,8 +872,150 @@ plot_3d_slider_sphere <- function(mesh, eigvals, eigfuncs, fixed_colorscale = TR
 
 
 
-## ---------------------------------------------------
+## --------------------------------------------------------------------------------------------
 plot_3d_slider_sphere_scatter <- function(mesh, eigvals, eigfuncs,
+                                          fixed_colorscale = TRUE) {
+  
+  colorscale = "Viridis"
+  
+  x <- mesh$loc[,1]
+  y <- mesh$loc[,2]
+  z <- mesh$loc[,3]
+  
+  # Compute global color limits if fixed
+  if (fixed_colorscale) {
+    cmin <- min(eigfuncs)
+    cmax <- max(eigfuncs)
+  } else {
+    cmin <- NULL
+    cmax <- NULL
+  }
+  
+  # Create frames
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    
+    fvals <- eigfuncs[,i]
+    
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = z,
+        type = "scatter3d",
+        mode = "markers",
+        marker = list(
+          size = 5,
+          color = fvals,
+          colorscale = colorscale,
+          showscale = TRUE,
+          cmin = cmin,
+          cmax = cmax
+        ),
+        text = paste0(
+          "x: ", sprintf("%.3f", x), "<br>",
+          "y: ", sprintf("%.3f", y), "<br>",
+          "z: ", sprintf("%.3f", z), "<br>",
+          "f: ", sprintf("%.5f", fvals)
+        ),
+        hoverinfo = "text"
+      ))
+    )
+  })
+  
+  # Initial plot (frame 1)
+  fvals0 <- eigfuncs[,1]
+  
+  p <- plot_ly(
+    x = x, y = y, z = z,
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(
+      size = 5,
+      color = fvals0,
+      colorscale = colorscale,
+      showscale = TRUE,
+      cmin = cmin,
+      cmax = cmax
+    ),
+    text = paste0(
+      "x: ", sprintf("%.3f", x), "<br>",
+      "y: ", sprintf("%.3f", y), "<br>",
+      "z: ", sprintf("%.3f", z), "<br>",
+      "f: ", sprintf("%.5f", fvals0)
+    ),
+    hoverinfo = "text",
+    frame = "1"
+  )
+  
+  frame_name <- deparse(substitute(eigvals))
+  
+  p$x$frames <- frames
+  
+  # Slider + play/pause
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Mode: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(list(as.character(i)),
+                        list(mode = "immediate",
+                             frame = list(duration = 300, redraw = TRUE),
+                             transition = list(duration = 0)))
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(
+            label = "Play",
+            method = "animate",
+            args = list(NULL,
+                        list(frame = list(duration = 300, redraw = TRUE),
+                             fromcurrent = TRUE,
+                             mode = "immediate"))
+          ),
+          list(
+            label = "Pause",
+            method = "animate",
+            args = list(NULL,
+                        list(frame = list(duration = 0, redraw = FALSE),
+                             mode = "immediate"))
+          )
+        )
+      )
+    )
+  ) %>% plotly_build()
+  
+  # Update title per frame
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+  
+  return(p)
+}
+
+
+## --------------------------------------------------------------------------------------------
+plot_3d_sphere_scatter <- function(mesh, 
+                                          eigvals, 
+                                          eigfuncs,
                                           fixed_colorscale = TRUE) {
   
   colorscale = "Viridis"

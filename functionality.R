@@ -523,9 +523,9 @@ global.scene.setter.rec.and.sphere <- function(x_range, y_range, z_range) {
               aspectratio = list(x = 1, 
                                  y = 1, 
                                  z = 1),
-              camera = list(eye = list(x = 1.5, 
-                                       y = 1.5, 
-                                       z = 1.5),
+              camera = list(eye = list(x = 2, 
+                                       y = 2, 
+                                       z = 2),
                             center = list(x = 0, 
                                           y = 0, 
                                           z = 0))))
@@ -1271,12 +1271,21 @@ if (!is.null(vertical_coarser)) {
 
 
 ## -----------------------------------------------------------------------------
-plot_3d_rectangle_scatter <- function(loc, eigvals, eigfuncs) {
+plot_3d_rectangle_scatter <- function(loc, eigvals, eigfuncs, fixed_colorscale = TRUE) {
 
   x <- loc[,1]
   y <- loc[,2]
 
   colorscale <- "Viridis"
+
+  # Compute global color limits if fixed
+  if (fixed_colorscale) {
+    cmin <- min(eigfuncs)
+    cmax <- max(eigfuncs)
+  } else {
+    cmin <- NULL
+    cmax <- NULL
+  }
 
   # Frames ----------------------------------------------------------------
   frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
@@ -1292,7 +1301,9 @@ plot_3d_rectangle_scatter <- function(loc, eigvals, eigfuncs) {
           size = 5,
           color = eigfuncs[,i],
           colorscale = colorscale,
-          showscale = TRUE
+          showscale = TRUE,
+          cmin = cmin,
+          cmax = cmax
         )
       ))
     )
@@ -1309,7 +1320,9 @@ plot_3d_rectangle_scatter <- function(loc, eigvals, eigfuncs) {
       size = 5,
       color = eigfuncs[,1],
       colorscale = colorscale,
-      showscale = TRUE
+      showscale = TRUE,
+      cmin = cmin,
+      cmax = cmax
     ),
     frame = "1"
   )
@@ -1325,7 +1338,7 @@ plot_3d_rectangle_scatter <- function(loc, eigvals, eigfuncs) {
   # Layout + slider -------------------------------------------------------
   p <- p %>% layout(
     title = paste0(frame_name, ": ", eigvals[1]),
-    scene = global.scene.setter(x_range, y_range, z_range),
+    scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range),
     sliders = list(
       list(
         active = 0,
@@ -1377,6 +1390,147 @@ plot_3d_rectangle_scatter <- function(loc, eigvals, eigfuncs) {
 
   return(p)
 }
+
+plot_3d_rectangle_onecol_vir <- function(mesh, fvals) {
+  
+  colorscale = "Viridis"
+  opacity = 1
+  
+  
+  x <- mesh$loc[, 1]
+  y <- mesh$loc[, 2]
+  tri <- mesh$graph$tv
+  
+  # fvals is a vector
+  
+  x_range <- range(x)
+  y_range <- range(y)
+  z_range <- range(fvals)
+  
+  # Static mesh3d plot
+  p <- plot_ly(
+    x = x, y = y, z = fvals,
+    i = tri[,1] - 1,
+    j = tri[,2] - 1,
+    k = tri[,3] - 1,
+    type = "mesh3d",
+    intensity = fvals,
+    colorscale = colorscale,
+    opacity = opacity,
+    flatshading = TRUE,
+    text = paste0(
+      "x: ", sprintf("%.3f", x), "<br>",
+      "y: ", sprintf("%.3f", y), "<br>",
+      "f: ", sprintf("%.5f", fvals)
+    ),
+    hoverinfo = "text"
+  ) %>% layout(
+    scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range)
+  )
+  
+  return(p)
+}
+
+plot_3d_rectangle_onecol <- function(mesh, fvals) {
+  
+  opacity <- 1
+  surface_color <- "blue"
+  
+  x <- mesh$loc[, 1]
+  y <- mesh$loc[, 2]
+  tri <- mesh$graph$tv
+  
+  x_range <- range(x)
+  y_range <- range(y)
+  z_range <- range(fvals)
+  
+  # Static mesh3d plot
+  p <- plot_ly(
+    x = x, y = y, z = fvals,
+    i = tri[,1] - 1,
+    j = tri[,2] - 1,
+    k = tri[,3] - 1,
+    type = "mesh3d",
+    color = surface_color,     # Fixed blue color
+    opacity = opacity,
+    flatshading = TRUE,
+    text = paste0(
+      "x: ", sprintf("%.3f", x), "<br>",
+      "y: ", sprintf("%.3f", y), "<br>",
+      "f: ", sprintf("%.5f", fvals)
+    ),
+    hoverinfo = "text"
+  ) %>% layout(
+    scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range)
+  )
+  
+  return(p)
+}
+
+plot_3d_square_mesh <- function(mesh) {
+  
+  x <- mesh$loc[,1]
+  y <- mesh$loc[,2]
+  # Flat square (or use mesh$loc[,3] if available)
+  if (ncol(mesh$loc) >= 3) {
+    z <- mesh$loc[,3]
+  } else {
+    z <- rep(0, length(x))
+  }
+  
+  x_range <- range(x)
+  y_range <- range(y)
+  z_range <- c(0,1)
+  
+  tri <- mesh$graph$tv
+  
+  # ---- Uniform gray color for faces ----
+  gray_rgb <- rep(list(rgb(180, 180, 180, maxColorValue = 255)), length(x))
+  
+  # ---- Plot mesh faces ----
+  p <- plot_ly() %>% add_trace(
+    x = x,
+    y = y,
+    z = z,
+    i = tri[,1] - 1,
+    j = tri[,2] - 1,
+    k = tri[,3] - 1,
+    type = "mesh3d",
+    vertexcolor = gray_rgb,
+    flatshading = TRUE,
+    opacity = 1,
+    showscale = FALSE
+  )
+  
+  # ---- Extract unique edges ----
+  edges <- rbind(
+    tri[,1:2],
+    tri[,2:3],
+    tri[,c(3,1)]
+  )
+  edges <- t(apply(edges, 1, sort))
+  edges <- unique(edges)
+  
+  # ---- Efficient edges as one trace using NA breaks ----
+  x_edges <- as.vector(t(cbind(x[edges[,1]], x[edges[,2]], NA)))
+  y_edges <- as.vector(t(cbind(y[edges[,1]], y[edges[,2]], NA)))
+  z_edges <- as.vector(t(cbind(z[edges[,1]], z[edges[,2]], NA)))
+  
+  p <- add_trace(
+    p,
+    x = x_edges, y = y_edges, z = z_edges,
+    type = "scatter3d",
+    mode = "lines",
+    line = list(color = "blue", width = 3),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  ) %>% layout(
+    scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range)
+  )
+  
+  return(p)
+}
+
 
 
 ## -----------------------------------------------------------------------------
@@ -1461,9 +1615,14 @@ plot_3d_sphere_scatter <- function(mesh,
   
   p$x$frames <- frames
   
+  x_range <- range(x)
+  y_range <- range(y)
+  z_range <- range(z)
+  
   # Slider + play/pause
   p <- p %>% layout(
     title = paste0(frame_name, ": ", eigvals[1]),
+    scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range),
     sliders = list(
       list(
         active = 0,
@@ -1519,4 +1678,316 @@ plot_3d_sphere_scatter <- function(mesh,
   
   return(p)
 }
+
+plot_3d_sphere_scatter_onecol <- function(mesh, eigfuncs) {
+  
+  colorscale = "Viridis"
+  
+  x <- mesh$loc[,1]
+  y <- mesh$loc[,2]
+  z <- mesh$loc[,3]
+  
+  # eigfuncs is a vector
+  fvals <- eigfuncs
+  
+  x_range <- range(x)
+  y_range <- range(y)
+  z_range <- range(z)
+  
+  # Build static 3D scatter plot
+  p <- plot_ly(
+    x = x, y = y, z = z,
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(
+      size = 5,
+      color = fvals,
+      colorscale = colorscale,
+      showscale = TRUE
+    ),
+    text = paste0(
+      "x: ", sprintf("%.3f", x), "<br>",
+      "y: ", sprintf("%.3f", y), "<br>",
+      "z: ", sprintf("%.3f", z), "<br>",
+      "f: ", sprintf("%.5f", fvals)
+    ),
+    hoverinfo = "text"
+  ) %>% layout(
+    scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range)
+  )
+  
+  return(p)
+}
+
+
+
+# plot_3d_sphere_surface_onecol <- function(mesh, fvals) {
+#   
+#   colorscale = "Viridis"
+#   opacity = 1
+#   
+#   
+#   x <- mesh$loc[, 1]
+#   y <- mesh$loc[, 2]
+#   z <- mesh$loc[, 3]
+#   tri <- mesh$graph$tv
+#   
+#   # fvals is a vector
+#   
+#   x_range <- range(x)
+#   y_range <- range(y)
+#   z_range <- range(z)
+#   
+#   # Static mesh3d plot
+#   p <- plot_ly(
+#     x = x, y = y, z = z,
+#     i = tri[,1] - 1,
+#     j = tri[,2] - 1,
+#     k = tri[,3] - 1,
+#     type = "mesh3d",
+#     intensity = fvals,
+#     colorscale = colorscale,
+#     opacity = opacity,
+#     flatshading = TRUE,
+#     text = paste0(
+#       "x: ", sprintf("%.3f", x), "<br>",
+#       "y: ", sprintf("%.3f", y), "<br>",
+#       "z: ", sprintf("%.3f", z), "<br>",
+#       "f: ", sprintf("%.5f", fvals)
+#     ),
+#     hoverinfo = "text"
+#   ) %>% layout(
+#     scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range)
+#   )
+#   
+#   return(p)
+# }
+
+
+plot_3d_sphere_surface_onecol <- function(mesh, fvals) {
+  
+  colorscale = "Viridis"
+  opacity = 1
+  
+  x <- mesh$loc[, 1]
+  y <- mesh$loc[, 2]
+  z <- mesh$loc[, 3]
+  tri <- mesh$graph$tv
+  
+  x_range <- range(x)
+  y_range <- range(y)
+  z_range <- range(z)
+  
+  # Static mesh3d plot
+  p <- plot_ly(
+    x = x, y = y, z = z,
+    i = tri[,1] - 1,
+    j = tri[,2] - 1,
+    k = tri[,3] - 1,
+    type = "mesh3d",
+    intensity = fvals,
+    colorscale = colorscale,
+    opacity = opacity,
+    flatshading = TRUE,
+    text = paste0(
+      "x: ", sprintf("%.3f", x), "<br>",
+      "y: ", sprintf("%.3f", y), "<br>",
+      "z: ", sprintf("%.3f", z), "<br>",
+      "f: ", sprintf("%.5f", fvals)
+    ),
+    hoverinfo = "text",
+    colorbar = list(
+      thickness = 15,
+      len = 0.5,      # fraction of the height of the plot
+      y = 0.5,        # center vertically (0 = bottom, 1 = top)
+      yanchor = "middle",
+      title = ""
+    )
+  ) %>% layout(
+    scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range)
+  )
+  
+  return(p)
+}
+
+
+plot_3d_mesh_edges_faces <- function(mesh) {
+  
+  x <- mesh$loc[,1]
+  y <- mesh$loc[,2]
+  z <- mesh$loc[,3]
+  tri <- mesh$graph$tv
+  
+  # ---- Uniform gray color for faces (vertexcolor) ----
+  gray_rgb <- rep(list(rgb(180, 180, 180, maxColorValue = 255)), length(x))
+  
+  p <- plot_ly() %>% add_trace(
+    x = x,
+    y = y,
+    z = z,
+    i = tri[,1] - 1,
+    j = tri[,2] - 1,
+    k = tri[,3] - 1,
+    type = "mesh3d",
+    vertexcolor = gray_rgb,   # <- the correct way
+    flatshading = TRUE,
+    opacity = 1,
+    showscale = FALSE
+  )
+  
+  # ---- Extract unique edges ----
+  edges <- rbind(
+    tri[,1:2],
+    tri[,2:3],
+    tri[,c(3,1)]
+  )
+  
+  edges <- t(apply(edges, 1, sort))
+  edges <- unique(edges)
+  
+  # ---- Add edges as blue lines ----
+  for (e in 1:nrow(edges)) {
+    i1 <- edges[e,1]
+    i2 <- edges[e,2]
+    
+    p <- p %>% add_trace(
+      x = c(x[i1], x[i2]),
+      y = c(y[i1], y[i2]),
+      z = c(z[i1], z[i2]),
+      type = "scatter3d",
+      mode = "lines",
+      line = list(color = "blue", width = 3),
+      hoverinfo = "none",
+      showlegend = FALSE
+    )
+  }
+  
+  return(p)
+}
+
+plot_3d_mesh_edges_faces <- function(mesh) {
+  
+  x <- mesh$loc[,1]
+  y <- mesh$loc[,2]
+  z <- mesh$loc[,3]
+  tri <- mesh$graph$tv
+  
+  x_range <- range(x)
+  y_range <- range(y)
+  z_range <- range(z)
+  
+  # ---- Uniform gray color for faces ----
+  gray_rgb <- rep(list(rgb(180, 180, 180, maxColorValue = 255)), length(x))
+  
+  # ---- Plot mesh faces ----
+  p <- plot_ly() %>% add_trace(
+    x = x,
+    y = y,
+    z = z,
+    i = tri[,1] - 1,
+    j = tri[,2] - 1,
+    k = tri[,3] - 1,
+    type = "mesh3d",
+    vertexcolor = gray_rgb,
+    flatshading = TRUE,
+    opacity = 1,
+    showscale = FALSE
+  )
+  
+  # ---- Extract unique edges ----
+  edges <- rbind(
+    tri[,1:2],
+    tri[,2:3],
+    tri[,c(3,1)]
+  )
+  edges <- t(apply(edges, 1, sort))
+  edges <- unique(edges)
+  
+  # ---- Efficient edges as a single trace using NA breaks ----
+  x_edges <- as.vector(t(cbind(x[edges[,1]], x[edges[,2]], NA)))
+  y_edges <- as.vector(t(cbind(y[edges[,1]], y[edges[,2]], NA)))
+  z_edges <- as.vector(t(cbind(z[edges[,1]], z[edges[,2]], NA)))
+  
+  p <- add_trace(
+    p,
+    x = x_edges, y = y_edges, z = z_edges,
+    type = "scatter3d",
+    mode = "lines",
+    line = list(color = "blue", width = 3),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  ) %>% layout(
+    scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range)
+  )
+  
+  return(p)
+}
+
+
+
+
+## -----------------------------------------------------------------------------
+graph.plotter.3d.onecol <- function(graph, vec) {
+  
+  # Coordinates on the mesh
+  x <- plotting.order(graph$mesh$V[, 1], graph)
+  y <- plotting.order(graph$mesh$V[, 2], graph)
+  z <- plotting.order(vec, graph)  # vector to plot
+  
+  # Axis ranges
+  x_range <- range(x)
+  y_range <- range(y)
+  z_range <- range(z)
+  z_range[1] <- z_range[1] - 10^-7
+  
+  # Vertical lines (vectorized)
+  n <- length(x)
+  x_vert <- rep(x, each = 3)
+  y_vert <- rep(y, each = 3)
+  z_vert <- as.vector(t(cbind(0, z, NA)))
+  
+  # Create plot
+  p <- plot_ly() %>%
+    
+    # Main 3D curve over the graph
+    add_trace(
+      x = x, y = y, z = z,
+      type = "scatter3d", mode = "lines",
+      line = list(color = "blue", width = 3),
+      showlegend = FALSE
+    ) %>%
+    # Graph base
+    add_trace(
+      x = x, y = y, z = z*0,
+      type = "scatter3d", mode = "lines",
+      line = list(color = "black", width = 3),
+      showlegend = FALSE
+    ) %>%
+    
+    # Vertical lines from base to curve
+    add_trace(
+      x = x_vert, y = y_vert, z = z_vert,
+      type = "scatter3d", mode = "lines",
+      line = list(color = "gray", width = 0.5),
+      showlegend = FALSE
+    ) %>%
+    
+    layout(
+      scene = list(xaxis = list(title = "x", range = x_range),
+              yaxis = list(title = "y", range = y_range),
+              zaxis = list(title = "z", range = z_range),
+              aspectratio = list(x = 2*(1+2/pi), 
+                                 y = 2*(2/pi), 
+                                 z = 1*(2/pi)),
+              camera = list(eye = list(x = 5, 
+                                       y = 3, 
+                                       z = 3.5),
+                            center = list(x = (1+2/pi)/2, 
+                                          y = 0, 
+                                          z = 0)))
+    )
+  
+  return(p)
+}
+
 

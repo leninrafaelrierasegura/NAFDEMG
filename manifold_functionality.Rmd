@@ -1250,3 +1250,149 @@ plot_3d_slider_sphere_scatter <- function(mesh, eigvals, eigfuncs,
 }
 ```
 
+
+this came from functionality
+
+
+```{r}
+plot_3d_sphere_scatter <- function(mesh, 
+                                          eigvals, 
+                                          eigfuncs,
+                                          fixed_colorscale = TRUE) {
+  
+  colorscale = "Viridis"
+  
+  x <- mesh$loc[,1]
+  y <- mesh$loc[,2]
+  z <- mesh$loc[,3]
+  
+  # Compute global color limits if fixed
+  if (fixed_colorscale) {
+    cmin <- min(eigfuncs)
+    cmax <- max(eigfuncs)
+  } else {
+    cmin <- NULL
+    cmax <- NULL
+  }
+  
+  # Create frames
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    
+    fvals <- eigfuncs[,i]
+    
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = z,
+        type = "scatter3d",
+        mode = "markers",
+        marker = list(
+          size = 5,
+          color = fvals,
+          colorscale = colorscale,
+          showscale = TRUE,
+          cmin = cmin,
+          cmax = cmax
+        ),
+        text = paste0(
+          "x: ", sprintf("%.3f", x), "<br>",
+          "y: ", sprintf("%.3f", y), "<br>",
+          "z: ", sprintf("%.3f", z), "<br>",
+          "f: ", sprintf("%.5f", fvals)
+        ),
+        hoverinfo = "text"
+      ))
+    )
+  })
+  
+  # Initial plot (frame 1)
+  fvals0 <- eigfuncs[,1]
+  
+  p <- plot_ly(
+    x = x, y = y, z = z,
+    type = "scatter3d",
+    mode = "markers",
+    marker = list(
+      size = 5,
+      color = fvals0,
+      colorscale = colorscale,
+      showscale = TRUE,
+      cmin = cmin,
+      cmax = cmax
+    ),
+    text = paste0(
+      "x: ", sprintf("%.3f", x), "<br>",
+      "y: ", sprintf("%.3f", y), "<br>",
+      "z: ", sprintf("%.3f", z), "<br>",
+      "f: ", sprintf("%.5f", fvals0)
+    ),
+    hoverinfo = "text",
+    frame = "1"
+  )
+  
+  frame_name <- deparse(substitute(eigvals))
+  
+  p$x$frames <- frames
+  
+  # Slider + play/pause
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Mode: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(list(as.character(i)),
+                        list(mode = "immediate",
+                             frame = list(duration = 300, redraw = TRUE),
+                             transition = list(duration = 0)))
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(
+            label = "Play",
+            method = "animate",
+            args = list(NULL,
+                        list(frame = list(duration = 300, redraw = TRUE),
+                             fromcurrent = TRUE,
+                             mode = "immediate"))
+          ),
+          list(
+            label = "Pause",
+            method = "animate",
+            args = list(NULL,
+                        list(frame = list(duration = 0, redraw = FALSE),
+                             mode = "immediate"))
+          )
+        )
+      )
+    )
+  ) %>% plotly_build()
+  
+  # Update title per frame
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+  
+  return(p)
+}
+```
+

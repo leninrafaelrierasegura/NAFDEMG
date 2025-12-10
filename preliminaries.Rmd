@@ -180,7 +180,19 @@ p_b1 <- plot_ly() |>
             mode = "lines",
             line = list(color = "green", width = 3), 
             showlegend = FALSE) |>
-  layout(scene = global.scene.setter(x_range, y_range, z_range, z_aspectratio = 1))
+  #layout(scene = global.scene.setter(x_range, y_range, z_range, z_aspectratio = 1))
+  layout(scene = list(xaxis = list(title = "x", range = x_range),
+              yaxis = list(title = "y", range = y_range),
+              zaxis = list(title = "z", range = z_range),
+              aspectratio = list(x = 2*(1+2/pi), 
+                                 y = 2*(2/pi), 
+                                 z = 1*(2/pi)),
+              camera = list(eye = list(x = 5, 
+                                       y = 3, 
+                                       z = 3.5),
+                            center = list(x = (1+2/pi)/2, 
+                                          y = 0, 
+                                          z = 0))))
 p_b1
 save(p_b1, file = here::here("data_files/fem_basis_tadpole.RData"))
 ```
