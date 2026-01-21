@@ -6,7 +6,7 @@ output:
     mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
     highlight: pygments
     theme: flatly
-    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
+    code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
     df_print: paged
     toc: true
     toc_float:
@@ -97,12 +97,48 @@ library(Matrix)
 ```
 
 
+We consider the following equation on the sphere
+
+\begin{equation}
+\label{eq:maineq}
+\tag{1}
+\left\{
+\begin{aligned}
+    \partial_t u(s,t) + (\kappa^2 - \Delta_{\mathbb{S}^2})^{\alpha/2} u(s,t) &= f(s,t), && \quad (s,t) \in \mathbb{S}^2 \times (0, T), \\
+    u(s,0) &= u_0(s), && \quad s \in \mathbb{S}^2,
+\end{aligned}
+\right.
+\end{equation}
+
+where $\Delta_{\mathbb{S}^2}$ is the Laplace-Beltrami operator on the sphere $\mathbb{S}^2$.
+
+The eigenvalues and eigenfunctions of the Laplace-Beltrami operator on the sphere are known explicitly. The eigenvalues are given by $\lambda_\ell = \ell(\ell+1)$, with multiplicity $2\ell + 1$, and the eigenfunctions are the spherical harmonics $Y_{\ell,m}$, for $\ell = 0, 1, 2, \ldots$ and $m = -\ell, \ldots, \ell$, which satisfy the eigenvalue equation
+
+\begin{equation}
+-\Delta_{\mathbb{S}^2} Y_{\ell,m} = \lambda_\ell Y_{\ell,m}.
+\end{equation}
+
+
+Below we use the eigenpairs to construct an exact solution to equation \eqref{eq:maineq} and compare it with the numerical approximation. We take $u_0(s) = x_3 Y_{3,0}(s)$ with $x_3 = 1$ and $f(s,t) = y_2 \sin(\pi t) Y_{2,0}(s)$ with $y_2 = 10$. Then the exact solution is given by 
+\begin{equation}
+u(s,t) = x_3\text{e}^{-\lambda^{\alpha/2}_3t}Y_{3,0}(s)+y_2 G_2(t)\text{e}^{-\lambda^{\alpha/2}_2t}Y_{2,0}(s),
+\end{equation}
+where $G_2(t)= \displaystyle\int_0^t \text{e}^{\lambda^{\alpha/2}_2r}\sin(\pi r)dr$. Below the exact solution  is computed as `U_true` and compared with the numerical approximation `U_approx`.
+
+
+We take parameters $T = 2$, $\kappa = 4$, $\alpha = 1.8$, $m=4$, $h = 0.05$, and time step size $\tau = 0.05$.
+
+
+
+
+
+
 ```{r}
 T_final <- 2
 kappa <- 4
 
 
-L_max <- 2
+L_max <- 10
 rot.inv <- TRUE
 
 
@@ -182,24 +218,25 @@ error <- sqrt(as.double(time_step * sum(diff * (C %*% diff))))
 error
 ```
 
+Below we visualize the first few eigenfunctions on the sphere.
 
-
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
-# Plot results
-idx <- which.min(abs(time_seq - 0.5))
-
-#plot_3d_sphere_scatter_onecol(mesh_coarse, abs(diff[,idx]))
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Eigenfunctions on the sphere.")}
+plot_3d_slider_sphere(mesh_coarse, eig$EIGENVAL, EIGENFUN, fixed_colorscale = TRUE)
 ```
 
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+
+Below we show the absolute value of the difference $|u(s, 0.5) - U^\tau_{h,m}(s,0.5)|$ and the function value $U^\tau_{h,m}(s, 0.5)$ at $t=0.5$.
+
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Absolute difference between the exact and approximate solution at $t_0=0.5$.")}
+idx <- which.min(abs(time_seq - 0.5))
 error_sphere <- plot_3d_sphere_surface_onecol(mesh_coarse,  abs(diff[,idx]))
 save(error_sphere, file = here::here("data_files/exp_1_error_sphere.RData"))
 error_sphere
 ```
 
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Approximate solution at $t_0=0.5$.")}
 f_sphere <- plot_3d_sphere_surface_onecol(mesh_coarse,  U_approx[,idx])
 f_sphere
 save(f_sphere, file = here::here("data_files/exp_1_f_sphere.RData"))

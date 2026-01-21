@@ -2047,6 +2047,145 @@ plot_3d_sphere_scatter <- function(mesh,
   return(p)
 }
 
+plot_3d_slider_sphere <- function(mesh, eigvals, eigfuncs, fixed_colorscale = TRUE) {
+  
+  colorscale = "Viridis"
+  opacity = 1
+  
+  x <- mesh$loc[, 1]
+  y <- mesh$loc[, 2]
+  z <- mesh$loc[, 3]
+  tri <- mesh$graph$tv
+  
+  # Global intensity limits if fixed
+  if (fixed_colorscale) {
+    cmin <- min(eigfuncs)
+    cmax <- max(eigfuncs)
+  } else {
+    cmin <- NULL
+    cmax <- NULL
+  }
+  
+  # Create frames
+  frames <- lapply(seq_len(ncol(eigfuncs)), function(i) {
+    fvals <- eigfuncs[,i]
+    list(
+      name = as.character(i),
+      data = list(list(
+        x = x,
+        y = y,
+        z = z,
+        i = tri[,1] - 1,
+        j = tri[,2] - 1,
+        k = tri[,3] - 1,
+        type = "mesh3d",
+        intensity = fvals,
+        colorscale = colorscale,
+        opacity = opacity,
+        flatshading = TRUE,
+        cmin = cmin,
+        cmax = cmax,
+        text = paste0(
+          "x: ", sprintf("%.3f", x), "<br>",
+          "y: ", sprintf("%.3f", y), "<br>",
+          "z: ", sprintf("%.3f", z), "<br>",
+          "f: ", sprintf("%.5f", fvals)
+        ),
+        hoverinfo = "text"
+      ))
+    )
+  })
+  
+  # Initial plot
+  fvals0 <- eigfuncs[,1]
+  
+  p <- plot_ly(
+    x = x, y = y, z = z,
+    i = tri[,1] - 1,
+    j = tri[,2] - 1,
+    k = tri[,3] - 1,
+    type = "mesh3d",
+    intensity = fvals0,
+    colorscale = colorscale,
+    opacity = opacity,
+    flatshading = TRUE,
+    cmin = cmin,
+    cmax = cmax,
+    text = paste0(
+      "x: ", sprintf("%.3f", x), "<br>",
+      "y: ", sprintf("%.3f", y), "<br>",
+      "z: ", sprintf("%.3f", z), "<br>",
+      "f: ", sprintf("%.5f", fvals0)
+    ),
+    colorbar = list(
+      thickness = 15,
+      len = 0.5,      # fraction of the height of the plot
+      y = 0.5,        # center vertically (0 = bottom, 1 = top)
+      yanchor = "middle",
+      title = ""
+    ),
+    hoverinfo = "text",
+    frame = "1"
+  )
+  
+  frame_name <- deparse(substitute(eigvals))
+  
+  p$x$frames <- frames
+  
+  # Layout + slider + buttons
+  p <- p %>% layout(
+    title = paste0(frame_name, ": ", eigvals[1]),
+    scene = global.scene.setter.rec.and.sphere(range(x), range(y), range(z)),
+    sliders = list(
+      list(
+        active = 0,
+        currentvalue = list(prefix = "Frame: "),
+        pad = list(t = 50),
+        steps = lapply(seq_len(ncol(eigfuncs)), function(i) {
+          list(
+            label = as.character(i),
+            method = "animate",
+            args = list(list(as.character(i)),
+                        list(mode = "immediate",
+                             frame = list(duration = 300, redraw = TRUE),
+                             transition = list(duration = 0)))
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type = "buttons",
+        showactive = FALSE,
+        y = 1,
+        x = 1.15,
+        xanchor = "right",
+        yanchor = "top",
+        buttons = list(
+          list(label = "Play",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 300, redraw = TRUE),
+                                      fromcurrent = TRUE, mode = "immediate"))),
+          list(label = "Pause",
+               method = "animate",
+               args = list(NULL, list(frame = list(duration = 0, redraw = FALSE),
+                                      mode = "immediate")))
+        )
+      )
+    )
+  ) %>% plotly_build()
+  
+  # Add titles for frames
+  for (i in seq_len(ncol(eigfuncs))) {
+    p$x$frames[[i]]$layout <- list(
+      title = paste0(frame_name, ": ", eigvals[i])
+    )
+  }
+  
+  return(p)
+}
+
+
 plot_3d_sphere_scatter_onecol <- function(mesh, eigfuncs) {
   
   colorscale = "Viridis"
