@@ -11,3 +11,5 @@ docs/old/**/*.html
 old/**/*.html
 keys.R
 Miniconda3-latest-Linux-x86_64.sh
+old/cv_result.RData
+old/cv_models.RData
