@@ -144,19 +144,19 @@ graph <- metric_graph$new(edges = edges)
 graph$build_mesh(h = 0.01)
 
 # Parameters
-sigma <- 1
-range <- 0.3
-nu <- 1
+sigma <- readRDS(here::here("old/sigma.RDS")) #1.7
+range <- readRDS(here::here("old/range.RDS")) #0.3
+nu <- readRDS(here::here("old/nu.RDS")) #0.8
 rspde.order <- 2
 
 
 op <- matern.operators(nu = nu, range = range, sigma = sigma, 
                        parameterization = "matern",
                        m = rspde.order, graph = graph) 
-n.rep <- 2
+n.rep <- readRDS(here::here("old/n_rep.RDS")) #2
 u.rep <- simulate(op, nsim = n.rep)
 
-obs.per.edge <- 1000
+obs.per.edge <- floor(400/(n.rep*graph$nE))
 obs.loc <- NULL
 for(i in 1:graph$nE) {
   obs.loc <- rbind(obs.loc,
@@ -165,7 +165,7 @@ for(i in 1:graph$nE) {
 n.obs <- obs.per.edge*graph$nE
 A <- graph$fem_basis(obs.loc)
 
-sigma.e <- 0.3
+sigma.e <- readRDS(here::here("old/sigma_e.RDS")) #0.1
 Y.rep <- A %*% u.rep + sigma.e * matrix(rnorm(n.obs * n.rep), ncol = n.rep)
 y_vec <- 1 + as.vector(Y.rep)
 repl <- rep(1:n.rep, each = n.obs)                       
@@ -180,7 +180,7 @@ graph$add_observations(data = df_data_repl, normalized = TRUE,
 
 slackr_msg(text = "Data simulated and added", channel = "#research")
 
-#graph$plot(data = "y", group = 25, vertex_size = 0, type = "ggplot") |> ggplotly()
+#graph$plot(data = "y", group = 2, vertex_size = 0, type = "ggplot") |> ggplotly()
 
 ############### Case alpha = 1 ###########################
 # Build the model
@@ -301,7 +301,8 @@ distmatrix <- graph$compute_geodist_PtE(PtE = aux,
                                         normalized = TRUE,
                                         include_vertices = FALSE)
 # Define the distance vector
-distance = seq(from = 0, to = 1, by = 0.1)
+distance = seq(from = 0, to = 1, by = 0.1)/4
+distance <- distance[-1] # Remove 0
 # Compute the groups for one replicate
 GROUPS <- list()
 for (j in 1:length(distance)) {
@@ -338,6 +339,23 @@ list_models_before_cv <- list(mean_and_mode_params_statnuest = mean_and_mode_par
 save(list_models_before_cv, file = here::here("old/cv_models.RData"))
 ```
 
+
+
+```{r, eval = FALSE}
+point_of_interest <- 1 # Any number between 1 and nrow(data)
+small_neighborhood <- GROUPS[[8]][[point_of_interest]]
+large_neighborhood <- GROUPS[[5]][[point_of_interest]]
+p <- graph$plot(vertex_size = 0) +
+  #geom_point(data = data, aes(x = .coord_x, y = .coord_y), color = "black", size = 2) +
+  #geom_point(data = data[large_neighborhood, ], aes(x = .coord_x, y = .coord_y), color = "green", size = 1.5) +
+  geom_point(data = data[small_neighborhood, ], aes(x = .coord_x, y = .coord_y), color = "blue", size = 1) +
+  geom_point(data = data[point_of_interest, ], aes(x = .coord_x, y = .coord_y), color = "red", size = 0.5) +
+  ggtitle("Groups") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino")) +
+  coord_fixed()
+ggplotly(p)
+```
 
 ```{r, eval = TRUE}
 load(here::here("old/cv_models.RData"))
@@ -396,7 +414,7 @@ save(list_to_save, file = here::here("old/cv_result.RData"))
 ```{r}
 load(here::here("old/cv_result.RData"))
 ################### Plot the results ##########################
-choose_index <- seq(2, nrow(mse_df), by = 3)
+choose_index <- seq(1, nrow(mse_df), by = 1)
 mse_df_red <- mse_df[choose_index,]
 ls_df_red <- ls_df[choose_index,]
 # Convert to long format
@@ -411,7 +429,7 @@ ls_long <- ls_df_red %>%
 label_mapping <- c(
   "Statnu0.5" = "1", 
   "Statnu1.5" = "2", 
-  "Statnuest" = paste(round(mean_and_mode_params_statnuest[5,1]+0.5, 3), "(est)")
+  "Statnuest" = paste(round(mean_and_mode_params_statnuest[4,1]+0.5, 3), "(est)")
 )
 
 # Define color and linetype mapping
@@ -459,10 +477,38 @@ ggsave(here::here("old/cv_sim.png"), plot = combined_plot, width = 9.22, height 
 
 # Display combined plot
 print(combined_plot)
+```
 
+
+
+```{r, eval = TRUE}
+nu_estimated <- round(mean_and_mode_params_statnuest[4,1], 3)
+get_numeric_scalars <- function() {
+  vars <- ls(envir = .GlobalEnv)
+  scalars <- sapply(vars, function(v) {
+    val <- get(v, envir = .GlobalEnv)
+    is.numeric(val) && length(val) == 1
+  })
+  mget(vars[scalars], envir = .GlobalEnv)
+}
+
+# Collect the scalars
+num_scalars <- get_numeric_scalars()
+
+# Format as message
+msg <- paste(
+  sprintf("%s = %s", names(num_scalars), unlist(num_scalars)),
+  collapse = "\n"
+)
+
+# Send to Slack
+slackr::slackr_msg(
+  text = paste("Numeric scalars in this run:\n", msg),
+  channel = "#research"
+)
 slackr_upload(
   filename = here::here("old/cv_sim.png"),        # path to your image
-  initial_comment = "initial_comment",
+  initial_comment = "here is the plot from the cv simulation study",
   channels = "#research"
 )
 ```
