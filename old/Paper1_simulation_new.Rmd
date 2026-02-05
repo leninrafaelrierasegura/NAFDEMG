@@ -114,9 +114,7 @@ process_model_results <- function(fit, model) {
   df_for_plot_spde <- gg_df(fit_spde)
   df_for_plot_matern <- gg_df(fit_matern)
   param_spde <- summary(fit_spde)
-  print(param_spde)
   param_matern <- summary(fit_matern)
-  print(param_matern)
   param_fixed <- fit$summary.fixed[,1:6]
   marginal.posterior.sigma_e = inla.tmarginal(
     fun = function(x) exp(-x/2), 
@@ -146,22 +144,19 @@ graph <- metric_graph$new(edges = edges)
 graph$build_mesh(h = 0.01)
 
 # Parameters
-sigma <- 1.2
-range <- 0.2
+sigma <- 1.7
+range <- 0.3
 nu <- 0.8
 rspde.order <- 1
-
-kappa <- sqrt(8*nu)/range
-tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
 
 
 op <- matern.operators(nu = nu, range = range, sigma = sigma, 
                        parameterization = "matern",
                        m = rspde.order, graph = graph) 
-n.rep <- 10
+n.rep <- 1
 u.rep <- simulate(op, nsim = n.rep)
 
-obs.per.edge <- 50
+obs.per.edge <- 5
 obs.loc <- NULL
 for(i in 1:graph$nE) {
   obs.loc <- rbind(obs.loc,
@@ -418,9 +413,6 @@ save(list_to_save, file = here::here("old/cv_result.RData"))
 
 ```{r}
 load(here::here("old/cv_result.RData"))
-mse_df <- list_to_save$mse_df
-ls_df <- list_to_save$ls_df
-mean_and_mode_params_statnuest <- list_to_save$mean_and_mode_params_statnuest
 ################### Plot the results ##########################
 choose_index <- seq(1, nrow(mse_df), by = 1)
 mse_df_red <- mse_df[choose_index,]
@@ -457,7 +449,7 @@ linetype_mapping <- c(
 # Plot MSE
 mse_plot <- ggplot(mse_long, aes(x = distance, y = MSE, color = nu, linetype = nu)) +
   geom_line(linewidth = 1) +
-  labs(y = "MSE", x = "Distance") +
+  labs(y = "MSE", x = "Distance in km") +
   scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(alpha)) +
   scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(alpha)) +
   theme_minimal() +
@@ -466,7 +458,7 @@ mse_plot <- ggplot(mse_long, aes(x = distance, y = MSE, color = nu, linetype = n
 # Plot negative log-score
 ls_plot <- ggplot(ls_long, aes(x = distance, y = LogScore, color = nu, linetype = nu)) +
   geom_line(linewidth = 1) +
-  labs(y = "Negative Log-Score", x = "Distance") +
+  labs(y = "Negative Log-Score", x = "Distance in km") +
   scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(alpha)) +
   scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(alpha)) +
   theme_minimal() +

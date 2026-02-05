@@ -34,8 +34,8 @@ for (i in 1:length(KAPPAS)) {
 }
 
 
-SIGMAS <- seq(from = 0.1, to = 5, by = 0.1)
-RANGES <- seq(from = 0.1, to = 5, by = 0.1)
+SIGMAS <- seq(from = 0.1, to = 4, by = 0.1)
+RANGES <- seq(from = 0.1, to = 5, by = 0.2)
 NUS <- seq(from = 0.1, to = 2.5, by = 0.1)
 SIGMA.ES <- seq(from = 0.1, to = 5, by = 0.1)
 N.REPS <- seq(from = 1, to = 10, by = 1)
