@@ -295,6 +295,10 @@ Z_red <- unlist(lapply(z_vals[idx], function(zj) c(0, zj, NA)))
 X_red <- rep(x[idx], each = 3)
 Y_red <- rep(y[idx], each = 3)
 
+df3 <- data.frame(x = graph$mesh$V[, 1], 
+                  y = graph$mesh$V[, 2], 
+                  z = rep(0, length(graph$mesh$V[, 1])))
+
 # Start plot
 p_basis <- plot_ly() %>% 
   add_trace(x = rep(x, times = graph$nV), 
@@ -329,6 +333,8 @@ p_basis <- plot_ly() %>%
             mode = "lines", 
             showlegend = FALSE, 
             line = list(color = "green", width = 4)) %>%
+  add_trace(data = df3, x = ~x, y = ~y, z = ~z, mode = "markers", type = "scatter3d", 
+            marker = list(size = 4, color = "gray", symbol = 104)) %>%
   layout(scene = list(
     xaxis = list(title = "x", range = x_range),
     yaxis = list(title = "y", range = y_range),

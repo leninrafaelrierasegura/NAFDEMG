@@ -33,6 +33,34 @@ for (i in 1:length(KAPPAS)) {
   }
 }
 
+
+SIGMAS <- seq(from = 0.1, to = 4, by = 0.1)
+RANGES <- seq(from = 0.1, to = 5, by = 0.2)
+NUS <- seq(from = 0.1, to = 2.5, by = 0.1)
+SIGMA.ES <- seq(from = 0.1, to = 5, by = 0.1)
+N.REPS <- seq(from = 1, to = 10, by = 1)
+for (i in 1:length(SIGMAS)) {
+  sigma <- SIGMAS[i]
+  saveRDS(sigma, "old/sigma.RDS")
+  for (j in 1:length(RANGES)) {
+    range <- RANGES[j]
+    saveRDS(range, "old/range.RDS")
+    for (k in 1:length(NUS)) {
+      nu <- NUS[k]
+      saveRDS(nu, "old/nu.RDS")
+      for (l in 1:length(SIGMA.ES)) {
+        sigma.e <- SIGMA.ES[l]
+        saveRDS(sigma.e, "old/sigma_e.RDS")
+        for (m in 1:length(N.REPS)) {
+          n.rep <- N.REPS[m]
+          saveRDS(n.rep, "old/n_rep.RDS")
+          rmarkdown::render(here::here("old/Paper1_simulation.Rmd"))
+        }
+      }
+    }
+  }
+}
+
 # for (i in 1:length(KAPPAS)) {
 #   kappa <- KAPPAS[i]
 #   saveRDS(kappa, "old/kappa.RDS")

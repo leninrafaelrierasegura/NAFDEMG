@@ -856,6 +856,23 @@ global.scene.setter.rec.and.sphere <- function(x_range, y_range, z_range) {
                                           y = 0, 
                                           z = 0))))
 }
+
+
+global.scene.setter.rec.and.sphere.for.hat <- function(x_range, y_range, z_range) {
+  
+  return(list(xaxis = list(title = "x", range = x_range),
+              yaxis = list(title = "y", range = y_range),
+              zaxis = list(title = "z", range = z_range),
+              aspectratio = list(x = 1, 
+                                 y = 1, 
+                                 z = 0.4),
+              camera = list(eye = list(x = 2, 
+                                       y = 2, 
+                                       z = 2),
+                            center = list(x = 0, 
+                                          y = 0, 
+                                          z = 0))))
+}
 ```
 
 ### Function `graph.plotter.3d()`
@@ -1850,6 +1867,12 @@ plot_3d_square_mesh <- function(mesh) {
   
   # ---- Uniform gray color for faces ----
   gray_rgb <- rep(list(rgb(180, 180, 180, maxColorValue = 255)), length(x))
+  white_rgb <- rep(list(rgb(255, 255, 255, alpha = 255, maxColorValue = 255)), length(x))
+
+  
+  df3 <- data.frame(x = x, 
+                  y = y, 
+                  z = z)
   
   # ---- Plot mesh faces ----
   p <- plot_ly() %>% add_trace(
@@ -1860,7 +1883,7 @@ plot_3d_square_mesh <- function(mesh) {
     j = tri[,2] - 1,
     k = tri[,3] - 1,
     type = "mesh3d",
-    vertexcolor = gray_rgb,
+    vertexcolor = white_rgb,
     flatshading = TRUE,
     opacity = 1,
     showscale = FALSE
@@ -1885,15 +1908,135 @@ plot_3d_square_mesh <- function(mesh) {
     x = x_edges, y = y_edges, z = z_edges,
     type = "scatter3d",
     mode = "lines",
-    line = list(color = "blue", width = 3),
+    line = list(color = "black", width = 3),
     showlegend = FALSE,
     hoverinfo = "none"
-  ) %>% layout(
+  ) %>% 
+    add_trace(data = df3, x = ~x, y = ~y, z = ~z, mode = "markers", type = "scatter3d", 
+            marker = list(size = 4, color = "gray", symbol = 104)) %>%
+    layout(
     scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range)
   )
   
   return(p)
 }
+
+
+plot_3d_square_mesh_with_hat <- function(mesh,
+                                hat_nodes = NULL,
+                                hat_height = 1,
+                                hat_color = NULL,
+                                hat_alpha = 0.6) {
+  
+  x <- mesh$loc[,1]
+  y <- mesh$loc[,2]
+  n <- length(x)
+  
+  z0 <- rep(0, n)
+  tri <- mesh$graph$tv
+  
+  x_range <- range(x)
+  y_range <- range(y)
+  z_range <- c(0, hat_height)
+  
+  # ---- Extract unique edges once ----
+  edges <- rbind(tri[,1:2], tri[,2:3], tri[,c(3,1)])
+  edges <- t(apply(edges, 1, sort))
+  edges <- unique(edges)
+  
+  # Base mesh color
+  white_rgb <- rep(list(rgb(255, 255, 255, maxColorValue = 255)), n)
+  
+  df3 <- data.frame(x = x, 
+                  y = y, 
+                  z = rep(0, length(x)))
+  
+  # ---- Base mesh ----
+  p <- plot_ly() %>% add_trace(
+    x = x, y = y, z = z0,
+    i = tri[,1] - 1, j = tri[,2] - 1, k = tri[,3] - 1,
+    type = "mesh3d",
+    vertexcolor = white_rgb,
+    flatshading = TRUE,
+    opacity = 1,
+    name = "Mesh"
+  )
+  
+  # ---- Base mesh edges ----
+  x_edges <- as.vector(t(cbind(x[edges[,1]], x[edges[,2]], NA)))
+  y_edges <- as.vector(t(cbind(y[edges[,1]], y[edges[,2]], NA)))
+  z_edges <- as.vector(t(cbind(z0[edges[,1]], z0[edges[,2]], NA)))
+  
+  # ---- Hat functions ----
+  if (!is.null(hat_nodes)) {
+    
+    if (is.null(hat_color)) {
+      hat_color <- grDevices::rainbow(length(hat_nodes))
+    }
+    if (length(hat_color) != length(hat_nodes)) {
+      stop("length(hat_color) must equal length(hat_nodes)")
+    }
+    
+    for (k in seq_along(hat_nodes)) {
+      i0 <- hat_nodes[k]
+      
+      phi <- rep(0, n)
+      phi[i0] <- 1
+      z_hat <- hat_height * phi
+      
+      hat_rgb <- rep(list(adjustcolor(hat_color[k], alpha.f = hat_alpha)), n)
+      
+      # ---- Hat surface ----
+      p <- add_trace(p,
+        x = x, y = y, z = z_hat,
+        i = tri[,1] - 1, j = tri[,2] - 1, k = tri[,3] - 1,
+        type = "mesh3d",
+        vertexcolor = hat_rgb,
+        flatshading = TRUE,
+        opacity = 1,
+        name = paste0("phi_", i0),
+        showlegend = FALSE
+      )
+      
+      # ---- Hat edges (wireframe) ----
+      x_hat_edges <- as.vector(t(cbind(x[edges[,1]], x[edges[,2]], NA)))
+      y_hat_edges <- as.vector(t(cbind(y[edges[,1]], y[edges[,2]], NA)))
+      z_hat_edges <- as.vector(t(cbind(z_hat[edges[,1]], z_hat[edges[,2]], NA)))
+      
+      p <- add_trace(p,
+        x = x_hat_edges, y = y_hat_edges, z = z_hat_edges,
+        type = "scatter3d", mode = "lines",
+        line = list(color = hat_color[k], width = 2),
+        showlegend = FALSE
+      )
+      
+      # # Mark hat center node
+      # p <- add_trace(p,
+      #   x = x[i0], y = y[i0], z = z_hat[i0],
+      #   type = "scatter3d", mode = "markers",
+      #   marker = list(size = 8, color = hat_color[k]),
+      #   name = paste0("node_", i0)
+      # )
+    }
+  }
+  
+  p <- add_trace(p,
+    x = x_edges, y = y_edges, z = z_edges,
+    type = "scatter3d", mode = "lines",
+    line = list(color = "black", width = 4),
+    showlegend = FALSE
+  )
+  
+  p <- p %>% 
+    add_trace(data = df3, x = ~x, y = ~y, z = ~z, mode = "markers", type = "scatter3d", 
+            marker = list(size = 4, color = "gray", symbol = 104), showlegend = FALSE) %>% 
+    layout(
+    scene = global.scene.setter.rec.and.sphere.for.hat(x_range, y_range, z_range)
+  )
+  
+  return(p)
+}
+
 
 ```
 
@@ -2318,7 +2461,7 @@ plot_3d_sphere_surface_onecol <- function(mesh, fvals) {
 }
 
 
-plot_3d_mesh_edges_faces <- function(mesh) {
+plot_3d_mesh_edges_faces_old <- function(mesh) {
   
   x <- mesh$loc[,1]
   y <- mesh$loc[,2]
@@ -2385,6 +2528,11 @@ plot_3d_mesh_edges_faces <- function(mesh) {
   
   # ---- Uniform gray color for faces ----
   gray_rgb <- rep(list(rgb(180, 180, 180, maxColorValue = 255)), length(x))
+  white_rgb <- rep(list(rgb(255, 255, 255, alpha = 255, maxColorValue = 255)), length(x))
+  
+  df3 <- data.frame(x = x, 
+                  y = y, 
+                  z = z)
   
   # ---- Plot mesh faces ----
   p <- plot_ly() %>% add_trace(
@@ -2395,7 +2543,7 @@ plot_3d_mesh_edges_faces <- function(mesh) {
     j = tri[,2] - 1,
     k = tri[,3] - 1,
     type = "mesh3d",
-    vertexcolor = gray_rgb,
+    vertexcolor = white_rgb,
     flatshading = TRUE,
     opacity = 1,
     showscale = FALSE
@@ -2420,16 +2568,150 @@ plot_3d_mesh_edges_faces <- function(mesh) {
     x = x_edges, y = y_edges, z = z_edges,
     type = "scatter3d",
     mode = "lines",
-    line = list(color = "blue", width = 3),
+    line = list(color = "black", width = 3),
     showlegend = FALSE,
     hoverinfo = "none"
-  ) %>% layout(
+  ) %>% 
+    add_trace(data = df3, x = ~x, y = ~y, z = ~z, mode = "markers", type = "scatter3d", 
+            marker = list(size = 4, color = "gray", symbol = 104)) %>%
+    layout(
     scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range)
   )
   
   return(p)
 }
 
+plot_3d_mesh_edges_faces_with_hat <- function(mesh,
+                                              hat_nodes = NULL,
+                                              hat_height = 0.1,
+                                              hat_color = NULL,
+                                              hat_alpha = 0.6) {
+  
+  x <- mesh$loc[,1]
+  y <- mesh$loc[,2]
+  z <- mesh$loc[,3]
+  n <- length(x)
+  tri <- mesh$graph$tv
+  
+  x_range <- range(x)*1.5
+  y_range <- range(y)*1.5
+  z_range <- range(z)*1.5
+  
+  # ---- Extract unique edges once ----
+  edges <- rbind(tri[,1:2], tri[,2:3], tri[,c(3,1)])
+  edges <- t(apply(edges, 1, sort))
+  edges <- unique(edges)
+  
+  # Base mesh colors
+  white_rgb <- rep(list(rgb(255, 255, 255, alpha = 255, maxColorValue = 255)), n)
+  
+  df3 <- data.frame(x = x, y = y, z = z)
+  
+  # ---- Base spherical mesh ----
+  p <- plot_ly() %>% add_trace(
+    x = x, y = y, z = z,
+    i = tri[,1] - 1, j = tri[,2] - 1, k = tri[,3] - 1,
+    type = "mesh3d",
+    vertexcolor = white_rgb,
+    flatshading = TRUE,
+    opacity = 1,
+    showscale = FALSE,
+    name = "Sphere mesh"
+  )
+  
+  # ---- Base mesh edges (single efficient trace) ----
+  x_edges <- as.vector(t(cbind(x[edges[,1]], x[edges[,2]], NA)))
+  y_edges <- as.vector(t(cbind(y[edges[,1]], y[edges[,2]], NA)))
+  z_edges <- as.vector(t(cbind(z[edges[,1]], z[edges[,2]], NA)))
+  
+ 
+  
+  # ---- Hat functions on sphere ----
+  if (!is.null(hat_nodes)) {
+    
+    # Validate indices
+    if (any(hat_nodes < 1 | hat_nodes > n)) {
+      stop("hat_nodes contains invalid node indices")
+    }
+    
+    # Color recycling
+    if (is.null(hat_color)) {
+      hat_color <- grDevices::rainbow(length(hat_nodes))
+    }
+    hat_color <- rep(hat_color, length.out = length(hat_nodes))
+    
+    for (k in seq_along(hat_nodes)) {
+      i0 <- hat_nodes[k]
+      
+      # Nodal hat basis
+      phi <- rep(0, n)
+      phi[i0] <- 1
+      
+      # Lift radially outward (important for sphere!)
+      r <- sqrt(x^2 + y^2 + z^2)
+      nx <- x / r
+      ny <- y / r
+      nz <- z / r
+      
+      x_hat <- x + hat_height * phi * nx
+      y_hat <- y + hat_height * phi * ny
+      z_hat <- z + hat_height * phi * nz
+      
+      # Hat surface color
+      hat_rgb <- rep(list(adjustcolor(hat_color[k], alpha.f = hat_alpha)), n)
+      
+      # ---- Hat surface ----
+      p <- add_trace(p,
+        x = x_hat, y = y_hat, z = z_hat,
+        i = tri[,1] - 1, j = tri[,2] - 1, k = tri[,3] - 1,
+        type = "mesh3d",
+        vertexcolor = hat_rgb,
+        flatshading = TRUE,
+        opacity = 1,
+        name = paste0("phi_", i0),
+        showlegend = FALSE
+      )
+      
+      # ---- Hat wireframe edges ----
+      x_hat_edges <- as.vector(t(cbind(x_hat[edges[,1]], x_hat[edges[,2]], NA)))
+      y_hat_edges <- as.vector(t(cbind(y_hat[edges[,1]], y_hat[edges[,2]], NA)))
+      z_hat_edges <- as.vector(t(cbind(z_hat[edges[,1]], z_hat[edges[,2]], NA)))
+      
+      p <- add_trace(p,
+        x = x_hat_edges, y = y_hat_edges, z = z_hat_edges,
+        type = "scatter3d", mode = "lines",
+        line = list(color = hat_color[k], width = 2),
+        showlegend = FALSE,
+        hoverinfo = "none"
+      )
+    }
+  }
+  
+   p <- add_trace(p,
+    x = x_edges, y = y_edges, z = z_edges,
+    type = "scatter3d", mode = "lines",
+    line = list(color = "black", width = 3),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  )
+   
+  # ---- Nodes ----
+  p <- add_trace(p,
+    data = df3,
+    x = ~x, y = ~y, z = ~z,
+    mode = "markers",
+    type = "scatter3d",
+    marker = list(size = 4, color = "gray", symbol = 104),
+    showlegend = FALSE
+  )
+  
+  # ---- Scene ----
+  p <- p %>% layout(
+    scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range)
+  )
+  
+  return(p)
+}
 
 ```
 
@@ -2486,8 +2768,8 @@ graph.plotter.3d.onecol <- function(graph, vec) {
               zaxis = list(
       title = "z",
       range = z_range,
-      exponentformat = "none",
-      tickformat = ".4f"     # prevents SI prefixes like μ, m, k
+      exponentformat = "e",
+      tickformat = NULL#".4f"     # prevents SI prefixes like μ, m, k
     ),
               aspectratio = list(x = 2*(1+2/pi), 
                                  y = 2*(2/pi), 

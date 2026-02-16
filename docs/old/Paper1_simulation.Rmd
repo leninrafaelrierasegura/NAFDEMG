@@ -1,0 +1,523 @@
+---
+title: "Paper 1 simulation study"
+date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+    code_download: true
+    css: visual.css
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+---
+
+Go back to the [Contents](about.html) page.
+
+<div style="color: #2c3e50; text-align: right;">
+********  
+<strong>Press Show to reveal the code chunks.</strong>  
+
+********
+</div>
+
+
+Let us set some global options for all code chunks in this document.
+
+
+```{r}
+# Create a clipboard button
+source(here::here("clipboard.R")); clipboard
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+```
+
+
+
+```{r}
+# inla.upgrade(testing = TRUE)
+# remotes::install_github("inlabru-org/inlabru", ref = "devel")
+# remotes::install_github("davidbolin/rspde", ref = "devel")
+# remotes::install_github("davidbolin/metricgraph", ref = "devel")
+# remotes::install_github("davidbolin/ngme2", ref = "devel")
+
+
+library(INLA)
+library(inlabru)
+library(rSPDE)
+library(MetricGraph)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tidyr)
+library(patchwork)
+library(here)
+
+library(slackr)
+source(here::here("keys.R"))
+slackr_setup(token = token) # token comes from keys.R
+```
+
+
+```{r, eval = TRUE}
+process_model_results <- function(fit, model) {
+  fit_spde <- rspde.result(fit, "field", model, parameterization = "spde")
+  fit_matern <- rspde.result(fit, "field", model, parameterization = "matern")
+  df_for_plot_spde <- gg_df(fit_spde)
+  df_for_plot_matern <- gg_df(fit_matern)
+  param_spde <- summary(fit_spde)
+  print(param_spde)
+  param_matern <- summary(fit_matern)
+  print(param_matern)
+  param_fixed <- fit$summary.fixed[,1:6]
+  marginal.posterior.sigma_e = inla.tmarginal(
+    fun = function(x) exp(-x/2), 
+    marginal = fit[["internal.marginals.hyperpar"]][["Log precision for the Gaussian observations"]])
+  quant.sigma_e <- capture.output({result_tmp <- inla.zmarginal(marginal.posterior.sigma_e)}, file = "/dev/null") 
+  quant.sigma_e <- result_tmp
+  statistics.sigma_e <- unlist(quant.sigma_e)[c(1,2,3,5,7)]
+  mode.sigma_e <- inla.mmarginal(marginal.posterior.sigma_e)
+  allparams <- rbind(param_fixed, param_spde, param_matern, c(statistics.sigma_e, mode.sigma_e))
+  rownames(allparams)[nrow(allparams)] <- "sigma_e"
+  return(list(allparams = allparams, df_for_plot_spde = df_for_plot_spde, df_for_plot_matern = df_for_plot_matern))
+}
+
+# Build the graph
+# graph <- metric_graph$new(edges = pems$edges)
+
+edge1 <- rbind(c(0,0),c(1,0))
+edge2 <- rbind(c(0,0),c(0,1))
+edge3 <- rbind(c(0,1),c(-1,1))
+theta <- seq(from=pi,to=3*pi/2,length.out = 20)
+edge4 <- cbind(sin(theta),1+ cos(theta))
+edges = list(edge1, edge2, edge3, edge4)
+graph <- metric_graph$new(edges = edges)
+
+
+# Build the mesh on the graph
+graph$build_mesh(h = 0.01)
+
+# Parameters
+sigma <- 1.2
+range <- 0.2
+nu <- 0.8
+rspde.order <- 1
+
+kappa <- sqrt(8*nu)/range
+tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
+
+
+op <- matern.operators(nu = nu, range = range, sigma = sigma, 
+                       parameterization = "matern",
+                       m = rspde.order, graph = graph) 
+n.rep <- 10
+u.rep <- simulate(op, nsim = n.rep)
+
+obs.per.edge <- 50
+obs.loc <- NULL
+for(i in 1:graph$nE) {
+  obs.loc <- rbind(obs.loc,
+                   cbind(rep(i,obs.per.edge), runif(obs.per.edge)))
+}
+n.obs <- obs.per.edge*graph$nE
+A <- graph$fem_basis(obs.loc)
+
+sigma.e <- 0.1
+Y.rep <- A %*% u.rep + sigma.e * matrix(rnorm(n.obs * n.rep), ncol = n.rep)
+y_vec <- 1 + as.vector(Y.rep)
+repl <- rep(1:n.rep, each = n.obs)                       
+
+df_data_repl <- data.frame(y = y_vec,
+                           edge_number = rep(obs.loc[,1], n.rep),
+                           distance_on_edge = rep(obs.loc[,2], n.rep), 
+                           repl = repl)
+
+graph$add_observations(data = df_data_repl, normalized = TRUE, 
+                       group = "repl", clear_obs = TRUE)
+
+slackr_msg(text = "Data simulated and added", channel = "#research")
+
+#graph$plot(data = "y", group = 2, vertex_size = 0, type = "ggplot") |> ggplotly()
+
+############### Case alpha = 1 ###########################
+# Build the model
+rspde_model_stat <- rspde.metric_graph(graph,
+                                       parameterization = "spde",
+                                       nu = 0.5)
+# Prepare the data for fitting
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        repl = ".all",
+                                        bru = TRUE,
+                                        repl_col = "repl")
+# Define the component
+cmp_stat <- y ~ -1 +
+  Intercept(1) +
+  field(cbind(.edge_number, .distance_on_edge), 
+        model = rspde_model_stat,
+        replicate = repl)
+# Fit the model
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+output_from_models <-process_model_results(rspde_fit_stat, rspde_model_stat)
+parameters_statistics <- output_from_models$allparams
+mean_and_mode_params_statnu0.5 <- parameters_statistics[, c(1,6)]
+rspde_fit_statnu0.5 <- rspde_fit_stat
+# Summarize the results
+summary(rspde_fit_stat)
+
+slackr_msg(text = "Model nu =0.5 fitted", channel = "#research")
+
+################ Case alpha = 2 ########################### 
+# Build the model
+rspde_model_stat <- rspde.metric_graph(graph,
+                                       parameterization = "spde",
+                                       nu = 1.5)
+# Prepare the data for fitting
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        repl = ".all",
+                                        bru = TRUE,
+                                        repl_col = "repl")
+# Define the component
+cmp_stat <- y ~ -1 +
+  Intercept(1) +
+  field(cbind(.edge_number, .distance_on_edge), 
+        model = rspde_model_stat,
+        replicate = repl)
+# Fit the model
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+output_from_models <-process_model_results(rspde_fit_stat, rspde_model_stat)
+parameters_statistics <- output_from_models$allparams
+mean_and_mode_params_statnu1.5 <- parameters_statistics[, c(1,6)]
+rspde_fit_statnu1.5 <- rspde_fit_stat
+# Summarize the results
+summary(rspde_fit_stat)
+
+slackr_msg(text = "Model nu =1.5 fitted", channel = "#research")
+
+################ Case alpha estimated ###########################
+# Build the model
+rspde_model_stat <- rspde.metric_graph(graph,
+                                       #nu.upper.bound = 4,
+                                       parameterization = "spde")
+# Prepare the data for fitting
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        repl = ".all",
+                                        bru = TRUE,
+                                        repl_col = "repl")
+# Define the component
+cmp_stat <- y ~ -1 +
+  Intercept(1) +
+  field(cbind(.edge_number, .distance_on_edge), 
+        model = rspde_model_stat,
+        replicate = repl)
+# Fit the model
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+output_from_models <-process_model_results(rspde_fit_stat, rspde_model_stat)
+parameters_statistics <- output_from_models$allparams
+mean_and_mode_params_statnuest <- parameters_statistics[, c(1,6)]
+rspde_fit_statnuest <- rspde_fit_stat
+# Summarize the results
+summary(rspde_fit_stat)
+
+slackr_msg(text = "Model nu estimated fitted", channel = "#research")
+
+
+mean_and_mode_params_statnu0.5
+mean_and_mode_params_statnu1.5
+mean_and_mode_params_statnuest
+
+
+
+################# Define the groups for the simulation with replicates ####################
+data <- graph$get_data()
+# Define aux data frame to compute the distance matrix
+aux <- data |> filter(repl == 1) |>
+  rename(distance_on_edge = .distance_on_edge, edge_number = .edge_number) |> # Rename the variables (because graph$compute_geodist_PtE() requires so)
+  as.data.frame() |> # Transform to a data frame (i.e., remove the metric_graph class)
+  dplyr::select(edge_number, distance_on_edge)
+
+# Compute the distance matrix
+distmatrix <- graph$compute_geodist_PtE(PtE = aux,
+                                        normalized = TRUE,
+                                        include_vertices = FALSE)
+# Define the distance vector
+distance = seq(from = 0, to = 1, by = 0.1)/4
+distance <- distance[-1] # Remove 0
+# Compute the groups for one replicate
+GROUPS <- list()
+for (j in 1:length(distance)) {
+  GROUPS[[j]] = list()
+  for (i in 1:nrow(aux)) {
+    GROUPS[[j]][[i]] <- which(as.vector(distmatrix[i, ]) > distance[j])
+  }
+}
+# Compute the groups for all replicates, based on the groups of the first replicate
+nrowY <- length(unique(data$repl))
+ncolY <- nrow(filter(data, repl == 1))
+NEW_GROUPS <- list()
+for (j in 1:length(distance)) {
+  my_list <- GROUPS[[j]]
+  aux_list <- list()
+  for (i in 0:(nrowY - 1)) {
+    added_vectors <- lapply(my_list, function(vec) vec + i*ncolY)
+    aux_list <- c(aux_list, added_vectors)
+  }
+  NEW_GROUPS[[j]] <- aux_list
+}
+
+GROUPS <- NEW_GROUPS
+
+slackr_msg(text = "Groups computed", channel = "#research")
+
+list_models_before_cv <- list(mean_and_mode_params_statnuest = mean_and_mode_params_statnuest,
+              rspde_fit_statnu0.5 = rspde_fit_statnu0.5,
+              rspde_fit_statnu1.5 = rspde_fit_statnu1.5,
+              rspde_fit_statnuest = rspde_fit_statnuest,
+              data = data,
+              distance = distance,
+              GROUPS = GROUPS)
+save(list_models_before_cv, file = here::here("old/cv_models.RData"))
+```
+
+
+
+```{r, eval = FALSE}
+point_of_interest <- 1 # Any number between 1 and nrow(data)
+small_neighborhood <- GROUPS[[8]][[point_of_interest]]
+large_neighborhood <- GROUPS[[5]][[point_of_interest]]
+p <- graph$plot(vertex_size = 0) +
+  #geom_point(data = data, aes(x = .coord_x, y = .coord_y), color = "black", size = 2) +
+  #geom_point(data = data[large_neighborhood, ], aes(x = .coord_x, y = .coord_y), color = "green", size = 1.5) +
+  geom_point(data = data[small_neighborhood, ], aes(x = .coord_x, y = .coord_y), color = "blue", size = 1) +
+  geom_point(data = data[point_of_interest, ], aes(x = .coord_x, y = .coord_y), color = "red", size = 0.5) +
+  ggtitle("Groups") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino")) +
+  coord_fixed()
+ggplotly(p)
+```
+
+```{r, eval = TRUE}
+load(here::here("old/cv_models.RData"))
+
+###################### Cross-validation with replicates ##########################
+
+mse.statnu0.5 <- ls.statnu0.5 <- rep(0,length(distance))
+mse.statnu1.5 <- ls.statnu1.5 <- rep(0,length(distance))
+mse.statnuest <- ls.statnuest <- rep(0,length(distance))
+
+# cross-validation for-loop
+for (j in 1:length(distance)) {
+  print(j)
+  slackr_msg(text = paste0("server 3: j =", j), channel = "#research")
+
+  # cross-validation of the stationary model
+  cv.statnu0.5 <- inla.group.cv(rspde_fit_statnu0.5, groups = GROUPS[[j]])
+  cv.statnu1.5 <- inla.group.cv(rspde_fit_statnu1.5, groups = GROUPS[[j]])
+  cv.statnuest <- inla.group.cv(rspde_fit_statnuest, groups = GROUPS[[j]])
+  # obtain MSE and LS
+  mse.statnu0.5[j] <- mean((cv.statnu0.5$mean - data$y)^2)
+  mse.statnu1.5[j] <- mean((cv.statnu1.5$mean - data$y)^2)
+  mse.statnuest[j] <- mean((cv.statnuest$mean - data$y)^2)
+  
+  ls.statnu0.5[j] <- mean(log(cv.statnu0.5$cv))
+  ls.statnu1.5[j] <- mean(log(cv.statnu1.5$cv))
+  ls.statnuest[j] <- mean(log(cv.statnuest$cv))
+}
+
+# Create data frames
+mse_df <- data.frame(
+  distance,
+  Statnu0.5 = mse.statnu0.5,
+  Statnu1.5 = mse.statnu1.5,
+  Statnuest = mse.statnuest
+)
+
+ls_df <- data.frame(
+  distance,
+  Statnu0.5 = -ls.statnu0.5,
+  Statnu1.5 = -ls.statnu1.5,
+  Statnuest = -ls.statnuest
+)
+
+# Save the results
+list_to_save <- list(mean_and_mode_params_statnu0.5 = mean_and_mode_params_statnu0.5,
+                     mean_and_mode_params_statnu1.5 = mean_and_mode_params_statnu1.5,
+                     mean_and_mode_params_statnuest = mean_and_mode_params_statnuest,
+                     mse_df = mse_df, 
+                     ls_df = ls_df)
+
+save(list_to_save, file = here::here("old/cv_result.RData"))
+```
+
+
+```{r}
+load(here::here("old/cv_result.RData"))
+mse_df <- list_to_save$mse_df
+ls_df <- list_to_save$ls_df
+mean_and_mode_params_statnuest <- list_to_save$mean_and_mode_params_statnuest
+################### Plot the results ##########################
+choose_index <- seq(1, nrow(mse_df), by = 1)
+mse_df_red <- mse_df[choose_index,]
+ls_df_red <- ls_df[choose_index,]
+# Convert to long format
+mse_long <- mse_df_red %>%
+  pivot_longer(cols = -distance, names_to = "nu", values_to = "MSE")
+
+ls_long <- ls_df_red %>%
+  pivot_longer(cols = -distance, names_to = "nu", values_to = "LogScore")
+
+
+# Update the label mappings with the new legend title
+label_mapping <- c(
+  "Statnu0.5" = "1", 
+  "Statnu1.5" = "2", 
+  "Statnuest" = paste(round(mean_and_mode_params_statnuest[4,1]+0.5, 3), "(est)")
+)
+
+# Define color and linetype mapping
+color_mapping <- c(
+  "Statnu0.5" = "blue", 
+  "Statnu1.5" = "black", 
+  "Statnuest" = "red"
+)
+
+linetype_mapping <- c(
+  "Statnu0.5" = "solid", 
+  "Statnu1.5" = "solid", 
+  "Statnuest" = "solid"
+)
+
+
+# Plot MSE
+mse_plot <- ggplot(mse_long, aes(x = distance, y = MSE, color = nu, linetype = nu)) +
+  geom_line(linewidth = 1) +
+  labs(y = "MSE", x = "Distance") +
+  scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(alpha)) +
+  scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(alpha)) +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"))
+
+# Plot negative log-score
+ls_plot <- ggplot(ls_long, aes(x = distance, y = LogScore, color = nu, linetype = nu)) +
+  geom_line(linewidth = 1) +
+  labs(y = "Negative Log-Score", x = "Distance") +
+  scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(alpha)) +
+  scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(alpha)) +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"))
+
+# Combine plots with a shared legend at the top in a single line
+combined_plot <- (mse_plot + ls_plot + 
+  plot_layout(guides = 'collect')) & 
+  theme(legend.position = 'right') & 
+  guides(color = guide_legend(ncol = 1), linetype = guide_legend(nrow = 1))
+
+
+# Save combined plot
+ggsave(here::here("old/cv_sim.png"), plot = combined_plot, width = 9.22, height = 4.01, dpi = 500)
+
+
+# Display combined plot
+print(combined_plot)
+```
+
+
+
+```{r, eval = TRUE}
+nu_estimated <- round(mean_and_mode_params_statnuest[4,1], 3)
+get_numeric_scalars <- function() {
+  vars <- ls(envir = .GlobalEnv)
+  scalars <- sapply(vars, function(v) {
+    val <- get(v, envir = .GlobalEnv)
+    is.numeric(val) && length(val) == 1
+  })
+  mget(vars[scalars], envir = .GlobalEnv)
+}
+
+# Collect the scalars
+num_scalars <- get_numeric_scalars()
+
+# Format as message
+msg <- paste(
+  sprintf("%s = %s", names(num_scalars), unlist(num_scalars)),
+  collapse = "\n"
+)
+
+# Send to Slack
+slackr::slackr_msg(
+  text = paste("Numeric scalars in this run:\n", msg),
+  channel = "#research"
+)
+slackr_upload(
+  filename = here::here("old/cv_sim.png"),        # path to your image
+  initial_comment = "here is the plot from the cv simulation study",
+  channels = "#research"
+)
+```
+

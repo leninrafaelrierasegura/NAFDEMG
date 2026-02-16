@@ -118,7 +118,8 @@ p_b1
 ::: {}
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
-plot_3d_square_mesh(gets.mesh.and.FEM.on.rectangle(1, 1, 8)$mesh)
+#plot_3d_square_mesh(gets.mesh.and.FEM.on.rectangle(1, 1, 8)$mesh)
+plot_3d_square_mesh_with_hat(gets.mesh.and.FEM.on.rectangle(1, 1, 6)$mesh, hat_nodes = c(1, 20, 43), hat_height = 1, hat_color = c("red", "red", "blue"), hat_alpha = 0.2)
 ```
 
 
@@ -130,7 +131,14 @@ plot_3d_square_mesh(gets.mesh.and.FEM.on.rectangle(1, 1, 8)$mesh)
 
 
 ```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
-plot_3d_mesh_edges_faces(fm_rcdt_2d(globe = 3))
+#plot_3d_mesh_edges_faces(fm_rcdt_2d(globe = 3))
+plot_3d_mesh_edges_faces_with_hat(
+  fm_rcdt_2d(globe = 3),
+  hat_nodes = c(1, 17, 37),
+  hat_color = c("blue", "blue", "blue"),
+  hat_height = 0.5,
+  hat_alpha = 0.2
+)
 ```
 
 

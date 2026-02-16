@@ -142,6 +142,10 @@ x_range <- range(x, na.rm = TRUE)
 y_range <- range(y, na.rm = TRUE)
 z_range <- c(0,1)
 
+df3 <- data.frame(x = graph$mesh$V[, 1], 
+                  y = graph$mesh$V[, 2], 
+                  z = rep(0, length(graph$mesh$V[, 1])))
+
 # Start plot
 p_b1 <- plot_ly() |> 
   add_trace(x = rep(x, times = graph$nV), 
@@ -180,6 +184,8 @@ p_b1 <- plot_ly() |>
             mode = "lines",
             line = list(color = "green", width = 3), 
             showlegend = FALSE) |>
+  add_trace(data = df3, x = ~x, y = ~y, z = ~z, mode = "markers", type = "scatter3d", 
+            marker = list(size = 4, color = "gray", symbol = 104)) |>
   #layout(scene = global.scene.setter(x_range, y_range, z_range, z_aspectratio = 1))
   layout(scene = list(xaxis = list(title = "x", range = x_range),
               yaxis = list(title = "y", range = y_range),
