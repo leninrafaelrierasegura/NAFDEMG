@@ -1945,7 +1945,7 @@ plot_3d_square_mesh_with_hat <- function(mesh,
   edges <- unique(edges)
   
   # Base mesh color
-  white_rgb <- rep(list(rgb(255, 255, 255, maxColorValue = 255)), n)
+  white_rgb <- rep(list(rgb(255, 255, 255, alpha = 255, maxColorValue = 255)), n)
   
   df3 <- data.frame(x = x, 
                   y = y, 
@@ -2593,9 +2593,9 @@ plot_3d_mesh_edges_faces_with_hat <- function(mesh,
   n <- length(x)
   tri <- mesh$graph$tv
   
-  x_range <- range(x)*1.5
-  y_range <- range(y)*1.5
-  z_range <- range(z)*1.5
+  x_range <- range(x)*2
+  y_range <- range(y)*2
+  z_range <- range(z)*2
   
   # ---- Extract unique edges once ----
   edges <- rbind(tri[,1:2], tri[,2:3], tri[,c(3,1)])

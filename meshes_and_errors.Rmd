@@ -136,7 +136,7 @@ plot_3d_mesh_edges_faces_with_hat(
   fm_rcdt_2d(globe = 3),
   hat_nodes = c(1, 17, 37),
   hat_color = c("blue", "blue", "blue"),
-  hat_height = 0.5,
+  hat_height = 1,
   hat_alpha = 0.2
 )
 ```
