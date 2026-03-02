@@ -97,6 +97,32 @@ library(Matrix)
 ```
 
 
+We now consider the following equation on the unit square $D=[0,1]^2$, that is,
+\begin{equation}
+\label{eq:maineq_on_square_neumann}
+\tag{1}
+\left\{
+\begin{aligned}
+\partial_t u(x,y,t) + (\kappa^2 - \Delta)^{\alpha/2} u(x,y,t) &= f(x,y,t), && \quad (x,y,t) \in D \times (0, T), \\
+u(x,y,0) &= u_0(x,y), && \quad (x,y) \in D, \\
+\partial_n u(x,y,t) &= 0, && \quad (x,y,t) \in \partial D \times (0,T),
+\end{aligned}
+\right.
+\end{equation}
+where $\Delta$ denotes the Laplacian on $D$ with homogeneous Neumann boundary conditions, and $\partial_n$ denotes the outward normal derivative on $\partial D$. The eigenvalues of $-\Delta$ are known and given by $\lambda_{m,n} = \pi^2(m^2+n^2)$ for $m,n=0,1,2,\dots$, and the eigenfunctions are $\phi_{m,n}(x,y)=\cos(m \pi x)\cos(n\pi y)$.
+
+
+Below we use the eigenpairs to construct an exact solution to equation \eqref{eq:maineq_on_square_neumann} and compare it with the numerical approximation. We take $u_0(x,y) = x_3 \phi_{1,0}(x,y)$ with $x_3 = 1$ and $f(x,y,t) = y_2 \sin(\pi t) \phi_{0,1}(x,y)$ with $y_2 = 10$. Then the exact solution is given by 
+\begin{equation}
+u(x,y,t) = x_3\text{e}^{-\lambda^{\alpha/2}_{1,0}t}\phi_{1,0}(x,y)+y_2 G_2(t)\text{e}^{-\lambda^{\alpha/2}_{0,1}t}\phi_{0,1}(x,y),
+\end{equation}
+where $G_2(t)= \displaystyle\int_0^t \text{e}^{\lambda^{\alpha/2}_{0,1}r}\sin(\pi r)dr$. Below the exact solution  is computed as `U_true` and compared with the numerical approximation `U_approx`.
+
+
+We take parameters $T = 2$, $\kappa = 4$, $\alpha = 1.8$, $m=4$, $h = 0.05$, and time step size $\tau = 0.05$.
+
+
+
 ```{r}
 T_final <- 2
 kappa <- 4
@@ -144,8 +170,13 @@ eig <- compute_true_eigen_rectangle(
     alpha = alpha,
     m_max = m_max, 
     n_max = n_max)
+
+m_vector = eig$m_vector
+n_vector = eig$n_vector
+
 EIGENVAL_ALPHA <- eig$EIGENVAL_ALPHA
 EIGENFUN <- eig$EIGENFUN
+
 U_0 <- EIGENFUN %*% coeff_U_0
 U_true <- EIGENFUN %*% 
     outer(1:length(coeff_U_0), 
