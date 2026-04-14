@@ -206,6 +206,9 @@ rspde_fit_stat <-
       options = list(verbose = FALSE)
   )
 
+
+#rspde_fit_stat <- list_models_before_cv$rspde_fit_statnu0.5
+
 output_from_models <-process_model_results(rspde_fit_stat, rspde_model_stat)
 parameters_statistics <- output_from_models$allparams
 mean_and_mode_params_statnu0.5 <- parameters_statistics[, c(1,6)]
@@ -239,6 +242,8 @@ rspde_fit_stat <-
       options = list(verbose = FALSE)
   )
 
+#rspde_fit_stat <- list_models_before_cv$rspde_fit_statnu1.5
+
 output_from_models <-process_model_results(rspde_fit_stat, rspde_model_stat)
 parameters_statistics <- output_from_models$allparams
 mean_and_mode_params_statnu1.5 <- parameters_statistics[, c(1,6)]
@@ -271,6 +276,9 @@ rspde_fit_stat <-
       family = "gaussian",
       options = list(verbose = FALSE)
   )
+
+
+#rspde_fit_stat <- list_models_before_cv$rspde_fit_statnuest
 
 output_from_models <-process_model_results(rspde_fit_stat, rspde_model_stat)
 parameters_statistics <- output_from_models$allparams
@@ -329,7 +337,9 @@ GROUPS <- NEW_GROUPS
 
 slackr_msg(text = "Groups computed", channel = "#research")
 
-list_models_before_cv <- list(mean_and_mode_params_statnuest = mean_and_mode_params_statnuest,
+list_models_before_cv <- list(mean_and_mode_params_statnu0.5 = mean_and_mode_params_statnu0.5,
+                              mean_and_mode_params_statnu1.5 = mean_and_mode_params_statnu1.5,
+                              mean_and_mode_params_statnuest = mean_and_mode_params_statnuest,
               rspde_fit_statnu0.5 = rspde_fit_statnu0.5,
               rspde_fit_statnu1.5 = rspde_fit_statnu1.5,
               rspde_fit_statnuest = rspde_fit_statnuest,

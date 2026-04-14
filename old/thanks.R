@@ -128,7 +128,7 @@ gets.graph.thankyou <- function() {
     eV1,eV2,eI1,eI2,eI3,eD5,eD6,eD7,eD8,
     
     # bridge
-    ky_bridge,
+    #ky_bridge,
     yv_bridge
   )
   
@@ -147,11 +147,71 @@ graph <- metric_graph$new(edges = edges,
 #graph <- graph_components$new(edges = edges)
 
 
-thanks <- graph$plot(vertex_size = 2, edge_color = "darkblue", edge_width = 1)
-
-ggsave(thanks, filename = "data_files/thanks.png", width = 8, height = 4, dpi = 300)
+# thanks <- graph$plot(vertex_size = 2, edge_color = "darkblue", edge_width = 1)
+# 
+# ggsave(thanks, filename = "data_files/thanks.png", width = 8, height = 4, dpi = 300)
 
 # graph <- graph$get_largest()
 # graph$plot()
+graph$build_mesh(h = 0.05)
+
+lon <- graph$mesh$V[, 1]
+lat <- graph$mesh$V[, 2]
+f <- lat + 3
+
+edge_number <- graph$mesh$VtE[,1]
+distance_on_edge <- graph$mesh$VtE[,2]
+
+graph$add_observations(
+  data = data.frame(
+    edge_number = edge_number,
+    distance_on_edge = distance_on_edge,
+    f = f),
+  clear_obs = TRUE,
+  normalized = TRUE)
+
+library(plotly)
+thanks3d <- graph$plot(data = "f",
+                          vertex_size = 2, 
+                          type = "plotly",
+                          edge_color = "darkblue",
+                          edge_width = 1) |>
+  layout(scene = list(
+    camera = list(eye = list(x=1.5,y=0,z=1)),
+    xaxis = list(
+      title = "",
+      showticklabels = FALSE,
+      ticks = "",
+      showgrid = FALSE,
+      zeroline = FALSE,
+      showbackground = FALSE
+    ),
+    yaxis = list(
+      title = "",
+      showticklabels = FALSE,
+      ticks = "",
+      showgrid = FALSE,
+      zeroline = FALSE,
+      showbackground = FALSE
+    ),
+    zaxis = list(
+      title = "",
+      showticklabels = FALSE,
+      ticks = "",
+      showgrid = FALSE,
+      zeroline = FALSE,
+      showbackground = FALSE
+    )
+  ))
+
+thanks3d$x$attrs <- lapply(thanks3d$x$attrs, function(tr) {
+  if (!is.null(tr$marker)) {
+    tr$marker$showscale <- FALSE
+    tr$marker$colorbar <- NULL
+  }
+  tr$showscale <- FALSE
+  tr
+})
 
 
+save(thanks3d, file = here::here("old/thanks3d.RData"))

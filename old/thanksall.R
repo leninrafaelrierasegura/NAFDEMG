@@ -243,7 +243,7 @@ thanksall <- graph$plot(vertex_size = 2, edge_color = "darkblue", edge_width = 1
 thanksall
 ggsave(thanksall, filename = "data_files/thanksall.png", width = 9, height = 6, dpi = 300)
 
-graph$build_mesh(h = 0.1)
+graph$build_mesh(h = 0.05)
 
 lon <- graph$mesh$V[, 1]
 lat <- graph$mesh$V[, 2]
@@ -302,3 +302,5 @@ thanksall3d$x$attrs <- lapply(thanksall3d$x$attrs, function(tr) {
   tr$showscale <- FALSE
   tr
 })
+
+save(thanksall3d, file = here::here("old/thanksall3d.RData"))

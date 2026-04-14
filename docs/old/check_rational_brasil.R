@@ -1,5 +1,5 @@
 library(pracma)
-
+library(ggplot2)
 real_residue <- function(b, a, tol = 1e-8) {
   # Compute residues
   res <- gsignal::residue(b, a)
