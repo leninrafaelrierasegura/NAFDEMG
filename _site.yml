@@ -58,7 +58,7 @@ navbar:
     - text: "Poster"
       href: PosterLeninStatWorkshop2025.html
     - text: "Presentation"
-      href: Presentation.html
+      href: https://leninrafaelrierasegura.github.io/leninPresentations/proposalPresentation.html#1
   right:
     - icon: fa-file-pdf
       href: https://arxiv.org/abs/0000.00000
