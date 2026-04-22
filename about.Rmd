@@ -122,8 +122,22 @@ p_all <- (p_h | p_tau | p_m) +
     theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
         family = "Palatino"))
   )
+
+# load(here::here("data_files/p_h_nicer.RData"))
+# load(here::here("data_files/p_tau_nicer.RData"))
+# load(here::here("data_files/p_m_nicer.RData"))
+# p_all_nicer <- (p_h_nicer | p_tau_nicer | p_m_nicer) + 
+#   plot_annotation(
+#     title = expression("         Convergence behavior on the tadpole graph"),
+#     theme = theme(plot.title = element_text(size = 18, face = "plain", hjust = 0.5, 
+#         family = "Palatino"))
+#   )
+# 
+# myggsave(p_all_nicer, width = 12, height = 5, use_mathpazo = TRUE)
+
 p_all
 ggplot2::ggsave(here::here("data_files/p_all.png"), width = 12, height = 5, plot = p_all, dpi = 300)
+
 ```
 
 **Rectangle**

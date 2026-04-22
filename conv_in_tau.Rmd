@@ -59,7 +59,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = TRUE,       
+  eval = FALSE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -86,7 +86,7 @@ To observe convergence in $\tau$, we calibrate $h$ and $m$ to $\tau$ as $h \sim 
 :::
 
 
-```{r}
+```{r, eval = TRUE}
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -247,7 +247,7 @@ load(here::here("data_files/errors_projected_tau.RData"))
 
 
 
-```{r, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+```{r}
 observed_rates <- numeric(length(alpha_vector))
 for (u in 1:length(alpha_vector)) {
   observed_rates[u] <- coef(lm(log10(errors_projected[, u]) ~ log10(tau_vector)))[2]
@@ -264,14 +264,32 @@ p_tau <- error.convergence.plotter(x_axis_vector = tau_vector,
                                    line_equation_fun = loglog_line_equation,
                                    fig_title = expression("Convergence in " * italic(tau)),
                                    x_axis_label = expression(italic(tau)))
+
+p_tau_nicer <- errorConvergencePlotterLatex(x_axis_vector = tau_vector, 
+                                 alpha_vector, 
+                                 errors_projected, 
+                                 theoretical_rates, 
+                                 observed_rates,
+                                 line_equation_fun = loglog_line_equation,
+                                 fig_title = "$\\mbox{Convergence in }\\tau$",
+                                 x_axis_label = "$\\tau\\quad(\\log_{10}\\mbox{ scale})$",
+                                 y_axis_label = "$\\|u-U_{h,m}^{\\tau}\\|_{L_2(\\Gamma\\times[0,T])}\\quad(\\log_{10}\\mbox{ scale})$",
+                                 color_label = "$\\quad\\quad\\;\\;\\alpha\\;|\\;\\mathtt{theo}\\;|\\;\\;\\mathtt{obs}\\;\\;|\\%\\mathtt{re}$")
+
+ggsave(here::here("data_files/conv_rates_tau.png"), width = 4, height = 5, plot = p_tau, dpi = 300)
+myggsave(p_tau_nicer, width = 4, height = 5, use_mathpazo = TRUE)
+save(p_tau, file = here::here("data_files/p_tau.RData"))
+save(p_tau_nicer, file = here::here("data_files/p_tau_nicer.RData"))
+```
+
+
+```{r, eval = TRUE, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+load(here::here("data_files/p_tau.RData"))
 p_tau
 ```
 
 
-```{r}
-ggsave(here::here("data_files/conv_rates_tau.png"), width = 4, height = 5, plot = p_tau, dpi = 300)
-save(p_tau, file = here::here("data_files/p_tau.RData"))
-```
+
 
 
 ```{r, eval = TRUE, echo = FALSE}
@@ -290,6 +308,6 @@ slackr_upload(
 
 # References
 
-```{r}
+```{r, eval = TRUE}
 cite_packages(output = "paragraph", out.dir = ".")
 ```
