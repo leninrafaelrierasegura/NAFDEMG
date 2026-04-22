@@ -256,7 +256,7 @@ for (u in 1:length(alpha_vector)) {
 theoretical_rates <- rep(1, length(alpha_vector))
 
 
-p_tau <- error.convergence.plotter(x_axis_vector = tau_vector, 
+p_tau_tadpole <- error.convergence.plotter(x_axis_vector = tau_vector, 
                                    alpha_vector, 
                                    errors_projected, 
                                    theoretical_rates, 
@@ -265,7 +265,7 @@ p_tau <- error.convergence.plotter(x_axis_vector = tau_vector,
                                    fig_title = expression("Convergence in " * italic(tau)),
                                    x_axis_label = expression(italic(tau)))
 
-p_tau_nicer <- errorConvergencePlotterLatex(x_axis_vector = tau_vector, 
+p_tau_nicer_tadpole <- errorConvergencePlotterLatex(x_axis_vector = tau_vector, 
                                  alpha_vector, 
                                  errors_projected, 
                                  theoretical_rates, 
@@ -276,16 +276,15 @@ p_tau_nicer <- errorConvergencePlotterLatex(x_axis_vector = tau_vector,
                                  y_axis_label = "$\\|u-U_{h,m}^{\\tau}\\|_{L_2(\\Gamma\\times[0,T])}\\quad(\\log_{10}\\mbox{ scale})$",
                                  color_label = "$\\quad\\quad\\;\\;\\alpha\\;|\\;\\mathtt{theo}\\;|\\;\\;\\mathtt{obs}\\;\\;|\\%\\mathtt{re}$")
 
-ggsave(here::here("data_files/conv_rates_tau.png"), width = 4, height = 5, plot = p_tau, dpi = 300)
-myggsave(p_tau_nicer, width = 4, height = 5, use_mathpazo = TRUE)
-save(p_tau, file = here::here("data_files/p_tau.RData"))
-save(p_tau_nicer, file = here::here("data_files/p_tau_nicer.RData"))
+ggsave(here::here("data_files/conv_rates_tau_tadpole.png"), width = 4, height = 5, plot = p_tau_tadpole, dpi = 300)
+myggsave(p_tau_nicer_tadpole, width = 4, height = 5, use_mathpazo = TRUE)
+save(p_tau_tadpole, file = here::here("data_files/p_tau_tadpole.RData"))
+save(p_tau_nicer_tadpole, file = here::here("data_files/p_tau_nicer_tadpole.RData"))
 ```
 
 
-```{r, eval = TRUE, fig.align='center', fig.dim= c(4,5), fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
-load(here::here("data_files/p_tau.RData"))
-p_tau
+```{r, eval = TRUE, fig.align='center', out.width="400px", out.height="500px", fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+knitr::include_graphics(here::here("data_files/tikzpic/p_tau_nicer_tadpole_with_mathpazo.pdf"))
 ```
 
 
@@ -296,12 +295,12 @@ p_tau
 initial_comment <- "Here’s the latest plot update for the convergence in τ!"
 # option 1
 slackr_upload(
-  filename = "data_files/conv_rates_tau.png",        # path to your image
+  filename = "data_files/conv_rates_tau_tadpole.png",        # path to your image
   initial_comment = initial_comment,
   channels = "#research"
 )
 # option 2
-# ggslackr(p_tau, channels = "#research", initial_comment = initial_comment) # p is a ggplot2 object
+# ggslackr(p_tau_tadpole, channels = "#research", initial_comment = initial_comment) # p is a ggplot2 object
 # option 3
 # slackr_dev(channels = "#research"); plot(mtcars$mpg, mtcars$wt); dev.off()
 ```
