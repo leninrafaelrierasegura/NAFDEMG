@@ -136,8 +136,8 @@ p_all_nicer_tadpole <- (p_h_nicer_tadpole | p_tau_nicer_tadpole | p_m_nicer_tadp
         family = "Palatino"))
   )
 
-myggsave(p_all_nicer_tadpole, width = 12, height = 5, use_mathpazo = TRUE)
-ggplot2::ggsave(here::here("data_files/p_all_tadpole.png"), width = 12, height = 5, plot = p_all_tadpole, dpi = 300)
+myggsave(p_all_nicer_tadpole, width = 12, height = 6, use_mathpazo = TRUE)
+ggplot2::ggsave(here::here("data_files/p_all_tadpole.png"), width = 12, height = 6, plot = p_all_tadpole, dpi = 300)
 ```
 
 
@@ -172,8 +172,8 @@ p_all_nicer_square <- (p_h_nicer_square | p_tau_nicer_square | p_m_nicer_square)
         family = "Palatino"))
   )
 
-myggsave(p_all_nicer_square, width = 12, height = 5, use_mathpazo = TRUE)
-ggplot2::ggsave(here::here("data_files/p_all_square.png"), width = 12, height = 5, plot = p_all_square, dpi = 300)
+myggsave(p_all_nicer_square, width = 12, height = 6, use_mathpazo = TRUE)
+ggplot2::ggsave(here::here("data_files/p_all_square.png"), width = 12, height = 6, plot = p_all_square, dpi = 300)
 ```
 
 
@@ -208,8 +208,8 @@ p_all_nicer_sphere <- (p_h_nicer_sphere | p_tau_nicer_sphere | p_m_nicer_sphere)
         family = "Palatino"))
   )
 
-myggsave(p_all_nicer_sphere, width = 12, height = 5, use_mathpazo = TRUE)
-ggplot2::ggsave(here::here("data_files/p_all_sphere.png"), width = 12, height = 5, plot = p_all_sphere, dpi = 300)
+myggsave(p_all_nicer_sphere, width = 12, height = 6, use_mathpazo = TRUE)
+ggplot2::ggsave(here::here("data_files/p_all_sphere.png"), width = 12, height = 6, plot = p_all_sphere, dpi = 300)
 ```
 
 
@@ -299,7 +299,7 @@ p_all_u_nicer_tadpole <- (p_h_u_nicer_tadpole | p_tau_u_nicer_tadpole | p_m_u_ni
         family = "Palatino"))
   )
 
-myggsave(p_all_u_nicer_tadpole, width = 12, height = 5, use_mathpazo = TRUE)
+myggsave(p_all_u_nicer_tadpole, width = 12, height = 6, use_mathpazo = TRUE)
 ggplot2::ggsave(here::here("data_files/p_all_u.png"), width = 12, height = 6, plot = p_all_u, dpi = 300)
 ```
 
@@ -333,7 +333,7 @@ p_all_z_nicer_tadpole <- (p_h_z_nicer_tadpole | p_tau_z_nicer_tadpole | p_m_z_ni
         family = "Palatino"))
   )
 
-myggsave(p_all_z_nicer_tadpole, width = 12, height = 5, use_mathpazo = TRUE)
+myggsave(p_all_z_nicer_tadpole, width = 12, height = 6, use_mathpazo = TRUE)
 ggplot2::ggsave(here::here("data_files/p_all_z.png"), width = 12, height = 6, plot = p_all_z, dpi = 300)
 ```
 
