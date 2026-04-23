@@ -57,7 +57,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = TRUE,       
+  eval = FALSE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -78,7 +78,7 @@ captioner <- function(caption) {
 }
 ```
 
-```{r}
+```{r, eval = TRUE}
 library(MetricGraph)
 library(ggplot2)
 library(reshape2)
@@ -87,6 +87,8 @@ library(patchwork)
 library(slackr)
 source("keys.R")
 slackr_setup(token = token) # token comes from keys.R
+
+library(grateful)
 ```
 
 
@@ -344,6 +346,18 @@ p_tau_u <- error.convergence.plotter(x_axis_vector = tau_vector,
                                line_equation_fun = loglog_line_equation,
                                fig_title = expression("Convergence in " * italic(tau)),
                                x_axis_label = expression(italic(tau)))
+
+p_tau_u_nicer_tadpole <- errorConvergencePlotterLatex(x_axis_vector = tau_vector, 
+                                 alpha_vector, 
+                                 errors_u_bar, 
+                                 theoretical_rates, 
+                                 observed_rates_u_bar,
+                                 line_equation_fun = loglog_line_equation,
+                                 fig_title = "$\\mbox{Convergence in }\\tau$",
+                                 x_axis_label = "$\\tau\\quad(\\log_{10}\\mbox{ scale})$",
+                                 y_axis_label = "$\\|\\bar{u}- \\bar{U}_{h,m}^{\\tau}\\|_{L_2(\\Gamma\\times[0,T])}\\quad(\\log_{10}\\mbox{ scale})$",
+                                 color_label = "$\\quad\\quad\\;\\;\\alpha\\;|\\;\\mathtt{theo}\\;|\\;\\;\\mathtt{obs}\\;\\;|\\%\\mathtt{re}$")
+
 p_tau_z <- error.convergence.plotter(x_axis_vector = tau_vector, 
                                alpha_vector, 
                                errors_z_bar, 
@@ -352,12 +366,17 @@ p_tau_z <- error.convergence.plotter(x_axis_vector = tau_vector,
                                line_equation_fun = loglog_line_equation,
                                fig_title = expression("Convergence in " * italic(tau)),
                                x_axis_label = expression(italic(tau)))
-save(p_tau_u, file = here::here("data_files/p_tau_u.RData"))
-save(p_tau_z, file = here::here("data_files/p_tau_z.RData"))
-```
 
-
-```{r, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+p_tau_z_nicer_tadpole <- errorConvergencePlotterLatex(x_axis_vector = tau_vector, 
+                                 alpha_vector, 
+                                 errors_z_bar, 
+                                 theoretical_rates, 
+                                 observed_rates_z_bar,
+                                 line_equation_fun = loglog_line_equation,
+                                 fig_title = "$\\mbox{Convergence in }\\tau$",
+                                 x_axis_label = "$\\tau\\quad(\\log_{10}\\mbox{ scale})$",
+                                 y_axis_label = "$\\|\\bar{z}- \\bar{\\mathcal{Z}}_{h,m}^{\\tau}\\|_{L_2(\\Gamma\\times[0,T])}\\quad(\\log_{10}\\mbox{ scale})$",
+                                 color_label = "$\\quad\\quad\\;\\;\\alpha\\;|\\;\\mathtt{theo}\\;|\\;\\;\\mathtt{obs}\\;\\;|\\%\\mathtt{re}$")
 
 p_all_tau <- (p_u_bar | p_p_bar | p_z_bar) + 
   plot_annotation(
@@ -365,20 +384,30 @@ p_all_tau <- (p_u_bar | p_p_bar | p_z_bar) +
     theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
         family = "Palatino"))
   )
-p_all_tau
-```
 
+myggsave(p_tau_u_nicer_tadpole, width = 4, height = 5, use_mathpazo = TRUE)
+save(p_tau_u_nicer_tadpole, file = here::here("data_files/p_tau_u_nicer_tadpole.RData"))
 
-```{r}
-# ggsave(here::here("data_files/control_conv_rates_tau_u_bar_with_iteration.png"), width = 4, height = 5, plot = p_u_bar, dpi = 300)
-# ggsave(here::here("data_files/control_conv_rates_tau_p_bar_with_iteration.png"), width = 4, height = 5, plot = p_p_bar, dpi = 300)
-# ggsave(here::here("data_files/control_conv_rates_tau_z_bar_with_iteration.png"), width = 4, height = 5, plot = p_z_bar, dpi = 300)
+myggsave(p_tau_z_nicer_tadpole, width = 4, height = 5, use_mathpazo = TRUE)
+save(p_tau_z_nicer_tadpole, file = here::here("data_files/p_tau_z_nicer_tadpole.RData"))
+
+save(p_tau_u, file = here::here("data_files/p_tau_u.RData"))
+save(p_tau_z, file = here::here("data_files/p_tau_z.RData"))
+
 ggsave(here::here("data_files/control_conv_rates_tau_all_with_iteration.png"), width = 12, height = 6, plot = p_all_tau, dpi = 300)
 ```
 
 
+```{r, eval = TRUE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2((0,T);L_2(\\Gamma))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+# ggsave(here::here("data_files/control_conv_rates_tau_u_bar_with_iteration.png"), width = 4, height = 5, plot = p_u_bar, dpi = 300)
+# ggsave(here::here("data_files/control_conv_rates_tau_p_bar_with_iteration.png"), width = 4, height = 5, plot = p_p_bar, dpi = 300)
+# ggsave(here::here("data_files/control_conv_rates_tau_z_bar_with_iteration.png"), width = 4, height = 5, plot = p_z_bar, dpi = 300)
+knitr::include_graphics(here::here("data_files/control_conv_rates_tau_all_with_iteration.png"))
+```
+
+
 ```{r, eval = TRUE, echo = FALSE}
-initial_comment <- paste0("Here’s the latest plot update for the convergence in tau for the optimal control problem! with kappa = ", kappa, " and divider = ", divider)
+initial_comment <- paste0("Here’s the latest plot update for the convergence in tau for the optimal control problem!")# with kappa = ", kappa, " and divider = ", divider)
 # option 1
 slackr_upload(
   filename = "data_files/control_conv_rates_tau_all_with_iteration.png",        # path to your image
@@ -415,6 +444,6 @@ slackr::slackr_msg(
 
 # References
 
-```{r}
+```{r, eval = TRUE}
 cite_packages(output = "paragraph", out.dir = ".")
 ```

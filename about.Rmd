@@ -110,7 +110,7 @@ __________
 
 **Metric graph**
       
-```{r, eval = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 library(patchwork)
 library(ggplot2)
 load(here::here("data_files/p_h_tadpole.RData"))
@@ -147,7 +147,7 @@ knitr::include_graphics(here::here("data_files/tikzpic/p_all_nicer_tadpole_with_
 
 **Rectangle**
 
-```{r, eval = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 library(patchwork)
 library(ggplot2)
 load(here::here("data_files/p_h_square.RData"))
@@ -183,7 +183,7 @@ knitr::include_graphics(here::here("data_files/tikzpic/p_all_nicer_square_with_m
 
 **Sphere**
 
-```{r, eval = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 library(patchwork)
 library(ggplot2)
 load(here::here("data_files/p_h_sphere.RData"))
@@ -277,39 +277,69 @@ __________
 
 
 
-```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the error $\\|\\bar{u}-\\bar{U}_{h,m}^\\tau\\|_{L_2(\\Gamma\\times(0,T))}$ with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+```{r, eval = FALSE, echo = FALSE}
 library(patchwork)
 library(ggplot2)
 load(here::here("data_files/p_h_u.RData"))
 load(here::here("data_files/p_tau_u.RData"))
 load(here::here("data_files/p_m_u.RData"))
+load(here::here("data_files/p_h_u_nicer_tadpole.RData"))
+load(here::here("data_files/p_tau_u_nicer_tadpole.RData"))
+load(here::here("data_files/p_m_u_nicer_tadpole.RData"))
 p_all_u <- (p_h_u | p_tau_u | p_m_u) + 
   plot_annotation(
     title = expression("         Convergence behavior for the optimal state variable " * italic(bar(u))),
     theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
         family = "Palatino"))
   )
-p_all_u
+p_all_u_nicer_tadpole <- (p_h_u_nicer_tadpole | p_tau_u_nicer_tadpole | p_m_u_nicer_tadpole) + 
+  plot_annotation(
+    title = "$\\mbox{Convergence behavior for the optimal state variable }\\bar{u}$",
+    theme = theme(plot.title = element_text(size = 18, face = "plain", hjust = 0.5, 
+        family = "Palatino"))
+  )
+
+myggsave(p_all_u_nicer_tadpole, width = 12, height = 5, use_mathpazo = TRUE)
 ggplot2::ggsave(here::here("data_files/p_all_u.png"), width = 12, height = 6, plot = p_all_u, dpi = 300)
+```
+
+
+```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the error $\\|\\bar{u}-\\bar{U}_{h,m}^\\tau\\|_{L_2(\\Gamma\\times(0,T))}$ with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+knitr::include_graphics(here::here("data_files/tikzpic/p_all_u_nicer_tadpole_with_mathpazo.png"))
 ```
 
 __________ 
 
 
-```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the error $\\|\\bar{z}- \\bar{\\mathcal{Z}}_{h,m}^\\tau\\|_{L_2(\\Gamma\\times(0,T))}$ with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+```{r, eval = FALSE, echo = FALSE}
 library(patchwork)
 library(ggplot2)
 load(here::here("data_files/p_h_z.RData"))
 load(here::here("data_files/p_tau_z.RData"))
 load(here::here("data_files/p_m_z.RData"))
+load(here::here("data_files/p_h_z_nicer_tadpole.RData"))
+load(here::here("data_files/p_tau_z_nicer_tadpole.RData"))
+load(here::here("data_files/p_m_z_nicer_tadpole.RData"))
 p_all_z <- (p_h_z | p_tau_z | p_m_z) + 
   plot_annotation(
     title = expression("         Convergence behavior for the optimal control variable " * italic(bar(z))),
     theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
         family = "Palatino"))
   )
-p_all_z
+p_all_z_nicer_tadpole <- (p_h_z_nicer_tadpole | p_tau_z_nicer_tadpole | p_m_z_nicer_tadpole) + 
+  plot_annotation(
+    title = "$\\mbox{Convergence behavior for the optimal control variable }\\bar{z}$",
+    theme = theme(plot.title = element_text(size = 18, face = "plain", hjust = 0.5, 
+        family = "Palatino"))
+  )
+
+myggsave(p_all_z_nicer_tadpole, width = 12, height = 5, use_mathpazo = TRUE)
 ggplot2::ggsave(here::here("data_files/p_all_z.png"), width = 12, height = 6, plot = p_all_z, dpi = 300)
+```
+
+
+```{r, echo = FALSE, fig.align='center', fig.dim= c(12,6), fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the error $\\|\\bar{z}- \\bar{\\mathcal{Z}}_{h,m}^\\tau\\|_{L_2(\\Gamma\\times(0,T))}$ with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+knitr::include_graphics(here::here("data_files/tikzpic/p_all_z_nicer_tadpole_with_mathpazo.png"))
 ```
     
 
@@ -320,7 +350,7 @@ __________
 
       
 ```{r, echo = FALSE, fig.align='center', fig.dim= c(12,7), fig.cap = captioner("Comparison of the contraction constant $\\gamma =  \\tau^2\\|\\mathbf{T}\\|_2/\\mu$ and its theoretical upper bound $1 / (\\mu \\kappa^{4 \\beta})$ as functions of the sample size $N$ for $T = 2$. Different colors, shapes, and line types correspond to variations in $\\kappa$, $\\beta$, and $\\mu$, respectively. Both plots have their x- and y-axes on a $\\log_{10}$ scale, and they share the same y-axis limits for direct comparability.")}
-knitr::include_graphics(here::here("data_files/fixedpointconvergence_combined2.png"))
+knitr::include_graphics(here::here("data_files/tikzpic/fixedpointconvergence_combined2_with_mathpazo.png"))
 ```
       
 __________

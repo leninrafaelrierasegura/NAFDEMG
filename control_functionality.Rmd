@@ -2274,6 +2274,81 @@ error.convergence.plotter <- function(x_axis_vector,
   return(p)
 }
 
+errorConvergencePlotterLatex <- function(x_axis_vector, 
+                                      alpha_vector, 
+                                      errors, 
+                                      theoretical_rates, 
+                                      observed_rates,
+                                      line_equation_fun,
+                                      fig_title,
+                                      x_axis_label,
+                                      y_axis_label,
+                                      color_label,
+                                      apply_sqrt = FALSE) {
+
+  relative_per_error <- 100 * abs(theoretical_rates - observed_rates) / abs(theoretical_rates)
+  
+  x_vec <- if (apply_sqrt) sqrt(x_axis_vector) else x_axis_vector
+  
+  guiding_lines <- compute_guiding_lines(x_axis_vector = x_vec, 
+                                         errors = errors, 
+                                         theoretical_rates = theoretical_rates, 
+                                         line_equation_fun = line_equation_fun)
+  
+  default_colors <- scales::hue_pal()(length(alpha_vector))
+  
+  plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
+    geom_line(
+      data = data.frame(x = x_vec, y = guiding_lines[, i]),
+      aes(x = x, y = y),
+      color = default_colors[i],
+      linetype = "dashed",
+      show.legend = FALSE
+    )
+  })
+  
+  df <- as.data.frame(cbind(x_vec, errors))
+  colnames(df) <- c("x_axis_vector", alpha_vector)
+  df_melted <- melt(df, id.vars = "x_axis_vector", variable.name = "column", value.name = "value")
+  
+  custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
+                           formatC(alpha_vector, format = "f", digits = 2),
+                           formatC(theoretical_rates, format = "f", digits = 4),
+                           formatC(observed_rates, format = "f", digits = 4),
+                           formatC(relative_per_error, format = "f", digits = 2))
+  
+  df_melted$column <- factor(df_melted$column, levels = alpha_vector, labels = custom_labels)
+
+  p <- ggplot() +
+    geom_line(data = df_melted, aes(x = x_axis_vector, y = value, color = column)) +
+    geom_point(data = df_melted, aes(x = x_axis_vector, y = value, color = column)) +
+    plot_lines +
+    labs(
+      title = fig_title,
+      x = x_axis_label,
+      y = y_axis_label,
+      color = color_label
+    ) +
+    (if (apply_sqrt) {
+      scale_x_continuous(breaks = x_vec, labels = round(x_axis_vector, 4))
+    } else {
+      scale_x_log10(breaks = x_axis_vector, labels = round(x_axis_vector, 4))
+    }) +
+    (if (apply_sqrt) {
+      #scale_y_continuous(trans = "log", labels = scales::scientific_format())
+      scale_y_continuous(trans = scales::log_trans(base = exp(1)), labels = scales::scientific_format())
+    } else {
+      scale_y_log10(labels = scales::scientific_format())
+    }) +
+    theme_minimal() +
+    theme(text = element_text(family = "Palatino"),
+          legend.position = "bottom",
+          legend.direction = "vertical",
+          #plot.margin = margin(0, 0, 0, 0),
+          plot.title = element_text(hjust = 0.5, size = 18, face = "plain"))
+  
+  return(p)
+}
 ```
 
 
