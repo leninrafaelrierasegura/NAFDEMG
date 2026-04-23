@@ -1572,6 +1572,29 @@
       "Maintainer": "Winston Chang <winston@posit.co>",
       "Repository": "CRAN"
     },
+    "filehash": {
+      "Package": "filehash",
+      "Version": "2.4-6",
+      "Source": "Repository",
+      "Depends": [
+        "R (>= 3.0.0)"
+      ],
+      "Imports": [
+        "digest",
+        "methods"
+      ],
+      "Collate": "filehash.R filehash-DB1.R filehash-RDS.R coerce.R dump.R hash.R queue.R stack.R zzz.R",
+      "Title": "Simple Key-Value Database",
+      "Author": "Roger D. Peng <roger.peng@austin.utexas.edu>",
+      "Maintainer": "Roger D. Peng <roger.peng@austin.utexas.edu>",
+      "Description": "Implements a simple key-value style database where character string keys are associated with data values that are stored on the disk. A simple interface is provided for inserting, retrieving, and deleting data from the database. Utilities are provided that allow 'filehash' databases to be treated much like environments and lists are already used in R. These utilities are provided to encourage interactive and exploratory analysis on large datasets. Three different file formats for representing the database are currently available and new formats can easily be incorporated by third parties for use in the 'filehash' framework.",
+      "License": "GPL (>= 2)",
+      "URL": "https://github.com/rdpeng/filehash",
+      "RoxygenNote": "7.3.1",
+      "Encoding": "UTF-8",
+      "NeedsCompilation": "yes",
+      "Repository": "CRAN"
+    },
     "fmesher": {
       "Package": "fmesher",
       "Version": "0.5.0",
@@ -4638,6 +4661,47 @@
       "NeedsCompilation": "yes",
       "Author": "Lionel Henry [aut, cre], Hadley Wickham [aut], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Lionel Henry <lionel@posit.co>",
+      "Repository": "CRAN"
+    },
+    "tikzDevice": {
+      "Package": "tikzDevice",
+      "Version": "0.12.6",
+      "Source": "Repository",
+      "Encoding": "UTF-8",
+      "Type": "Package",
+      "Title": "R Graphics Output in LaTeX Format",
+      "Authors@R": "c( person(\"Charlie\", \"Sharpsteen\", role = \"aut\"), person(\"Cameron\", \"Bracken\", role = \"aut\"), person(\"Kirill\", \"Müller\", role = c(\"ctb\"), email = \"krlmlr+r@mailbox.org\"), person(\"Yihui\", \"Xie\", role = \"ctb\"), person(\"Ralf\", \"Stubner\", email = \"ralf.stubner@gmail.com\",  role = \"cre\"), person(\"Nico\", \"Bellack\",  email = \"nico.belack@daqana.com\", role = \"ctb\") )",
+      "URL": "https://github.com/daqana/tikzDevice",
+      "BugReports": "https://github.com/daqana/tikzDevice/issues",
+      "Description": "Provides a graphics output device for R that records plots in a LaTeX-friendly format. The device transforms plotting commands issued by R functions into LaTeX code blocks. When included in a LaTeX document, these blocks are interpreted with the help of 'TikZ'---a graphics package for TeX and friends written by Till Tantau. Using the 'tikzDevice', the text of R plots can contain LaTeX commands such as mathematical formula. The device also allows arbitrary LaTeX code to be inserted into the output stream.",
+      "License": "GPL (>= 2)",
+      "Depends": [
+        "R (>= 2.14.0)"
+      ],
+      "Imports": [
+        "filehash (>= 2.3)",
+        "png"
+      ],
+      "Suggests": [
+        "evaluate",
+        "formatR",
+        "ggplot2",
+        "knitr",
+        "lattice",
+        "maps",
+        "scales",
+        "stringr",
+        "testthat (>= 0.8.1)",
+        "withr",
+        "covr"
+      ],
+      "SystemRequirements": "pgf (>= 2.00)",
+      "LazyLoad": "yes",
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.2.3",
+      "NeedsCompilation": "yes",
+      "Author": "Charlie Sharpsteen [aut], Cameron Bracken [aut], Kirill Müller [ctb], Yihui Xie [ctb], Ralf Stubner [cre], Nico Bellack [ctb]",
+      "Maintainer": "Ralf Stubner <ralf.stubner@gmail.com>",
       "Repository": "CRAN"
     },
     "timechange": {
