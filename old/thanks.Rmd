@@ -109,7 +109,7 @@ source(here::here("functionality.R"))
 ::: {}
 
 ```{r, fig.height = 8, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
-load(here::here("old/thanksall3d.RData"))
+load(here::here("data_files/thanksall3d.RData"))
 thanksall3d
 ```
 

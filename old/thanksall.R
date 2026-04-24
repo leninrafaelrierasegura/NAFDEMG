@@ -237,11 +237,11 @@ graph <- metric_graph$new(edges = edges,
 #graph <- graph_components$new(edges = edges)
 
 
-thanksall <- graph$plot(vertex_size = 2, edge_color = "darkblue", edge_width = 1) +
-  theme_void() +
-  theme(plot.margin = margin(0, 0, 0, 0))
-thanksall
-ggsave(thanksall, filename = "data_files/thanksall.png", width = 9, height = 6, dpi = 300)
+# thanksall <- graph$plot(vertex_size = 2, edge_color = "darkblue", edge_width = 1) +
+#   theme_void() +
+#   theme(plot.margin = margin(0, 0, 0, 0))
+# thanksall
+# ggsave(thanksall, filename = "data_files/thanksall.png", width = 9, height = 6, dpi = 300)
 
 graph$build_mesh(h = 0.05)
 
@@ -303,4 +303,10 @@ thanksall3d$x$attrs <- lapply(thanksall3d$x$attrs, function(tr) {
   tr
 })
 
-save(thanksall3d, file = here::here("old/thanksall3d.RData"))
+#save(thanksall3d, file = here::here("old/thanksall3d.RData"))
+save_dual_for_presentation(thanksall3d)
+
+
+
+
+
