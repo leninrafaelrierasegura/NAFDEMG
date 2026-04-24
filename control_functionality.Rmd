@@ -2303,6 +2303,7 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
       aes(x = x, y = y),
       color = default_colors[i],
       linetype = "dashed",
+      linewidth = 0.6,
       show.legend = FALSE
     )
   })
@@ -2320,8 +2321,8 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
   df_melted$column <- factor(df_melted$column, levels = alpha_vector, labels = custom_labels)
 
   p <- ggplot() +
-    geom_line(data = df_melted, aes(x = x_axis_vector, y = value, color = column)) +
-    geom_point(data = df_melted, aes(x = x_axis_vector, y = value, color = column)) +
+    geom_line(data = df_melted, aes(x = x_axis_vector, y = value, color = column), linewidth = 1.6) +
+    geom_point(data = df_melted, aes(x = x_axis_vector, y = value, color = column), size = 2) +
     plot_lines +
     labs(
       title = fig_title,
