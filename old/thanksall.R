@@ -305,7 +305,7 @@ thanksall3d$x$attrs <- lapply(thanksall3d$x$attrs, function(tr) {
 
 #save(thanksall3d, file = here::here("old/thanksall3d.RData"))
 save_dual_for_presentation(thanksall3d)
-
+save_plotly_figure_fixed(thanksall3d, dpi = 600, scale = 2, viewer_change = 1)
 
 
 
