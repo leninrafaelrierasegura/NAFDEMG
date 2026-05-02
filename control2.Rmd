@@ -88,11 +88,25 @@ library(tidyr)
 
 
 ```{r}
-capture.output(
-  knitr::purl(here::here("control_functionality.Rmd"), output = here::here("control_functionality.R")),
-  file = here::here("purl_log.txt")
-)
-source(here::here("control_functionality.R"))
+# capture.output(
+#   knitr::purl(here::here("control_functionality.Rmd"), output = here::here("control_functionality.R")),
+#   file = here::here("purl_log.txt")
+# )
+# source(here::here("control_functionality.R"))
+rmd_file <- here::here("control_functionality.Rmd")
+hash_file <- here::here("control_functionality.hash")
+r_file <- here::here("control_functionality.R")
+purl_file <- here::here("purl_log.txt")
+
+new_hash <- digest::digest(file = rmd_file, algo = "md5")
+
+old_hash <- if (file.exists(hash_file)) {readLines(hash_file, warn = FALSE)} else {""}
+
+if (!identical(new_hash, old_hash)) {
+  capture.output(knitr::purl(rmd_file, output = r_file), file = purl_file)
+  writeLines(new_hash, hash_file)
+}
+source(r_file)
 ```
 
 # Optimal control of fractional diffusion equations on metric graphs
@@ -285,19 +299,19 @@ T_final <- 2
 time_step <- 0.02
 h <- 0.02
 kappa <- 4
-alpha <- 1.8
+alpha <- 1.6
 m = 4
 beta <- alpha/2
-mu <- 0.1
-a <- - 0.5*10
-b <- 0.5*10
+mu <- 1
+a <- - 0.5
+b <- 0.5
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for f and g
-coeff_elliptic_g <- rep(0, adjusted_N_finite)
-coeff_elliptic_g[7] <- 100*1
+coeff_elliptic_g <- 20*(1:adjusted_N_finite)^-1
+coeff_elliptic_g[-2] <- 0
 coeff_elliptic_f <- rep(0, adjusted_N_finite)
-coeff_elliptic_f[7] <- -10*1
+coeff_elliptic_f[2] <- 10
 # time and spatial mesh 
 time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
 graph <- gets.graph.tadpole(h = h)

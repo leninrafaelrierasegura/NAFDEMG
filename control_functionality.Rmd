@@ -86,6 +86,7 @@ captioner <- function(caption) {
 ```{r}
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
+# just some space
 library(rSPDE)
 library(MetricGraph)
 library(grateful)
