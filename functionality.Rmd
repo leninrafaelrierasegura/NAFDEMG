@@ -843,9 +843,9 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
 ```{r}
 global.scene.setter.rec.and.sphere <- function(x_range, y_range, z_range) {
   
-  return(list(xaxis = list(title = list(text = "x", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = x_range),
-              yaxis = list(title = list(text = "y", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = y_range),
-              zaxis = list(title = list(text = "z", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = z_range),
+  return(list(xaxis = list(title = list(text = "x", font = list(color = "gray", size = 16)),  tickfont = list(color = "gray", size = 13), range = x_range),
+              yaxis = list(title = list(text = "y", font = list(color = "gray", size = 16)),  tickfont = list(color = "gray", size = 13), range = y_range),
+              zaxis = list(title = list(text = "z", font = list(color = "gray", size = 16)),  tickfont = list(color = "gray", size = 13), range = z_range),
               aspectratio = list(x = 1, 
                                  y = 1, 
                                  z = 1),
@@ -860,9 +860,9 @@ global.scene.setter.rec.and.sphere <- function(x_range, y_range, z_range) {
 
 global.scene.setter.rec.and.sphere.for.hat <- function(x_range, y_range, z_range) {
   
-  return(list(xaxis = list(title = list(text = "x", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = x_range),
-              yaxis = list(title = list(text = "y", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = y_range),
-              zaxis = list(title = list(text = "z", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = z_range),
+  return(list(xaxis = list(title = list(text = "x", font = list(color = "gray", size = 16)),  tickfont = list(color = "gray", size = 13), range = x_range),
+              yaxis = list(title = list(text = "y", font = list(color = "gray", size = 16)),  tickfont = list(color = "gray", size = 13), range = y_range),
+              zaxis = list(title = list(text = "z", font = list(color = "gray", size = 16)),  tickfont = list(color = "gray", size = 13), range = z_range),
               aspectratio = list(x = 1, 
                                  y = 1, 
                                  z = 0.4),
@@ -3096,8 +3096,19 @@ save_plotly_figure_fixed <- function(fig,
 ```
 
 ```{r}
-# function to combine
-combine_pngs_with_gap <- function(png_files, output_file, gap = 20) {
+combine_pngs_with_gap <- function(png_files,
+                                  output_file,
+                                  gap = 20,
+                                  align = c("center", "top", "bottom")) {
+  
+  align <- match.arg(align)
+  
+  gravity <- switch(
+    align,
+    top = "north",
+    bottom = "south",
+    center = "center"
+  )
   
   pres_dir <- path.expand("~/Desktop/leninPresentations/data_files")
   
@@ -3105,7 +3116,6 @@ combine_pngs_with_gap <- function(png_files, output_file, gap = 20) {
     dir.create(pres_dir, recursive = TRUE)
   }
   
-  # build sequence: img spacer img spacer img
   parts <- c()
   
   for (i in seq_along(png_files)) {
@@ -3118,6 +3128,7 @@ combine_pngs_with_gap <- function(png_files, output_file, gap = 20) {
   
   cmd <- paste(
     "convert",
+    "-gravity", gravity,
     paste(parts, collapse = " "),
     "+append",
     shQuote(output_file)
@@ -3125,7 +3136,6 @@ combine_pngs_with_gap <- function(png_files, output_file, gap = 20) {
   
   system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
   
-  # copy to presentation folder
   copied_file <- file.path(pres_dir, basename(output_file))
   file.copy(output_file, copied_file, overwrite = TRUE)
   

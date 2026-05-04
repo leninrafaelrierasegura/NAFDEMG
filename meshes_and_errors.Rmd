@@ -151,7 +151,7 @@ png_files <- c("/home/rierasl/Desktop/NAFDEMG/data_files/plotlypdf/p_mesh_on_squ
                "/home/rierasl/Desktop/NAFDEMG/data_files/plotlypdf/p_mesh_on_sphere.png")
 output_file <- "/home/rierasl/Desktop/NAFDEMG/data_files/plotlypdf/p_mesh_on_square_p_mesh_on_sphere.png"
 
-combine_pngs_with_gap(png_files, output_file, gap = 200)
+combine_pngs_with_gap(png_files, output_file, gap = 200, align = "bottom")
 ```
 
 
