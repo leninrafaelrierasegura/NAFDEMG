@@ -843,9 +843,9 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
 ```{r}
 global.scene.setter.rec.and.sphere <- function(x_range, y_range, z_range) {
   
-  return(list(xaxis = list(title = "x", range = x_range),
-              yaxis = list(title = "y", range = y_range),
-              zaxis = list(title = "z", range = z_range),
+  return(list(xaxis = list(title = list(text = "x", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = x_range),
+              yaxis = list(title = list(text = "y", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = y_range),
+              zaxis = list(title = list(text = "z", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = z_range),
               aspectratio = list(x = 1, 
                                  y = 1, 
                                  z = 1),
@@ -860,9 +860,9 @@ global.scene.setter.rec.and.sphere <- function(x_range, y_range, z_range) {
 
 global.scene.setter.rec.and.sphere.for.hat <- function(x_range, y_range, z_range) {
   
-  return(list(xaxis = list(title = "x", range = x_range),
-              yaxis = list(title = "y", range = y_range),
-              zaxis = list(title = "z", range = z_range),
+  return(list(xaxis = list(title = list(text = "x", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = x_range),
+              yaxis = list(title = list(text = "y", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = y_range),
+              zaxis = list(title = list(text = "z", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = z_range),
               aspectratio = list(x = 1, 
                                  y = 1, 
                                  z = 0.4),
@@ -2106,7 +2106,7 @@ plot_3d_square_mesh_with_hat <- function(mesh,
   p <- p %>% 
     add_trace(data = df3, x = ~x, y = ~y, z = ~z, mode = "markers", type = "scatter3d", 
             marker = list(size = 4, color = "gray", symbol = 104), showlegend = FALSE) %>% 
-    layout(
+    layout(font = list(family = "Palatino Linotype"),
     scene = global.scene.setter.rec.and.sphere.for.hat(x_range, y_range, z_range)
   )
   
@@ -3093,6 +3093,85 @@ save_plotly_figure_fixed <- function(fig,
   )
 }
 
+```
+
+```{r}
+# function to combine
+combine_pngs_with_gap <- function(png_files, output_file, gap = 20) {
+  
+  pres_dir <- path.expand("~/Desktop/leninPresentations/data_files")
+  
+  if (!dir.exists(pres_dir)) {
+    dir.create(pres_dir, recursive = TRUE)
+  }
+  
+  # build sequence: img spacer img spacer img
+  parts <- c()
+  
+  for (i in seq_along(png_files)) {
+    parts <- c(parts, shQuote(png_files[i]))
+    
+    if (i < length(png_files)) {
+      parts <- c(parts, sprintf("\\( -size %dx1 xc:white \\)", gap))
+    }
+  }
+  
+  cmd <- paste(
+    "convert",
+    paste(parts, collapse = " "),
+    "+append",
+    shQuote(output_file)
+  )
+  
+  system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+  
+  # copy to presentation folder
+  copied_file <- file.path(pres_dir, basename(output_file))
+  file.copy(output_file, copied_file, overwrite = TRUE)
+  
+  cat(
+    "Image created at:\n  ", output_file,
+    "\nCopied to:\n  ", copied_file, "\n"
+  )
+}
+
+combine_pngs_with_gap_vertical <- function(png_files, output_file, gap = 20) {
+  
+  pres_dir <- path.expand("~/Desktop/leninPresentations/data_files")
+  
+  if (!dir.exists(pres_dir)) {
+    dir.create(pres_dir, recursive = TRUE)
+  }
+  
+  parts <- c()
+  
+  for (i in seq_along(png_files)) {
+    parts <- c(parts, shQuote(png_files[i]))
+    
+    if (i < length(png_files)) {
+      # horizontal spacer (height = gap)
+      parts <- c(parts, sprintf("\\( -size 1x%d xc:white \\)", gap))
+    }
+  }
+  
+  cmd <- paste(
+    "convert",
+    paste(parts, collapse = " "),
+    "-append",
+    shQuote(output_file)
+  )
+  
+  system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+  
+  copied_file <- file.path(pres_dir, basename(output_file))
+  file.copy(output_file, copied_file, overwrite = TRUE)
+  
+  cat(
+    "Image created at:\n  ", output_file,
+    "\nCopied to:\n  ", copied_file, "\n"
+  )
+}
+# sometimes
 ```
 
 

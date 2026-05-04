@@ -88,17 +88,71 @@ library(fmesher)
 
 
 ```{r}
-capture.output(
-  knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R")),
-  file = here::here("purl_log.txt")
-)
-source(here::here("functionality.R"))
+source_if_updated <- function(name) {
+  rmd_file  <- here::here(paste0(name, ".Rmd"))
+  hash_file <- here::here(paste0(name, ".hash"))
+  r_file    <- here::here(paste0(name, ".R"))
+  purl_file <- here::here("purl_log.txt") # pay attention to this line
+  
+  new_hash <- digest::digest(file = rmd_file, algo = "md5")
+  
+  old_hash <- if (file.exists(hash_file)) {
+    readLines(hash_file, warn = FALSE)
+  } else {
+    ""
+  }
+  
+  if (!identical(new_hash, old_hash)) {
+    capture.output(
+      knitr::purl(rmd_file, output = r_file),
+      file = purl_file
+    )
+    writeLines(new_hash, hash_file)
+  }
+  
+  source(r_file)
+}
+```
+
+
+```{r}
+# capture.output(
+#   knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R")),
+#   file = here::here("purl_log.txt")
+# )
+# source(here::here("functionality.R"))
+source_if_updated("functionality")
 ```
 
 
 
 
+```{r, eval = FALSE}
+#plot_3d_square_mesh(gets.mesh.and.FEM.on.rectangle(1, 1, 8)$mesh)
+p_mesh_on_square <- plot_3d_square_mesh_with_hat(gets.mesh.and.FEM.on.rectangle(1, 1, 6)$mesh, hat_nodes = c(1, 20, 43), hat_height = 1, hat_color = c("red", "red", "blue"), hat_alpha = 0.2)
+save_plotly_figure_fixed(p_mesh_on_square, dpi = 600, scale = 2, viewer_change = 1)
+```
 
+
+```{r, eval = FALSE}
+#plot_3d_mesh_edges_faces(fm_rcdt_2d(globe = 3))
+p_mesh_on_sphere <- plot_3d_mesh_edges_faces_with_hat(
+  fm_rcdt_2d(globe = 3),
+  hat_nodes = c(1, 17, 37),
+  hat_color = c("blue", "blue", "blue"),
+  hat_height = 1,
+  hat_alpha = 0.2
+)
+save_plotly_figure_fixed(p_mesh_on_sphere, dpi = 600, scale = 2, viewer_change = 1)
+```
+
+```{r, eval = FALSE}
+png_files <- c("/home/rierasl/Desktop/NAFDEMG/data_files/plotlypdf/p_mesh_on_square.png",
+               "/home/rierasl/Desktop/NAFDEMG/data_files/plotlypdf/p_mesh_on_sphere.png")
+output_file <- "/home/rierasl/Desktop/NAFDEMG/data_files/plotlypdf/p_mesh_on_square_p_mesh_on_sphere.png"
+
+combine_pngs_with_gap(png_files, output_file, gap = 200)
+```
 
 
 
@@ -117,9 +171,9 @@ p_b1
 
 ::: {}
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
-#plot_3d_square_mesh(gets.mesh.and.FEM.on.rectangle(1, 1, 8)$mesh)
-plot_3d_square_mesh_with_hat(gets.mesh.and.FEM.on.rectangle(1, 1, 6)$mesh, hat_nodes = c(1, 20, 43), hat_height = 1, hat_color = c("red", "red", "blue"), hat_alpha = 0.2)
+
+```{r, fig.height = 6, out.width = "70%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+knitr::include_graphics(here::here("data_files/plotlypdf/p_mesh_on_square.png"))
 ```
 
 
@@ -130,15 +184,10 @@ plot_3d_square_mesh_with_hat(gets.mesh.and.FEM.on.rectangle(1, 1, 6)$mesh, hat_n
 ::: {}
 
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
-#plot_3d_mesh_edges_faces(fm_rcdt_2d(globe = 3))
-plot_3d_mesh_edges_faces_with_hat(
-  fm_rcdt_2d(globe = 3),
-  hat_nodes = c(1, 17, 37),
-  hat_color = c("blue", "blue", "blue"),
-  hat_height = 1,
-  hat_alpha = 0.2
-)
+
+
+```{r, fig.height = 6, out.width = "70%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+knitr::include_graphics(here::here("data_files/plotlypdf/p_mesh_on_sphere.png"))
 ```
 
 

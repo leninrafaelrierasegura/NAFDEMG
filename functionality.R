@@ -1,4 +1,4 @@
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
@@ -40,7 +40,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
@@ -49,7 +49,7 @@ poly.from.roots <- function(roots) {
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
@@ -69,7 +69,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
@@ -109,7 +109,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -153,7 +153,7 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0, RHST) {
   CC <- my_op_frac$C
   SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
@@ -166,7 +166,7 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(h){
   edge1 <- rbind(c(0,0),c(1,0))
@@ -180,7 +180,7 @@ gets.graph.tadpole <- function(h){
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to compute the eigenfunctions of the tadpole graph
 tadpole.eig <- function(k,graph){
 x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -211,7 +211,7 @@ return(f)
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to compute the eigenpairs of the tadpole graph
 gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
   EIGENVAL <- NULL
@@ -249,7 +249,7 @@ gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to construct a piecewise constant projection of approximated values
 construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
   projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
@@ -267,7 +267,7 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 loglog_line_equation <- function(x1, y1, slope) {
   b <- log10(y1 / (x1 ^ slope))
   
@@ -304,7 +304,7 @@ compute_guiding_lines <- function(x_axis_vector, errors, theoretical_rates, line
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Functions to compute the exact solution to the fractional diffusion equation
 g_linear <- function(r, A, lambda_j_alpha_half) {
   return(A * exp(-lambda_j_alpha_half * r))
@@ -349,13 +349,13 @@ G_cos <- function(t, A, lambda_j_alpha_half, theta) {
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 reversecolumns <- function(mat) {
   return(mat[, rev(seq_len(ncol(mat)))])
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 gets.mesh.and.FEM.on.rectangle <- function(a, b, n) {
   mesh <- fmesher::fm_rcdt_2d(
   lattice = fmesher::fm_lattice_2d(
@@ -370,7 +370,7 @@ gets.mesh.and.FEM.on.rectangle <- function(a, b, n) {
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 compute_true_eigen_rectangle <- function(a = 1,
                                          b = 1,
                                          loc,
@@ -417,7 +417,7 @@ compute_true_eigen_rectangle <- function(a = 1,
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to get globe from h using spline
 globe_from_h <- function(h) {
   readed_data <- readRDS(
@@ -440,7 +440,7 @@ globe_from_h <- function(h) {
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 calculate_laplace_beltrami_eigenvalues <- function(kappa = 0, L_max = 5, rot.inv = FALSE) {
   
   eigenvalues <- numeric(0)
@@ -486,7 +486,7 @@ compute_true_eigen_sphere <- function(mesh,
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to order the vertices for plotting
 plotting.order <- function(v, graph){
   edge_number <- graph$mesh$VtE[, 1]
@@ -495,7 +495,7 @@ plotting.order <- function(v, graph){
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to set the scene for 3D plots
 global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
   
@@ -514,12 +514,12 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 global.scene.setter.rec.and.sphere <- function(x_range, y_range, z_range) {
   
-  return(list(xaxis = list(title = "x", range = x_range),
-              yaxis = list(title = "y", range = y_range),
-              zaxis = list(title = "z", range = z_range),
+  return(list(xaxis = list(title = list(text = "x", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = x_range),
+              yaxis = list(title = list(text = "y", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = y_range),
+              zaxis = list(title = list(text = "z", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = z_range),
               aspectratio = list(x = 1, 
                                  y = 1, 
                                  z = 1),
@@ -534,9 +534,9 @@ global.scene.setter.rec.and.sphere <- function(x_range, y_range, z_range) {
 
 global.scene.setter.rec.and.sphere.for.hat <- function(x_range, y_range, z_range) {
   
-  return(list(xaxis = list(title = "x", range = x_range),
-              yaxis = list(title = "y", range = y_range),
-              zaxis = list(title = "z", range = z_range),
+  return(list(xaxis = list(title = list(text = "x", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = x_range),
+              yaxis = list(title = list(text = "y", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = y_range),
+              zaxis = list(title = list(text = "z", font = list(color = "gray", size = 20)),  tickfont = list(color = "gray", size = 15), range = z_range),
               aspectratio = list(x = 1, 
                                  y = 1, 
                                  z = 0.4),
@@ -549,7 +549,7 @@ global.scene.setter.rec.and.sphere.for.hat <- function(x_range, y_range, z_range
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to plot in 3D
 graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
   U_list <- list(...)
@@ -649,7 +649,7 @@ graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
   U_names <- names(U_list) 
   # Spatial coordinates
@@ -750,7 +750,7 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to plot the error at each time step
 error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_step) {
   weights <- graph$mesh$weights
@@ -774,7 +774,7 @@ error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_s
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to plot the 3D comparison of U_true and U_approx
 graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -917,7 +917,7 @@ graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to plot a single 3D line for 
 graph.plotter.3d.single <- function(graph, U_true, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -991,7 +991,7 @@ graph.plotter.3d.single <- function(graph, U_true, time_seq) {
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to plot the error convergence
 error.convergence.plotter <- function(x_axis_vector, 
                                       alpha_vector, 
@@ -1142,7 +1142,7 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 graph.plotter.3d.static <- function(graph, z_list) {
   x <- plotting.order(graph$mesh$V[, 1], graph)
   y <- plotting.order(graph$mesh$V[, 2], graph)
@@ -1196,7 +1196,7 @@ graph.plotter.3d.static <- function(graph, z_list) {
 
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 graph.plotter.3d.two.meshes.time <- function(graph_finer, graph_coarser, 
                                              time_seq, frame_val_to_display,
                                              fs_finer = list(), fs_coarser = list()) {
@@ -1363,7 +1363,7 @@ if (!is.null(vertical_coarser)) {
 
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 plot_3d_rectangle_scatter <- function(loc, eigvals, eigfuncs, fixed_colorscale = TRUE) {
 
   x <- loc[,1]
@@ -1742,7 +1742,7 @@ plot_3d_square_mesh_with_hat <- function(mesh,
   p <- p %>% 
     add_trace(data = df3, x = ~x, y = ~y, z = ~z, mode = "markers", type = "scatter3d", 
             marker = list(size = 4, color = "gray", symbol = 104), showlegend = FALSE) %>% 
-    layout(
+    layout(font = list(family = "Palatino Linotype"),
     scene = global.scene.setter.rec.and.sphere.for.hat(x_range, y_range, z_range)
   )
   
@@ -1752,7 +1752,7 @@ plot_3d_square_mesh_with_hat <- function(mesh,
 
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 plot_3d_sphere_scatter <- function(mesh, 
                                           eigvals, 
                                           eigfuncs,
@@ -2423,7 +2423,7 @@ plot_3d_mesh_edges_faces_with_hat <- function(mesh,
 
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 graph.plotter.3d.onecol <- function(graph, vec) {
   
   # Coordinates on the mesh
@@ -2494,7 +2494,7 @@ graph.plotter.3d.onecol <- function(graph, vec) {
 
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 myggsave <- function(plot,
                      width = 9.22,
                      height = 7.05,
@@ -2582,7 +2582,7 @@ myggsave <- function(plot,
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #function to save
 save_dual_for_presentation <- function(obj) {
   obj_name <- deparse(substitute(obj))
@@ -2601,4 +2601,122 @@ save_dual_for_presentation <- function(obj) {
       " -", path1, "\n",
       " -", path2, "\n")
 }
+
+
+## -----------------------------------------------------------------------------
+reticulate::use_python(
+  "/home/rierasl/miniconda3/envs/phdenv/bin/python",
+  required = TRUE
+)
+
+reticulate::py_config()
+
+
+## -----------------------------------------------------------------------------
+save_plotly_figure_fixed <- function(fig,
+                                     dpi = 600,
+                                     scale = 2,
+                                     viewer_change = 1) {
+  
+  folder <- here::here("data_files/plotlypdf")
+  
+  if (!dir.exists(folder)) {
+    dir.create(folder, recursive = TRUE)
+  }
+  
+  fig_name <- deparse(substitute(fig))
+  
+  file_name_pdf <- file.path(folder, paste0(fig_name, ".pdf"))
+  file_name_png <- file.path(folder, paste0(fig_name, ".png"))
+  
+  ## ---- CAMERA (correct Plotly location) ----
+  cam <- fig$x$layoutAttrs[[1]]$scene$camera
+  
+  if (!is.null(cam)) {
+    
+    eye <- cam$eye
+    center <- cam$center
+    
+    if (is.null(eye)) eye <- list(x = 1, y = 1, z = 1)
+    if (is.null(center)) center <- list(x = 0, y = 0, z = 0)
+    
+    # vector center -> eye
+    vx <- eye$x - center$x
+    vy <- eye$y - center$y
+    vz <- eye$z - center$z
+    
+    # norm (distance from center)
+    norm_v <- sqrt(vx^2 + vy^2 + vz^2)
+    
+    if (norm_v > 0) {
+      
+      # normalize direction
+      vx <- vx / norm_v
+      vy <- vy / norm_v
+      vz <- vz / norm_v
+      
+      # apply zoom scaling on radius
+      norm_v <- norm_v * viewer_change
+      
+      fig$x$layoutAttrs[[1]]$scene$camera$eye <- list(
+        x = center$x + vx * norm_v,
+        y = center$y + vy * norm_v,
+        z = center$z + vz * norm_v
+      )
+    }
+  }
+  
+  
+  # Save PDF
+  plotly::save_image(
+    fig,
+    file_name_pdf,
+    width = NULL,
+    height = NULL,
+    scale = scale#,engine = "kaleido"
+  )
+  
+  # Convert PDF to PNG
+  cmd <- paste(
+    "convert -density", dpi,
+    "-background white -trim +repage",
+    "-bordercolor white -border 10",
+    shQuote(file_name_pdf),
+    shQuote(file_name_png)
+  )
+  
+  # use below in case
+  # label Loading[MathJax]/extensions/MathMenu.js appears
+  # cmd <- paste(
+  # "convert -density", dpi,
+  # "-background white -trim +repage",
+  # "-gravity southwest -chop 0x200", #200 it is the heigth of the cropped area
+  # "-trim +repage",
+  # "-bordercolor white -border 10",
+  # shQuote(file_name_pdf),
+  # shQuote(file_name_png)
+  # )
+  
+  system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+  
+  # Copy to presentation folder
+  pres_dir <- path.expand("~/Desktop/leninPresentations/data_files")
+  if (!dir.exists(pres_dir)) dir.create(pres_dir, recursive = TRUE)
+  
+  pres_png <- file.path(pres_dir, basename(file_name_png))
+  pres_pdf <- file.path(pres_dir, basename(file_name_pdf))
+  
+  file.copy(file_name_png, pres_png, overwrite = TRUE)
+  file.copy(file_name_pdf, pres_pdf, overwrite = TRUE)
+  
+  cat(
+    "Files saved:\n",
+    "  PDF:", file_name_pdf, "\n",
+    "  PNG:", file_name_png, "\n",
+    "  PDF copied to:", pres_pdf, "\n",
+    "  PNG copied to:", pres_png, "\n",
+    "  viewer change:", viewer_change, "\n"
+  )
+}
+
 
