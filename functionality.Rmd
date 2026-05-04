@@ -2782,7 +2782,7 @@ plot_3d_mesh_edges_faces_with_hat <- function(mesh,
   )
   
   # ---- Scene ----
-  p <- p %>% layout(
+  p <- p %>% layout(font = list(family = "Palatino Linotype"),
     scene = global.scene.setter.rec.and.sphere(x_range, y_range, z_range)
   )
   
