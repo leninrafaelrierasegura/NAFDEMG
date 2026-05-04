@@ -59,7 +59,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = TRUE,       
+  eval = FALSE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -216,10 +216,10 @@ To approximate the inner products $(e_j,\psi^i_h)_{L_2(\Gamma)}$, we use the qua
 
 ```{r}
 T_final <- 2
-time_step <- 0.05
-h <- 0.05
-kappa <- 4
-alpha <- 1.8 
+time_step <- 0.01
+h <- 0.01
+kappa <- 15
+alpha <- 0.5
 m = 4
 beta <- alpha/2
 N_finite = 4 # choose even
@@ -278,16 +278,15 @@ U_approx2 <- U_approx
 XX <- U_true - U_approx
 
 error <- sqrt(as.double(time_step * sum(XX * (C %*% XX))))
+save(error, file = here::here("data_files/error_exp1.RData"))
 ```
 
 The following is the error reported in the paper for the considered experiment.
 
-```{r}
+```{r, eval = TRUE}
+load(here::here("data_files/error_exp1.RData"))
 print(paste0("Total error = ", formatC(error, format = "f", digits = 9)))
 ```
-
-
-
 
 
 
@@ -299,56 +298,104 @@ A_proj <- graph$fem_basis(aux_graph$get_mesh_locations())
 FF_true <- A_proj %*% FF_true
 U_true <- A_proj %*% U_true
 U_approx <- A_proj %*% U_approx
+
+aux_graph$compute_fem()
+weights <- aux_graph$mesh$weights
+error_at_each_time <- t(weights) %*% (U_true - U_approx)^2
 ```
 
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the right-hand side function $f$.")}
+# Another comparison
+
+```{r}
+error_for_project2 <- graph.plotter.3d(aux_graph, time_seq, error_at_each_time, U_list = list(U_true = U_true, U_approx = U_approx))
+save_dual_for_presentation(error_for_project2)
+```
+
+
+
+# RHS function
+
+```{r}
 start_idx <- which.min(abs(time_seq - 0.5))
 end_idx <- which.min(abs(time_seq - 1.5))
-idx <- seq(start_idx, end_idx, by = 4)
+idx <- seq(start_idx, end_idx, by = 1)
 
 idx_for1 <- which.min(abs(time_seq - 0.5))
 
 exp1_fig <- graph.plotter.3d.single(aux_graph, FF_true[, idx], time_seq[idx])
-exp1_fig
 save(exp1_fig, file = here::here("data_files/exp1_fig.RData"))
 ```
 
 
+```{r, eval = TRUE, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the right-hand side function $f$.")}
+load(here::here("data_files/exp1_fig.RData"))
+exp1_fig
+```
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+# Error
 
+```{r}
 diff <- U_true - U_approx
 abs_error <- abs(diff)[, idx]
 exp1_error <- graph.plotter.3d.single(aux_graph, abs_error, time_seq[idx])
-exp1_error
 save(exp1_error, file = here::here("data_files/exp1_error.RData"))
 ```
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Error at some time point.")}
+
+```{r, eval = TRUE, fig.height = 6, out.width = "100%", fig.cap = captioner("Time evolution of the absolute difference between the exact and approximate solution.")}
+load(here::here("data_files/exp1_error.RData"))
+exp1_error
+```
+
+
+# Error at 1 frame
+
+
+```{r}
 error_tadpole <- graph.plotter.3d.onecol(graph, abs(XX[,idx_for1]))
 save(error_tadpole, file = here::here("data_files/exp1_error_tadpole.RData"))
+```
+
+
+```{r, eval = TRUE, fig.height = 6, out.width = "100%", fig.cap = captioner("Error at some time point.")}
+load(here::here("data_files/exp1_error_tadpole.RData"))
 error_tadpole
 ```
 
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Error at some time point.")}
+# Solution at 1 frame
+
+```{r}
 f_tadpole <- graph.plotter.3d.onecol(graph, U_approx2[,idx_for1])
 save(f_tadpole, file = here::here("data_files/exp1_f_tadpole.RData"))
+```
+
+
+```{r, eval = TRUE, fig.height = 6, out.width = "100%", fig.cap = captioner("Error at some time point.")}
+load(here::here("data_files/exp1_f_tadpole.RData"))
 f_tadpole
 ```
 
-```{r, fig.height = 6, out.width = "100%", fig.cap = captioner("Comparison of the exact and approximate solution at selected time points.")}
-idx2 <- seq(start_idx, end_idx, by = 10)
+
+# Comparer
+
+```{r}
+idx2 <- seq(start_idx, end_idx, by = 1)
 exp1_com <- graph.plotter.3d.comparer(aux_graph, U_true[,idx2], U_approx[,idx2], time_seq[idx2])
-exp1_com
 save(exp1_com, file = here::here("data_files/exp1_com.RData"))
+```
+
+
+```{r, eval = TRUE, fig.height = 6, out.width = "100%", fig.cap = captioner("Comparison of the exact and approximate solution at selected time points.")}
+load(here::here("data_files/exp1_com.RData"))
+exp1_com
 ```
 
 
 ## References
 
-```{r}
+```{r, eval = TRUE}
 grateful::cite_packages(output = "paragraph", out.dir = ".")
 ```
 

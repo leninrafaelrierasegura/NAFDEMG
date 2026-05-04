@@ -1073,12 +1073,12 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
                                      args = list(NULL, list(mode = "immediate", frame = list(duration = 0), redraw = FALSE)))
                               )
       )),
-      title = paste0(frame_name,": ", formatC(frame_val_to_display[1], format = "f", digits = 4))
+      title = paste0(frame_name,": ", formatC(frame_val_to_display[1], format = "f", digits = 8))
     ) %>%
     plotly_build()
 
   for (i in seq_along(p$x$frames)) {
-    p$x$frames[[i]]$layout <- list(title = paste0(frame_name,": ", formatC(frame_val_to_display[i], format = "f", digits = 4)))
+    p$x$frames[[i]]$layout <- list(title = paste0(frame_name,": ", formatC(frame_val_to_display[i], format = "f", digits = 8)))
   }
 
   return(p)
