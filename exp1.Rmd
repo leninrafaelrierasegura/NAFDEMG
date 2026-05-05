@@ -216,8 +216,8 @@ To approximate the inner products $(e_j,\psi^i_h)_{L_2(\Gamma)}$, we use the qua
 
 ```{r}
 T_final <- 2
-time_step <- 0.01
-h <- 0.01
+time_step <- 0.05
+h <- 0.05
 kappa <- 15
 alpha <- 0.5
 m = 4
