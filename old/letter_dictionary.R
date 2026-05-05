@@ -1,3 +1,6 @@
+library(MetricGraph)
+library(ggplot2)
+
 get_letter_dict <- function() {
   
   arc <- function(cx, cy, r, from, to, n = 80) {
@@ -14,36 +17,41 @@ get_letter_dict <- function() {
     ),
     
     B = function() list(
-      rbind(c(0,0), c(0,4)),
-      arc(0.8,3,0.8, pi/2, -pi/2),
-      arc(0.8,1,0.8, pi/2, -pi/2)
+      rbind(c(0,0), c(0,2)),
+      rbind(c(0,2), c(0,4)),
+      rbind(c(0,4), c(1,4)),
+      arc(1,3,1, pi/2, -pi/2),
+      rbind(c(1,2), c(0,2)),
+      arc(1,1,1, pi/2, -pi/2),
+      rbind(c(0,0), c(1,0))
     ),
     
     C = function() list(
-      arc(1,2,1.2, pi/4, 7*pi/4)
+      arc(2,2,2, pi/2, 3*pi/2)
     ),
     
     D = function() list(
       rbind(c(0,0), c(0,4)),
-      arc(0.8,2,1.2, pi/2, -pi/2)
+      arc(0,2,2, -pi/2, pi/2)
     ),
     
     E = function() list(
       rbind(c(0,0), c(0,4)),
       rbind(c(0,4), c(2,4)),
-      rbind(c(0,2), c(1.5,2)),
+      rbind(c(0,2), c(1,2)),
       rbind(c(0,0), c(2,0))
     ),
     
     F = function() list(
       rbind(c(0,0), c(0,4)),
       rbind(c(0,4), c(2,4)),
-      rbind(c(0,2), c(1.5,2))
+      rbind(c(0,2), c(1,2))
     ),
     
     G = function() list(
-      arc(1,2,1.2, pi/4, 7*pi/4),
-      rbind(c(1,2), c(2,2))
+      arc(2,2,2, pi/2, 3*pi/2),
+      rbind(c(1,2), c(2,2)),
+      rbind(c(2,2), c(2,0))
     ),
     
     H = function() list(
@@ -60,8 +68,8 @@ get_letter_dict <- function() {
     
     J = function() list(
       rbind(c(0,4), c(2,4)),
-      rbind(c(1,4), c(1,1)),
-      arc(0.5,1,0.5, 0, pi)
+      rbind(c(1,4), c(1,0.5)),
+      arc(1.5,0.5,0.5, pi, 2*pi)
     ),
     
     K = function() list(
@@ -98,7 +106,8 @@ get_letter_dict <- function() {
     P = function() list(
       rbind(c(0,0), c(0,4)),
       rbind(c(0,4), c(1,4)),
-      arc(1,3,1, pi/2, -pi/2)
+      arc(1,3,1, pi/2, -pi/2),
+      rbind(c(1,2), c(0,2))
     ),
     
     Q = function() list(
@@ -106,7 +115,8 @@ get_letter_dict <- function() {
       arc(1,1,1, pi, 2*pi),
       arc(1,3,1, 0, pi),
       rbind(c(2,1), c(2,3)),
-      rbind(c(1.2,1.2), c(2,0))
+      rbind(c(1,1), c(1+1/sqrt(2),1-1/sqrt(2))),
+      rbind(c(1+1/sqrt(2),1-1/sqrt(2)), c(2,0))
     ),
     
     R = function() list(
@@ -118,8 +128,10 @@ get_letter_dict <- function() {
     ),
     
     S = function() list(
-      arc(1,3,1, pi, 2*pi),
-      arc(1,1,1, 0, pi)
+      arc(1,3,1, pi/2, 3*pi/2),
+      arc(1,1,1, -pi/2, pi/2),
+      rbind(c(0,0), c(1,0)),
+      rbind(c(1,4), c(2,4))
     ),
     
     T = function() list(
@@ -139,15 +151,17 @@ get_letter_dict <- function() {
     ),
     
     W = function() list(
-      rbind(c(0,4), c(0.5,0)),
-      rbind(c(0.5,0), c(1,3)),
-      rbind(c(1,3), c(1.5,0)),
-      rbind(c(1.5,0), c(2,4))
+      rbind(c(0,4), c(0,0)),
+      rbind(c(0,0), c(1,2)),
+      rbind(c(1,2), c(2,0)),
+      rbind(c(2,0), c(2,4))
     ),
     
     X = function() list(
-      rbind(c(0,0), c(2,4)),
-      rbind(c(0,4), c(2,0))
+      rbind(c(0,0), c(1,2)),
+      rbind(c(1,2), c(2,4)),
+      rbind(c(0,4), c(1,2)),
+      rbind(c(1,2), c(2,0))
     ),
     
     Y = function() list(
@@ -160,6 +174,10 @@ get_letter_dict <- function() {
       rbind(c(0,4), c(2,4)),
       rbind(c(2,4), c(0,0)),
       rbind(c(0,0), c(2,0))
+    ),
+    "?" = function() list(
+      arc(1,3,1, -pi/2, pi),
+      rbind(c(1,2), c(1,0))
     )
     
   )
@@ -196,13 +214,19 @@ edges <- c(
   make_word("ATTENTION", 0, -3)
 )
 
-edges <- c(make_word("ABCDEFGHI", 0, 8),
-           make_word("JKLMNOPQ", 0, 4),
-           make_word("RSTUVWXYZ", 0, 0))
+edges <- c(make_word("CAN", 0, 0) ,make_word("I", 8, 0), make_word("WRITE", 12, 0),
+           make_word("EVERYTHING", 0, -4), 
+           make_word("I", 0, -8), make_word("WANT?", 4, -8))
+
+edges <- c(make_word("WANNA", 0, 0),
+           make_word("GO", 0, -4),
+           make_word("FOR", 6, -4), 
+           make_word("A", 0, -8), make_word("WALK?", 4, -8))
+
 
 graph <- metric_graph$new(edges = edges,
                           longlat = FALSE,
                           perform_merges = TRUE)
 
-graph$plot()
+graph$plot(vertex_size = 2)
 
