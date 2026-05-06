@@ -216,8 +216,8 @@ To approximate the inner products $(e_j,\psi^i_h)_{L_2(\Gamma)}$, we use the qua
 
 ```{r}
 T_final <- 2
-time_step <- 0.05
-h <- 0.05
+time_step <- 0.001
+h <- 0.001
 kappa <- 15
 alpha <- 0.5
 m = 4
@@ -302,16 +302,24 @@ U_approx <- A_proj %*% U_approx
 aux_graph$compute_fem()
 weights <- aux_graph$mesh$weights
 error_at_each_time <- t(weights) %*% (U_true - U_approx)^2
+
+start_idx <- which.min(abs(time_seq - 0))
+end_idx <- which.min(abs(time_seq - 2))
+idx <- seq(start_idx, end_idx, by = 40)
 ```
 
 
 # Another comparison
 
 ```{r}
-error_for_project2 <- graph.plotter.3d(aux_graph, time_seq, error_at_each_time, U_list = list(U_true = U_true, U_approx = U_approx))
+error_for_project2 <- graph.plotter.3d(aux_graph, time_seq[idx], error_at_each_time[idx], U_list = list(U_true = U_true[,idx], U_approx = U_approx[,idx]))
 save_dual_for_presentation(error_for_project2)
 ```
 
+```{r, eval = TRUE, fig.height = 6, out.width = "100%", fig.cap = captioner("Comparison of the exact and approximate solutions.")}
+load(here::here("data_files/error_for_project2.RData"))
+error_for_project2
+```
 
 
 # RHS function
@@ -319,7 +327,8 @@ save_dual_for_presentation(error_for_project2)
 ```{r}
 start_idx <- which.min(abs(time_seq - 0.5))
 end_idx <- which.min(abs(time_seq - 1.5))
-idx <- seq(start_idx, end_idx, by = 1)
+idx <- seq(start_idx, end_idx, by = 40)
+
 
 idx_for1 <- which.min(abs(time_seq - 0.5))
 
@@ -381,7 +390,7 @@ f_tadpole
 # Comparer
 
 ```{r}
-idx2 <- seq(start_idx, end_idx, by = 1)
+idx2 <- seq(start_idx, end_idx, by = 40)
 exp1_com <- graph.plotter.3d.comparer(aux_graph, U_true[,idx2], U_approx[,idx2], time_seq[idx2])
 save(exp1_com, file = here::here("data_files/exp1_com.RData"))
 ```
