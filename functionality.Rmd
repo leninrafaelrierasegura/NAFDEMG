@@ -3184,6 +3184,12 @@ combine_pngs_with_gap_vertical <- function(png_files, output_file, gap = 20) {
 # sometimes
 ```
 
+```{r}
+tau_from_h_exact <- function(h, alpha_star) {
+  return(h^alpha_star * lamW::lambertW0(h^(-alpha_star)))
+}
+```
+
 
 ## References
 
