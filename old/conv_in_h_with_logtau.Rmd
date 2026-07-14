@@ -97,7 +97,7 @@ library(ggplot2)
 library(reshape2)
 library(plotly)
 library(slackr)
-source("keys.R")
+source(here::here("keys.R"))
 slackr_setup(token = token) # token comes from keys.R
 ```
 
@@ -133,52 +133,33 @@ OMEGA = pi
 POWERS <- seq(14, 9, by = -1)
 
 time_steps <- 0.1 * 2^-POWERS
-h_vector <- time_steps^(1/2)
+h_vector <- time_steps^(1/2) #10^seq(log10(0.005), log10(0.1), length.out = 7) #time_steps^(1/2)
 alpha_vector <- seq(1, 1.8, by = 0.2)
 epsilon <- 1e-10
-```
+alpha_vector <- alpha_vector - epsilon
+C_c <- max(outer(h_vector, alpha_vector,
+               function(h, alpha) 1 + log(2) - alpha * log(h))) + 1e-1
 
+C_vector <- sapply(alpha_vector, function(alpha) {
+  max(1 + log(2) - alpha * log(h_vector)) + 1e-1
+})
 
-
-```{r, eval = FALSE, echo = FALSE}
-# Enforce nestedness
 hs <- c()
 taus <- c()
-TAUS <- c()
+ms <- c()
 for (j in 1:length(alpha_vector)) {
   alpha <- alpha_vector[j]
+  C_c <- C_vector[j]
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
-    time_step <- h^alpha
-    tau <- tau_from_h_exact(h, alpha)
-    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
+    time_step <- tau_from_h(h, alpha, C_c)
+    m <- min(8, m_from_h(h, alpha, C_c, time_step))
     hs <- c(hs, h)
     taus <- c(taus, time_step)
-    TAUS <- c(TAUS, tau)
-  }}
-min_hs <- min(hs)
-print(paste0("min of all possible hs = ", min_hs))
-
-min_taus <- min(taus)
-print(paste0("min of all possible taus = ", min_taus))
-# Truncate to first significant digit
-h_star <- trunc_first_signi_digit(min_hs)
-print(paste0("h_star = ", h_star))
-
-tau_star <- h_star^2
-print(paste0("tau_star = ", tau_star))
-
-for (j in 1:length(alpha_vector)) {
-  alpha <- alpha_vector[j]
-  for (i in 1:length(h_vector)) {
-    h <- h_vector[i]
-    time_step <- h^alpha
-    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
-    h_aux <- largest_nested_h(h_star, h)
-    tau_aux <- largest_nested_h(tau_star, time_step)
-    print(paste0("m = ", m, ", h_cand = ", formatC(h, format = "f", digits = 6), ", h_aux = ", h_aux, ", h_aux/h_fine = ", h_aux/h_star, ", tau_cand = ", formatC(time_step, format = "f", digits = 6), ", tau_aux = ", tau_aux))
+    ms <- c(ms, m)
   }}
 ```
+
 
 
 ```{r}
@@ -201,7 +182,7 @@ m_values <- c()
 errors_projected <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {
   alpha <- alpha_vector[j] # from 0.5 to 2
-  alpha <- alpha - epsilon 
+  C_c <- C_vector[j]
   beta <- alpha / 2
 
   # Compute the eigenvalues and eigenfunctions on the finest mesh
@@ -217,9 +198,8 @@ for (j in 1:length(alpha_vector)) {
   
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
-    time_step <- tau_from_h_exact(h, alpha) #h^alpha
-    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
-    #h <- largest_nested_h(h_star, h) # this makes the spatial mesh nested
+    time_step <- tau_from_h(h, alpha, C_c)#h^(2*alpha) #1e-5 #tau_from_h_exact(h, alpha) #h^alpha
+    m <- min(8, m_from_h(h, alpha, C_c, time_step)) 
     m_values <- c(m_values, m)
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
@@ -252,7 +232,6 @@ for (j in 1:length(alpha_vector)) {
 save(errors_projected, file = here::here("old/errors_projected_h_with_logtau.RData"))
 ```
 
-
 ```{r}
 # Load the errors_projected data
 load(here::here("data_files/errors_projected_h.RData"))
@@ -265,7 +244,7 @@ for (u in 1:length(alpha_vector)) {
   observed_rates[u] <- coef(lm(log10(errors_projected[, u]) ~ log10(h_vector)))[2]
 }
 
-theoretical_rates <- alpha_vector
+theoretical_rates <- alpha_vector - epsilon
 
 
 p_h_tadpole <- error.convergence.plotter(x_axis_vector = h_vector, 
@@ -288,16 +267,10 @@ p_h_nicer_tadpole <- errorConvergencePlotterLatex(x_axis_vector = h_vector,
                                  y_axis_label = "$\\|u-U_{h,m}^{\\tau}\\|_{L_2(\\Gamma\\times[0,T])}\\quad(\\log_{10}\\mbox{ scale})$",
                                  color_label = "$\\quad\\quad\\;\\;\\alpha\\;|\\;\\mathtt{theo}\\;|\\;\\;\\mathtt{obs}\\;\\;|\\%\\mathtt{re}$")
 
-ggsave(here::here("data_files/conv_rates_h_tadpole.png"), width = 4, height = 5, plot = p_h_tadpole, dpi = 300)
-myggsave(p_h_nicer_tadpole, width = 4, height = 5, use_mathpazo = TRUE)
-save(p_h_tadpole, file = here::here("data_files/p_h_tadpole.RData"))
-save(p_h_nicer_tadpole, file = here::here("data_files/p_h_nicer_tadpole.RData"))
+ggsave(here::here("old/conv_rates_h_tadpole.png"), width = 4, height = 5, plot = p_h_tadpole, dpi = 300)
+
 ```
 
-
-```{r, eval = TRUE, fig.align='center', out.width="400px", out.height="500px", fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $h$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
-knitr::include_graphics(here::here("data_files/tikzpic/p_h_nicer_tadpole_with_mathpazo.pdf"))
-```
 
 
 
@@ -306,7 +279,7 @@ knitr::include_graphics(here::here("data_files/tikzpic/p_h_nicer_tadpole_with_ma
 initial_comment <- "Here’s the latest plot update for the convergence in h!"
 # option 1
 slackr_upload(
-  filename = "data_files/conv_rates_h_tadpole.png",        # path to your image
+  filename = here::here("old/conv_rates_h_tadpole.png"),        # path to your image
   initial_comment = initial_comment,
   channels = "#research"
 )

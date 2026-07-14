@@ -3185,9 +3185,40 @@ combine_pngs_with_gap_vertical <- function(png_files, output_file, gap = 20) {
 ```
 
 ```{r}
-tau_from_h_exact <- function(h, alpha_star) {
-  return(h^alpha_star * lamW::lambertW0(h^(-alpha_star)))
+# tau_from_h_exact <- function(h, alpha_star) {
+#   return(h^alpha_star * lamW::lambertW0(h^(-alpha_star)))
+# }
+tau_from_h <- function(h, alpha, C) {
+  Cmin <- 1 + log(2) - alpha * log(h)
+  if (any(C < Cmin)) stop("No real solution exists because C < 1 + log(2) - alpha*log(h).")
+  x <- -2 * exp(-C) / h^alpha
+  return(-(h^alpha / 2) * lamW::lambertW0(x))
 }
+
+m_from_h <- function(h, alpha, C, tau) {
+  arg <- h^2 * ((C - abs(log(tau))) / 2)
+  if (arg <= 0) stop("The logarithm argument must be positive.")
+  return(ceiling(log(arg)^2 / (4 * pi^2 * (1 - alpha / 2))))
+}
+
+# # Parameters
+# h <- 0.05
+# alpha <- 1.5
+# C <- 7
+# 
+# # Compute tau
+# tau <- tau_from_h_exact(h, alpha, C)
+# 
+# # Left- and right-hand sides
+# lhs <- tau + 0.5 * h^alpha * abs(log(tau))
+# rhs <- 0.5 * C * h^alpha
+# 
+# # Print results
+# cat("tau =", tau, "\n")
+# cat("LHS =", lhs, "\n")
+# cat("RHS =", rhs, "\n")
+# cat("Absolute error =", abs(lhs - rhs), "\n")
+# cat("Relative error =", abs(lhs - rhs) / abs(rhs), "\n")
 ```
 
 
