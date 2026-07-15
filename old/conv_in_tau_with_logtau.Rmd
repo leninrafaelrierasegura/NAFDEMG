@@ -1,5 +1,5 @@
 ---
-title: "Convergence in 𝘩"
+title: "Convergence in τ"
 date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
 output:
   html_document:
@@ -82,7 +82,7 @@ captioner <- function(caption) {
 
 
 ::: {.custom-box}
-To observe convergence in $h$, we calibrate $\tau$ and $m$ to $h$ as $\tau \sim h^\alpha$ and $m \sim \lceil\log_e^2(h)/(\pi^2(1-\alpha/2))\rceil$. This ensures that the total convergence rate with respect to the mesh size $h$ is of order $\alpha$, i.e., $\|u-U_{h,m}^\tau\|_{L_2((0,T);L_2(\Gamma))} \leq C_hh^\alpha$. This can be verified by estimating the slope $S_h$ in the regression $\log_{10} E = S_h\log_{10} h+\log_{10} C_h$, where we expect $S_h\sim\alpha$.
+To observe convergence in $\tau$, we calibrate $h$ and $m$ to $\tau$ as $h \sim \tau^{1/\alpha}$ and $m \sim \lceil\log_e^2(h)/(\pi^2(1-\alpha/2))\rceil$, respectively. Under this scaling, the total convergence rate with respect to the time step $\tau$ is of order $1$. That is, $\|u-U_{h,m}^\tau\|_{L_2((0,T);L_2(\Gamma))} \leq C_\tau\tau$. This can be verified by estimating the slope $S_\tau$ in the regression $\log_{10} E = S_\tau\log_{10} \tau + \log_{10} C_\tau$, where we expect $S_\tau\sim1$. 
 :::
 
 
@@ -97,10 +97,9 @@ library(ggplot2)
 library(reshape2)
 library(plotly)
 library(slackr)
-source(here::here("keys.R"))
+source("keys.R")
 slackr_setup(token = token) # token comes from keys.R
 ```
-
 
 
 ```{r}
@@ -130,36 +129,12 @@ AAA = 1
 OMEGA = pi
 
 # Time step and mesh size
-POWERS <- seq(14, 9, by = -1)
-
-time_steps <- 0.1 * 2^-POWERS
-h_vector <- time_steps^(1/2) #10^seq(log10(0.005), log10(0.1), length.out = 7) #time_steps^(1/2)
+POWERS <- seq(6.125, 5.625, by = -0.1)
+tau_vector <- 0.1 * 2^-POWERS
 alpha_vector <- seq(1, 1.8, by = 0.2)
 epsilon <- 1e-10
 alpha_vector <- alpha_vector - epsilon
-# C_c <- max(outer(h_vector, alpha_vector,
-#                function(h, alpha) 1 - alpha * log(h))) + 1e-1
-# 
-# C_vector <- sapply(alpha_vector, function(alpha) {
-#   max(1 - alpha * log(h_vector)) + 1e-1
-# })
-# 
-# hs <- c()
-# taus <- c()
-# ms <- c()
-# for (j in 1:length(alpha_vector)) {
-#   alpha <- alpha_vector[j]
-#   C_c <- C_vector[j]
-#   for (i in 1:length(h_vector)) {
-#     h <- h_vector[i]
-#     time_step <- tau_from_h(h, alpha, C_c)
-#     m <- min(8, m_from_h(h, alpha, C_c, time_step))
-#     hs <- c(hs, h)
-#     taus <- c(taus, time_step)
-#     ms <- c(ms, m)
-#   }}
 ```
-
 
 
 ```{r}
@@ -176,13 +151,11 @@ m_values <- c()
 ```
 
 
-
 ```{r, eval = FALSE, class.source = "fold-show"}
 # Create a matrix to store the errors
-errors_projected <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
+errors_projected <- matrix(NA, nrow = length(tau_vector), ncol = length(alpha_vector))
 for (j in 1:length(alpha_vector)) {
   alpha <- alpha_vector[j] # from 0.5 to 2
-  #C_c <- C_vector[j]
   beta <- alpha / 2
 
   # Compute the eigenvalues and eigenfunctions on the finest mesh
@@ -196,10 +169,10 @@ for (j in 1:length(alpha_vector)) {
           1:length(overkill_time_seq), 
           function(i, j) (coeff_U_0[i] + coeff_FF[i] * G_sin(t = overkill_time_seq[j], A = AAA, lambda_j_alpha_half = EIGENVAL_ALPHA[i], omega = OMEGA)) * exp(-EIGENVAL_ALPHA[i] * overkill_time_seq[j]))
   
-  for (i in 1:length(h_vector)) {
-    h <- h_vector[i]
-    time_step <- tau_from_h_exact(h, alpha)#tau_from_h(h, alpha, C_c)#h^(2*alpha) #1e-5 #tau_from_h_exact(h, alpha) #h^alpha
-    m <- min(4, ceiling((log(h^2 * abs(log(time_step))))^2 / (4 * pi^2 * (1 - alpha / 2)))) #min(8, m_from_h(h, alpha, C_c, time_step)) 
+  for (i in 1:length(tau_vector)) {
+    time_step <- tau_vector[i]
+    h <- (time_step/abs(log(time_step)))^(1/alpha)
+    m <- min(4, ceiling((log(h^2 * abs(log(time_step))))^2 / (4 * pi^2 * (1 - alpha / 2)))) #min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
     m_values <- c(m_values, m)
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
@@ -221,65 +194,65 @@ for (j in 1:length(alpha_vector)) {
         function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))
     
     U_approx <- solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = U_0, RHST = FF_approx)
-    
     projected_U_approx <- Psi %*% U_approx
     projected_U_piecewise <- construct_piecewise_projection(projected_U_approx, time_seq, overkill_time_seq)
     XX <- overkill_U_true - projected_U_piecewise
-    errors_projected[i,j] <- sqrt(as.double(overkill_time_step * sum(XX * (overkill_C %*% XX)))) / abs(log(time_step))
+    errors_projected[i,j] <- sqrt(as.double(overkill_time_step * sum(XX * (overkill_C %*% XX)))) 
     slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
-save(errors_projected, file = here::here("old/errors_projected_h_with_logtau.RData"))
+save(errors_projected, file = here::here("old/errors_projected_tau_with_logtau.RData"))
 ```
+
+
 
 
 ```{r}
 observed_rates <- numeric(length(alpha_vector))
 for (u in 1:length(alpha_vector)) {
-  observed_rates[u] <- coef(lm(log10(errors_projected[, u]) ~ log10(h_vector)))[2]
+  observed_rates[u] <- coef(lm(log10(errors_projected[, u]) ~ log10(tau_vector)))[2]
 }
 
-theoretical_rates <- alpha_vector
+theoretical_rates <- rep(1, length(alpha_vector))
 
 
-p_h_tadpole <- error.convergence.plotter(x_axis_vector = h_vector, 
+p_tau_tadpole <- error.convergence.plotter(x_axis_vector = tau_vector, 
+                                   alpha_vector, 
+                                   errors_projected, 
+                                   theoretical_rates, 
+                                   observed_rates,
+                                   line_equation_fun = loglog_line_equation,
+                                   fig_title = expression("Convergence in " * italic(tau)),
+                                   x_axis_label = expression(italic(tau)))
+
+p_tau_nicer_tadpole <- errorConvergencePlotterLatex(x_axis_vector = tau_vector, 
                                  alpha_vector, 
                                  errors_projected, 
                                  theoretical_rates, 
                                  observed_rates,
                                  line_equation_fun = loglog_line_equation,
-                                 fig_title = expression("Convergence in " * italic(h)),
-                                 x_axis_label = expression(italic(h)))
-
-p_h_nicer_tadpole <- errorConvergencePlotterLatex(x_axis_vector = h_vector, 
-                                 alpha_vector, 
-                                 errors_projected, 
-                                 theoretical_rates, 
-                                 observed_rates,
-                                 line_equation_fun = loglog_line_equation,
-                                 fig_title = "$\\mbox{Convergence in }h$",
-                                 x_axis_label = "$h\\quad(\\log_{10}\\mbox{ scale})$",
+                                 fig_title = "$\\mbox{Convergence in }\\tau$",
+                                 x_axis_label = "$\\tau\\quad(\\log_{10}\\mbox{ scale})$",
                                  y_axis_label = "$\\|u-U_{h,m}^{\\tau}\\|_{L_2(\\Gamma\\times[0,T])}\\quad(\\log_{10}\\mbox{ scale})$",
                                  color_label = "$\\quad\\quad\\;\\;\\alpha\\;|\\;\\mathtt{theo}\\;|\\;\\;\\mathtt{obs}\\;\\;|\\%\\mathtt{re}$")
 
-ggsave(here::here("old/conv_rates_h_tadpole.png"), width = 4, height = 5, plot = p_h_tadpole, dpi = 300)
+ggsave(here::here("old/conv_rates_tau_tadpole.png"), width = 4, height = 5, plot = p_tau_tadpole, dpi = 300)
 
 ```
 
 
 
 
-
 ```{r, eval = TRUE, echo = FALSE}
-initial_comment <- "Here’s the latest plot update for the convergence in h!"
+initial_comment <- "Here’s the latest plot update for the convergence in τ!"
 # option 1
 slackr_upload(
-  filename = here::here("old/conv_rates_h_tadpole.png"),        # path to your image
+  filename = here::here("old/conv_rates_tau_tadpole.png"),        # path to your image
   initial_comment = initial_comment,
   channels = "#research"
 )
 # option 2
-# ggslackr(p_h_tadpole, channels = "#research", initial_comment = initial_comment) # p is a ggplot2 object
+# ggslackr(p_tau_tadpole, channels = "#research", initial_comment = initial_comment) # p is a ggplot2 object
 # option 3
 # slackr_dev(channels = "#research"); plot(mtcars$mpg, mtcars$wt); dev.off()
 ```

@@ -3185,15 +3185,66 @@ combine_pngs_with_gap_vertical <- function(png_files, output_file, gap = 20) {
 ```
 
 ```{r}
-# tau_from_h_exact <- function(h, alpha_star) {
-#   return(h^alpha_star * lamW::lambertW0(h^(-alpha_star)))
-# }
-tau_from_h <- function(h, alpha, C) {
-  Cmin <- 1 + log(2) - alpha * log(h)
-  if (any(C < Cmin)) stop("No real solution exists because C < 1 + log(2) - alpha*log(h).")
-  x <- -2 * exp(-C) / h^alpha
-  return(-(h^alpha / 2) * lamW::lambertW0(x))
+tau_from_h_exact <- function(h, alpha_star) {
+  return(h^alpha_star * lamW::lambertW0(h^(-alpha_star)))
 }
+
+
+solve_htau <- function(alpha, m, tol = 1e-16) {
+  
+  stopifnot(alpha > 0, alpha < 2)
+  stopifnot(m > 0)
+  
+  C <- exp(-2*pi*sqrt((1 - alpha/2) * m))
+  
+  f <- function(h) {
+    -log(C * h^(alpha - 2)) - C / h^2
+  }
+  
+  ## Find a valid bracket automatically
+  h.grid <- 10^seq(-16, -0.01, length.out = 500)
+  
+  vals <- f(h.grid)
+  ind <- which(diff(sign(vals)) != 0)
+  
+  if(length(ind) == 0)
+    stop("No root found.")
+  
+  h <- uniroot(
+    f,
+    lower = h.grid[ind[1]],
+    upper = h.grid[ind[1] + 1],
+    tol = tol
+  )$root
+  
+  tau <- C * h^(alpha - 2)
+  
+  ## residuals of both equations
+  err1 <- abs(tau - h^alpha * abs(log(tau)))
+  err2 <- abs(tau - C * h^(alpha - 2))
+  
+  list(
+    h = h,
+    tau = tau,
+    error1 = err1,
+    error2 = err2
+  )
+}
+
+
+tau_from_h <- function(h, alpha, C) {
+  Cmin <- 1  - alpha * log(h)
+  if (any(C < Cmin)) stop("No real solution exists because C < 1 + log(2) - alpha*log(h).")
+  x <- -1 * exp(-C) / h^alpha
+  return(-(h^alpha / 1) * lamW::lambertW0(x))
+}
+
+# tau_from_h <- function(h, alpha, C) {
+#   Cmin <- 1 + log(2) - alpha * log(h)
+#   if (any(C < Cmin)) stop("No real solution exists because C < 1 + log(2) - alpha*log(h).")
+#   x <- -2 * exp(-C) / h^alpha
+#   return(-(h^alpha / 2) * lamW::lambertW0(x))
+# }
 
 m_from_h <- function(h, alpha, C, tau) {
   arg <- h^2 * ((C - abs(log(tau))) / 2)
