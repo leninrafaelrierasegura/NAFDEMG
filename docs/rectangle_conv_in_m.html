@@ -485,13 +485,13 @@ div.tocify {
       <a href="exp1.html">Example</a>
     </li>
     <li>
-      <a href="conv_in_h.html">Convergence in 𝘩</a>
+      <a href="conv_in_h_with_logtau.html">Convergence in 𝘩</a>
     </li>
     <li>
-      <a href="conv_in_tau.html">Convergence in τ</a>
+      <a href="conv_in_tau_with_logtau.html">Convergence in τ</a>
     </li>
     <li>
-      <a href="conv_in_m.html">Convergence in 𝑚</a>
+      <a href="conv_in_m_with_logtau.html">Convergence in 𝑚</a>
     </li>
   </ul>
 </li>
@@ -601,7 +601,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Convergence in 𝑚, rectangle case</h1>
-<h4 class="date">Last modified: 22-04-2026.</h4>
+<h4 class="date">Last modified: 16-07-2026.</h4>
 
 </div>
 
@@ -848,7 +848,8 @@ theoretical (‘theo’), and observed (‘obs’) rates for each case.
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
 <p>We used R version 4.5.2 <span class="citation">(R Core Team
 2025a)</span> and the following R packages: akima v. 0.6.3.6 <span
-class="citation">(Akima and Gebhardt 2025)</span>, expm v. 1.0.0 <span
+class="citation">(Akima and Gebhardt 2025)</span>, digest v. 0.6.37
+<span class="citation">(Eddelbuettel 2024)</span>, expm v. 1.0.0 <span
 class="citation">(Maechler, Dutang, and Goulet 2024)</span>, fmesher v.
 0.5.0 <span class="citation">(Lindgren 2025)</span>, gsignal v. 0.3.7
 <span class="citation">(Van Boxtel, G.J.M., et al. 2021)</span>, here v.
@@ -859,30 +860,32 @@ and Lindström 2011; Martins et al. 2013; Lindgren and Rue 2015; De
 Coninck et al. 2016; Rue et al. 2017; Verbosio et al. 2017; Bakka et al.
 2018; Kourounis, Fuchs, and Schenk 2018)</span>, inlabru v. 2.13.0 <span
 class="citation">(Yuan et al. 2017; Bachl et al. 2019)</span>, knitr v.
-1.50 <span class="citation">(Xie 2014, 2015, 2025a)</span>, Matrix v.
-1.7.3 <span class="citation">(Bates, Maechler, and Jagan 2025)</span>,
-MetricGraph v. 1.5.0.9000 <span class="citation">(Bolin, Simas, and
-Wallin 2023a, 2023b, 2024, 2025; Bolin et al. 2024)</span>, neuralnet v.
-1.44.2 <span class="citation">(Fritsch, Guenther, and Wright
-2019)</span>, orthopolynom v. 1.0.6.1 <span class="citation">(Novomestky
-2022)</span>, parallel v. 4.5.2 <span class="citation">(R Core Team
-2025b)</span>, patchwork v. 1.3.1 <span class="citation">(Pedersen
-2025)</span>, pbmcapply v. 1.5.1 <span class="citation">(Kuang, Kong,
-and Napolitano 2022)</span>, plotly v. 4.11.0 <span
-class="citation">(Sievert 2020)</span>, posterdown v. 1.0 <span
-class="citation">(Thorne 2019)</span>, pracma v. 2.4.4 <span
-class="citation">(Borchers 2023)</span>, qrcode v. 0.3.0 <span
-class="citation">(Onkelinx and Teh 2024)</span>, RColorBrewer v. 1.1.3
-<span class="citation">(Neuwirth 2022)</span>, RefManageR v. 1.4.0 <span
-class="citation">(McLean 2014, 2017)</span>, renv v. 1.1.5 <span
-class="citation">(Ushey and Wickham 2025)</span>, reshape2 v. 1.4.4
-<span class="citation">(Wickham 2007)</span>, reticulate v. 1.44.1 <span
-class="citation">(Ushey, Allaire, and Tang 2025)</span>, rmarkdown v.
-2.30 <span class="citation">(Xie, Allaire, and Grolemund 2018; Xie,
-Dervieux, and Riederer 2020; Allaire et al. 2025)</span>, rSPDE v.
-2.5.1.9000 <span class="citation">(Bolin and Kirchner 2020; Bolin and
-Simas 2023; Bolin, Simas, and Xiong 2024)</span>, RSpectra v. 0.16.2
-<span class="citation">(Qiu and Mei 2024)</span>, scales v. 1.4.0 <span
+1.50 <span class="citation">(Xie 2014, 2015, 2025a)</span>, lamW v.
+2.2.7 <span class="citation">(Adler 2015)</span>, Matrix v. 1.7.3 <span
+class="citation">(Bates, Maechler, and Jagan 2025)</span>, MetricGraph
+v. 1.5.0.9000 <span class="citation">(Bolin, Simas, and Wallin 2023a,
+2023b, 2024, 2025; Bolin et al. 2024)</span>, neuralnet v. 1.44.2 <span
+class="citation">(Fritsch, Guenther, and Wright 2019)</span>,
+orthopolynom v. 1.0.6.1 <span class="citation">(Novomestky 2022)</span>,
+parallel v. 4.5.2 <span class="citation">(R Core Team 2025b)</span>,
+patchwork v. 1.3.1 <span class="citation">(Pedersen 2025)</span>,
+pbmcapply v. 1.5.1 <span class="citation">(Kuang, Kong, and Napolitano
+2022)</span>, plotly v. 4.11.0 <span class="citation">(Sievert
+2020)</span>, posterdown v. 1.0 <span class="citation">(Thorne
+2019)</span>, pracma v. 2.4.4 <span class="citation">(Borchers
+2023)</span>, qrcode v. 0.3.0 <span class="citation">(Onkelinx and Teh
+2024)</span>, RColorBrewer v. 1.1.3 <span class="citation">(Neuwirth
+2022)</span>, RefManageR v. 1.4.0 <span class="citation">(McLean 2014,
+2017)</span>, renv v. 1.1.5 <span class="citation">(Ushey and Wickham
+2025)</span>, reshape2 v. 1.4.4 <span class="citation">(Wickham
+2007)</span>, reticulate v. 1.44.1 <span class="citation">(Ushey,
+Allaire, and Tang 2025)</span>, rmarkdown v. 2.30 <span
+class="citation">(Xie, Allaire, and Grolemund 2018; Xie, Dervieux, and
+Riederer 2020; Allaire et al. 2025)</span>, Rmpfr v. 1.1.2 <span
+class="citation">(Maechler 2025)</span>, rSPDE v. 2.5.1.9000 <span
+class="citation">(Bolin and Kirchner 2020; Bolin and Simas 2023; Bolin,
+Simas, and Xiong 2024)</span>, RSpectra v. 0.16.2 <span
+class="citation">(Qiu and Mei 2024)</span>, scales v. 1.4.0 <span
 class="citation">(Wickham, Pedersen, and Seidel 2025)</span>, slackr v.
 3.4.0 <span class="citation">(Kaye et al. 2025)</span>, tidyverse v.
 2.0.0 <span class="citation">(Wickham et al. 2019)</span>, tikzDevice v.
@@ -905,6 +908,11 @@ Aden-Buie, Garrick, and Matthew T. Warkentin. 2024. <em><span
 class="nocase">xaringanExtra</span>: Extras and Extensions for
 <span>“<span class="nocase">xaringan</span>”</span> Slides</em>. <a
 href="https://doi.org/10.32614/CRAN.package.xaringanExtra">https://doi.org/10.32614/CRAN.package.xaringanExtra</a>.
+</div>
+<div id="ref-lamW" class="csl-entry">
+Adler, Avraham. 2015. <em><span class="nocase">lamW</span>: Lambert-w
+Function</em>. <a
+href="https://doi.org/10.32614/CRAN.package.lamW">https://doi.org/10.32614/CRAN.package.lamW</a>.
 </div>
 <div id="ref-akima" class="csl-entry">
 Akima, Hiroshi, and Albrecht Gebhardt. 2025. <em><span
@@ -1007,6 +1015,11 @@ Marker-by-Environment Interaction.”</span> <em>Genetics</em> 203 (1):
 543–55. <a
 href="https://doi.org/10.1534/genetics.115.179887">https://doi.org/10.1534/genetics.115.179887</a>.
 </div>
+<div id="ref-digest" class="csl-entry">
+Eddelbuettel, Dirk. 2024. <em><span class="nocase">digest</span>: Create
+Compact Hash Digests of r Objects</em>. <a
+href="https://github.com/eddelbuettel/digest">https://github.com/eddelbuettel/digest</a>.
+</div>
 <div id="ref-neuralnet" class="csl-entry">
 Fritsch, Stefan, Frauke Guenther, and Marvin N. Wright. 2019. <em><span
 class="nocase">neuralnet</span>: Training of Neural Networks</em>. <a
@@ -1053,6 +1066,11 @@ Explicit Link Between <span>Gaussian</span> Fields and
 <span>Gaussian</span> <span>Markov</span> Random Fields: The Stochastic
 Partial Differential Equation Approach (with Discussion).”</span>
 <em>Journal of the Royal Statistical Society B</em> 73 (4): 423–98.
+</div>
+<div id="ref-Rmpfr" class="csl-entry">
+Maechler, Martin. 2025. <em><span>Rmpfr</span>: Interface r to MPFR -
+Multiple Precision Floating-Point Reliable</em>. <a
+href="https://doi.org/10.32614/CRAN.package.Rmpfr">https://doi.org/10.32614/CRAN.package.Rmpfr</a>.
 </div>
 <div id="ref-expm" class="csl-entry">
 Maechler, Martin, Christophe Dutang, and Vincent Goulet. 2024. <em><span

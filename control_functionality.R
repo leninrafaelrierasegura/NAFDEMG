@@ -25,7 +25,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, 4, 5, 6, 7, or 8
   # m3table <- rSPDE:::m3table
   # m4table <- rSPDE:::m4table
   # mt <- get(paste0("m", m, "table"))
-  mt <- readRDS("data_files/chebfun_tables.RDS")[[m]]
+  mt <- readRDS(here::here("data_files/chebfun_tables.RDS"))[[m]]
   rb <- rep(0, m + 1)
   rc <- rep(0, m)
   if(m == 1) {

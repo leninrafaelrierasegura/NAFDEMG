@@ -97,7 +97,7 @@ library(pracma)
 # conda install -c conda-forge matplotlib plotly ipywidgets
 library(reticulate)
 # VERY IMPORTANT: tell reticulate to use your conda env
-use_condaenv("fenicsenv", required = TRUE)
+use_condaenv("phdenv", required = TRUE)
 py_config()
 ```
 
