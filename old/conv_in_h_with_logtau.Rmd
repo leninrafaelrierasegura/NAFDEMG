@@ -136,7 +136,6 @@ time_steps <- 0.1 * 2^-POWERS
 h_vector <- time_steps^(1/2) #10^seq(log10(0.005), log10(0.1), length.out = 7) #time_steps^(1/2)
 alpha_vector <- seq(1, 1.8, by = 0.2)
 epsilon <- 1e-10
-alpha_vector <- alpha_vector - epsilon
 # C_c <- max(outer(h_vector, alpha_vector,
 #                function(h, alpha) 1 - alpha * log(h))) + 1e-1
 # 
@@ -198,8 +197,8 @@ for (j in 1:length(alpha_vector)) {
   
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
-    time_step <- tau_from_h_exact(h, alpha)#tau_from_h(h, alpha, C_c)#h^(2*alpha) #1e-5 #tau_from_h_exact(h, alpha) #h^alpha
-    m <- min(4, ceiling((log(h^2 * abs(log(time_step))))^2 / (4 * pi^2 * (1 - alpha / 2)))) #min(8, m_from_h(h, alpha, C_c, time_step)) 
+    time_step <- tau_from_h_exact(h, alpha - epsilon)#tau_from_h(h, alpha, C_c)#h^(2*alpha) #1e-5 #tau_from_h_exact(h, alpha) #h^alpha
+    m <- min(4, ceiling((log(h^(2 - epsilon) * abs(log(time_step))))^2 / (4 * pi^2 * (1 - alpha / 2)))) #min(8, m_from_h(h, alpha, C_c, time_step)) 
     m_values <- c(m_values, m)
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
@@ -229,7 +228,13 @@ for (j in 1:length(alpha_vector)) {
     slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
-save(errors_projected, file = here::here("old/errors_projected_h_with_logtau.RData"))
+save(errors_projected, file = here::here("data_files/errors_projected_h_with_logtau.RData"))
+```
+
+
+```{r}
+# Load the errors_projected data
+load(here::here("data_files/errors_projected_h_with_logtau.RData"))
 ```
 
 
@@ -239,7 +244,7 @@ for (u in 1:length(alpha_vector)) {
   observed_rates[u] <- coef(lm(log10(errors_projected[, u]) ~ log10(h_vector)))[2]
 }
 
-theoretical_rates <- alpha_vector
+theoretical_rates <- alpha_vector  - epsilon
 
 
 p_h_tadpole <- error.convergence.plotter(x_axis_vector = h_vector, 
@@ -251,7 +256,7 @@ p_h_tadpole <- error.convergence.plotter(x_axis_vector = h_vector,
                                  fig_title = expression("Convergence in " * italic(h)),
                                  x_axis_label = expression(italic(h)))
 
-p_h_nicer_tadpole <- errorConvergencePlotterLatex(x_axis_vector = h_vector, 
+p_h_nicer_tadpole_with_logtau <- errorConvergencePlotterLatex(x_axis_vector = h_vector, 
                                  alpha_vector, 
                                  errors_projected, 
                                  theoretical_rates, 
@@ -262,11 +267,16 @@ p_h_nicer_tadpole <- errorConvergencePlotterLatex(x_axis_vector = h_vector,
                                  y_axis_label = "$\\|u-U_{h,m}^{\\tau}\\|_{L_2(\\Gamma\\times[0,T])}\\quad(\\log_{10}\\mbox{ scale})$",
                                  color_label = "$\\quad\\quad\\;\\;\\alpha\\;|\\;\\mathtt{theo}\\;|\\;\\;\\mathtt{obs}\\;\\;|\\%\\mathtt{re}$")
 
-ggsave(here::here("old/conv_rates_h_tadpole.png"), width = 4, height = 5, plot = p_h_tadpole, dpi = 300)
-
+ggsave(here::here("data_files/conv_rates_h_tadpole_with_logtau.png"), width = 4, height = 5, plot = p_h_tadpole, dpi = 300)
+myggsave(p_h_nicer_tadpole_with_logtau, width = 4, height = 5, use_mathpazo = TRUE)
+save(p_h_tadpole, file = here::here("data_files/p_h_tadpole_with_logtau.RData"))
+save(p_h_nicer_tadpole_with_logtau, file = here::here("data_files/p_h_nicer_tadpole_with_logtau.RData"))
 ```
 
 
+```{r, eval = TRUE, fig.align='center', out.width="400px", out.height="500px", fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $h$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+knitr::include_graphics(here::here("data_files/tikzpic/p_h_nicer_tadpole_with_logtau_with_mathpazo.pdf"))
+```
 
 
 
@@ -274,7 +284,7 @@ ggsave(here::here("old/conv_rates_h_tadpole.png"), width = 4, height = 5, plot =
 initial_comment <- "Here’s the latest plot update for the convergence in h!"
 # option 1
 slackr_upload(
-  filename = here::here("old/conv_rates_h_tadpole.png"),        # path to your image
+  filename = here::here("data_files/conv_rates_h_tadpole_with_logtau.png"),        # path to your image
   initial_comment = initial_comment,
   channels = "#research"
 )

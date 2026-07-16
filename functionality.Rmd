@@ -1452,10 +1452,11 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
   df <- as.data.frame(cbind(x_vec, errors))
   colnames(df) <- c("x_axis_vector", alpha_vector)
   df_melted <- melt(df, id.vars = "x_axis_vector", variable.name = "column", value.name = "value")
-  
+  printing_correction <- 1e-4
   custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
                            formatC(alpha_vector, format = "f", digits = 2),
-                           formatC(theoretical_rates, format = "f", digits = 4),
+                           substring(sprintf("%.20f", theoretical_rates), 1, 6),
+                           #formatC(theoretical_rates, format = "f", digits = 4),
                            formatC(observed_rates, format = "f", digits = 4),
                            formatC(relative_per_error, format = "f", digits = 2))
   
