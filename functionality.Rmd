@@ -1455,7 +1455,7 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
   printing_correction <- 1e-4
   custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
                            formatC(alpha_vector, format = "f", digits = 2),
-                           substring(sprintf("%.20f", theoretical_rates), 1, 6),
+                           substring(sprintf("%.20f", theoretical_rates), 1, ifelse(apply_sqrt, 7, 6)),
                            #formatC(theoretical_rates, format = "f", digits = 4),
                            formatC(observed_rates, format = "f", digits = 4),
                            formatC(relative_per_error, format = "f", digits = 2))
@@ -3191,7 +3191,7 @@ tau_from_h_exact <- function(h, alpha_star) {
 }
 
 
-solve_htau <- function(alpha, m, tol = 1e-16) {
+solve_htau <- function(alpha, m, epsilon, tol = 1e-16) {
   
   stopifnot(alpha > 0, alpha < 2)
   stopifnot(m > 0)
@@ -3199,7 +3199,7 @@ solve_htau <- function(alpha, m, tol = 1e-16) {
   C <- exp(-2*pi*sqrt((1 - alpha/2) * m))
   
   f <- function(h) {
-    -log(C * h^(alpha - 2)) - C / h^2
+    -log(C * h^(alpha - 2)) - C / h^(2 - epsilon)
   }
   
   ## Find a valid bracket automatically
@@ -3221,7 +3221,7 @@ solve_htau <- function(alpha, m, tol = 1e-16) {
   tau <- C * h^(alpha - 2)
   
   ## residuals of both equations
-  err1 <- abs(tau - h^alpha * abs(log(tau)))
+  err1 <- abs(tau - h^(alpha - epsilon) * abs(log(tau)))
   err2 <- abs(tau - C * h^(alpha - 2))
   
   list(
