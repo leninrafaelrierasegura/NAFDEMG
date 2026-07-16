@@ -1452,7 +1452,6 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
   df <- as.data.frame(cbind(x_vec, errors))
   colnames(df) <- c("x_axis_vector", alpha_vector)
   df_melted <- melt(df, id.vars = "x_axis_vector", variable.name = "column", value.name = "value")
-  printing_correction <- 1e-4
   custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
                            formatC(alpha_vector, format = "f", digits = 2),
                            substring(sprintf("%.20f", theoretical_rates), 1, ifelse(apply_sqrt, 7, 6)),
@@ -1484,11 +1483,32 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
       scale_y_log10(labels = scales::scientific_format())
     }) +
     theme_minimal() +
-    theme(text = element_text(family = "Palatino"),
-          legend.position = "bottom",
-          legend.direction = "vertical",
-          #plot.margin = margin(0, 0, 0, 0),
-          plot.title = element_text(hjust = 0.5, size = 18, face = "plain"))
+    # theme(text = element_text(family = "Palatino"),
+    #       legend.position = "bottom",
+    #       legend.direction = "vertical",
+    #       #plot.margin = margin(0, 0, 0, 0),
+    #       plot.title = element_text(hjust = 0.5, size = 18, face = "plain")) +
+    theme(
+  text = element_text(family = "Palatino", size = 18),
+
+  plot.title = element_text(
+    hjust = 0.5,
+    size = 20,
+    face = "plain"
+  ),
+
+  axis.title.x = element_text(size = 14),
+  axis.title.y = element_text(size = 14),
+
+  axis.text.x = element_text(size = 12),
+  axis.text.y = element_text(size = 12),
+
+  legend.title = element_text(size = 14),
+  legend.text = element_text(size = 12),
+
+  legend.position = "bottom",
+  legend.direction = "vertical"
+)
   
   return(p)
 }

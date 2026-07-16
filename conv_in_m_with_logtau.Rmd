@@ -237,7 +237,7 @@ p_m_nicer_tadpole_with_logtau <- errorConvergencePlotterLatex(x_axis_vector = m_
                                  fig_title = "$\\mbox{Convergence in }m$",
                                  x_axis_label = "$m\\quad(\\sqrt{\\phantom{x}}\\mbox{ scale})$",
                                  y_axis_label = "$\\|u-U_{h,m}^{\\tau}\\|_{L_2(\\Gamma\\times[0,T])}\\quad(\\ln\\mbox{ scale})$",
-                                 color_label = "$\\quad\\quad\\;\\;\\alpha\\;|\\;\\phantom{-}\\mathtt{theo}\\;|\\;\\;\\phantom{-}\\mathtt{obs}\\;\\;|\\%\\mathtt{re}$",
+                                 color_label = "$\\quad\\quad\\;\\alpha\\;|\\;\\;\\phantom{-}\\mathtt{theo}\\;|\\;\\;\\phantom{-}\\mathtt{obs}\\;\\;\\;|\\%\\mathtt{re}$",
                                  apply_sqrt = TRUE)
 
 ggsave(here::here("data_files/conv_rates_m_tadpole_with_logtau.png"), width = 4, height = 5, plot = p_m_tadpole_with_logtau, dpi = 300)
