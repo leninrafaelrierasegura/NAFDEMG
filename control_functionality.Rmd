@@ -2275,6 +2275,82 @@ error.convergence.plotter <- function(x_axis_vector,
   return(p)
 }
 
+# errorConvergencePlotterLatex <- function(x_axis_vector, 
+#                                       alpha_vector, 
+#                                       errors, 
+#                                       theoretical_rates, 
+#                                       observed_rates,
+#                                       line_equation_fun,
+#                                       fig_title,
+#                                       x_axis_label,
+#                                       y_axis_label,
+#                                       color_label,
+#                                       apply_sqrt = FALSE) {
+# 
+#   relative_per_error <- 100 * abs(theoretical_rates - observed_rates) / abs(theoretical_rates)
+#   
+#   x_vec <- if (apply_sqrt) sqrt(x_axis_vector) else x_axis_vector
+#   
+#   guiding_lines <- compute_guiding_lines(x_axis_vector = x_vec, 
+#                                          errors = errors, 
+#                                          theoretical_rates = theoretical_rates, 
+#                                          line_equation_fun = line_equation_fun)
+#   
+#   default_colors <- scales::hue_pal()(length(alpha_vector))
+#   
+#   plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
+#     geom_line(
+#       data = data.frame(x = x_vec, y = guiding_lines[, i]),
+#       aes(x = x, y = y),
+#       color = default_colors[i],
+#       linetype = "dashed",
+#       linewidth = 0.6,
+#       show.legend = FALSE
+#     )
+#   })
+#   
+#   df <- as.data.frame(cbind(x_vec, errors))
+#   colnames(df) <- c("x_axis_vector", alpha_vector)
+#   df_melted <- melt(df, id.vars = "x_axis_vector", variable.name = "column", value.name = "value")
+#   
+#   custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
+#                            formatC(alpha_vector, format = "f", digits = 2),
+#                            formatC(theoretical_rates, format = "f", digits = 4),
+#                            formatC(observed_rates, format = "f", digits = 4),
+#                            formatC(relative_per_error, format = "f", digits = 2))
+#   
+#   df_melted$column <- factor(df_melted$column, levels = alpha_vector, labels = custom_labels)
+# 
+#   p <- ggplot() +
+#     geom_line(data = df_melted, aes(x = x_axis_vector, y = value, color = column), linewidth = 1.6) +
+#     geom_point(data = df_melted, aes(x = x_axis_vector, y = value, color = column), size = 2) +
+#     plot_lines +
+#     labs(
+#       title = fig_title,
+#       x = x_axis_label,
+#       y = y_axis_label,
+#       color = color_label
+#     ) +
+#     (if (apply_sqrt) {
+#       scale_x_continuous(breaks = x_vec, labels = round(x_axis_vector, 4))
+#     } else {
+#       scale_x_log10(breaks = x_axis_vector, labels = round(x_axis_vector, 4))
+#     }) +
+#     (if (apply_sqrt) {
+#       #scale_y_continuous(trans = "log", labels = scales::scientific_format())
+#       scale_y_continuous(trans = scales::log_trans(base = exp(1)), labels = scales::scientific_format())
+#     } else {
+#       scale_y_log10(labels = scales::scientific_format())
+#     }) +
+#     theme_minimal() +
+#     theme(text = element_text(family = "Palatino"),
+#           legend.position = "bottom",
+#           legend.direction = "vertical",
+#           #plot.margin = margin(0, 0, 0, 0),
+#           plot.title = element_text(hjust = 0.5, size = 18, face = "plain"))
+#   
+#   return(p)
+# }
 errorConvergencePlotterLatex <- function(x_axis_vector, 
                                       alpha_vector, 
                                       errors, 
@@ -2312,10 +2388,10 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
   df <- as.data.frame(cbind(x_vec, errors))
   colnames(df) <- c("x_axis_vector", alpha_vector)
   df_melted <- melt(df, id.vars = "x_axis_vector", variable.name = "column", value.name = "value")
-  
   custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
                            formatC(alpha_vector, format = "f", digits = 2),
-                           formatC(theoretical_rates, format = "f", digits = 4),
+                           substring(sprintf("%.20f", theoretical_rates), 1, ifelse(apply_sqrt, 7, 6)),
+                           #formatC(theoretical_rates, format = "f", digits = 4),
                            formatC(observed_rates, format = "f", digits = 4),
                            formatC(relative_per_error, format = "f", digits = 2))
   
@@ -2343,11 +2419,32 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
       scale_y_log10(labels = scales::scientific_format())
     }) +
     theme_minimal() +
-    theme(text = element_text(family = "Palatino"),
-          legend.position = "bottom",
-          legend.direction = "vertical",
-          #plot.margin = margin(0, 0, 0, 0),
-          plot.title = element_text(hjust = 0.5, size = 18, face = "plain"))
+    # theme(text = element_text(family = "Palatino"),
+    #       legend.position = "bottom",
+    #       legend.direction = "vertical",
+    #       #plot.margin = margin(0, 0, 0, 0),
+    #       plot.title = element_text(hjust = 0.5, size = 18, face = "plain")) +
+    theme(
+  text = element_text(family = "Palatino", size = 18),
+
+  plot.title = element_text(
+    hjust = 0.5,
+    size = 20,
+    face = "plain"
+  ),
+
+  axis.title.x = element_text(size = 14),
+  axis.title.y = element_text(size = 14),
+
+  axis.text.x = element_text(size = 12),
+  axis.text.y = element_text(size = 12),
+
+  legend.title = element_text(size = 14),
+  legend.text = element_text(size = 12),
+
+  legend.position = "bottom",
+  legend.direction = "vertical"
+)
   
   return(p)
 }
@@ -3033,6 +3130,54 @@ save_plotly_figure_fixed <- function(fig,
   )
 }
 
+```
+
+```{r}
+tau_from_h_exact <- function(h, alpha_star) {
+  return(h^alpha_star * lamW::lambertW0(h^(-alpha_star)))
+}
+
+
+solve_htau <- function(alpha, m, epsilon, tol = 1e-16) {
+  
+  stopifnot(alpha > 0, alpha < 2)
+  stopifnot(m > 0)
+  
+  C <- exp(-2*pi*sqrt((1 - alpha/2) * m))
+  
+  f <- function(h) {
+    -log(C * h^(alpha - 2)) - C / h^(2 - epsilon)
+  }
+  
+  ## Find a valid bracket automatically
+  h.grid <- 10^seq(-16, -0.01, length.out = 500)
+  
+  vals <- f(h.grid)
+  ind <- which(diff(sign(vals)) != 0)
+  
+  if(length(ind) == 0)
+    stop("No root found.")
+  
+  h <- uniroot(
+    f,
+    lower = h.grid[ind[1]],
+    upper = h.grid[ind[1] + 1],
+    tol = tol
+  )$root
+  
+  tau <- C * h^(alpha - 2)
+  
+  ## residuals of both equations
+  err1 <- abs(tau - h^(alpha - epsilon) * abs(log(tau)))
+  err2 <- abs(tau - C * h^(alpha - 2))
+  
+  list(
+    h = h,
+    tau = tau,
+    error1 = err1,
+    error2 = err2
+  )
+}
 ```
 
 

@@ -136,27 +136,6 @@ time_steps <- 0.1 * 2^-POWERS
 h_vector <- 10^seq(log10(0.0009), log10(0.01), length.out = 6) #time_steps^(1/2) 
 alpha_vector <- seq(1, 1.8, by = 0.2)
 epsilon <- 1e-10
-# C_c <- max(outer(h_vector, alpha_vector,
-#                function(h, alpha) 1 - alpha * log(h))) + 1e-1
-# 
-# C_vector <- sapply(alpha_vector, function(alpha) {
-#   max(1 - alpha * log(h_vector)) + 1e-1
-# })
-# 
-# hs <- c()
-# taus <- c()
-# ms <- c()
-# for (j in 1:length(alpha_vector)) {
-#   alpha <- alpha_vector[j]
-#   C_c <- C_vector[j]
-#   for (i in 1:length(h_vector)) {
-#     h <- h_vector[i]
-#     time_step <- tau_from_h(h, alpha, C_c)
-#     m <- min(8, m_from_h(h, alpha, C_c, time_step))
-#     hs <- c(hs, h)
-#     taus <- c(taus, time_step)
-#     ms <- c(ms, m)
-#   }}
 ```
 
 

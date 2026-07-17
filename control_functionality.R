@@ -1,4 +1,4 @@
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 # just some space
@@ -15,7 +15,7 @@ library(plotly)
 
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, 4, 5, 6, 7, or 8
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
@@ -46,7 +46,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, 4, 5, 6, 7, or 8
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
@@ -55,7 +55,7 @@ poly.from.roots <- function(roots) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
@@ -77,7 +77,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
@@ -117,7 +117,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -138,7 +138,7 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 solve_forward_evolution <- function(my_op_frac, time_step, time_seq, RHST, val_at_0) {
   CC <- my_op_frac$C
   N <- length(time_seq)
@@ -152,7 +152,7 @@ solve_forward_evolution <- function(my_op_frac, time_step, time_seq, RHST, val_a
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 solve_backward_evolution <- function(my_op_frac, time_step, time_seq, RHST) {
   CC <- my_op_frac$C
   N <- length(time_seq)
@@ -167,7 +167,7 @@ solve_backward_evolution <- function(my_op_frac, time_step, time_seq, RHST) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(h){
   edge1 <- rbind(c(0,0),c(1,0))
@@ -181,7 +181,7 @@ gets.graph.tadpole <- function(h){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to compute the eigenfunctions of the tadpole graph
 tadpole.eig <- function(k,graph){
 x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -212,7 +212,7 @@ return(f)
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to compute the eigenpairs of the tadpole graph
 gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
   EIGENVAL <- NULL
@@ -250,7 +250,7 @@ gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to construct a piecewise constant projection of approximated values
 construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
   projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
@@ -268,7 +268,7 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 loglog_line_equation <- function(x1, y1, slope) {
   b <- log10(y1 / (x1 ^ slope))
   
@@ -305,7 +305,7 @@ compute_guiding_lines <- function(x_axis_vector, errors, theoretical_rates, line
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Functions to compute the exact solution to the fractional diffusion equation
 g_linear <- function(r, A, lambda_j_alpha_half) {
   return(A * exp(-lambda_j_alpha_half * r))
@@ -350,13 +350,13 @@ G_cos <- function(t, A, lambda_j_alpha_half, theta) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 reversecolumns <- function(mat) {
   return(mat[, rev(seq_len(ncol(mat)))])
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # helper: measure change relative to the size of the previous iterate 
 change_comparer <- function(X_new, X_old, time_step, C, relative = TRUE) {
   XX <- X_new - X_old
@@ -373,7 +373,7 @@ change_comparer <- function(X_new, X_old, time_step, C, relative = TRUE) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Coupled solver with multi-criteria convergence
 solve_coupled_system_multi_tol <- function(
   my_op_frac,           # operator
@@ -490,7 +490,7 @@ solve_coupled_system_multi_tol <- function(
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 plot_convergence_history <- function(history_df, tol_list = NULL, type = "relative") {
   if (type == "relative"){
     text_title <- "|X_{iter} - X_{iter-1}| / |X_{iter}|"
@@ -529,7 +529,7 @@ plot_convergence_history <- function(history_df, tol_list = NULL, type = "relati
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 largest_nested_h <- function(h_fine, h_candidate) {
   Nfine <- round(1 / h_fine)       # number of intervals in fine mesh
   m0 <- floor(h_candidate / h_fine)
@@ -553,14 +553,14 @@ largest_nested_h <- function(h_fine, h_candidate) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 trunc_first_signi_digit <- function(x){
   aux <- floor(log10(x))
   return(floor(x / 10^aux) * 10^aux)
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to order the vertices for plotting
 plotting.order <- function(v, graph){
   edge_number <- graph$mesh$VtE[, 1]
@@ -569,7 +569,7 @@ plotting.order <- function(v, graph){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to set the scene for 3D plots
 global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
   
@@ -588,7 +588,7 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to plot in 3D
 graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
   U_list <- list(...)
@@ -688,7 +688,7 @@ graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
   U_names <- names(U_list) 
   # Spatial coordinates
@@ -789,7 +789,7 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to plot the error at each time step
 error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_step) {
   weights <- graph$mesh$weights
@@ -813,7 +813,7 @@ error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_s
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to plot the 3D comparison of U_true and U_approx
 graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -956,7 +956,7 @@ graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to plot a single 3D line for 
 graph.plotter.3d.single <- function(graph, U_true, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -1030,7 +1030,7 @@ graph.plotter.3d.single <- function(graph, U_true, time_seq) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 # Function to plot the error convergence
 error.convergence.plotter <- function(x_axis_vector, 
                                       alpha_vector, 
@@ -1103,6 +1103,82 @@ error.convergence.plotter <- function(x_axis_vector,
   return(p)
 }
 
+# errorConvergencePlotterLatex <- function(x_axis_vector, 
+#                                       alpha_vector, 
+#                                       errors, 
+#                                       theoretical_rates, 
+#                                       observed_rates,
+#                                       line_equation_fun,
+#                                       fig_title,
+#                                       x_axis_label,
+#                                       y_axis_label,
+#                                       color_label,
+#                                       apply_sqrt = FALSE) {
+# 
+#   relative_per_error <- 100 * abs(theoretical_rates - observed_rates) / abs(theoretical_rates)
+#   
+#   x_vec <- if (apply_sqrt) sqrt(x_axis_vector) else x_axis_vector
+#   
+#   guiding_lines <- compute_guiding_lines(x_axis_vector = x_vec, 
+#                                          errors = errors, 
+#                                          theoretical_rates = theoretical_rates, 
+#                                          line_equation_fun = line_equation_fun)
+#   
+#   default_colors <- scales::hue_pal()(length(alpha_vector))
+#   
+#   plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
+#     geom_line(
+#       data = data.frame(x = x_vec, y = guiding_lines[, i]),
+#       aes(x = x, y = y),
+#       color = default_colors[i],
+#       linetype = "dashed",
+#       linewidth = 0.6,
+#       show.legend = FALSE
+#     )
+#   })
+#   
+#   df <- as.data.frame(cbind(x_vec, errors))
+#   colnames(df) <- c("x_axis_vector", alpha_vector)
+#   df_melted <- melt(df, id.vars = "x_axis_vector", variable.name = "column", value.name = "value")
+#   
+#   custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
+#                            formatC(alpha_vector, format = "f", digits = 2),
+#                            formatC(theoretical_rates, format = "f", digits = 4),
+#                            formatC(observed_rates, format = "f", digits = 4),
+#                            formatC(relative_per_error, format = "f", digits = 2))
+#   
+#   df_melted$column <- factor(df_melted$column, levels = alpha_vector, labels = custom_labels)
+# 
+#   p <- ggplot() +
+#     geom_line(data = df_melted, aes(x = x_axis_vector, y = value, color = column), linewidth = 1.6) +
+#     geom_point(data = df_melted, aes(x = x_axis_vector, y = value, color = column), size = 2) +
+#     plot_lines +
+#     labs(
+#       title = fig_title,
+#       x = x_axis_label,
+#       y = y_axis_label,
+#       color = color_label
+#     ) +
+#     (if (apply_sqrt) {
+#       scale_x_continuous(breaks = x_vec, labels = round(x_axis_vector, 4))
+#     } else {
+#       scale_x_log10(breaks = x_axis_vector, labels = round(x_axis_vector, 4))
+#     }) +
+#     (if (apply_sqrt) {
+#       #scale_y_continuous(trans = "log", labels = scales::scientific_format())
+#       scale_y_continuous(trans = scales::log_trans(base = exp(1)), labels = scales::scientific_format())
+#     } else {
+#       scale_y_log10(labels = scales::scientific_format())
+#     }) +
+#     theme_minimal() +
+#     theme(text = element_text(family = "Palatino"),
+#           legend.position = "bottom",
+#           legend.direction = "vertical",
+#           #plot.margin = margin(0, 0, 0, 0),
+#           plot.title = element_text(hjust = 0.5, size = 18, face = "plain"))
+#   
+#   return(p)
+# }
 errorConvergencePlotterLatex <- function(x_axis_vector, 
                                       alpha_vector, 
                                       errors, 
@@ -1140,10 +1216,10 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
   df <- as.data.frame(cbind(x_vec, errors))
   colnames(df) <- c("x_axis_vector", alpha_vector)
   df_melted <- melt(df, id.vars = "x_axis_vector", variable.name = "column", value.name = "value")
-  
   custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
                            formatC(alpha_vector, format = "f", digits = 2),
-                           formatC(theoretical_rates, format = "f", digits = 4),
+                           substring(sprintf("%.20f", theoretical_rates), 1, ifelse(apply_sqrt, 7, 6)),
+                           #formatC(theoretical_rates, format = "f", digits = 4),
                            formatC(observed_rates, format = "f", digits = 4),
                            formatC(relative_per_error, format = "f", digits = 2))
   
@@ -1171,17 +1247,38 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
       scale_y_log10(labels = scales::scientific_format())
     }) +
     theme_minimal() +
-    theme(text = element_text(family = "Palatino"),
-          legend.position = "bottom",
-          legend.direction = "vertical",
-          #plot.margin = margin(0, 0, 0, 0),
-          plot.title = element_text(hjust = 0.5, size = 18, face = "plain"))
+    # theme(text = element_text(family = "Palatino"),
+    #       legend.position = "bottom",
+    #       legend.direction = "vertical",
+    #       #plot.margin = margin(0, 0, 0, 0),
+    #       plot.title = element_text(hjust = 0.5, size = 18, face = "plain")) +
+    theme(
+  text = element_text(family = "Palatino", size = 18),
+
+  plot.title = element_text(
+    hjust = 0.5,
+    size = 20,
+    face = "plain"
+  ),
+
+  axis.title.x = element_text(size = 14),
+  axis.title.y = element_text(size = 14),
+
+  axis.text.x = element_text(size = 12),
+  axis.text.y = element_text(size = 12),
+
+  legend.title = element_text(size = 14),
+  legend.text = element_text(size = 12),
+
+  legend.position = "bottom",
+  legend.direction = "vertical"
+)
   
   return(p)
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 graph.plotter.3d.static <- function(graph, z_list) {
   x <- plotting.order(graph$mesh$V[, 1], graph)
   y <- plotting.order(graph$mesh$V[, 2], graph)
@@ -1235,7 +1332,7 @@ graph.plotter.3d.static <- function(graph, z_list) {
 
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 graph.plotter.3d.two.meshes.time <- function(graph_finer, graph_coarser, 
                                              time_seq, frame_val_to_display,
                                              fs_finer = list(), fs_coarser = list()) {
@@ -1402,7 +1499,7 @@ if (!is.null(vertical_coarser)) {
 
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 myggsave <- function(plot,
                      width = 9.22,
                      height = 7.05,
@@ -1498,7 +1595,7 @@ myggsave <- function(plot,
 
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------
 save_plotly_figure_fixed <- function(fig,
                                      dpi = 600,
                                      scale = 2,
@@ -1605,4 +1702,52 @@ save_plotly_figure_fixed <- function(fig,
   )
 }
 
+
+
+## -----------------------------------------------------------------------------------------------------------------------------
+tau_from_h_exact <- function(h, alpha_star) {
+  return(h^alpha_star * lamW::lambertW0(h^(-alpha_star)))
+}
+
+
+solve_htau <- function(alpha, m, epsilon, tol = 1e-16) {
+  
+  stopifnot(alpha > 0, alpha < 2)
+  stopifnot(m > 0)
+  
+  C <- exp(-2*pi*sqrt((1 - alpha/2) * m))
+  
+  f <- function(h) {
+    -log(C * h^(alpha - 2)) - C / h^(2 - epsilon)
+  }
+  
+  ## Find a valid bracket automatically
+  h.grid <- 10^seq(-16, -0.01, length.out = 500)
+  
+  vals <- f(h.grid)
+  ind <- which(diff(sign(vals)) != 0)
+  
+  if(length(ind) == 0)
+    stop("No root found.")
+  
+  h <- uniroot(
+    f,
+    lower = h.grid[ind[1]],
+    upper = h.grid[ind[1] + 1],
+    tol = tol
+  )$root
+  
+  tau <- C * h^(alpha - 2)
+  
+  ## residuals of both equations
+  err1 <- abs(tau - h^(alpha - epsilon) * abs(log(tau)))
+  err2 <- abs(tau - C * h^(alpha - 2))
+  
+  list(
+    h = h,
+    tau = tau,
+    error1 = err1,
+    error2 = err2
+  )
+}
 
