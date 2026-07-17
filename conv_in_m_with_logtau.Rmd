@@ -138,8 +138,8 @@ epsilon <- 1e-10
 
 ```{r}
 # Overkill parameters
-overkill_time_step <- 0.1 * 2^-14
-overkill_h <- (0.1 * 2^-14)^(1/2)
+overkill_time_step <- 5e-6 #0.1 * 2^-14
+overkill_h <- 9e-4#(0.1 * 2^-14)^(1/2)
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
 overkill_graph <- gets.graph.tadpole(h = overkill_h)
@@ -260,10 +260,32 @@ slackr_upload(
   initial_comment = initial_comment,
   channels = "#research"
 )
-# option 2
-# ggslackr(p_m_tadpole, channels = "#research", initial_comment = initial_comment) # p is a ggplot2 object
-# option 3
-# slackr_dev(channels = "#research"); plot(mtcars$mpg, mtcars$wt); dev.off()
+get_numeric_scalars <- function() {
+  vars <- ls(envir = .GlobalEnv)
+  scalars <- sapply(vars, function(v) {
+    val <- get(v, envir = .GlobalEnv)
+    is.numeric(val) && length(val) == 1
+  })
+  mget(vars[scalars], envir = .GlobalEnv)
+}
+
+# Collect the scalars
+num_scalars <- get_numeric_scalars()
+
+# Format scalars
+scalar_msg <- paste(
+  sprintf("%s = %s", names(num_scalars), unlist(num_scalars)),
+  collapse = "\n"
+)
+
+# Send one Slack message
+slackr::slackr_msg(
+  text = paste(
+    "Numeric scalars in this run:\n",
+    scalar_msg
+  ),
+  channel = "#research"
+)
 ```
 
 # References
