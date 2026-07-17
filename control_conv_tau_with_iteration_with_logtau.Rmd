@@ -303,7 +303,10 @@ save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/con
 ```{r}
 # Load the errors data
 load(here::here("data_files/control_error_tau_with_iteration_with_logtau.RData"))
+```
 
+
+```{r}
 observed_rates_u_bar <- numeric(length(alpha_vector))
 observed_rates_p_bar <- numeric(length(alpha_vector))
 observed_rates_z_bar <- numeric(length(alpha_vector))
