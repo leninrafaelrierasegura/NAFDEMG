@@ -196,13 +196,13 @@ for (j in 1:length(alpha_vector)) {
     slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
   }
 }
-save(errors_projected, file = here::here("data_files/errors_projected_tau_with_logtau.RData"))
+save(errors_projected, file = here::here("data_files/errors_projected_tau_with_logtau_and_tauminustwo.RData"))
 ```
 
 
 ```{r}
 # Load the errors_projected data
-load(here::here("data_files/errors_projected_tau_with_logtau.RData"))
+load(here::here("data_files/errors_projected_tau_with_logtau_and_tauminustwo.RData"))
 ```
 
 
@@ -216,7 +216,7 @@ for (u in 1:length(alpha_vector)) {
 theoretical_rates <- rep(1, length(alpha_vector))
 
 
-p_tau_tadpole_with_logtau <- error.convergence.plotter(x_axis_vector = tau_vector, 
+p_tau_tadpole_with_logtau_and_tauminustwo <- error.convergence.plotter(x_axis_vector = tau_vector, 
                                    alpha_vector, 
                                    errors_projected, 
                                    theoretical_rates, 
@@ -225,7 +225,7 @@ p_tau_tadpole_with_logtau <- error.convergence.plotter(x_axis_vector = tau_vecto
                                    fig_title = expression("Convergence in " * italic(tau)),
                                    x_axis_label = expression(italic(tau)))
 
-p_tau_nicer_tadpole_with_logtau <- errorConvergencePlotterLatex(x_axis_vector = tau_vector, 
+p_tau_nicer_tadpole_with_logtau_and_tauminustwo <- errorConvergencePlotterLatex(x_axis_vector = tau_vector, 
                                  alpha_vector, 
                                  errors_projected, 
                                  theoretical_rates, 
@@ -236,16 +236,16 @@ p_tau_nicer_tadpole_with_logtau <- errorConvergencePlotterLatex(x_axis_vector = 
                                  y_axis_label = "$\\|u-U_{h,m}^{\\tau}\\|_{L_2(\\Gamma\\times[0,T])}\\quad(\\log_{10}\\mbox{ scale})$",
                                  color_label = "$\\quad\\quad\\;\\;\\alpha\\;|\\;\\mathtt{theo}\\;|\\;\\;\\mathtt{obs}\\;\\;|\\%\\mathtt{re}$")
 
-ggsave(here::here("data_files/conv_rates_tau_tadpole_with_logtau.png"), width = 4, height = 5, plot = p_tau_tadpole_with_logtau, dpi = 300)
-myggsave(p_tau_nicer_tadpole_with_logtau, width = 4, height = 5, use_mathpazo = TRUE)
-save(p_tau_tadpole_with_logtau, file = here::here("data_files/p_tau_tadpole_with_logtau.RData"))
-save(p_tau_nicer_tadpole_with_logtau, file = here::here("data_files/p_tau_nicer_tadpole_with_logtau.RData"))
+ggsave(here::here("data_files/conv_rates_tau_tadpole_with_logtau_and_tauminustwo.png"), width = 4, height = 5, plot = p_tau_tadpole_with_logtau_and_tauminustwo, dpi = 300)
+myggsave(p_tau_nicer_tadpole_with_logtau_and_tauminustwo, width = 4, height = 5, use_mathpazo = TRUE)
+save(p_tau_tadpole_with_logtau_and_tauminustwo, file = here::here("data_files/p_tau_tadpole_with_logtau_and_tauminustwo.RData"))
+save(p_tau_nicer_tadpole_with_logtau_and_tauminustwo, file = here::here("data_files/p_tau_nicer_tadpole_with_logtau_and_tauminustwo.RData"))
 
 ```
 
 
 ```{r, eval = TRUE, fig.align='center', out.width="400px", out.height="500px", fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
-knitr::include_graphics(here::here("data_files/tikzpic/p_tau_nicer_tadpole_with_logtau_with_mathpazo.pdf"))
+knitr::include_graphics(here::here("data_files/tikzpic/p_tau_nicer_tadpole_with_logtau_and_tauminustwo_with_mathpazo.pdf"))
 ```
 
 
@@ -253,7 +253,7 @@ knitr::include_graphics(here::here("data_files/tikzpic/p_tau_nicer_tadpole_with_
 initial_comment <- "Here’s the latest plot update for the convergence in τ!"
 # option 1
 slackr_upload(
-  filename = here::here("data_files/conv_rates_tau_tadpole_with_logtau.png"),        # path to your image
+  filename = here::here("data_files/conv_rates_tau_tadpole_with_logtau_and_tauminustwo.png"),        # path to your image
   initial_comment = initial_comment,
   channels = "#research"
 )
