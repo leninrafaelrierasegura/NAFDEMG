@@ -117,7 +117,8 @@ source(here::here("functionality.R"))
 # Parameters
 T_final <- 2
 kappa <- 4
-divider <- 7
+dividerh <- 7
+dividertau <- 1
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for u_0 and f
@@ -170,8 +171,8 @@ for (j in 1:length(alpha_vector)) {
   for (i in 1:length(m_vector)) {
     m <- m_vector[i]
     sol <- solve_htaunew(alpha, m, epsilon, tol = 1e-16)
-    h <- sol$h
-    time_step <- sol$tau/divider
+    h <- sol$h/dividerh
+    time_step <- sol$tau/dividertau
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
     L <- graph$mesh$G

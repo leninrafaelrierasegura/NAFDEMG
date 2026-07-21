@@ -1743,7 +1743,6 @@ if (!is.null(vertical_coarser)) {
   
   return(p)
 }
-
 ```
 
 ### Function `plot_3d_rectangle_scatter()`
@@ -2133,8 +2132,6 @@ plot_3d_square_mesh_with_hat <- function(mesh,
   
   return(p)
 }
-
-
 ```
 
 
