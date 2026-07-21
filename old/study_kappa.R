@@ -130,3 +130,8 @@ plot(log(points), rep(1, 7), xlab="Alpha", ylab="", yaxt="n", pch=19, cex=2)
 rmarkdown::render("new_conv_in_h.Rmd")
 rmarkdown::render("new_conv_in_tau.Rmd")
 rmarkdown::render("new_conv_in_m.Rmd")
+
+
+knitr::purl(here::here("conv_in_m_with_logtau_and_tauminustwo.Rmd"),
+            output = here::here("old/conv_in_m_with_logtau_and_tauminustwo.R"))
+
