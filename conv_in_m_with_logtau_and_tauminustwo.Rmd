@@ -117,8 +117,8 @@ source(here::here("functionality.R"))
 # Parameters
 T_final <- 2
 kappa <- 4
-dividerh <- 7
-dividertau <- 1
+dividerh <- 12
+dividertau <- 30
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for u_0 and f
