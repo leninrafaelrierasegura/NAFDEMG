@@ -82,7 +82,7 @@ captioner <- function(caption) {
 
 
 ::: {.custom-box}
-To observe convergence in $\tau$, we calibrate $h$ and $m$ to $\tau$ as $h \sim \tau^{1/\alpha}$ and $m \sim \lceil\log_e^2(h)/(\pi^2(1-\alpha/2))\rceil$, respectively. Under this scaling, the total convergence rate with respect to the time step $\tau$ is of order $1$. That is, $\|u-U_{h,m}^\tau\|_{L_2((0,T);L_2(\Gamma))} \leq C_\tau\tau$. This can be verified by estimating the slope $S_\tau$ in the regression $\log_{10} E = S_\tau\log_{10} \tau + \log_{10} C_\tau$, where we expect $S_\tau\sim1$. 
+To observe convergence in $\tau$, we choose $h \propto (\tau/|\ln(\tau)|)^{1/(\alpha-\epsilon)}$ and $m\propto\left\lceil\ln^2\!\bigl(h^{2-\epsilon}|\ln(\tau)|\tau^{2}\bigr)\big/\!\left(4\pi^2\left(1-\alpha/2\right)\right)\right\rceil$. This yields $E_\tau = E\lesssim\tau$, corresponding to a convergence rate of order $1$ with respect to the time step $\tau$. Fitting the regression $\log_{10}E_\tau=s_\tau\log_{10}\tau+\log_{10}c_\tau$, we therefore expect $s_\tau\approx1$.
 :::
 
 

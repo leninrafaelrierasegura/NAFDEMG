@@ -82,7 +82,7 @@ captioner <- function(caption) {
 
 
 ::: {.custom-box}
-To observe convergence in $h$, we calibrate $\tau$ and $m$ to $h$ as $\tau \sim h^\alpha$ and $m \sim \lceil\log_e^2(h)/(\pi^2(1-\alpha/2))\rceil$. This ensures that the total convergence rate with respect to the mesh size $h$ is of order $\alpha$, i.e., $\|u-U_{h,m}^\tau\|_{L_2((0,T);L_2(\Gamma))} \leq C_hh^\alpha$. This can be verified by estimating the slope $S_h$ in the regression $\log_{10} E = S_h\log_{10} h+\log_{10} C_h$, where we expect $S_h\sim\alpha$.
+To observe convergence in $h$, we determine $\tau$ numerically from the relation $\tau\propto h^{\alpha-\epsilon}|\ln(\tau)|$ and choose $m\propto\left\lceil\ln^2\!\bigl(h^{2-\epsilon}|\ln(\tau)|\tau^2\bigr)\big/\!\left(4\pi^2\left(1-\alpha/2\right)\right)\right\rceil$ so that the temporal and rational approximation errors are of the same order as the spatial error. This yields $E_h=E/|\ln(\tau)|\lesssim h^{\alpha-\epsilon}$, corresponding to a convergence rate of order $\alpha-\epsilon$ with respect to the mesh size $h$. Fitting the regression $\log_{10}E_h=s_h\log_{10}h+\log_{10}c_h$, we therefore expect $s_h\approx\alpha-\epsilon$.
 :::
 
 

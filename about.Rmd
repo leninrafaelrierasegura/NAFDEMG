@@ -118,99 +118,21 @@ exp1_error
 ```
 __________
 
-  - [Convergence in 𝘩](conv_in_h.html): This page shows 
-    - [the convergence with respect to the spatial mesh size 𝘩.](conv_in_h.html)
+  - [Convergence in 𝘩](conv_in_h_with_logtau_and_tauminustwo.html): This page shows 
+    - [the convergence with respect to the spatial mesh size 𝘩.](conv_in_h_with_logtau_and_tauminustwo.html)
 
 
-  - [Convergence in τ](conv_in_tau.html): This page shows 
-    - [the convergence with respect to the temporal mesh size τ.](conv_in_tau.html)
+  - [Convergence in τ](conv_in_tau_with_logtau_and_tauminustwo.html): This page shows 
+    - [the convergence with respect to the temporal mesh size τ.](conv_in_tau_with_logtau_and_tauminustwo.html)
 
 
-  - [Convergence in 𝑚](conv_in_m.html): This page shows 
-    - [the convergence with respect to the order 𝑚 of the rational approximation.](conv_in_m.html)
+  - [Convergence in 𝑚](conv_in_m_with_logtau_and_tauminustwo.html): This page shows 
+    - [the convergence with respect to the order 𝑚 of the rational approximation.](conv_in_m_with_logtau_and_tauminustwo.html)
     
 
   Figure 1 shows the convergence results. For details on how these plots were generated, please refer to the hyperlinks above.
 
 **Metric graph**
-      
-```{r, eval = FALSE, echo = FALSE}
-library(patchwork)
-library(ggplot2)
-load(here::here("data_files/p_h_tadpole.RData"))
-load(here::here("data_files/p_tau_tadpole.RData"))
-load(here::here("data_files/p_m_tadpole.RData"))
-
-load(here::here("data_files/p_h_nicer_tadpole.RData"))
-load(here::here("data_files/p_tau_nicer_tadpole.RData"))
-load(here::here("data_files/p_m_nicer_tadpole.RData"))
-
-p_all_tadpole <- (p_h_tadpole | p_tau_tadpole | p_m_tadpole) + 
-  plot_annotation(
-    title = expression("         Convergence behavior on the tadpole graph"),
-    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
-        family = "Palatino"))
-  )
-
-
-p_all_nicer_tadpole <- (p_h_nicer_tadpole | p_tau_nicer_tadpole | p_m_nicer_tadpole) +
-  plot_annotation(
-    title = expression("         Convergence behavior on the tadpole graph"),
-    theme = theme(plot.title = element_text(size = 18, face = "plain", hjust = 0.5,
-        family = "Palatino"))
-  )
-
-myggsave(p_all_nicer_tadpole, width = 12, height = 6, use_mathpazo = TRUE)
-ggplot2::ggsave(here::here("data_files/p_all_tadpole.png"), width = 12, height = 6, plot = p_all_tadpole, dpi = 300)
-```
-
-
-```{r, echo = FALSE, fig.align='center', out.width = "1200px", out.height = "600px", fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
-knitr::include_graphics(here::here("data_files/tikzpic/p_all_nicer_tadpole_with_mathpazo.pdf"))
-```
-
-
-**Metric graph - with logtau**
-
-```{r, eval = FALSE, echo = FALSE}
-library(patchwork)
-library(ggplot2)
-load(here::here("data_files/p_h_tadpole_with_logtau.RData"))
-load(here::here("data_files/p_tau_tadpole_with_logtau.RData"))
-load(here::here("data_files/p_m_tadpole_with_logtau.RData"))
-
-load(here::here("data_files/p_h_nicer_tadpole_with_logtau.RData"))
-load(here::here("data_files/p_tau_nicer_tadpole_with_logtau.RData"))
-load(here::here("data_files/p_m_nicer_tadpole_with_logtau.RData"))
-
-p_all_tadpole_with_logtau <- (p_h_tadpole_with_logtau | p_tau_tadpole_with_logtau | p_m_tadpole_with_logtau) + 
-  plot_annotation(
-    title = expression("         Convergence behavior on the tadpole graph"),
-    theme = theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, 
-        family = "Palatino"))
-  )
-
-
-p_all_nicer_tadpole_with_logtau <- (p_h_nicer_tadpole_with_logtau | p_tau_nicer_tadpole_with_logtau | p_m_nicer_tadpole_with_logtau)
-# +
-#   plot_annotation(
-#     title = expression("         Convergence behavior on the tadpole graph"),
-#     theme = theme(plot.title = element_text(size = 18, face = "plain", hjust = 0.5,
-#         family = "Palatino"))
-#   )
-
-myggsave(p_all_nicer_tadpole_with_logtau, width = 12, height = 5, use_mathpazo = FALSE)
-ggplot2::ggsave(here::here("data_files/p_all_tadpole_with_logtau.png"), width = 12, height = 5, plot = p_all_tadpole_with_logtau, dpi = 300)
-```
-
-
-```{r, echo = FALSE, fig.align='center', out.width = "1200px", out.height = "600px", fig.cap = captioner("Comparison of theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $h$, $\\tau$, and $m$. The left and center plots display the convergence rates in $h$ and $\\tau$, respectively, on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale, while the right plot shows the exponential decay in $m$ on a semi-$\\text{log}_{e}$ scale, with $m$ plotted on a square-root scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
-knitr::include_graphics(here::here("data_files/tikzpic/p_all_nicer_tadpole_with_logtau_with_mathpazo.pdf"))
-```
-
-
-
-**Metric graph - with logtau and tauminustwo**
 
 ```{r, eval = FALSE, echo = FALSE}
 library(patchwork)
