@@ -148,6 +148,32 @@ alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
+```{r}
+for (j in 1:length(alpha_vector)) {
+  alpha <- alpha_vector[j] 
+  beta <- alpha / 2
+
+  # Compute the eigenvalues and eigenfunctions on the finest mesh
+  overkill_eigen_params <- gets.eigen.params(N_finite = N_finite, 
+                                             kappa = kappa, 
+                                             alpha = alpha, 
+                                             graph = overkill_graph)
+  EIGENVAL_MINUS_ALPHA <- overkill_eigen_params$EIGENVAL_MINUS_ALPHA # Eigenvalues (they are independent of the meshes)
+  overkill_EIGENFUN <- overkill_eigen_params$EIGENFUN # Eigenfunctions on the finest mesh
+  
+  # Compute the true solution on the finest mesh
+  overkill_elliptic_f <- as.vector(overkill_EIGENFUN %*% coeff_elliptic_f)
+  overkill_elliptic_g <- as.vector(overkill_EIGENFUN %*% coeff_elliptic_g)
+  # Construct the corresponding elliptic solution u and v on the integration mesh
+  overkill_elliptic_u <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_f * EIGENVAL_MINUS_ALPHA))
+  overkill_elliptic_v <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
+  overkill_u_bar <- outer(overkill_elliptic_u, overkill_psi)
+  overkill_p_bar <- - mu * outer(overkill_elliptic_v, overkill_phi)
+  overkill_z_bar <- matrix(pmax(a, pmin(b, - overkill_p_bar / mu)), dim(overkill_p_bar))
+}
+```
+
+
 ```{r, eval = FALSE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_u_bar <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
@@ -267,31 +293,26 @@ for (j in 1:length(alpha_vector)) {
         z_bar = z_bar
       ))
     
-    U_bar <- res$U
-    P_bar <- res$P
-    Z_bar <- res$Z
+    auxX <- res$U
+    auxX <- construct_piecewise_projection(Psi %*% auxX, time_seq, overkill_time_seq)
+    auxX <- overkill_u_bar - auxX
+    UU <- sqrt(as.double(overkill_time_step * sum(auxX * (overkill_C %*% auxX))))
     
-    projected_u_bar_piecewise <- construct_piecewise_projection(Psi %*% U_bar, time_seq, overkill_time_seq)
-    projected_p_bar_piecewise <- construct_piecewise_projection(Psi %*% P_bar, time_seq, overkill_time_seq)
-    projected_z_bar_piecewise <- construct_piecewise_projection(Psi %*% Z_bar, time_seq, overkill_time_seq)
+    auxX <- res$P
+    auxX <- construct_piecewise_projection(Psi %*% auxX, time_seq, overkill_time_seq)
+    auxX <- overkill_p_bar - auxX
+    PP <- sqrt(as.double(overkill_time_step * sum(auxX * (overkill_C %*% auxX))))
     
-    UU <- overkill_u_bar - projected_u_bar_piecewise
-    PP <- overkill_p_bar - projected_p_bar_piecewise
-    ZZ <- overkill_z_bar - projected_z_bar_piecewise
-    
-    rm(projected_u_bar_piecewise, projected_p_bar_piecewise, projected_z_bar_piecewise)
-    
-    DDD <- sqrt(as.double(overkill_time_step * sum(UU * (overkill_C %*% UU))))
-    HHH <- sqrt(as.double(overkill_time_step * sum(PP * (overkill_C %*% PP))))
-    KKK <- sqrt(as.double(overkill_time_step * sum(ZZ * (overkill_C %*% ZZ))))
-    
-    rm(UU, PP, ZZ)
+    auxX <- res$Z
+    auxX <- construct_piecewise_projection(Psi %*% auxX, time_seq, overkill_time_seq)
+    auxX <- overkill_z_bar - auxX
+    ZZ <- sqrt(as.double(overkill_time_step * sum(auxX * (overkill_C %*% auxX))))
 
-    errors_u_bar[i,j] <- DDD
-    errors_p_bar[i,j] <- HHH
-    errors_z_bar[i,j] <- KKK
+    errors_u_bar[i,j] <- UU
+    errors_p_bar[i,j] <- PP
+    errors_z_bar[i,j] <- ZZ
     print(paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step))
-    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step, ", converged = ", res$converged, ", iterations = ", res$iterations, ", error u = ", DDD, ", error p = ", HHH, ", error z = ", KKK, ", maxabs = ", maxabs), channel = "#research")
+    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step, ", converged = ", res$converged, ", iterations = ", res$iterations, ", error u = ", UU, ", error p = ", PP, ", error z = ", ZZ, ", maxabs = ", maxabs), channel = "#research")
   }
 }
 save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_h_with_iteration.RData"))
