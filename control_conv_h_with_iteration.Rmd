@@ -148,31 +148,6 @@ alpha_vector <- seq(1, 1.8, by = 0.2)
 ```
 
 
-```{r}
-for (j in 1:length(alpha_vector)) {
-  alpha <- alpha_vector[j] 
-  beta <- alpha / 2
-
-  # Compute the eigenvalues and eigenfunctions on the finest mesh
-  overkill_eigen_params <- gets.eigen.params(N_finite = N_finite, 
-                                             kappa = kappa, 
-                                             alpha = alpha, 
-                                             graph = overkill_graph)
-  EIGENVAL_MINUS_ALPHA <- overkill_eigen_params$EIGENVAL_MINUS_ALPHA # Eigenvalues (they are independent of the meshes)
-  overkill_EIGENFUN <- overkill_eigen_params$EIGENFUN # Eigenfunctions on the finest mesh
-  
-  # Compute the true solution on the finest mesh
-  overkill_elliptic_f <- as.vector(overkill_EIGENFUN %*% coeff_elliptic_f)
-  overkill_elliptic_g <- as.vector(overkill_EIGENFUN %*% coeff_elliptic_g)
-  # Construct the corresponding elliptic solution u and v on the integration mesh
-  overkill_elliptic_u <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_f * EIGENVAL_MINUS_ALPHA))
-  overkill_elliptic_v <- as.vector(overkill_EIGENFUN %*% (coeff_elliptic_g * EIGENVAL_MINUS_ALPHA))
-  overkill_u_bar <- outer(overkill_elliptic_u, overkill_psi)
-  overkill_p_bar <- - mu * outer(overkill_elliptic_v, overkill_phi)
-  overkill_z_bar <- matrix(pmax(a, pmin(b, - overkill_p_bar / mu)), dim(overkill_p_bar))
-}
-```
-
 
 ```{r, eval = FALSE, class.source = "fold-show"}
 # Create a matrix to store the errors
@@ -201,7 +176,17 @@ for (j in 1:length(alpha_vector)) {
   overkill_p_bar <- - mu * outer(overkill_elliptic_v, overkill_phi)
   overkill_z_bar <- matrix(pmax(a, pmin(b, - overkill_p_bar / mu)), dim(overkill_p_bar))
   
-  maxabs <- max(abs(overkill_p_bar / mu))
+
+  # minp <- -max(overkill_p_bar) / mu
+  # maxp <- -min(overkill_p_bar) / mu
+  xgh <- range(overkill_elliptic_v) 
+  ygh <- range(overkill_phi)
+
+  vals <- c(xgh[1] * ygh[1], xgh[1] * ygh[2],
+          xgh[2] * ygh[1], xgh[2] * ygh[2])
+
+  minp <- min(vals)
+  maxp <- max(vals)
     
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
@@ -312,7 +297,7 @@ for (j in 1:length(alpha_vector)) {
     errors_p_bar[i,j] <- PP
     errors_z_bar[i,j] <- ZZ
     print(paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step))
-    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step, ", converged = ", res$converged, ", iterations = ", res$iterations, ", error u = ", UU, ", error p = ", PP, ", error z = ", ZZ, ", maxabs = ", maxabs), channel = "#research")
+    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step, ", converged = ", res$converged, ", iterations = ", res$iterations, ", error u = ", UU, ", error p = ", PP, ", error z = ", ZZ, ", minp = ", minp, ", maxp = ", maxp), channel = "#research")
   }
 }
 save(errors_u_bar, errors_p_bar, errors_z_bar, file = here::here("data_files/control_error_h_with_iteration.RData"))
