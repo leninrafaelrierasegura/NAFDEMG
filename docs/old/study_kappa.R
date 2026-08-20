@@ -135,3 +135,12 @@ rmarkdown::render("new_conv_in_m.Rmd")
 knitr::purl(here::here("conv_in_m_with_logtau_and_tauminustwo.Rmd"),
             output = here::here("old/conv_in_m_with_logtau_and_tauminustwo.R"))
 
+
+
+rmarkdown::render("control_conv_h_with_iteration_with_logtau_and_tauminustwo.Rmd")
+rmarkdown::render("control_conv_tau_with_iteration_with_logtau_and_tauminustwo.Rmd")
+rmarkdown::render("control_conv_m_with_iteration_with_logtau_and_tauminustwo.Rmd")
+
+
+
+
