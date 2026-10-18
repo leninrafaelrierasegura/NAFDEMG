@@ -257,7 +257,10 @@ overkill_graph <- gets.graph.tadpole(h = 0.0001)
 overkill_graph$compute_fem()
 overkill_EIGENFUN <- gets.eigen.params(N_finite = N_finite, kappa = kappa, alpha = alpha, graph = overkill_graph)$EIGENFUN
 
-
+Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
+auxB <- t(Psi) %*% overkill_graph$mesh$C %*% overkill_EIGENFUN
+auxL <- as.numeric(solve(C, auxB %*% coeff_U_0))
+    
 FF_innerprod <- t(graph$fem_basis(overkill_graph$get_mesh_locations())) %*%
   overkill_graph$mesh$C %*%
   overkill_EIGENFUN %*%
@@ -279,6 +282,11 @@ XX <- U_true - U_approx
 
 error <- sqrt(as.double(time_step * sum(XX * (C %*% XX))))
 save(error, file = here::here("data_files/error_exp1.RData"))
+```
+
+
+```{r}
+graph.plotter.3d.static(graph, z_list = list(U_0 = U_0, auxU0 = auxU0))
 ```
 
 The following is the error reported in the paper for the considered experiment.
