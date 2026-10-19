@@ -1,0 +1,232 @@
+\begin{thebibliography}{10}
+
+\bibitem{arioli2018finite}
+Mario Arioli and Michele Benzi.
+\newblock A finite element method for quantum graphs.
+\newblock {\em IMA J. Numer. Anal.}, 38(3):1119--1163, 2018.
+
+\bibitem{Barrat2008Dynamicalprocess}
+Alain Barrat, Marc {Barth\'elemy}, and Alessandro Vespignani.
+\newblock {\em Dynamical processes on complex networks}.
+\newblock Cambridge University Press, Cambridge, 2008.
+
+\bibitem{berkolaiko2013introduction}
+Gregory Berkolaiko and Peter Kuchment.
+\newblock {\em Introduction to quantum graphs}, volume 186 of {\em Mathematical Surveys and Monographs}.
+\newblock American Mathematical Society, Providence, RI, 2013.
+
+\bibitem{bolin2020rationalapprox}
+David Bolin and Kristin Kirchner.
+\newblock The rational {SPDE} approach for {G}aussian random fields with general smoothness.
+\newblock {\em J. Comput. Graph. Statist.}, 29(2):274--285, 2020.
+
+\bibitem{bolin2020numerical}
+David Bolin, Kristin Kirchner, and Mih\'aly Kov\'acs.
+\newblock Numerical solution of fractional elliptic stochastic {PDE}s with spatial white noise.
+\newblock {\em IMA J. Numer. Anal.}, 40(2):1051--1073, 2020.
+
+\bibitem{bolin2023regularity}
+David Bolin, Mih\'aly Kov\'acs, Vivek Kumar, and Alexandre~B. Simas.
+\newblock Regularity and numerical approximation of fractional elliptic differential equations on compact metric graphs.
+\newblock {\em Math. Comp.}, 93(349):2439--2472, 2024.
+
+\bibitem{rSPDERpackage}
+David Bolin and Alexandre~B. Simas.
+\newblock {\em rSPDE: Rational Approximations of Fractional Stochastic Partial Differential Equations}, 2023.
+\newblock R package version 2.3.3.
+
+\bibitem{MetricGraphRpackage}
+David Bolin, Alexandre~B. Simas, and Jonas Wallin.
+\newblock {\em MetricGraph: Random fields on metric graphs}, 2023.
+\newblock R package version 1.3.0.9000.
+
+\bibitem{bolin2024gaussian}
+David Bolin, Alexandre~B. Simas, and Jonas Wallin.
+\newblock Gaussian {W}hittle-{M}at\'ern fields on metric graphs.
+\newblock {\em Bernoulli}, 30(2):1611--1639, 2024.
+
+\bibitem{Bonito2018Numericalmethods}
+Andrea Bonito, Juan~Pablo Borthagaray, Ricardo~H. Nochetto, Enrique Ot\'arola, and Abner~J. Salgado.
+\newblock Numerical methods for fractional diffusion.
+\newblock {\em Comput. Vis. Sci.}, 19(5-6):19--46, 2018.
+
+\bibitem{Bonito2017Theapproximation}
+Andrea Bonito, Wenyu Lei, and Joseph~E. Pasciak.
+\newblock The approximation of parabolic equations involving fractional powers of elliptic operators.
+\newblock {\em J. Comput. Appl. Math.}, 315:32--48, 2017.
+
+\bibitem{bottcher2024dynamicalprocessesmetricnetworks}
+Lucas Böttcher and Mason~A. Porter.
+\newblock Dynamical processes on metric networks, 2024.
+
+\bibitem{ChandlerWilde2015interpolation}
+S.~N. Chandler-Wilde, D.~P. Hewett, and A.~Moiola.
+\newblock Interpolation of {H}ilbert and {S}obolev spaces: quantitative estimates and counterexamples.
+\newblock {\em Mathematika}, 61(2):414--443, 2015.
+
+\bibitem{Cordoni2017Stochasticreactiondiffusion}
+Francesco Cordoni and Luca Di~Persio.
+\newblock Stochastic reaction-diffusion equations on networks with dynamic time-delayed boundary conditions.
+\newblock {\em J. Math. Anal. Appl.}, 451(1):583--603, 2017.
+
+\bibitem{Danko2017Modelelements}
+George~L. Danko.
+\newblock {\em Model elements and network solutions of heat, mass and momentum transport processes}.
+\newblock Heat and Mass Transfer. Springer-Verlag, Berlin, 2017.
+
+\bibitem{Daoud2025classp}
+Maha Daoud.
+\newblock A class of parabolic reaction-diffusion systems governed by spectral fractional {L}aplacians: Analysis and numerical simulations, 2025.
+
+\bibitem{Daoud2024Aclass}
+Maha Daoud, El-Haj Laamri, and Azeddine Baalal.
+\newblock A class of fractional parabolic reaction--diffusion systems with control of total mass: theory and numerics.
+\newblock {\em J. Pseudo-Differ. Oper. Appl.}, 15(1):Paper No. 18, 36, 2024.
+
+\bibitem{Du2018PDE}
+Bo~Du, Xiuguo Lian, and Xiwang Cheng.
+\newblock Partial differential equation modeling with {D}irichlet boundary conditions on social networks.
+\newblock {\em Bound. Value Probl.}, pages Paper No. 50, 11, 2018.
+
+\bibitem{Dutykh2018Wave}
+Denys Dutykh and Jean-Guy Caputo.
+\newblock Wave dynamics on networks: method and application to the sine-{G}ordon equation.
+\newblock {\em Appl. Numer. Math.}, 131:54--71, 2018.
+
+\bibitem{Evangelista2018Fractional}
+Luiz~Roberto Evangelista and Ervin~Kaminski Lenzi.
+\newblock {\em Fractional diffusion equations and anomalous diffusion}.
+\newblock Cambridge University Press, Cambridge, 2018.
+
+\bibitem{Evans2010Partial}
+Lawrence~C. Evans.
+\newblock {\em Partial differential equations}, volume~19 of {\em Graduate Studies in Mathematics}.
+\newblock American Mathematical Society, Providence, RI, second edition, 2010.
+
+\bibitem{Faheem2023Acollocation}
+Mo~Faheem and Arshad Khan.
+\newblock A collocation method for time-fractional diffusion equation on a metric star graph with {$\eta$} edges.
+\newblock {\em Math. Methods Appl. Sci.}, 46(8):8895--8914, 2023.
+
+\bibitem{Glusa2021errorestimates}
+Christian Glusa and Enrique Ot\'arola.
+\newblock Error estimates for the optimal control of a parabolic fractional {PDE}.
+\newblock {\em SIAM J. Numer. Anal.}, 59(2):1140--1165, 2021.
+
+\bibitem{Goloshchapova2021Anonlinear}
+Nataliia Goloshchapova.
+\newblock A nonlinear {K}lein-{G}ordon equation on a star graph.
+\newblock {\em Math. Nachr.}, 294(9):1742--1764, 2021.
+
+\bibitem{Goodman2019NLSbifurcations}
+Roy~H. Goodman.
+\newblock N{LS} bifurcations on the bowtie combinatorial graph and the dumbbell metric graph.
+\newblock {\em Discrete Contin. Dyn. Syst.}, 39(4):2203--2232, 2019.
+
+\bibitem{Goodman2025QGlAB}
+Roy~H. Goodman, Grace Conte, and Jeremy~L. Marzuola.
+\newblock Q{GLAB}: a {MATLAB} package for computations on quantum graphs.
+\newblock {\em SIAM J. Sci. Comput.}, 47(2):B428--B453, 2025.
+
+\bibitem{Henry2006Anomalous}
+B.~I. Henry, T.~A.~M. Langlands, and S.~L. Wearne.
+\newblock Anomalous diffusion with linear reaction dynamics: from continuous time random walks to fractional reaction-diffusion equations.
+\newblock {\em Phys. Rev. E (3)}, 74(3):031116, 15, 2006.
+
+\bibitem{Henry1981}
+Daniel Henry.
+\newblock {\em Geometric Theory of Semilinear Parabolic Equations}, volume 840 of {\em Lecture Notes in Mathematics}.
+\newblock Springer-Verlag, Berlin-New York, 1981.
+
+\bibitem{Herty2010Anewmodelforgasflow}
+M.~Herty, J.~Mohring, and V.~Sachers.
+\newblock A new model for gas flow in pipe networks.
+\newblock {\em Math. Methods Appl. Sci.}, 33(7):845--855, 2010.
+
+\bibitem{Jivkov2014Anetworkmodel}
+Andrey~P. Jivkov and Qingrong Xiong.
+\newblock A network model for diffusion in media with partially resolvable pore space characteristics.
+\newblock {\em Transp. Porous Media}, 105(1):83--104, 2014.
+
+\bibitem{Kovacs2021Stochastics}
+M.~Kov\'acs and E.~Sikolya.
+\newblock Stochastic reaction-diffusion equations on networks.
+\newblock {\em J. Evol. Equ.}, 21(4):4213--4260, 2021.
+
+\bibitem{Kumari2025Finite}
+Shweta Kumari, Mani Mehra, and Vaibhav Mehandiratta.
+\newblock Finite difference approximation of time-fractional advection-diffusion equation on a metric star graph.
+\newblock {\em Int. J. Comput. Math.}, 102(12):2032--2050, 2025.
+
+\bibitem{Leugering2023Optimalcontrol}
+G\"unter Leugering, Gis\`ele Mophou, Maryse Moutamal, and Mahamadi Warma.
+\newblock Optimal control problems of parabolic fractional {S}turm-{L}iouville equations in a star graph.
+\newblock {\em Math. Control Relat. Fields}, 13(2):771--807, 2023.
+
+\bibitem{Lions1972Nonhomogeneous}
+J.-L. Lions and E.~Magenes.
+\newblock {\em Non-homogeneous boundary value problems and applications. {V}ol. {I}}, volume 181 of {\em Die Grundlehren der mathematischen Wissenschaften}.
+\newblock Springer-Verlag, New York-Heidelberg, 1972.
+\newblock Translated from the French by P. Kenneth.
+
+\bibitem{Lunardi2018Interpolation}
+Alessandra Lunardi.
+\newblock {\em Interpolation theory}, volume~16 of {\em Appunti. Scuola Normale Superiore di Pisa (Nuova Serie) [Lecture Notes. Scuola Normale Superiore di Pisa (New Series)]}.
+\newblock Edizioni della Normale, Pisa, third edition, 2018.
+
+\bibitem{Mehandiratta2021Optimalcontrol}
+Vaibhav Mehandiratta, Mani Mehra, and Gunter Leugering.
+\newblock Optimal control problems driven by time-fractional diffusion equations on metric graphs: optimality system and finite difference approximation.
+\newblock {\em SIAM J. Control Optim.}, 59(6):4216--4242, 2021.
+
+\bibitem{Metzler2000Therandomwalksguide}
+Ralf Metzler and Joseph Klafter.
+\newblock The random walk's guide to anomalous diffusion: a fractional dynamics approach.
+\newblock {\em Phys. Rep.}, 339(1):77, 2000.
+
+\bibitem{Miller2006Onthecontrollability}
+Luc Miller.
+\newblock On the controllability of anomalous diffusions generated by the fractional {L}aplacian.
+\newblock {\em Math. Control Signals Systems}, 18(3):260--271, 2006.
+
+\bibitem{Nochetto2016APDEapproach}
+Ricardo~H. Nochetto, Enrique Ot\'arola, and Abner~J. Salgado.
+\newblock A {PDE} approach to space-time fractional parabolic problems.
+\newblock {\em SIAM J. Numer. Anal.}, 54(2):848--873, 2016.
+
+\bibitem{Pastor2015Epidemicprocess}
+Romualdo Pastor-Satorras, Claudio Castellano, Piet Van~Mieghem, and Alessandro Vespignani.
+\newblock Epidemic processes in complex networks.
+\newblock {\em Rev. Modern Phys.}, 87(3):925--979, 2015.
+
+\bibitem{Rsoftware}
+{R Core Team}.
+\newblock {\em R: A Language and Environment for Statistical Computing}.
+\newblock R Foundation for Statistical Computing, Vienna, Austria, 2023.
+
+\bibitem{Raj2012Anetworkdiffusionmodel}
+Ashish Raj, Amy Kuceyeski, and Michael Weiner.
+\newblock A network diffusion model of disease progression in dementia.
+\newblock {\em Neuron}, 73(6):1204--1215, Mar 2012.
+
+\bibitem{Riascos2014Fractional}
+A.~P. Riascos and Jos\'e~L. Mateos.
+\newblock Fractional dynamics on networks: Emergence of anomalous diffusion and {L}\'evy flights.
+\newblock {\em Phys. Rev. E}, 90:032809, Sep 2014.
+
+\bibitem{Somathilake2018Aspacefractional}
+Lekam~Watte Somathilake and Kevin Burrage.
+\newblock A space-fractional-reaction-diffusion model for pattern formation in coral reefs.
+\newblock {\em Cogent Math. Stat.}, 5(1):Art. ID 1426524, 21, 2018.
+
+\bibitem{Vazquez2017Themathematical}
+Juan~Luis V\'azquez.
+\newblock The mathematical theories of diffusion: nonlinear and fractional diffusion.
+\newblock In {\em Nonlocal and nonlinear diffusions and interactions: new methods and directions}, volume 2186 of {\em Lecture Notes in Math.}, pages 205--278. Springer, Cham, 2017.
+
+\bibitem{kups73182}
+Anna Weller.
+\newblock {\em Numerical Methods for Parabolic Partial Differential Equations on Metric Graphs}.
+\newblock PhD thesis, Universit{\"a}t zu K{\"o}ln, 2024.
+
+\end{thebibliography}

@@ -119,7 +119,7 @@ slackr_setup(token = token) # token comes from keys.R
 
 ```{r}
 # Parameters
-T_final <- 1e-4#2
+T_final <- 1e-4
 kappa <- 4
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
@@ -144,6 +144,10 @@ alpha_vector <- c(0.5)
 overkill_time_step <- 1e-8
 overkill_h <- 5e-4
 # Finest time and space mesh
+reference_grid <- make_time_grid(T_final = T_final, target_step = overkill_time_step)
+overkill_time_step <- reference_grid$time_step
+overkill_time_seq <- reference_grid$time_seq
+
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
 overkill_graph <- gets.graph.tadpole(h = overkill_h)
 # Compute the weights on the finest mesh
@@ -183,29 +187,35 @@ for (j in 1:length(alpha_vector)) {
     C <- graph$mesh$C
     auxL <- kappa^2*C + auxL
     Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
+    
+    time_grid <- make_time_grid(T_final = T_final, target_step = time_step)
+    time_step <- time_grid$time_step
+    time_seq <- time_grid$time_seq
   
-    time_seq <- seq(0, T_final, length.out = ((T_final - 0) / time_step + 1))
-    my_op_frac <- my.fractional.operators.frac(L = auxL, 
-                                               beta = beta,
-                                               C = C, 
-                                               scale.factor = kappa^2, 
-                                               m = m, 
-                                               time_step = time_step)
+    my_op_frac <- my.fractional.operators.frac(L = auxL, beta = beta, C = C, scale.factor = kappa^2, m = m, time_step = time_step)
     auxB <- t(Psi) %*% overkill_C %*% auxE
-    # auxL <- as.numeric(solve(C, auxB %*% coeff_U_0))
     # This function currently handles only the fifth eigenfunction.
     stopifnot(all(coeff_U_0[-5] == 0))
     auxL <- project_u0_tadpole(graph, amplitude = coeff_U_0[5])
+    auxL2 <- gets.eigen.params(N_finite = N_finite, kappa = kappa, alpha = alpha, graph = graph)$EIGENFUN %*% coeff_U_0
+    auxL2 <- auxL - auxL2
+    L2_error_ini <- sqrt(as.numeric(crossprod(auxL2, C %*% auxL2)))
     # Compute matrix F with columns F^k
-    auxB <- auxB %*%  
-      outer(1:length(coeff_FF), 
-            1:length(time_seq), 
-        function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))
+    # Interval-averaged temporal forcing.
+    g_average <- average_sine_forcing(time_seq, A = AAA, omega = OMEGA)
+    # auxB currently contains the spatial inner products.
+    # Convert it into the time-averaged load matrix.
+    auxB <- auxB %*% outer(coeff_FF, g_average)
+    # auxB <- auxB %*%  
+    #   outer(1:length(coeff_FF), 
+    #         1:length(time_seq), 
+    #     function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))
 
     auxB <- Psi %*% solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = auxL, RHST = auxB)
     auxB <- auxX - construct_piecewise_projection(auxB, time_seq, overkill_time_seq)
-    errors_projected[i,j] <- sqrt(as.double(overkill_time_step * sum(auxB * (overkill_C %*% auxB))))
-    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
+    errorij <- sqrt(as.double(overkill_time_step * sum(auxB * (overkill_C %*% auxB))))
+    errors_projected[i,j] <- errorij
+    slackr_msg(text = paste0("m = ", m, ", alpha = ", alpha, ", h = ", h, ", time_step = ", time_step, ", error = ", errorij, ", initial L2 error = ", L2_error_ini), channel = "#research")
   }
 }
 save(errors_projected, file = here::here("data_files/errors_projected_h.RData"))

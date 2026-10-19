@@ -46,6 +46,16 @@ Let us set some global options for all code chunks in this document.
 ```{r}
 # Create a clipboard button
 source(here::here("clipboard.R")); clipboard
+source(here::here("sourceifupdated.R"))
+source_if_updated("fun/fractional_evolution")
+source_if_updated("fun/graphs_and_meshes")
+source_if_updated("fun/plotting")
+source_if_updated("fun/metafunctions")
+source_if_updated("fun/exact_solutions")
+```
+
+
+```{r}
 # Set seed for reproducibility
 set.seed(1982) 
 # Set global options for all code chunks
@@ -94,15 +104,6 @@ library(reshape2)
 library(plotly)
 ```
 
-
-
-```{r}
-capture.output(
-  knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R")),
-  file = here::here("purl_log.txt")
-)
-source(here::here("functionality.R"))
-```
 
 
 ## The equation
@@ -220,7 +221,7 @@ time_step <- 0.001
 h <- 0.001
 kappa <- 15
 alpha <- 0.5
-m = 4
+m = 1
 beta <- alpha/2
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
@@ -259,11 +260,8 @@ overkill_EIGENFUN <- gets.eigen.params(N_finite = N_finite, kappa = kappa, alpha
 
 Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
 auxB <- t(Psi) %*% overkill_graph$mesh$C %*% overkill_EIGENFUN
-auxL <- as.numeric(solve(C, auxB %*% coeff_U_0))
     
-FF_innerprod <- t(graph$fem_basis(overkill_graph$get_mesh_locations())) %*%
-  overkill_graph$mesh$C %*%
-  overkill_EIGENFUN %*%
+FF_innerprod <- auxB %*%
   outer(1:length(coeff_FF), 
         1:length(time_seq), 
         function(i, j) coeff_FF[i] * g_sin(r = time_seq[j], A = AAA, omega = OMEGA))
@@ -285,9 +283,6 @@ save(error, file = here::here("data_files/error_exp1.RData"))
 ```
 
 
-```{r}
-graph.plotter.3d.static(graph, z_list = list(U_0 = U_0, auxU0 = auxU0))
-```
 
 The following is the error reported in the paper for the considered experiment.
 
@@ -316,6 +311,20 @@ end_idx <- which.min(abs(time_seq - 2))
 idx <- seq(start_idx, end_idx, by = 40)
 ```
 
+
+```{r}
+auxL <- as.numeric(solve(C, auxB %*% coeff_U_0))
+auxL2 <- project_u0_tadpole(graph, amplitude = coeff_U_0[5])
+# difference <- auxL - auxL2
+# L2_error <- sqrt(as.numeric(crossprod(difference, C %*% difference)))
+# L2_error
+
+# sqrt(as.numeric(t(graph$mesh$weights) %*% (auxL - auxL2)^2))
+# sqrt(as.numeric(t(graph$mesh$weights) %*% (U_0 - auxL2)^2))
+# sqrt(as.numeric(t(graph$mesh$weights) %*% (auxL - U_0)^2))
+
+graph.plotter.3d.static(graph, z_list = list(U_0 = U_0, auxL = auxL, auxL2 = auxL2))
+```
 
 # Another comparison
 

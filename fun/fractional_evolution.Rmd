@@ -461,6 +461,62 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
 }
 ```
 
+```{r}
+make_time_grid <- function(T_final, target_step) {
+  stopifnot(
+    length(T_final) == 1L, is.finite(T_final), T_final > 0,
+    length(target_step) == 1L,
+    is.finite(target_step), target_step > 0
+  )
+  N <- ceiling(T_final / target_step)
+  time_step <- T_final / N
+  time_seq <- seq(0, T_final, length.out = N + 1)
+  
+  return(list(N = N, time_step = time_step, time_seq = time_seq))
+}
+```
+
+The next function computes
+
+\[
+\overline g_k
+=\frac1\tau\int_{t_{k-1}}^{t_k}g(t)\,dt
+=\frac{A[\cos(\omega t_{k-1})-\cos(\omega t_k)]}{\omega\tau}.
+\]
+To avoid subtracting nearly equal cosines, we use the equivalent formula
+\[
+\overline g_k
+=A\sin\!\left(\omega\frac{t_{k-1}+t_k}{2}\right)
+\frac{\sin(\omega\tau/2)}{\omega\tau/2}.
+\]
+
+```{r}
+average_sine_forcing <- function(time_seq, A = 1, omega = pi) {
+  dt <- diff(time_seq)
+
+  stopifnot(
+    length(time_seq) >= 2L,
+    all(is.finite(time_seq)),
+    all(dt > 0)
+  )
+
+  midpoint <- head(time_seq, -1) + dt/2
+  z <- omega * dt/2
+
+  # sin(z)/z, with its limiting value at z = 0.
+  sinc_z <- rep(1, length(z))
+  nonzero <- z != 0
+  sinc_z[nonzero] <- sin(z[nonzero]) / z[nonzero]
+
+  averages <- A * sin(omega * midpoint) * sinc_z
+
+  # First entry is unused by the evolution solver.
+  c(0, averages)
+}
+```
+
+
+
 ## References
 
 ```{r, purl = FALSE}
