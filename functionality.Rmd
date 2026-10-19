@@ -293,6 +293,23 @@ poly.from.roots <- function(roots) {
 Given `factor`$=\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, `pr_roots`$=\{r_{1i}\}_{i=1}^m$, `pl_roots`$=\{r_{2j}\}_{j=1}^{m+1}$, `time_step`$=\tau$, and `scaling`$=\kappa^{2\beta}$, function `compute.partial.fraction.param()` computes the parameters for the partial fraction decomposition \eqref{eq:partial_fraction}.
 
 ```{r}
+# # Function to compute the parameters for the partial fraction decomposition
+# compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
+#                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
+#                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
+#                                            time_step, # \tau
+#                                            scaling # \kappa^{2\beta}
+#                                            ) {
+#   pr_coef <- c(0, poly.from.roots(pr_roots))
+#   pl_coef <- poly.from.roots(pl_roots)
+#   factor_pr_coef <- pr_coef
+#   pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
+#   res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
+#   return(list(r = res$r, # residues \{a_k\}_{k=1}^{m+1}
+#               p = res$p, # poles \{p_k\}_{k=1}^{m+1}
+#               k = res$k # remainder r
+#               ))
+# }
 # Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
@@ -3354,89 +3371,6 @@ m_from_h <- function(h, alpha, C, tau) {
 # cat("RHS =", rhs, "\n")
 # cat("Absolute error =", abs(lhs - rhs), "\n")
 # cat("Relative error =", abs(lhs - rhs) / abs(rhs), "\n")
-```
-
-
-```{r}
-trig_hat_integrals <- function(a, b, w, A = 0, B = 0) {
-  h <- b - a
-  z <- w * h / 2
-  theta <- w * (a + b) / 2
-
-  if (abs(z) < 1e-3) {
-    S <- 1 - z^2/6 + z^4/120 - z^6/5040
-    Q <- z/3 - z^3/30 + z^5/840 - z^7/45360
-  } else {
-    S <- sin(z) / z
-    Q <- (sin(z) - z*cos(z)) / z^2
-  }
-
-  v <- A*cos(theta) + B*sin(theta)
-  q <- A*sin(theta) - B*cos(theta)
-
-  h/2 * c(left  = S*v + Q*q,
-          right = S*v - Q*q)
-}
-
-project_u0_tadpole <- function(graph, amplitude = 10) {
-  C <- graph$mesh$C
-  PtE <- graph$mesh$PtE
-  lengths <- graph$get_edge_lengths()
-
-  stopifnot(
-    !is.null(C),
-    length(lengths) == 2L,
-    nrow(C) == 2L + nrow(PtE),
-    length(amplitude) == 1L,
-    is.finite(amplitude)
-  )
-
-  # Integrate A*cos(w*x) + B*sin(w*x) against the two
-  # local linear basis functions on [a,b].
-  local_load <- function(a, b, w, A, B) {
-    h <- b - a
-    z <- w * h / 2
-    theta <- w * (a + b) / 2
-
-    if (abs(z) < 1e-3) {
-      S <- 1 - z^2/6 + z^4/120 - z^6/5040
-      Q <- z/3 - z^3/30 + z^5/840 - z^7/45360
-    } else {
-      S <- sin(z) / z
-      Q <- (sin(z) - z*cos(z)) / z^2
-    }
-
-    v <- A*cos(theta) + B*sin(theta)
-    q <- A*sin(theta) - B*cos(theta)
-
-    h/2 * c(S*v + Q*q, S*v - Q*q)
-  }
-
-  b0 <- numeric(nrow(C))
-  w <- 3*pi/2
-
-  for (edge in 1:2) {
-    idx <- which(PtE[, 1] == edge)
-    idx <- idx[order(PtE[idx, 2])]
-
-    x <- c(0, lengths[edge] * PtE[idx, 2], lengths[edge])
-
-    start_node <- if (edge == 1L) 1L else 2L
-    nodes <- c(start_node, 2L + idx, 2L)
-
-    A <- if (edge == 1L) 2*amplitude/sqrt(3) else 0
-    B <- if (edge == 2L) amplitude/sqrt(3) else 0
-
-    for (j in seq_len(length(x) - 1L)) {
-      load <- local_load(x[j], x[j + 1L], w, A, B)
-
-      b0[nodes[j]] <- b0[nodes[j]] + load[1]
-      b0[nodes[j + 1L]] <- b0[nodes[j + 1L]] + load[2]
-    }
-  }
-
-  as.numeric(solve(C, b0))
-}
 ```
 
 

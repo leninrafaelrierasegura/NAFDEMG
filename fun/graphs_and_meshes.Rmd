@@ -275,7 +275,6 @@ globe_from_h <- function(h) {
   spline_func <- splinefun(x = h_sorted, 
                            y = globe_sorted, 
                            method = "monoH.FC")
-
   return(round(spline_func(h)))
 }
 ```

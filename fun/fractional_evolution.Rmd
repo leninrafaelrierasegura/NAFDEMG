@@ -398,7 +398,6 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
   }
 }
 
-
 # my.solver.frac <- function(obj, v) {
 #   beta <- obj$beta
 #   m <- obj$m
@@ -419,7 +418,6 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 #   
 #   return(Reduce(`+`, results))
 # }
-
 ```
 
 
@@ -462,3 +460,10 @@ construct_piecewise_projection <- function(projected_U_approx, time_seq, overkil
   return(projected_U_piecewise)
 }
 ```
+
+## References
+
+```{r, purl = FALSE}
+grateful::cite_packages(output = "paragraph", out.dir = ".")
+```
+

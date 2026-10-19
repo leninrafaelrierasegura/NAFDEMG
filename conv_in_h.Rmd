@@ -46,6 +46,16 @@ Let us set some global options for all code chunks in this document.
 ```{r}
 # Create a clipboard button
 source(here::here("clipboard.R")); clipboard
+source(here::here("sourceifupdated.R"))
+source_if_updated("fun/fractional_evolution")
+source_if_updated("fun/graphs_and_meshes")
+source_if_updated("fun/plotting")
+source_if_updated("fun/metafunctions")
+source_if_updated("fun/exact_solutions")
+```
+
+
+```{r}
 # Set seed for reproducibility
 set.seed(1982) 
 # Set global options for all code chunks
@@ -103,13 +113,6 @@ slackr_setup(token = token) # token comes from keys.R
 
 
 
-```{r}
-capture.output(
-  knitr::purl(here::here("functionality.Rmd"), output = here::here("functionality.R")),
-  file = here::here("purl_log.txt")
-)
-source(here::here("functionality.R"))
-```
 
 
 
@@ -129,7 +132,7 @@ coeff_FF[7] <- 10
 AAA = 1
 OMEGA = pi
 
-h_vector <- 10^seq(log10(0.001), log10(0.01), length.out = 6) 
+h_vector <- 10^seq(log10(0.001), log10(0.01), length.out = 4) 
 alpha_vector <- c(0.5)
 ```
 
