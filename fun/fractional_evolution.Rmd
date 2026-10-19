@@ -445,19 +445,40 @@ Given a matrix `projected_U_approx` with approximated values at discrete time po
 
 ```{r}
 # Function to construct a piecewise constant projection of approximated values
-construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
-  projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
+# construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
+#   projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
   
-  # Assign value at t = 0
-  projected_U_piecewise[, which(overkill_time_seq == 0)] <- projected_U_approx[, 1]
+#   # Assign value at t = 0
+#   projected_U_piecewise[, which(overkill_time_seq == 0)] <- projected_U_approx[, 1]
   
-  # Assign values for intervals (t_{k-1}, t_k]
-  for (k in 2:length(time_seq)) {
-    idxs <- which(overkill_time_seq > time_seq[k - 1] & overkill_time_seq <= time_seq[k])
-    projected_U_piecewise[, idxs] <- projected_U_approx[, k]
-  }
+#   # Assign values for intervals (t_{k-1}, t_k]
+#   for (k in 2:length(time_seq)) {
+#     idxs <- which(overkill_time_seq > time_seq[k - 1] & overkill_time_seq <= time_seq[k])
+#     projected_U_piecewise[, idxs] <- projected_U_approx[, k]
+#   }
   
-  return(projected_U_piecewise)
+#   return(projected_U_piecewise)
+# }
+construct_piecewise_projection <- function(
+    projected_U_approx, time_seq, overkill_time_seq) {
+
+  stopifnot(
+    length(time_seq) >= 2L,
+    ncol(projected_U_approx) == length(time_seq),
+    all(is.finite(time_seq)),
+    all(diff(time_seq) > 0),
+    all(is.finite(overkill_time_seq)),
+    all(overkill_time_seq >= time_seq[1]),
+    all(overkill_time_seq <= tail(time_seq, 1))
+  )
+
+  columns <- findInterval(
+    overkill_time_seq,
+    time_seq,
+    left.open = TRUE
+  ) + 1L
+
+  projected_U_approx[, columns, drop = FALSE]
 }
 ```
 

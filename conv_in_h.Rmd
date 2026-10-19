@@ -197,9 +197,9 @@ for (j in 1:length(alpha_vector)) {
     # This function currently handles only the fifth eigenfunction.
     stopifnot(all(coeff_U_0[-5] == 0))
     auxL <- project_u0_tadpole(graph, amplitude = coeff_U_0[5])
-    auxL2 <- gets.eigen.params(N_finite = N_finite, kappa = kappa, alpha = alpha, graph = graph)$EIGENFUN %*% coeff_U_0
-    auxL2 <- auxL - auxL2
-    L2_error_ini <- sqrt(as.numeric(crossprod(auxL2, C %*% auxL2)))
+    # auxL2 <- gets.eigen.params(N_finite = N_finite, kappa = kappa, alpha = alpha, graph = graph)$EIGENFUN %*% coeff_U_0
+    # auxL2 <- auxL - auxL2
+    # L2_error_ini <- sqrt(as.numeric(crossprod(auxL2, C %*% auxL2)))
     # Compute matrix F with columns F^k
     # Interval-averaged temporal forcing.
     g_average <- average_sine_forcing(time_seq, A = AAA, omega = OMEGA)
@@ -215,7 +215,7 @@ for (j in 1:length(alpha_vector)) {
     auxB <- auxX - construct_piecewise_projection(auxB, time_seq, overkill_time_seq)
     errorij <- sqrt(as.double(overkill_time_step * sum(auxB * (overkill_C %*% auxB))))
     errors_projected[i,j] <- errorij
-    slackr_msg(text = paste0("m = ", m, ", alpha = ", alpha, ", h = ", h, ", time_step = ", time_step, ", error = ", errorij, ", initial L2 error = ", L2_error_ini), channel = "#research")
+    slackr_msg(text = paste0("m = ", m, ", alpha = ", alpha, ", h = ", h, ", time_step = ", time_step, ", error = ", errorij, ", initial L2 error = ", errorij), channel = "#research")
   }
 }
 save(errors_projected, file = here::here("data_files/errors_projected_h.RData"))
