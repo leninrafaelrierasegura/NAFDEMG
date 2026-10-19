@@ -213,7 +213,15 @@ for (j in 1:length(alpha_vector)) {
 
     auxB <- Psi %*% solve_fractional_evolution(my_op_frac, time_step, time_seq, val_at_0 = auxL, RHST = auxB)
     auxB <- auxX - construct_piecewise_projection(auxB, time_seq, overkill_time_seq)
-    errorij <- sqrt(as.double(overkill_time_step * sum(auxB * (overkill_C %*% auxB))))
+    #errorij <- sqrt(as.double(overkill_time_step * sum(auxB * (overkill_C %*% auxB))))
+    # Spatial squared L2 error at each reference time.
+    error_squared <- colSums(auxB * (overkill_C %*% auxB))
+    
+    # Right-endpoint temporal quadrature weights.
+    time_weights <- c(0, diff(overkill_time_seq))
+    
+    # Approximate L2((0,T) x Gamma) error.
+    errorij <- sqrt(sum(time_weights * error_squared))
     errors_projected[i,j] <- errorij
     slackr_msg(text = paste0("m = ", m, ", alpha = ", alpha, ", h = ", h, ", time_step = ", time_step, ", error = ", errorij, ", initial L2 error = ", errorij), channel = "#research")
   }

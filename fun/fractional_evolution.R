@@ -1,4 +1,4 @@
-## ------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## ------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
@@ -40,7 +40,7 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
 }
 
 
-## ------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
@@ -49,7 +49,7 @@ poly.from.roots <- function(roots) {
 }
 
 
-## ------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
@@ -90,7 +90,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
 }
 
 
-## ------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
@@ -134,7 +134,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 }
 
 
-## ------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -176,7 +176,7 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 # }
 
 
-## ------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------------------
 solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0, RHST) {
   CC <- my_op_frac$C
   SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
@@ -189,25 +189,46 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 }
 
 
-## ------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to construct a piecewise constant projection of approximated values
-construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
-  projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
+# construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
+#   projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
   
-  # Assign value at t = 0
-  projected_U_piecewise[, which(overkill_time_seq == 0)] <- projected_U_approx[, 1]
+#   # Assign value at t = 0
+#   projected_U_piecewise[, which(overkill_time_seq == 0)] <- projected_U_approx[, 1]
   
-  # Assign values for intervals (t_{k-1}, t_k]
-  for (k in 2:length(time_seq)) {
-    idxs <- which(overkill_time_seq > time_seq[k - 1] & overkill_time_seq <= time_seq[k])
-    projected_U_piecewise[, idxs] <- projected_U_approx[, k]
-  }
+#   # Assign values for intervals (t_{k-1}, t_k]
+#   for (k in 2:length(time_seq)) {
+#     idxs <- which(overkill_time_seq > time_seq[k - 1] & overkill_time_seq <= time_seq[k])
+#     projected_U_piecewise[, idxs] <- projected_U_approx[, k]
+#   }
   
-  return(projected_U_piecewise)
+#   return(projected_U_piecewise)
+# }
+construct_piecewise_projection <- function(
+    projected_U_approx, time_seq, overkill_time_seq) {
+
+  stopifnot(
+    length(time_seq) >= 2L,
+    ncol(projected_U_approx) == length(time_seq),
+    all(is.finite(time_seq)),
+    all(diff(time_seq) > 0),
+    all(is.finite(overkill_time_seq)),
+    all(overkill_time_seq >= time_seq[1]),
+    all(overkill_time_seq <= tail(time_seq, 1))
+  )
+
+  columns <- findInterval(
+    overkill_time_seq,
+    time_seq,
+    left.open = TRUE
+  ) + 1L
+
+  projected_U_approx[, columns, drop = FALSE]
 }
 
 
-## ------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------------------------------------------------------
 make_time_grid <- function(T_final, target_step) {
   stopifnot(
     length(T_final) == 1L, is.finite(T_final), T_final > 0,
@@ -219,5 +240,30 @@ make_time_grid <- function(T_final, target_step) {
   time_seq <- seq(0, T_final, length.out = N + 1)
   
   return(list(N = N, time_step = time_step, time_seq = time_seq))
+}
+
+
+## -------------------------------------------------------------------------------------------------------------------------------------------------
+average_sine_forcing <- function(time_seq, A = 1, omega = pi) {
+  dt <- diff(time_seq)
+
+  stopifnot(
+    length(time_seq) >= 2L,
+    all(is.finite(time_seq)),
+    all(dt > 0)
+  )
+
+  midpoint <- head(time_seq, -1) + dt/2
+  z <- omega * dt/2
+
+  # sin(z)/z, with its limiting value at z = 0.
+  sinc_z <- rep(1, length(z))
+  nonzero <- z != 0
+  sinc_z[nonzero] <- sin(z[nonzero]) / z[nonzero]
+
+  averages <- A * sin(omega * midpoint) * sinc_z
+
+  # First entry is unused by the evolution solver.
+  c(0, averages)
 }
 
