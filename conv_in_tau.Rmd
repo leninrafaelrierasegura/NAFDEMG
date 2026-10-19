@@ -115,7 +115,7 @@ source(here::here("functionality.R"))
 
 ```{r}
 # Parameters
-T_final <- 2
+T_final <- 1e-4
 kappa <- 4
 N_finite = 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
@@ -129,53 +129,16 @@ AAA = 1
 OMEGA = pi
 
 # Time step and mesh size
-POWERS <- seq(6.125, 5.625, by = -0.1)
-tau_vector <- 0.1 * 2^-POWERS
-alpha_vector <- seq(1, 1.8, by = 0.2)
+tau_vector <- 10^seq(log10(0.0009), log10(0.01), length.out = 4)
+alpha_vector <- seq(0.5, 1.5, by = 0.4)
 ```
 
-```{r, eval = FALSE, echo = FALSE}
-# Enforce nestedness
-hs <- c()
-taus <- c()
-for (j in 1:length(alpha_vector)) {
-  alpha <- alpha_vector[j]
-  for (i in 1:length(tau_vector)) {
-    time_step <- tau_vector[i]
-    h <- time_step^(1/alpha)
-    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
-    hs <- c(hs, h)
-    taus <- c(taus, time_step)
-  }}
-min_hs <- min(hs)
-print(paste0("min of all possible hs = ", min_hs))
-
-min_taus <- min(taus)
-print(paste0("min of all possible taus = ", min_taus))
-# Truncate to first significant digit
-h_star <- trunc_first_signi_digit(min_hs)
-print(paste0("h_star = ", h_star))
-
-tau_star <- h_star^2
-print(paste0("tau_star = ", tau_star))
-
-for (j in 1:length(alpha_vector)) {
-  alpha <- alpha_vector[j]
-  for (i in 1:length(tau_vector)) {
-    time_step <- tau_vector[i]
-    h <- time_step^(1/alpha)
-    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
-    h_aux <- largest_nested_h(h_star, h)
-    tau_aux <- largest_nested_h(tau_star, time_step)
-    print(paste0("m = ", m, ", h_cand = ", formatC(h, format = "f", digits = 6), ", h_aux = ", h_aux, ", h_aux/h_fine = ", h_aux/h_star, ", tau_cand = ", formatC(time_step, format = "f", digits = 6), ", tau_aux = ", tau_aux))
-  }}
-```
 
 
 ```{r}
 # Overkill parameters
-overkill_time_step <- 0.1 * 2^-14
-overkill_h <- (0.1 * 2^-14)^(1/2)
+overkill_time_step <- 5e-6
+overkill_h <- 9e-4
 # Finest time and space mesh
 overkill_time_seq <- seq(0, T_final, length.out = ((T_final - 0) / overkill_time_step + 1))
 overkill_graph <- gets.graph.tadpole(h = overkill_h)
@@ -206,9 +169,8 @@ for (j in 1:length(alpha_vector)) {
   
   for (i in 1:length(tau_vector)) {
     time_step <- tau_vector[i]
-    h <- time_step^(1/alpha)
-    m <- min(4, ceiling((log(h))^2 / (pi^2 * (1 - alpha / 2)))) 
-    #h <- largest_nested_h(h_star, h) # this makes the spatial mesh nested
+    h <- 0.0001
+    m <- 4
     m_values <- c(m_values, m)
     graph <- gets.graph.tadpole(h = h)
     graph$compute_fem()
