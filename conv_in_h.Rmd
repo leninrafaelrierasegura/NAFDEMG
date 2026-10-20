@@ -169,7 +169,7 @@ overkill_C <- overkill_graph$mesh$C
 
 
 ```{r}
-error_n_blocks <- 1L # More blocks use less memory; blocks may span solver intervals.
+error_n_blocks <- 20L # More blocks use less memory; blocks may span solver intervals.
 # Preview modeled memory before allocating the reference time vector or solving.
 # estimated_gib excludes FEM/solver objects and other session memory by default.
 error_memory <- estimate_error_memory(
