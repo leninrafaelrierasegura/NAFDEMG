@@ -125,9 +125,9 @@ slackr_setup(token = token) # token comes from keys.R
 
 ```{r}
 # Parameters
-T_final <- 1e-4
+T_final <- 0.1
 kappa <- 4
-N_finite = 4 # choose even
+N_finite <- 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for u_0 and f
 coeff_U_0 <- 50*(1:adjusted_N_finite)^-1
@@ -138,12 +138,12 @@ coeff_FF[7] <- 10
 AAA = 1
 OMEGA = pi
 
-h_vector <- 10^seq(log10(0.001), log10(0.01), length.out = 4) 
-alpha_vector <- seq(0.5, 1.5, by = 0.2)
+h_vector <- 10^seq(log10(0.0009), log10(0.01), length.out = 4) 
+alpha_vector <- seq(0.5, 1.5, by = 0.4)
 
 # Keep the rational order and actual uniform time grid fixed across all runs.
 m_fixed <- 4
-time_step_target <- 1e-8
+time_step_target <- 1e-9
 time_grid <- make_time_grid(T_final = T_final, target_step = time_step_target)
 time_step <- time_grid$time_step
 time_seq <- time_grid$time_seq
@@ -158,8 +158,8 @@ stopifnot(all(coeff_U_0[-5] == 0))
 
 ```{r}
 # Reference quadrature and error accumulation.
-overkill_time_step <- 1e-8
-overkill_h <- 5e-4
+overkill_time_step <- 1e-10
+overkill_h <- 5e-5
 error_n_blocks <- 1L # More blocks use less memory; blocks may span solver intervals.
 error_verbose <- TRUE # Report completed blocks, percentage, elapsed time, and ETA.
 # Build a reference grid ending at the same final time as the solver grid.

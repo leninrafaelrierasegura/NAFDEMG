@@ -120,10 +120,9 @@ slackr_setup(token = token) # token comes from keys.R
 
 ```{r}
 # Parameters
-T_final <- 1e-4
+T_final <- 0.1
 kappa <- 4
-divider <- 7
-N_finite = 4 # choose even
+N_finite <- 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for u_0 and f
 coeff_U_0 <- 50*(1:adjusted_N_finite)^-1
@@ -138,7 +137,7 @@ OMEGA = pi
 m_vector <- c(1, 2, 3, 4)
 alpha_vector <- seq(0.5, 1.5, by = 0.4)
 h_fixed <- 1e-4
-time_step_target <- 1e-8
+time_step_target <- 1e-9
 time_grid <- make_time_grid(T_final = T_final, target_step = time_step_target)
 time_step <- time_grid$time_step
 time_seq <- time_grid$time_seq
@@ -149,8 +148,8 @@ g_average <- average_sine_forcing(time_seq, A = AAA, omega = OMEGA)
 
 ```{r}
 # Reference quadrature and error accumulation.
-overkill_time_step <- 1e-8
-overkill_h <- h_fixed / 2
+overkill_time_step <- 1e-10
+overkill_h <- 5e-5
 error_n_blocks <- 10L
 error_verbose <- TRUE
 

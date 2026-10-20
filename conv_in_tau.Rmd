@@ -120,7 +120,7 @@ slackr_setup(token = token) # token comes from keys.R
 # Parameters
 T_final <- 0.1
 kappa <- 4
-N_finite = 4 # choose even
+N_finite <- 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
 # Coefficients for u_0 and f
 coeff_U_0 <- 50*(1:adjusted_N_finite)^-1
@@ -134,6 +134,7 @@ OMEGA = pi
 # Requested time steps and fixed spatial mesh size.
 tau_targets <- 10^seq(log10(0.0009), log10(0.01), length.out = 4)
 h_fixed <- 1e-4
+m_fixed <- 4
 alpha_vector <- seq(0.5, 1.5, by = 0.4)
 
 # Use the actual uniform steps in both the solver and the convergence fit.
@@ -153,8 +154,8 @@ g_averages <- lapply(time_grids, function(grid) {
 
 ```{r}
 # Reference quadrature and error accumulation.
-overkill_time_step <- 5e-6
-overkill_h <- h_fixed / 2
+overkill_time_step <- 1e-10
+overkill_h <- 5e-5
 error_n_blocks <- 10L
 error_verbose <- TRUE
 
@@ -221,7 +222,7 @@ for (j in 1:length(alpha_vector)) {
     time_step <- time_grid$time_step
     time_seq <- time_grid$time_seq
     h <- h_fixed
-    m <- 4
+    m <- m_fixed
     m_values <- c(m_values, m)
     my_op_frac <- my.fractional.operators.frac(
       L = L, beta = beta, C = C,
