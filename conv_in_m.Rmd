@@ -171,6 +171,20 @@ L <- kappa^2 * C + graph$mesh$G
 Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
 stopifnot(all(coeff_U_0[-5] == 0))
 U_0 <- project_u0_tadpole(graph, amplitude = coeff_U_0[5])
+
+# Reference spatial modes and loads are independent of alpha, tau, and m.
+reference_eigen_params <- gets.eigen.params(
+  N_finite = N_finite, kappa = kappa,
+  alpha = alpha_vector[1], graph = overkill_graph
+)
+reference_eigenvalues <- reference_eigen_params$EIGENVAL
+overkill_EIGENFUN <- reference_eigen_params$EIGENFUN
+active_modes <- which(coeff_U_0 != 0 | coeff_FF != 0)
+exact_basis <- overkill_EIGENFUN[, active_modes, drop = FALSE]
+exact_initial <- coeff_U_0[active_modes]
+exact_forcing <- coeff_FF[active_modes]
+spatial_modes <- t(Psi) %*% overkill_C %*% overkill_EIGENFUN
+spatial_load <- as.numeric(spatial_modes %*% coeff_FF)
 ```
 
 
@@ -181,18 +195,8 @@ for (j in 1:length(alpha_vector)) {
   alpha <- alpha_vector[j]
   beta <- alpha / 2
 
-  # Reference eigenfunctions and rates; do not build the exact time history.
-  overkill_eigen_params <- gets.eigen.params(
-    N_finite = N_finite, kappa = kappa,
-    alpha = alpha, graph = overkill_graph
-  )
-  EIGENVAL_ALPHA <- overkill_eigen_params$EIGENVAL_ALPHA
-  overkill_EIGENFUN <- overkill_eigen_params$EIGENFUN
-  active_modes <- which(coeff_U_0 != 0 | coeff_FF != 0)
-  exact_basis <- overkill_EIGENFUN[, active_modes, drop = FALSE]
-  exact_rates <- EIGENVAL_ALPHA[active_modes]
-  exact_initial <- coeff_U_0[active_modes]
-  exact_forcing <- coeff_FF[active_modes]
+  # Only the fractional decay rates depend on alpha.
+  exact_rates <- reference_eigenvalues[active_modes]^beta
 
   exact_at_time <- function(t) {
     coefficients <- outer(
@@ -206,10 +210,6 @@ for (j in 1:length(alpha_vector)) {
     )
     exact_basis %*% coefficients
   }
-
-  # The forcing is separated into one spatial load and temporal averages.
-  spatial_modes <- t(Psi) %*% overkill_C %*% overkill_EIGENFUN
-  spatial_load <- as.numeric(spatial_modes %*% coeff_FF)
 
   for (i in seq_along(m_vector)) {
     m <- m_vector[i]
