@@ -92,7 +92,13 @@ captioner <- function(caption) {
 
 
 ::: {.custom-box}
-To observe convergence in $h$, we calibrate $\tau$ and $m$ to $h$ as $\tau \sim h^\alpha$ and $m \sim \lceil\log_e^2(h)/(\pi^2(1-\alpha/2))\rceil$. This ensures that the total convergence rate with respect to the mesh size $h$ is of order $\alpha$, i.e., $\|u-U_{h,m}^\tau\|_{L_2((0,T);L_2(\Gamma))} \leq C_hh^\alpha$. This can be verified by estimating the slope $S_h$ in the regression $\log_{10} E = S_h\log_{10} h+\log_{10} C_h$, where we expect $S_h\sim\alpha$.
+To study convergence in $h$, we keep the time step $\tau$ and rational order $m$ fixed. Theorem `lastlasttheorem` in `paper/main.tex` gives
+$$
+E\lesssim\tau+h^{\alpha-\epsilon}
++h^{\alpha-2}\exp\!\left(-2\pi\sqrt{(1-\alpha/2)m}\right),
+\qquad 0<\alpha<2.
+$$
+The spatial term gives a reference slope $\alpha-\epsilon$ in a regression of $\log_{10}E$ against $\log_{10}h$; the plotted reference slopes use $\alpha$, neglecting a sufficiently small $\epsilon$. This upper bound does not require the observed slope to equal $\alpha$: the smooth finite-mode data used here may show second-order convergence. Temporal, rational, and reference-quadrature errors should be checked independently so they do not mask spatial convergence. In particular, fixing $m$ does not guarantee that the rational error remains negligible as $h$ decreases.
 :::
 
 
@@ -134,93 +140,96 @@ OMEGA = pi
 
 h_vector <- 10^seq(log10(0.001), log10(0.01), length.out = 4) 
 alpha_vector <- seq(0.5, 1.5, by = 0.2)
+
+# Keep the rational order and actual uniform time grid fixed across all runs.
+m_fixed <- 4
+time_step_target <- 1e-8
+time_grid <- make_time_grid(T_final = T_final, target_step = time_step_target)
+time_step <- time_grid$time_step
+time_seq <- time_grid$time_seq
+g_average <- average_sine_forcing(time_seq, A = AAA, omega = OMEGA)
+
+# The analytic initial projection currently supports only the fifth eigenfunction.
+stopifnot(all(coeff_U_0[-5] == 0))
 ```
 
 
 
 
 ```{r}
-# Overkill parameters
+# Reference quadrature and error accumulation.
 overkill_time_step <- 1e-8
 overkill_h <- 5e-4
 error_n_blocks <- 1L # More blocks use less memory; blocks may span solver intervals.
 error_verbose <- TRUE # Report completed blocks, percentage, elapsed time, and ETA.
-# Finest time and space mesh
+# Build a reference grid ending at the same final time as the solver grid.
 reference_grid <- make_time_grid(T_final = T_final, target_step = overkill_time_step)
 overkill_time_step <- reference_grid$time_step
 overkill_time_seq <- reference_grid$time_seq
 
 overkill_graph <- gets.graph.tadpole(h = overkill_h)
-# Compute the weights on the finest mesh
-overkill_graph$compute_fem() # This is needed to compute the weights
+overkill_graph$compute_fem()
 overkill_C <- overkill_graph$mesh$C
+
+# Spatial eigenfunctions and unfractionalized eigenvalues do not depend on alpha.
+reference_eigen_params <- gets.eigen.params(
+  N_finite = N_finite, kappa = kappa,
+  alpha = alpha_vector[1], graph = overkill_graph
+)
+reference_eigenvalues <- reference_eigen_params$EIGENVAL
+auxE <- reference_eigen_params$EIGENFUN
+active_modes <- which(coeff_U_0 != 0 | coeff_FF != 0)
+exact_basis <- auxE[, active_modes, drop = FALSE]
+exact_initial <- coeff_U_0[active_modes]
+exact_forcing <- coeff_FF[active_modes]
 m_values <- c()
 ```
 
 
 
-```{r, eval = FALSE, class.source = "fold-show"}
+```{r, eval = FALSE, message = TRUE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_projected <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
-for (j in 1:length(alpha_vector)) {
-  alpha <- alpha_vector[j] # from 0.5 to 2
-  beta <- alpha / 2
+for (i in seq_along(h_vector)) {
+  h <- h_vector[i]
+  m <- m_fixed
 
-  # Eigenfunctions and decay rates on the reference spatial mesh.
-  eigen_params <- gets.eigen.params(
-    N_finite = N_finite, kappa = kappa,
-    alpha = alpha, graph = overkill_graph
-  )
-  EIGENVAL_ALPHA <- eigen_params$EIGENVAL_ALPHA
-  auxE <- eigen_params$EIGENFUN
+  # Assemble each spatial mesh, initial projection, and load once for all alphas.
+  graph <- gets.graph.tadpole(h = h)
+  graph$compute_fem()
+  C <- graph$mesh$C
+  L <- kappa^2 * C + graph$mesh$G
+  Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
+  U_0 <- project_u0_tadpole(graph, amplitude = coeff_U_0[5])
+  spatial_modes <- t(Psi) %*% overkill_C %*% auxE
+  spatial_load <- as.numeric(spatial_modes %*% coeff_FF)
 
-  # Evaluate the exact solution at one or more times, using only active modes.
-  active_modes <- which(coeff_U_0 != 0 | coeff_FF != 0)
-  exact_basis <- auxE[, active_modes, drop = FALSE]
-  exact_rates <- EIGENVAL_ALPHA[active_modes]
-  exact_initial <- coeff_U_0[active_modes]
-  exact_forcing <- coeff_FF[active_modes]
-
-  exact_at_time <- function(t) {
-    coefficients <- outer(
-      seq_along(exact_rates), t,
-      function(i, tt) {
-        (exact_initial[i] + exact_forcing[i] * G_sin(
-          t = tt, A = AAA,
-          lambda_j_alpha_half = exact_rates[i], omega = OMEGA
-        )) * exp(-exact_rates[i] * tt)
-      }
-    )
-    return(exact_basis %*% coefficients)
-  }
-
-  for (i in 1:length(h_vector)) {
-    h <- h_vector[i]
-    time_step <- 1e-8
-    m <- 4
+  for (j in seq_along(alpha_vector)) {
+    alpha <- alpha_vector[j]
+    beta <- alpha / 2
+    exact_rates <- reference_eigenvalues[active_modes]^beta
     m_values <- c(m_values, m)
-    graph <- gets.graph.tadpole(h = h)
-    graph$compute_fem()
-    auxL <- graph$mesh$G
-    C <- graph$mesh$C
-    auxL <- kappa^2*C + auxL
-    Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
-    
-    time_grid <- make_time_grid(T_final = T_final, target_step = time_step)
-    time_step <- time_grid$time_step
-    time_seq <- time_grid$time_seq
-  
-    my_op_frac <- my.fractional.operators.frac(L = auxL, beta = beta, C = C, scale.factor = kappa^2, m = m, time_step = time_step)
-    # Assemble the spatial forcing load once; do not build a load history.
-    spatial_modes <- t(Psi) %*% overkill_C %*% auxE
-    spatial_load <- as.numeric(spatial_modes %*% coeff_FF)
 
-    # This function currently handles only the fifth eigenfunction.
-    stopifnot(all(coeff_U_0[-5] == 0))
-    U_0 <- project_u0_tadpole(graph, amplitude = coeff_U_0[5])
-    g_average <- average_sine_forcing(time_seq, A = AAA, omega = OMEGA)
+    # Evaluate only the active exact modes at the times in the current block.
+    exact_at_time <- function(t) {
+      coefficients <- outer(
+        seq_along(exact_rates), t,
+        function(i, tt) {
+          (exact_initial[i] + exact_forcing[i] * G_sin(
+            t = tt, A = AAA,
+            lambda_j_alpha_half = exact_rates[i], omega = OMEGA
+          )) * exp(-exact_rates[i] * tt)
+        }
+      )
+      exact_basis %*% coefficients
+    }
 
-    # Advance one solver step at a time and accumulate reference-time errors.
+    my_op_frac <- my.fractional.operators.frac(
+      L = L, beta = beta, C = C,
+      scale.factor = kappa^2, m = m, time_step = time_step
+    )
+
+    # Blocks may span solver intervals; the helper uses the matching state.
     errorij <- solve_fractional_evolution_error(
       my_op_frac = my_op_frac,
       time_step = time_step,
@@ -236,7 +245,7 @@ for (j in 1:length(alpha_vector)) {
       verbose = error_verbose
     )
     errors_projected[i,j] <- errorij
-    slackr_msg(text = paste0("m = ", m, ", alpha = ", alpha, ", h = ", h, ", time_step = ", time_step, ", error = ", errorij, ", initial L2 error = ", errorij), channel = "#research")
+    slackr_msg(text = paste0("m = ", m, ", alpha = ", alpha, ", h = ", h, ", time_step = ", time_step, ", error = ", errorij), channel = "#research")
   }
 }
 save(errors_projected, file = here::here("data_files/errors_projected_h.RData"))
@@ -255,7 +264,8 @@ for (u in 1:length(alpha_vector)) {
   observed_rates[u] <- coef(lm(log10(errors_projected[, u]) ~ log10(h_vector)))[2]
 }
 
-theoretical_rates <- alpha_vector*0+2
+# Reference slopes from the theorem, neglecting a sufficiently small epsilon.
+theoretical_rates <- alpha_vector
 
 
 p_h_tadpole <- error.convergence.plotter(x_axis_vector = h_vector, 
