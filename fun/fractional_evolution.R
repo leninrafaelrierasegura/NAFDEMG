@@ -190,6 +190,51 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
 
 
 ## -------------------------------------------------------------------------------------------------------------------------------------------------
+estimate_error_memory <- function(
+    n_reference_nodes, n_reference_samples, n_blocks,
+    n_solver_steps = numeric(0), matrix_copies = 6,
+    baseline_gib = 0) {
+
+  positive_counts <- function(x) {
+    is.numeric(x) && length(x) > 0L &&
+      all(is.finite(x)) && all(x >= 1) && all(x == floor(x))
+  }
+  stopifnot(
+    positive_counts(n_reference_nodes), length(n_reference_nodes) == 1L,
+    positive_counts(n_reference_samples), length(n_reference_samples) == 1L,
+    positive_counts(n_blocks),
+    is.numeric(n_solver_steps),
+    length(n_solver_steps) == 0L || positive_counts(n_solver_steps),
+    is.numeric(matrix_copies), length(matrix_copies) == 1L,
+    is.finite(matrix_copies), matrix_copies >= 1,
+    is.numeric(baseline_gib), length(baseline_gib) == 1L,
+    is.finite(baseline_gib), baseline_gib >= 0
+  )
+
+  # Promote counts before multiplication to avoid integer overflow.
+  samples <- as.double(n_reference_samples)
+  blocks <- pmin(as.double(n_blocks), samples)
+  per_block <- ceiling(samples / blocks)
+  gib <- 1024^3
+  matrix_bytes <- 8 * as.double(n_reference_nodes) * per_block
+  block_bytes <- matrix_copies * matrix_bytes + 128 * per_block
+  time_bytes <- 8 * (samples + 1 +
+    2 * sum(as.double(n_solver_steps) + 1))
+
+  data.frame(
+    requested_blocks = as.double(n_blocks),
+    n_blocks = blocks,
+    samples_per_block = per_block,
+    matrix_gib = matrix_bytes / gib,
+    block_workspace_gib = block_bytes / gib,
+    time_vectors_gib = time_bytes / gib,
+    baseline_gib = baseline_gib,
+    estimated_gib = (block_bytes + time_bytes) / gib + baseline_gib
+  )
+}
+
+
+## -------------------------------------------------------------------------------------------------------------------------------------------------
 solve_fractional_evolution_error <- function(
     my_op_frac, time_step, time_seq, val_at_0,
     spatial_load, g_average, Psi, reference_C,

@@ -125,7 +125,7 @@ slackr_setup(token = token) # token comes from keys.R
 
 ```{r}
 # Parameters
-T_final <- 0.1
+T_final <- 1e-3
 kappa <- 4
 N_finite <- 4 # choose even
 adjusted_N_finite <- N_finite + N_finite/2 + 1
@@ -143,7 +143,7 @@ alpha_vector <- seq(0.5, 1.5, by = 0.4)
 
 # Keep the rational order and actual uniform time grid fixed across all runs.
 m_fixed <- 4
-time_step_target <- 1e-9
+time_step_target <- 5e-9
 time_grid <- make_time_grid(T_final = T_final, target_step = time_step_target)
 time_step <- time_grid$time_step
 time_seq <- time_grid$time_seq
@@ -158,18 +158,36 @@ stopifnot(all(coeff_U_0[-5] == 0))
 
 ```{r}
 # Reference quadrature and error accumulation.
-overkill_time_step <- 1e-10
-overkill_h <- 5e-5
-error_n_blocks <- 1L # More blocks use less memory; blocks may span solver intervals.
+overkill_time_step <- 1e-9
+overkill_h <- 9e-5
 error_verbose <- TRUE # Report completed blocks, percentage, elapsed time, and ETA.
 # Build a reference grid ending at the same final time as the solver grid.
+overkill_graph <- gets.graph.tadpole(h = overkill_h)
+overkill_graph$compute_fem()
+overkill_C <- overkill_graph$mesh$C
+```
+
+
+```{r}
+error_n_blocks <- 1L # More blocks use less memory; blocks may span solver intervals.
+# Preview modeled memory before allocating the reference time vector or solving.
+# estimated_gib excludes FEM/solver objects and other session memory by default.
+error_memory <- estimate_error_memory(
+  n_reference_nodes = nrow(overkill_C),
+  n_reference_samples = ceiling(T_final / overkill_time_step),
+  n_blocks = unique(c(error_n_blocks, 10, 100, 1000, 10000, 100000, 1000000)),
+  n_solver_steps = time_grid$N
+)
+print(error_memory, digits = 3, row.names = FALSE)
+# Set error_n_blocks above to the desired count before running the experiment.
+```
+
+
+```{r}
 reference_grid <- make_time_grid(T_final = T_final, target_step = overkill_time_step)
 overkill_time_step <- reference_grid$time_step
 overkill_time_seq <- reference_grid$time_seq
 
-overkill_graph <- gets.graph.tadpole(h = overkill_h)
-overkill_graph$compute_fem()
-overkill_C <- overkill_graph$mesh$C
 
 # Spatial eigenfunctions and unfractionalized eigenvalues do not depend on alpha.
 reference_eigen_params <- gets.eigen.params(
@@ -187,7 +205,7 @@ m_values <- c()
 
 
 
-```{r, eval = FALSE, message = TRUE, class.source = "fold-show"}
+```{r, eval = FALSE, class.source = "fold-show"}
 # Create a matrix to store the errors
 errors_projected <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
 for (i in seq_along(h_vector)) {
