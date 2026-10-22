@@ -159,7 +159,7 @@ overkill_C <- overkill_graph$mesh$C
 
 
 ```{r}
-error_n_blocks <- 10L
+error_n_blocks <- 20L
 # Preview modeled memory before allocating the reference time vector or solving.
 # estimated_gib excludes FEM/solver objects and other session memory by default.
 error_memory <- estimate_error_memory(

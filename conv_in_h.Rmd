@@ -143,7 +143,7 @@ alpha_vector <- seq(0.5, 1.5, by = 0.4)
 
 # Keep the rational order and actual uniform time grid fixed across all runs.
 m_fixed <- 4
-time_step_target <- 5e-9
+time_step_target <- 1e-9
 time_grid <- make_time_grid(T_final = T_final, target_step = time_step_target)
 time_step <- time_grid$time_step
 time_seq <- time_grid$time_seq
@@ -158,8 +158,8 @@ stopifnot(all(coeff_U_0[-5] == 0))
 
 ```{r}
 # Reference quadrature and error accumulation.
-overkill_time_step <- 1e-9
-overkill_h <- 9e-5
+overkill_time_step <- 2e-10
+overkill_h <- 5e-5
 error_verbose <- TRUE # Report completed blocks, percentage, elapsed time, and ETA.
 # Build a reference grid ending at the same final time as the solver grid.
 overkill_graph <- gets.graph.tadpole(h = overkill_h)
@@ -169,7 +169,7 @@ overkill_C <- overkill_graph$mesh$C
 
 
 ```{r}
-error_n_blocks <- 20L # More blocks use less memory; blocks may span solver intervals.
+error_n_blocks <- 100L # More blocks use less memory; blocks may span solver intervals.
 # Preview modeled memory before allocating the reference time vector or solving.
 # estimated_gib excludes FEM/solver objects and other session memory by default.
 error_memory <- estimate_error_memory(
