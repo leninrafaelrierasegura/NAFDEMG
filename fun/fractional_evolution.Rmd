@@ -97,7 +97,7 @@ We analyze and numerically approximate solutions to fractional diffusion equatio
 \tag{1}
 \left\{
 \begin{aligned}
-    \partial_t u(s,t) + (\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s,t) &= f(s,t), && \quad (s,t) \in \Gamma \times (0, T), \\
+    \partial_t u(s,t) + \nu(\kappa^2 - \Delta_\Gamma)^{\alpha/2} u(s,t) &= f(s,t), && \quad (s,t) \in \Gamma \times (0, T), \\
     u(s,0) &= u_0(s), && \quad s \in \Gamma,
 \end{aligned}
 \right.
@@ -108,6 +108,7 @@ with $u(\cdot,t)$ satisfying the Kirchhoff vertex conditions
 \tag{2}
    \mathcal{K} =  \left\{\phi\in C(\Gamma)\;\middle|\; \forall v\in \mathcal{V}:\; \sum_{e\in\mathcal{E}_v}\partial_e \phi(v)=0 \right\}.
 \end{equation}
+The diffusion coefficient $\nu>0$ is fixed independently of the discretization.
 Here $\Gamma = (\mathcal{V},\mathcal{E})$ is a metric graph, $\kappa>0$, $\alpha\in(0,2]$ determines the smoothness of $u(\cdot,t)$, $\Delta_{\Gamma}$ is the so-called Kirchhoff--Laplacian, and $f:\Gamma\times (0,T)\to\mathbb{R}$ and $u_0: \Gamma \to \mathbb{R}$ are fixed functions, called right-hand side and initial condition, respectively.
 
 ## Numerical Scheme {#num_scheme}
@@ -116,7 +117,7 @@ Let $\alpha\in(0,2]$ and $U_h^\tau$ denote the sequence of approximations of the
 \begin{equation}
     \left\{
 \begin{aligned}
-    \langle\delta U_h^{k+1},\phi\rangle + \mathfrak{a}(
+    \langle\delta U_h^{k+1},\phi\rangle + \nu\mathfrak{a}(
         U_h^{k+1},\phi) &= \langle f^{k+1},\phi\rangle, \quad\forall\phi\in V_h,\quad k=0,\dots, N-1, \\
     U^0_h &= P_hu_0, 
 \end{aligned}
@@ -126,7 +127,7 @@ where $f^{k+1} = \displaystyle\dfrac{1}{\tau}\int_{t_k}^{t_{k+1}}f(t)dt$. The ab
 \begin{equation}
     \left\{
 \begin{aligned}
-    \langle\dfrac{U_h^{k+1} - U_h^{k}}{\tau},\phi\rangle + \mathfrak{a}(
+    \langle\dfrac{U_h^{k+1} - U_h^{k}}{\tau},\phi\rangle + \nu\mathfrak{a}(
         U_h^{k+1},\phi) &= \langle f^{k+1},\phi\rangle, \quad\forall\phi\in V_h,\quad k=0,\dots, N-1, \\
     U^0_h &= P_hu_0, 
 \end{aligned}
@@ -138,7 +139,7 @@ or
 \tag{3}
     \left\{
 \begin{aligned}
-    \langle U_h^{k+1},\phi\rangle + \tau\mathfrak{a}(
+    \langle U_h^{k+1},\phi\rangle + \tau\nu\mathfrak{a}(
         U_h^{k+1},\phi) &= \langle U_h^{k},\phi\rangle + \tau\langle f^{k+1},\phi\rangle, \quad\forall\phi\in V_h,\quad k=0,\dots, N-1, \\
     U^0_h &= P_hu_0.
 \end{aligned}
@@ -154,26 +155,26 @@ At each time step $t_k$, the finite element solution $U_h^k\in V_h$ to \eqref{sy
 
 Replacing \eqref{num_sol} into \eqref{system:fully_discrete_scheme} yields the following system
 \begin{align*}
-    \sum_{j=1}^{N_h}u_j^{k+1}[(\psi_h^j,\psi_h^i)_{L_2(\Gamma)}+ \tau\mathfrak{a}(\psi_h^j,\psi_h^i)] = \sum_{j=1}^{N_h}u_j^{k}(\psi_h^j,\psi_h^i)_{L_2(\Gamma)}+\tau( f^{k+1},\psi_h^i)_{L_2(\Gamma)},\quad i = 1,\dots, N_h.
+    \sum_{j=1}^{N_h}u_j^{k+1}[(\psi_h^j,\psi_h^i)_{L_2(\Gamma)}+ \tau\nu\mathfrak{a}(\psi_h^j,\psi_h^i)] = \sum_{j=1}^{N_h}u_j^{k}(\psi_h^j,\psi_h^i)_{L_2(\Gamma)}+\tau( f^{k+1},\psi_h^i)_{L_2(\Gamma)},\quad i = 1,\dots, N_h.
 \end{align*}
 In matrix notation,
 \begin{align}
 \label{diff_eq_discrete}
-    (\mathbf{C}+\tau \mathbf{L}^{\alpha/2})\mathbf{U}^{k+1} = \mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1},
+    (\mathbf{C}+\tau\nu \mathbf{L}^{\alpha/2})\mathbf{U}^{k+1} = \mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1},
 \end{align}
 or by introducing the scaling parameter $\kappa^2>0$,
 \begin{align}
-    (\mathbf{C}+\tau (\kappa^2)^{\alpha/2}(\mathbf{L}/\kappa^2)^{\alpha/2})\mathbf{U}^{k+1} = \mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1},
+    (\mathbf{C}+\tau\nu (\kappa^2)^{\alpha/2}(\mathbf{L}/\kappa^2)^{\alpha/2})\mathbf{U}^{k+1} = \mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1},
 \end{align}
 where $\mathbf{C}$ has entries $\mathbf{C}_{i,j} = (\psi_h^i,\psi_h^j)_{L_2(\Gamma)}$, $\mathbf{L}^{\alpha/2}$ has entries $\mathfrak{a}(\psi_h^i,\psi_h^j)$, $\mathbf{U}^k$ has components $u_j^k$, and $\mathbf{F}^k$ has components $( f^{k},\psi_h^i)_{L_2(\Gamma)}$. Applying $(\mathbf{L}/\kappa^2)^{-\alpha/2}$ to both sides yields
 \begin{equation}
-((\mathbf{L}/\kappa^2)^{-\alpha/2}\mathbf{C}+\tau (\kappa^2)^{\alpha/2}\mathbf{I})\mathbf{U}^{k+1} = (\mathbf{L}/\kappa^2)^{-\alpha/2}(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
+((\mathbf{L}/\kappa^2)^{-\alpha/2}\mathbf{C}+\tau\nu (\kappa^2)^{\alpha/2}\mathbf{I})\mathbf{U}^{k+1} = (\mathbf{L}/\kappa^2)^{-\alpha/2}(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
 \end{equation}
 Following @rSPDE2020, we approximate $(\mathbf{L}/\kappa^2)^{-\alpha/2}$ by $\mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top$ to arrive at
 \begin{equation}
 \label{eq:scheme2}
 \tag{5}
-(\mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top \mathbf{C}+\tau(\kappa^2)^{\alpha/2} \mathbf{I})\mathbf{U}^{k+1} = \mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
+(\mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top \mathbf{C}+\tau\nu(\kappa^2)^{\alpha/2} \mathbf{I})\mathbf{U}^{k+1} = \mathbf{P}_\ell^{-\top}\mathbf{P}_r^\top(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
 \end{equation}
 where
 \begin{equation}
@@ -194,7 +195,7 @@ For the sake of clarity, we note that the numerical implementation of @rSPDE2020
 where $\beta = \alpha/2$ and the scaling factor $(\kappa^2)^{\alpha/2}$ or $\kappa^{2\beta}$ is already incorporated in $\mathbf{P}_\ell$, a convention we adopt in the following. With this under consideration, we can rewrite \eqref{eq:scheme2} as
 \begin{equation}
 \tag{8}
-(\mathbf{P}_r^\top \mathbf{C}+\tau \mathbf{P}_\ell^\top)\mathbf{U}^{k+1} = \mathbf{P}_r^\top(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}),
+(\mathbf{P}_r^\top \mathbf{C}+\tau\nu \mathbf{P}_\ell^\top)\mathbf{U}^{k+1} = \mathbf{P}_r^\top(\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}),
 \label{eq:scheme}
 \end{equation}
 where  
@@ -203,19 +204,19 @@ where
 \end{equation}
 since $\mathbf{L}$ and $\mathbf{C}^{-1}$ are symmetric and the factors in the product commute. Replacing these two into \eqref{eq:scheme} yields
 \begin{equation}
-\left(\prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\right)\mathbf{C}\mathbf{U}^{k+1} = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot (\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}),
+\left(\prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau\nu \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\right)\mathbf{C}\mathbf{U}^{k+1} = \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot (\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}),
 \end{equation}
 that is,
 \begin{equation}
 \label{eq:final_scheme}
 \tag{9}
-\mathbf{U}^{k+1} = \mathbf{C}^{-1}\left(\prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\right)^{-1} \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot (\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
+\mathbf{U}^{k+1} = \mathbf{C}^{-1}\left(\prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)+\dfrac{\tau\nu \kappa^{2\beta}}{\texttt{factor}}\prod_{j=1}^{m+1} \left(\mathbf{I}-r_{2j}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\right)^{-1} \prod_{i=1}^m \left(\mathbf{I}-r_{1i}\dfrac{\mathbf{L}\mathbf{C}^{-1}}{\kappa^2}\right)\cdot (\mathbf{C}\mathbf{U}^k+\tau \mathbf{F}^{k+1}).
 \end{equation}
 Considering the partial fraction decomposition
 \begin{equation}
 \label{eq:partial_fraction}
 \tag{10}
-\dfrac{\prod_{i=1}^m (1-r_{1i}x)}{\prod_{i=1}^m (1-r_{1i}x)+\dfrac{\tau \kappa^{2\beta}}{\texttt{factor}} \prod_{j=1}^{m+1} (1-r_{2j}x)}=\sum_{k=1}^{m+1} a_k(x-p_k)^{-1} + r,
+\dfrac{\prod_{i=1}^m (1-r_{1i}x)}{\prod_{i=1}^m (1-r_{1i}x)+\dfrac{\tau\nu \kappa^{2\beta}}{\texttt{factor}} \prod_{j=1}^{m+1} (1-r_{2j}x)}=\sum_{k=1}^{m+1} a_k(x-p_k)^{-1} + r,
 \end{equation}
 scheme \eqref{eq:final_scheme} can be expressed as
 \begin{equation}
@@ -243,6 +244,10 @@ For each rational order $m$ (1,2,3,4) and smoothness parameter $\beta$ (= $\alph
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
                          ) {
+  if (length(m) != 1L || !is.finite(m) || !(m %in% 1:4))
+    stop("The installed rational tables support m = 1, 2, 3, 4 only.")
+  if (length(beta) != 1L || !is.finite(beta) || beta < 0.25 || beta >= 1)
+    stop("Fractional evolution tables require 0.25 <= beta < 1; beta = 1 uses the exact solver.")
   m1table <- rSPDE:::m1table
   m2table <- rSPDE:::m2table
   m3table <- rSPDE:::m3table
@@ -283,7 +288,7 @@ poly.from.roots <- function(roots) {
 
 ### Function `compute.partial.fraction.param()`
 
-Given `factor`$=\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, `pr_roots`$=\{r_{1i}\}_{i=1}^m$, `pl_roots`$=\{r_{2j}\}_{j=1}^{m+1}$, `time_step`$=\tau$, and `scaling`$=\kappa^{2\beta}$, function `compute.partial.fraction.param()` computes the parameters for the partial fraction decomposition \eqref{eq:partial_fraction}.
+Given `factor`$=\texttt{factor} = \dfrac{c_m}{b_{m+1}}$, `pr_roots`$=\{r_{1i}\}_{i=1}^m$, `pl_roots`$=\{r_{2j}\}_{j=1}^{m+1}$, `time_step`$=\tau$, and `scaling`$=\nu\kappa^{2\beta}$, function `compute.partial.fraction.param()` computes the parameters for the partial fraction decomposition \eqref{eq:partial_fraction}.
 
 ```{r}
 # Function to compute the parameters for the partial fraction decomposition
@@ -291,7 +296,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
                                            time_step, # \tau
-                                           scaling # \kappa^{2\beta}
+                                           scaling # diffusion * kappa^(2*beta)
                                            ) {
   pr_coef <- c(0, poly.from.roots(pr_roots))
   pl_coef <- poly.from.roots(pl_roots)
@@ -328,7 +333,7 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
 
 ### Function `my.fractional.operators.frac()`
 
-Given the Laplacian matrix `L`, the smoothness parameter `beta`, the mass matrix `C` (not lumped), the scaling factor `scale.factor`$=\kappa^2$, the rational order `m`, and the time step `time_step`$=\tau$, function `my.fractional.operators.frac()` computes the fractional operator and returns a list containing the necessary matrices and parameters for the fractional diffusion equation.
+Given the Laplacian matrix `L`, the smoothness parameter `beta`, the mass matrix `C` (not lumped), the scaling factor `scale.factor`$=\kappa^2$, the rational order `m`, the physical time step `time_step`$=\tau$, and `diffusion`$=\nu>0$ (default one), function `my.fractional.operators.frac()` factorizes the shifted sparse matrices once and returns a list containing the necessary matrices and parameters for the fractional diffusion equation.
 
 ```{r}
 # Function to compute the fractional operator
@@ -337,9 +342,13 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          C, # mass matrix (not lumped)
                                          scale.factor, # scaling parameter = kappa^2
                                          m = 1, # rational order, m = 1, 2, 3, or 4
-                                         time_step # time step = tau
+                                         time_step, # physical time step = tau
+                                         diffusion = 1 # coefficient outside the fractional power
                                          ) {
-  I <- Matrix::Diagonal(dim(C)[1])
+  stopifnot(length(diffusion) == 1L, is.finite(diffusion), diffusion > 0,
+            length(time_step) == 1L, is.finite(time_step), time_step > 0,
+            length(beta) == 1L, is.finite(beta), beta > 0, beta <= 1,
+            length(scale.factor) == 1L, is.finite(scale.factor), scale.factor > 0)
   L <- L / scale.factor
   if(beta == 1){
     L <- L * scale.factor^beta
@@ -347,10 +356,13 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                 L = L, # Laplacian matrix scaled
                 m = m, # rational order
                 beta = beta, # smoothness parameter
-                LHS = C + time_step * L # left-hand side of the linear system
+                diffusion = diffusion,
+                LHS = C + time_step * diffusion * L,
+                factorization = Matrix::Cholesky(
+                  Matrix::forceSymmetric(C + time_step * diffusion * L), LDL = FALSE)
                 ))
   } else {
-    scaling <- scale.factor^beta
+    scaling <- diffusion * scale.factor^beta
     roots <- my.get.roots(m, beta)
     poles_rs_k <- compute.partial.fraction.param(factor = roots$factor,
                                                  pr_roots = roots$pr_roots,
@@ -368,7 +380,12 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                 m = m, # rational order
                 beta = beta, # smoothness parameter
                 partial_fraction_terms = partial_fraction_terms, # partial fraction terms
-                residues = poles_rs_k$r # residues \{a_k\}_{k=1}^{m+1}
+                residues = poles_rs_k$r, # residues \{a_k\}_{k=1}^{m+1}
+                poles = poles_rs_k$p,
+                diffusion = diffusion,
+                factorizations = lapply(partial_fraction_terms, function(A) {
+                  Matrix::Cholesky(Matrix::forceSymmetric(A), LDL = FALSE)
+                })
                 ))
   }
 }
@@ -376,7 +393,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
 
 ### Function `my.solver.frac()`
 
-Given the object returned by `my.fractional.operators.frac()` and a vector `v`, function `my.solver.frac()` solves the linear \eqref{eq:final_scheme2} for the vector `v`. If `beta = 1`, it solves the system directly; otherwise, it uses the partial fraction decomposition.
+Given the object returned by `my.fractional.operators.frac()` and a vector `v`, function `my.solver.frac()` solves the linear \eqref{eq:final_scheme2} for the vector `v`. If `beta = 1`, it solves the system directly; otherwise, it uses the partial fraction decomposition and reuses the stored Cholesky factors. Older operator objects without stored factors remain supported.
 
 ```{r}
 # Function to solve the iteration
@@ -386,13 +403,19 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
   beta <- obj$beta
   m <- obj$m
   if (beta == 1){
-    return(solve(obj$LHS, v) # solve the linear system directly for beta = 1
+    return(if (!is.null(obj$factorization))
+      solve(obj$factorization, v, system = "A") else solve(obj$LHS, v)
            )
   } else {
     partial_fraction_terms <- obj$partial_fraction_terms
     residues <- obj$residues
     output <- v*0
-    for (i in 1:(m+1)) {output <- output + residues[i] * solve(partial_fraction_terms[[i]], v)}
+    for (i in seq_len(m + 1L)) {
+      solved <- if (!is.null(obj$factorizations)) {
+        solve(obj$factorizations[[i]], v, system = "A")
+      } else solve(partial_fraction_terms[[i]], v)
+      output <- output + residues[i] * solved
+    }
     return(output # solve the linear system using the partial fraction decomposition
            )
   }

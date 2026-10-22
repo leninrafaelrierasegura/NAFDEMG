@@ -1,4 +1,3 @@
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -9,12 +8,14 @@ library(ggplot2)
 library(reshape2)
 library(plotly)
 
-
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
                          beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
                          ) {
+  if (length(m) != 1L || !is.finite(m) || !(m %in% 1:4))
+    stop("The installed rational tables support m = 1, 2, 3, 4 only.")
+  if (length(beta) != 1L || !is.finite(beta) || beta < 0.25 || beta >= 1)
+    stop("Fractional evolution tables require 0.25 <= beta < 1; beta = 1 uses the exact solver.")
   m1table <- rSPDE:::m1table
   m2table <- rSPDE:::m2table
   m3table <- rSPDE:::m3table
@@ -39,8 +40,6 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
               ))
 }
 
-
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
@@ -48,14 +47,12 @@ poly.from.roots <- function(roots) {
   return(coef) # returned in increasing order like a+bx+cx^2+...
 }
 
-
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute the parameters for the partial fraction decomposition
 compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
                                            time_step, # \tau
-                                           scaling # \kappa^{2\beta}
+                                           scaling # diffusion * kappa^(2*beta)
                                            ) {
   pr_coef <- c(0, poly.from.roots(pr_roots))
   pl_coef <- poly.from.roots(pl_roots)
@@ -89,17 +86,19 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
               ))
 }
 
-
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to compute the fractional operator
 my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
                                          C, # mass matrix (not lumped)
                                          scale.factor, # scaling parameter = kappa^2
                                          m = 1, # rational order, m = 1, 2, 3, or 4
-                                         time_step # time step = tau
+                                         time_step, # physical time step = tau
+                                         diffusion = 1 # coefficient outside the fractional power
                                          ) {
-  I <- Matrix::Diagonal(dim(C)[1])
+  stopifnot(length(diffusion) == 1L, is.finite(diffusion), diffusion > 0,
+            length(time_step) == 1L, is.finite(time_step), time_step > 0,
+            length(beta) == 1L, is.finite(beta), beta > 0, beta <= 1,
+            length(scale.factor) == 1L, is.finite(scale.factor), scale.factor > 0)
   L <- L / scale.factor
   if(beta == 1){
     L <- L * scale.factor^beta
@@ -107,10 +106,13 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                 L = L, # Laplacian matrix scaled
                 m = m, # rational order
                 beta = beta, # smoothness parameter
-                LHS = C + time_step * L # left-hand side of the linear system
+                diffusion = diffusion,
+                LHS = C + time_step * diffusion * L,
+                factorization = Matrix::Cholesky(
+                  Matrix::forceSymmetric(C + time_step * diffusion * L), LDL = FALSE)
                 ))
   } else {
-    scaling <- scale.factor^beta
+    scaling <- diffusion * scale.factor^beta
     roots <- my.get.roots(m, beta)
     poles_rs_k <- compute.partial.fraction.param(factor = roots$factor,
                                                  pr_roots = roots$pr_roots,
@@ -128,13 +130,16 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                 m = m, # rational order
                 beta = beta, # smoothness parameter
                 partial_fraction_terms = partial_fraction_terms, # partial fraction terms
-                residues = poles_rs_k$r # residues \{a_k\}_{k=1}^{m+1}
+                residues = poles_rs_k$r, # residues \{a_k\}_{k=1}^{m+1}
+                poles = poles_rs_k$p,
+                diffusion = diffusion,
+                factorizations = lapply(partial_fraction_terms, function(A) {
+                  Matrix::Cholesky(Matrix::forceSymmetric(A), LDL = FALSE)
+                })
                 ))
   }
 }
 
-
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to solve the iteration
 my.solver.frac <- function(obj, # object returned by my.fractional.operators.frac()
                            v # vector to be solved for
@@ -142,13 +147,19 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
   beta <- obj$beta
   m <- obj$m
   if (beta == 1){
-    return(solve(obj$LHS, v) # solve the linear system directly for beta = 1
+    return(if (!is.null(obj$factorization))
+      solve(obj$factorization, v, system = "A") else solve(obj$LHS, v)
            )
   } else {
     partial_fraction_terms <- obj$partial_fraction_terms
     residues <- obj$residues
     output <- v*0
-    for (i in 1:(m+1)) {output <- output + residues[i] * solve(partial_fraction_terms[[i]], v)}
+    for (i in seq_len(m + 1L)) {
+      solved <- if (!is.null(obj$factorizations)) {
+        solve(obj$factorizations[[i]], v, system = "A")
+      } else solve(partial_fraction_terms[[i]], v)
+      output <- output + residues[i] * solved
+    }
     return(output # solve the linear system using the partial fraction decomposition
            )
   }
@@ -175,8 +186,6 @@ my.solver.frac <- function(obj, # object returned by my.fractional.operators.fra
 #   return(Reduce(`+`, results))
 # }
 
-
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0, RHST) {
   CC <- my_op_frac$C
   SOL <- matrix(NA, nrow = nrow(CC), ncol = length(time_seq))
@@ -188,8 +197,6 @@ solve_fractional_evolution <- function(my_op_frac, time_step, time_seq, val_at_0
   return(SOL)
 }
 
-
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 estimate_error_memory <- function(
     n_reference_nodes, n_reference_samples, n_blocks,
     n_solver_steps = numeric(0), matrix_copies = 6,
@@ -233,8 +240,6 @@ estimate_error_memory <- function(
   )
 }
 
-
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 solve_fractional_evolution_error <- function(
     my_op_frac, time_step, time_seq, val_at_0,
     spatial_load, g_average, Psi, reference_C,
@@ -351,8 +356,6 @@ solve_fractional_evolution_error <- function(
   sqrt(error_sum)
 }
 
-
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to construct a piecewise constant projection of approximated values
 # construct_piecewise_projection <- function(projected_U_approx, time_seq, overkill_time_seq) {
 #   projected_U_piecewise <- matrix(NA, nrow = nrow(projected_U_approx), ncol = length(overkill_time_seq))
@@ -390,8 +393,6 @@ construct_piecewise_projection <- function(
   projected_U_approx[, columns, drop = FALSE]
 }
 
-
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 make_time_grid <- function(T_final, target_step) {
   stopifnot(
     length(T_final) == 1L, is.finite(T_final), T_final > 0,
@@ -405,8 +406,6 @@ make_time_grid <- function(T_final, target_step) {
   return(list(N = N, time_step = time_step, time_seq = time_seq))
 }
 
-
-## -------------------------------------------------------------------------------------------------------------------------------------------------
 average_sine_forcing <- function(time_seq, A = 1, omega = pi) {
   dt <- diff(time_seq)
 
@@ -429,4 +428,3 @@ average_sine_forcing <- function(time_seq, A = 1, omega = pi) {
   # First entry is unused by the evolution solver.
   c(0, averages)
 }
-

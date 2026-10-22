@@ -1,4 +1,3 @@
-## ---------------------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -9,8 +8,6 @@ library(ggplot2)
 library(reshape2)
 library(plotly)
 
-
-## ---------------------------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(h){
   edge1 <- rbind(c(0,0),c(1,0))
@@ -23,8 +20,6 @@ gets.graph.tadpole <- function(h){
   return(graph)
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 # Function to compute the eigenfunctions of the tadpole graph
 tadpole.eig <- function(k,graph){
 x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -54,8 +49,6 @@ if(k==0){
 return(f)
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 # Function to compute the eigenpairs of the tadpole graph
 gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
   EIGENVAL <- NULL
@@ -92,8 +85,6 @@ gets.eigen.params <- function(N_finite = 4, kappa = 1, alpha = 0.5, graph){
               INDEX = INDEX))
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 gets.mesh.and.FEM.on.rectangle <- function(a, b, n) {
   mesh <- fmesher::fm_rcdt_2d(
   lattice = fmesher::fm_lattice_2d(
@@ -107,8 +98,6 @@ gets.mesh.and.FEM.on.rectangle <- function(a, b, n) {
               G = FEM$g1))
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 compute_true_eigen_rectangle <- function(a = 1,
                                          b = 1,
                                          loc,
@@ -154,8 +143,6 @@ compute_true_eigen_rectangle <- function(a = 1,
               n_vector = n_vector))
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 # Function to get globe from h using spline
 globe_from_h <- function(h) {
   readed_data <- readRDS(
@@ -176,8 +163,6 @@ globe_from_h <- function(h) {
   return(round(spline_func(h)))
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 calculate_laplace_beltrami_eigenvalues <- function(kappa = 0, L_max = 5, rot.inv = FALSE) {
   
   eigenvalues <- numeric(0)
@@ -222,8 +207,6 @@ compute_true_eigen_sphere <- function(mesh,
               EIGENFUN = EIGENFUN))
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 trig_hat_integrals <- function(a, b, w, A = 0, B = 0) {
   h <- b - a
   z <- w * h / 2
@@ -304,3 +287,83 @@ project_u0_tadpole <- function(graph, amplitude = 10) {
   as.numeric(solve(C, b0))
 }
 
+tadpole_modal_basis <- function(graph, modes = c(5L, 7L), N_finite = 4L,
+                                kappa = 4, spatial_order = 8L) {
+  stopifnot(length(N_finite) == 1L, N_finite >= 0,
+            N_finite == as.integer(N_finite), length(modes) > 0,
+            !anyDuplicated(modes), all(modes == as.integer(modes)),
+            all(abs(graph$get_edge_lengths() - c(1, 2)) < 1e-12))
+  specs <- list()
+  for (j in 0:N_finite) {
+    specs[[length(specs) + 1L]] <- list(j = j, family = "phi")
+    if (j > 0 && j %% 2 == 0)
+      specs[[length(specs) + 1L]] <- list(j = j, family = "psi")
+  }
+  stopifnot(all(modes >= 1), all(modes <= length(specs)))
+  specs <- specs[modes]
+  w <- vapply(specs, function(s) s$j * pi / 2, numeric(1))
+  A <- B <- matrix(0, 2, length(modes))
+  for (q in seq_along(specs)) {
+    s <- specs[[q]]
+    if (s$j == 0) A[, q] <- 1 / sqrt(3) else if (s$family == "psi") {
+      A[, q] <- c((-1)^(s$j / 2), 1) / sqrt(3 / 2)
+    } else if (s$j %% 2 == 0) B[2, q] <- 1 else {
+      A[1, q] <- -2 * sin(pi * s$j / 2) / sqrt(3)
+      B[2, q] <- 1 / sqrt(3)
+    }
+  }
+  C <- graph$mesh$C
+  PtE <- graph$mesh$PtE
+  stopifnot(!is.null(C), nrow(C) == 2L + nrow(PtE))
+  intervals <- lapply(1:2, function(edge) {
+    ix <- which(PtE[, 1] == edge)
+    ix <- ix[order(PtE[ix, 2])]
+    x <- c(0, c(1, 2)[edge] * PtE[ix, 2], c(1, 2)[edge])
+    nodes <- c(if (edge == 1L) 1L else 2L, 2L + ix, 2L)
+    list(a = head(x, -1), b = tail(x, -1),
+         left = head(nodes, -1), right = tail(nodes, -1))
+  })
+  values <- function(edge, x) {
+    sweep(cos(outer(x, w)), 2, A[edge, ], `*`) +
+      sweep(sin(outer(x, w)), 2, B[edge, ], `*`)
+  }
+  loads <- matrix(0, nrow(C), length(modes))
+  for (edge in 1:2) {
+    mesh <- intervals[[edge]]
+    for (q in seq_along(modes)) {
+      z <- w[q] * (mesh$b - mesh$a) / 2
+      S <- Q <- numeric(length(z))
+      small <- abs(z) < 1e-3
+      S[small] <- 1 - z[small]^2/6 + z[small]^4/120 - z[small]^6/5040
+      Q[small] <- z[small]/3 - z[small]^3/30 + z[small]^5/840
+      S[!small] <- sin(z[!small]) / z[!small]
+      Q[!small] <- (sin(z[!small]) - z[!small]*cos(z[!small])) / z[!small]^2
+      theta <- w[q] * (mesh$a + mesh$b) / 2
+      v <- A[edge, q]*cos(theta) + B[edge, q]*sin(theta)
+      d <- A[edge, q]*sin(theta) - B[edge, q]*cos(theta)
+      left <- (mesh$b-mesh$a)/2 * (S*v + Q*d)
+      right <- (mesh$b-mesh$a)/2 * (S*v - Q*d)
+      summed <- rowsum(c(left, right), c(mesh$left, mesh$right), reorder = FALSE)
+      ids <- as.integer(rownames(summed))
+      loads[ids, q] <- loads[ids, q] + summed[, 1]
+    }
+  }
+  projection <- as.matrix(solve(C, loads))
+  gram <- crossprod(projection, C %*% projection)
+  residual_gram <- matrix(0, length(modes), length(modes))
+  rule <- gauss_legendre_rule(spatial_order)
+  for (edge in 1:2) {
+    mesh <- intervals[[edge]]
+    for (q in seq_along(rule$nodes)) {
+      z <- rule$nodes[q]
+      exact <- values(edge, mesh$a + z * (mesh$b-mesh$a))
+      projected <- (1-z)*projection[mesh$left, , drop = FALSE] +
+        z*projection[mesh$right, , drop = FALSE]
+      residual <- (exact-projected) * sqrt((mesh$b-mesh$a)*rule$weights[q])
+      residual_gram <- residual_gram + crossprod(residual)
+    }
+  }
+  list(C = C, loads = loads, projection = projection, gram = as.matrix(gram),
+       residual_gram = residual_gram, eigenvalues = kappa^2 + w^2,
+       modes = modes, spatial_order = spatial_order)
+}

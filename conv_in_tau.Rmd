@@ -52,6 +52,7 @@ source_if_updated("fun/graphs_and_meshes")
 source_if_updated("fun/plotting")
 source_if_updated("fun/metafunctions")
 source_if_updated("fun/exact_solutions")
+source_if_updated("fun/convergence_experiments")
 ```
 
 
@@ -93,6 +94,7 @@ captioner <- function(caption) {
 
 ::: {.custom-box}
 To study convergence in $\tau$, we keep the spatial mesh size $h$ and rational order $m$ fixed and choose them sufficiently accurately that the temporal error dominates. The actual uniform steps are $\tau=T/N$, obtained from the requested step sizes using integer numbers of intervals. The expected temporal rate is first order. We fit $\log_{10}E=S_\tau\log_{10}\tau+\log_{10}C_\tau$ using those actual steps. Spatial, rational, and reference-quadrature errors should be checked independently so they do not mask the temporal rate.
+For the experimental equation $u_t+\nu L^{\alpha/2}u=f$, keep $\nu>0$ fixed along each curve; constants can depend on it. This implementation is being tested before updating the paper.
 :::
 
 
@@ -106,9 +108,7 @@ library(grateful)
 library(ggplot2)
 library(reshape2)
 library(plotly)
-library(slackr)
-source("keys.R")
-slackr_setup(token = token) # token comes from keys.R
+# Experiment results stay local; no Slack setup or uploads.
 ```
 
 
@@ -116,164 +116,105 @@ slackr_setup(token = token) # token comes from keys.R
 
 
 
+
 ```{r}
-# Parameters
+# Parameters: start with an affordable pilot; choose "full" deliberately.
+experiment_profile <- "pilot"
+diffusion <- 1
+run_id <- NULL # Set to a printed existing run ID to load it; do not recompute it.
+run_refinement_checks <- TRUE
+quadrature_order <- 4L
+refinement_tolerance <- 0.05
 T_final <- 1e-3
 kappa <- 4
-N_finite <- 4 # choose even
-adjusted_N_finite <- N_finite + N_finite/2 + 1
-# Coefficients for u_0 and f
-coeff_U_0 <- 50*(1:adjusted_N_finite)^-1
-coeff_U_0[-5] <- 0
-coeff_FF <- rep(0, adjusted_N_finite)
-coeff_FF[7] <- 10
-
-AAA = 1
-OMEGA = pi
-
-# Requested time steps and fixed spatial mesh size.
-tau_targets <- 10^seq(log10(0.000009), log10(0.0001), length.out = 4)
-h_fixed <- 1e-4
-m_fixed <- 4
+N_finite <- 4L
+active_modes <- c(5L, 7L)
+exact_initial <- c(10, 0)
+exact_forcing <- c(0, 10)
+AAA <- 1
+OMEGA <- pi
 alpha_vector <- seq(0.5, 1.5, by = 0.4)
-
-# Use the actual uniform steps in both the solver and the convergence fit.
-time_grids <- lapply(tau_targets, function(target) {
-  make_time_grid(T_final = T_final, target_step = target)
-})
+stopifnot(experiment_profile %in% c("pilot", "full"))
+tau_targets <- 10^seq(log10(9e-6), log10(1e-4), length.out = 4)
+h_fixed <- if (experiment_profile == "pilot") 5e-4 else 1e-4
+m_fixed <- 4L
+time_grids <- lapply(tau_targets, function(dt) make_time_grid(T_final, dt))
 tau_vector <- vapply(time_grids, function(grid) grid$time_step, numeric(1))
 stopifnot(length(unique(tau_vector)) == length(tau_vector))
+axis_values <- tau_vector
+anchor_h <- h_fixed
+anchor_grid <- time_grids[[which.min(tau_vector)]]
+anchor_m <- m_fixed
 
-# Interval averages depend only on the time grid; reuse them for every alpha.
-g_averages <- lapply(time_grids, function(grid) {
-  average_sine_forcing(grid$time_seq, A = AAA, omega = OMEGA)
-})
+# All grids, coefficients, and error-method settings are saved with this run.
+experiment_parameters <- list(
+  study = "tau", profile = experiment_profile, diffusion = diffusion,
+  T_final = T_final, kappa = kappa, alpha = alpha_vector,
+  modes = active_modes, N_finite = N_finite,
+  initial = exact_initial, forcing = exact_forcing, A = AAA, omega = OMEGA,
+  axis = axis_values, fixed = list(h = h_fixed, m = m_fixed),
+  quadrature_order = quadrature_order, spatial_order = 8L,
+  run_refinement_checks = run_refinement_checks,
+  refinement_tolerance = refinement_tolerance, error_method = "modal-projection-v1")
+run_dir <- experiment_run("tau", experiment_parameters, run_id = run_id)
+cat("Run ID:", basename(run_dir), "\nResults:", run_dir, "\n")
 ```
 
-
-
-```{r}
-# Reference quadrature and error accumulation.
-overkill_time_step <- 1e-9
-overkill_h <- 9e-5
-error_verbose <- TRUE
-
-overkill_graph <- gets.graph.tadpole(h = overkill_h)
-overkill_graph$compute_fem()
-overkill_C <- overkill_graph$mesh$C
-```
-
-
-```{r}
-error_n_blocks <- 100L
-# Preview modeled memory before allocating the reference time vector or solving.
-# estimated_gib excludes FEM/solver objects and other session memory by default.
-error_memory <- estimate_error_memory(
-  n_reference_nodes = nrow(overkill_C),
-  n_reference_samples = ceiling(T_final / overkill_time_step),
-  n_blocks = unique(c(error_n_blocks, 10, 100, 1000, 10000, 100000, 1000000)),
-  n_solver_steps = vapply(time_grids, function(grid) grid$N, numeric(1))
-)
-print(error_memory, digits = 3, row.names = FALSE)
-# Set error_n_blocks above to the desired count before running the experiment.
-```
-
-
-```{r}
-reference_grid <- make_time_grid(
-  T_final = T_final, target_step = overkill_time_step
-)
-overkill_time_step <- reference_grid$time_step
-overkill_time_seq <- reference_grid$time_seq
-
-# The spatial discretization is fixed for every time step and alpha.
-graph <- gets.graph.tadpole(h = h_fixed)
-graph$compute_fem()
-C <- graph$mesh$C
-L <- kappa^2 * C + graph$mesh$G
-Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
-stopifnot(all(coeff_U_0[-5] == 0))
-U_0 <- project_u0_tadpole(graph, amplitude = coeff_U_0[5])
-
-# Reference spatial modes and loads are independent of alpha, tau, and m.
-reference_eigen_params <- gets.eigen.params(
-  N_finite = N_finite, kappa = kappa,
-  alpha = alpha_vector[1], graph = overkill_graph
-)
-reference_eigenvalues <- reference_eigen_params$EIGENVAL
-overkill_EIGENFUN <- reference_eigen_params$EIGENFUN
-active_modes <- which(coeff_U_0 != 0 | coeff_FF != 0)
-exact_basis <- overkill_EIGENFUN[, active_modes, drop = FALSE]
-exact_initial <- coeff_U_0[active_modes]
-exact_forcing <- coeff_FF[active_modes]
-spatial_modes <- t(Psi) %*% overkill_C %*% overkill_EIGENFUN
-spatial_load <- as.numeric(spatial_modes %*% coeff_FF)
-m_values <- c()
-```
-
+The pilot is for checking behavior, not for claiming publication convergence
+rates. In particular, the pilot in $m$ may reach a spatial or temporal floor.
+The full profile retains the original solver grids, but uses the new modal
+error calculation. No fine reference space-time mesh is allocated.
 
 ```{r, eval = FALSE, class.source = "fold-show"}
-# Create a matrix to store the errors
-errors_projected <- matrix(NA, nrow = length(tau_vector), ncol = length(alpha_vector))
-for (j in 1:length(alpha_vector)) {
-  alpha <- alpha_vector[j] # from 0.5 to 2
-  beta <- alpha / 2
-
-  # Only the fractional decay rates depend on alpha.
-  exact_rates <- reference_eigenvalues[active_modes]^beta
-
-  exact_at_time <- function(t) {
-    coefficients <- outer(
-      seq_along(exact_rates), t,
-      function(i, tt) {
-        (exact_initial[i] + exact_forcing[i] * G_sin(
-          t = tt, A = AAA,
-          lambda_j_alpha_half = exact_rates[i], omega = OMEGA
-        )) * exp(-exact_rates[i] * tt)
-      }
-    )
-    exact_basis %*% coefficients
-  }
-
-  for (i in seq_along(tau_vector)) {
-    time_grid <- time_grids[[i]]
-    time_step <- time_grid$time_step
-    time_seq <- time_grid$time_seq
-    h <- h_fixed
-    m <- m_fixed
-    m_values <- c(m_values, m)
-    my_op_frac <- my.fractional.operators.frac(
-      L = L, beta = beta, C = C,
-      scale.factor = kappa^2, m = m, time_step = time_step
-    )
-    g_average <- g_averages[[i]]
-
-    errors_projected[i,j] <- solve_fractional_evolution_error(
-      my_op_frac = my_op_frac,
-      time_step = time_step,
-      time_seq = time_seq,
-      val_at_0 = U_0,
-      spatial_load = spatial_load,
-      g_average = g_average,
-      Psi = Psi,
-      reference_C = overkill_C,
-      reference_times = overkill_time_seq,
-      exact_at_time = exact_at_time,
-      n_blocks = error_n_blocks,
-      verbose = error_verbose
-    )
-    slackr_msg(text = paste0("m =", m, ", alpha =", alpha, ", h =", h, ", time_step =", time_step), channel = "#research")
+# Refuse to overwrite an existing run before starting any expensive work.
+stopifnot(!file.exists(file.path(run_dir, "results.rds")))
+errors_projected <- matrix(NA_real_, length(axis_values), length(alpha_vector))
+diagnostics <- list()
+evaluate_case <- function(spatial, alpha, m, grid) {
+  tadpole_case_error(spatial, alpha, m, diffusion, grid,
+    exact_initial, exact_forcing, AAA, OMEGA, quadrature_order, verbose = TRUE)
+}
+record_diagnostic <- function(spatial, alpha, m, h, dt) {
+  diagnostic <- rational_accuracy_diagnostic(
+    spatial$L, spatial$basis$C, alpha/2, kappa^2, m,
+    spatial$basis$eigenvalues)
+  diagnostic$h <- h
+  diagnostic$time_step <- dt
+  diagnostics[[length(diagnostics)+1L]] <<- diagnostic
+}
+spatial <- prepare_tadpole_experiment(h_fixed, kappa, active_modes, N_finite)
+for (j in seq_along(alpha_vector)) {
+  for (i in seq_along(time_grids)) {
+    grid <- time_grids[[i]]
+    errors_projected[i, j] <- evaluate_case(spatial, alpha_vector[j], m_fixed, grid)
+    record_diagnostic(spatial, alpha_vector[j], m_fixed, h_fixed, grid$time_step)
   }
 }
-save(errors_projected, file = here::here("data_files/errors_projected_tau.RData"))
+
+checks <- data.frame()
+if (run_refinement_checks) {
+  anchor_spatial <- prepare_tadpole_experiment(anchor_h, kappa, active_modes, N_finite)
+  checks <- do.call(rbind, lapply(alpha_vector, function(alpha) {
+    tadpole_refinement_checks(anchor_spatial, alpha, anchor_m, diffusion,
+      anchor_grid, exact_initial, exact_forcing, AAA, OMEGA,
+      quadrature_order, refinement_tolerance)
+  }))
+}
+results <- list(errors_projected = errors_projected,
+  diagnostics = do.call(rbind, diagnostics), refinement_checks = checks,
+  parameters = experiment_parameters)
+save_experiment_results(results, run_dir)
+write.csv(results$diagnostics, file.path(run_dir, "rational_diagnostics.csv"), row.names = FALSE)
+write.csv(checks, file.path(run_dir, "refinement_checks.csv"), row.names = FALSE)
+print(results$diagnostics)
+print(checks)
 ```
 
 ```{r}
-# Load the errors_projected data
-load(here::here("data_files/errors_projected_tau.RData"))
+# Load only this run; metadata must match the parameters above.
+results <- load_experiment_results(run_dir)
+errors_projected <- results$errors_projected
 ```
-
-
 
 ```{r}
 observed_rates <- numeric(length(alpha_vector))
@@ -304,37 +245,27 @@ p_tau_nicer_tadpole <- errorConvergencePlotterLatex(x_axis_vector = tau_vector,
                                  y_axis_label = "$\\|u-U_{h,m}^{\\tau}\\|_{L_2(\\Gamma\\times[0,T])}\\quad(\\log_{10}\\mbox{ scale})$",
                                  color_label = "$\\quad\\quad\\;\\;\\alpha\\;|\\;\\mathtt{theo}\\;|\\;\\;\\mathtt{obs}\\;\\;|\\%\\mathtt{re}$")
 
-ggsave(here::here("data_files/conv_rates_tau_tadpole.png"), width = 4, height = 5, plot = p_tau_tadpole, dpi = 300)
-myggsave(p_tau_nicer_tadpole, width = 4, height = 5, use_mathpazo = TRUE)
-save(p_tau_tadpole, file = here::here("data_files/p_tau_tadpole.RData"))
-save(p_tau_nicer_tadpole, file = here::here("data_files/p_tau_nicer_tadpole.RData"))
+ggsave(file.path(run_dir, "conv_rates_tau_tadpole.png"), width = 4, height = 5, plot = p_tau_tadpole, dpi = 300)
+myggsave(p_tau_nicer_tadpole, width = 4, height = 5, use_mathpazo = TRUE,
+         output_dir = file.path(run_dir, "tikzpic"), copy_to_presentation = FALSE)
+save(p_tau_tadpole, file = file.path(run_dir, "p_tau_tadpole.RData"))
+save(p_tau_nicer_tadpole, file = file.path(run_dir, "p_tau_nicer_tadpole.RData"))
 ```
 
 
-```{r, eval = TRUE, fig.align='center', out.width="400px", out.height="500px", fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
-knitr::include_graphics(here::here("data_files/tikzpic/p_tau_nicer_tadpole_with_mathpazo.pdf"))
+```{r, eval = FALSE, fig.align='center', out.width="400px", out.height="500px", fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $\\tau$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
+knitr::include_graphics(file.path(run_dir, "tikzpic", "p_tau_nicer_tadpole_with_mathpazo.pdf"))
 ```
 
 
 
 
 
-```{r, eval = TRUE, echo = FALSE}
-initial_comment <- "Here’s the latest plot update for the convergence in τ!"
-# option 1
-slackr_upload(
-  filename = "data_files/conv_rates_tau_tadpole.png",        # path to your image
-  initial_comment = initial_comment,
-  channels = "#research"
-)
-# option 2
-# ggslackr(p_tau_tadpole, channels = "#research", initial_comment = initial_comment) # p is a ggplot2 object
-# option 3
-# slackr_dev(channels = "#research"); plot(mtcars$mpg, mtcars$wt); dev.off()
-```
+Results and diagnostic tables are saved in `run_dir`. No notifications are sent.
+
 
 # References
 
 ```{r, eval = TRUE}
-cite_packages(output = "paragraph", out.dir = ".")
+if (exists("run_dir")) cite_packages(output = "paragraph", out.dir = run_dir)
 ```

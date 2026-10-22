@@ -1,0 +1,221 @@
+---
+title: "Diffusion convergence experiment helpers"
+output: html_document
+---
+
+These helpers require `fractional_evolution`, `exact_solutions`, and
+`graphs_and_meshes`. They do not send notifications or modify package libraries.
+
+## Error integration without a reference space-time grid
+
+On each solver interval, integrate the exact modal coefficients with Gauss
+quadrature. Split the projected error into its temporal mean and variance;
+add the independently integrated spatial projection residual. This avoids
+subtracting nearly equal full solution norms when errors are very small.
+`n_blocks` is not needed: only one bounded block of scalar coefficients and
+the current FEM state are stored. The forcing increment uses physical time.
+
+```{r}
+solve_fractional_evolution_modal_error <- function(
+    my_op_frac, time_step, time_seq, val_at_0, spatial_load, g_average,
+    modal_basis, coefficients_at_time, quadrature_order = 4L,
+    block_steps = 256L, verbose = FALSE) {
+  stopifnot(length(time_step) == 1L, is.finite(time_step), time_step > 0,
+            length(time_seq) >= 2L, all(is.finite(time_seq)),
+            all(diff(time_seq) > 0),
+            max(abs(diff(time_seq)-time_step)) <=
+              100*.Machine$double.eps*max(1, tail(time_seq, 1)),
+            length(g_average) == length(time_seq),
+            length(val_at_0) == nrow(my_op_frac$C),
+            length(spatial_load) == length(val_at_0),
+            nrow(modal_basis$projection) == length(val_at_0),
+            is.function(coefficients_at_time),
+            length(block_steps) == 1L, is.finite(block_steps),
+            block_steps >= 1L, block_steps == as.integer(block_steps))
+  rule <- gauss_legendre_rule(quadrature_order)
+  n_steps <- length(time_seq)-1L
+  n_modes <- ncol(modal_basis$projection)
+  u <- as.numeric(val_at_0)
+  error_sum <- compensation <- 0
+  started <- proc.time()[["elapsed"]]
+  for (first in seq.int(1L, n_steps, by = block_steps)) {
+    steps <- seq.int(first, min(n_steps, first+block_steps-1L))
+    times <- as.vector(outer(rule$nodes*time_step, time_seq[steps], `+`))
+    coefficients <- coefficients_at_time(times)
+    stopifnot(is.matrix(coefficients), nrow(coefficients) == n_modes,
+              ncol(coefficients) == length(times), all(is.finite(coefficients)))
+    for (j in seq_along(steps)) {
+      k <- steps[j]
+      rhs <- my_op_frac$C %*% u +
+        time_step*spatial_load*g_average[k+1L]
+      u <- as.numeric(my.solver.frac(my_op_frac, rhs))
+      ix <- (j-1L)*quadrature_order + seq_len(quadrature_order)
+      b <- coefficients[, ix, drop = FALSE]
+      mean_b <- as.numeric(b %*% rule$weights)
+      delta <- as.numeric(modal_basis$projection %*% mean_b)-u
+      centered <- b-mean_b
+      variance <- (centered %*% diag(rule$weights)) %*% t(centered)
+      second <- (b %*% diag(rule$weights)) %*% t(b)
+      mean_error <- as.numeric(crossprod(delta, my_op_frac$C %*% delta))
+      value <- time_step * (mean_error + sum(modal_basis$gram*variance) +
+        sum(modal_basis$residual_gram*second))
+      if (!is.finite(value) || value < 0) stop("Invalid integrated squared error.")
+      # Compensated accumulation for very long time grids.
+      adjusted <- value-compensation
+      updated <- error_sum+adjusted
+      compensation <- (updated-error_sum)-adjusted
+      error_sum <- updated
+    }
+    if (verbose && (first == 1L || tail(steps, 1L) == n_steps ||
+                    (first-1L) %% (100L*block_steps) == 0L)) {
+      message(sprintf("Modal error: %s/%s steps (%.1f%%), %.2f s elapsed",
+        tail(steps, 1L), n_steps, 100*tail(steps, 1L)/n_steps,
+        proc.time()[["elapsed"]]-started))
+    }
+  }
+  sqrt(error_sum)
+}
+
+rational_accuracy_diagnostic <- function(L, C, beta, scale.factor, m,
+                                         active_eigenvalues = numeric(), n = 512L) {
+  if (beta == 1) return(data.frame(
+    m = m, beta = beta, max_relative_error_sampled = 0,
+    max_active_rate_error = 0, positive_sampled = TRUE))
+  # P1 element inverse bound: lambda_max <= kappa^2 + 12 / h_min^2.
+  # Alternatively obtain a rigorous upper bound from |C^-1 L| if supplied
+  # by the caller; here use the assembled row sums and a mass lower bound.
+  # For these consistent P1 mass matrices C >= diag(rowSums(C))/3.
+  mass <- as.numeric(Matrix::rowSums(C))
+  upper <- max(3*as.numeric(Matrix::rowSums(abs(L)))/mass)
+  stopifnot(is.finite(upper), upper >= scale.factor)
+  eigenvalues <- exp(seq(log(scale.factor), log(upper), length.out = n))
+  roots <- my.get.roots(m, beta)
+  rate_ratio <- function(lambda) {
+    z <- lambda/scale.factor
+    R <- roots$factor * vapply(z, function(x) {
+      prod(1-roots$pr_roots*x)/prod(1-roots$pl_roots*x)
+    }, numeric(1))
+    list(inverse_relative = R*z^beta, rate_relative = 1/(R*z^beta), R = R)
+  }
+  sampled <- rate_ratio(eigenvalues)
+  active <- rate_ratio(active_eigenvalues)
+  data.frame(m = m, beta = beta,
+    max_relative_error_sampled = max(abs(sampled$inverse_relative-1)),
+    max_active_rate_error = if (length(active_eigenvalues))
+      max(abs(active$rate_relative-1)) else NA_real_,
+    positive_sampled = all(is.finite(sampled$R) & sampled$R > 0))
+}
+
+refinement_comparison <- function(error, refined_error, label, tolerance = 0.05) {
+  relative_change <- abs(refined_error-error)/max(error, .Machine$double.xmin)
+  data.frame(check = label, error = error, refined_error = refined_error,
+             relative_change = relative_change, tolerance = tolerance,
+             passed = relative_change <= tolerance)
+}
+
+prepare_tadpole_experiment <- function(h, kappa, modes, N_finite,
+                                      spatial_order = 8L) {
+  graph <- gets.graph.tadpole(h)
+  graph$compute_fem()
+  basis <- tadpole_modal_basis(graph, modes, N_finite, kappa, spatial_order)
+  list(basis = basis, L = kappa^2*basis$C + graph$mesh$G,
+       h = h, kappa = kappa, modes = modes, N_finite = N_finite)
+}
+
+tadpole_case_error <- function(spatial, alpha, m, diffusion, time_grid,
+                               initial, forcing, A = 1, omega = pi,
+                               quadrature_order = 4L, verbose = FALSE) {
+  basis <- spatial$basis
+  rates <- diffusion*basis$eigenvalues^(alpha/2)
+  coefficients <- function(t) exact_modal_coefficients(
+    t, rates, initial, forcing, A, omega)
+  op <- my.fractional.operators.frac(
+    L = spatial$L, beta = alpha/2, C = basis$C,
+    scale.factor = spatial$kappa^2, m = m,
+    time_step = time_grid$time_step, diffusion = diffusion)
+  solve_fractional_evolution_modal_error(
+    my_op_frac = op, time_step = time_grid$time_step,
+    time_seq = time_grid$time_seq,
+    val_at_0 = as.numeric(basis$projection %*% initial),
+    spatial_load = as.numeric(basis$loads %*% forcing),
+    g_average = average_sine_forcing(time_grid$time_seq, A, omega),
+    modal_basis = basis, coefficients_at_time = coefficients,
+    quadrature_order = quadrature_order, verbose = verbose)
+}
+
+tadpole_refinement_checks <- function(spatial, alpha, m, diffusion, time_grid,
+                                      initial, forcing, A = 1, omega = pi,
+                                      quadrature_order = 4L, tolerance = 0.05) {
+  evaluate <- function(mesh = spatial, grid = time_grid, order = quadrature_order) {
+    tadpole_case_error(mesh, alpha, m, diffusion, grid, initial, forcing,
+                       A, omega, order)
+  }
+  baseline <- evaluate()
+  fine_time <- make_time_grid(tail(time_grid$time_seq, 1), time_grid$time_step/2)
+  fine_space <- prepare_tadpole_experiment(
+    spatial$h/2, spatial$kappa, spatial$modes, spatial$N_finite)
+  checks <- rbind(
+    refinement_comparison(baseline, evaluate(grid = fine_time), "halve tau", tolerance),
+    refinement_comparison(baseline, evaluate(mesh = fine_space), "halve h", tolerance),
+    refinement_comparison(baseline, evaluate(order = 2L*quadrature_order),
+                          "double time quadrature order", tolerance))
+  checks$alpha <- alpha
+  checks
+}
+```
+
+## Isolated runs and metadata
+
+Every new run gets a unique directory. An existing run can only be loaded by
+an explicit ID with matching parameters; existing results are never silently
+reused for another coefficient or mesh. Generated data/plots stay under this
+directory, without copies into presentation folders.
+
+```{r}
+experiment_run <- function(study, parameters, run_id = NULL,
+                           root = here::here("data_files", "diffusion_experiments")) {
+  stopifnot(study %in% c("h", "tau", "m"), is.list(parameters))
+  base <- file.path(root, study)
+  if (is.null(run_id)) {
+    dir.create(base, recursive = TRUE, showWarnings = FALSE)
+    run_dir <- tempfile(pattern = paste0(
+      format(Sys.time(), "%Y%m%dT%H%M%SZ", tz = "UTC"), "-nu-",
+      format(parameters$diffusion, scientific = TRUE, trim = TRUE), "-"), tmpdir = base)
+    if (!dir.create(run_dir)) stop("Could not create a unique experiment directory.")
+    read_git <- function(args) {
+      tryCatch(system2("git", args, stdout = TRUE, stderr = FALSE),
+               error = function(e) "unavailable")
+    }
+    metadata <- list(parameters = parameters, created_utc = format(
+      Sys.time(), "%Y-%m-%d %H:%M:%S UTC", tz = "UTC"),
+      branch = read_git(c("branch", "--show-current")),
+      commit = read_git(c("rev-parse", "HEAD")),
+      working_tree = read_git(c("status", "--short")), session = sessionInfo())
+    saveRDS(metadata, file.path(run_dir, "metadata.rds"))
+    capture.output(str(metadata), file = file.path(run_dir, "metadata.txt"))
+  } else {
+    if (length(run_id) != 1L || is.na(run_id) ||
+        !grepl("^[A-Za-z0-9_.+-]+$", run_id) || run_id %in% c(".", ".."))
+      stop("run_id must be one directory name, not a path.")
+    run_dir <- file.path(base, run_id)
+    metadata_file <- file.path(run_dir, "metadata.rds")
+    if (!file.exists(metadata_file)) stop("No saved run with that ID.")
+    if (!identical(readRDS(metadata_file)$parameters, parameters))
+      stop("Saved run parameters do not match. Restore its settings or create a new run.")
+  }
+  normalizePath(run_dir)
+}
+
+save_experiment_results <- function(results, run_dir) {
+  destination <- file.path(run_dir, "results.rds")
+  if (file.exists(destination)) stop("Results already exist; create a new run to recompute.")
+  saveRDS(results, destination)
+  invisible(destination)
+}
+
+load_experiment_results <- function(run_dir) {
+  path <- file.path(run_dir, "results.rds")
+  if (!file.exists(path)) stop("Run the computation chunk first, or select an existing run_id.")
+  readRDS(path)
+}
+```

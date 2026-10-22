@@ -93,9 +93,11 @@ Saving, exporting, presentation-file helpers, and PNG composition. The original 
 myggsave <- function(plot,
                      width = 9.22,
                      height = 7.05,
-                     use_mathpazo = TRUE) {
+                     use_mathpazo = TRUE,
+                     output_dir = here::here("data_files/tikzpic"),
+                     copy_to_presentation = TRUE) {
   
-  dir_to_save <- here::here("data_files/tikzpic")
+  dir_to_save <- output_dir
   obj_name <- deparse(substitute(plot))
   
   # --- Filename suffix ---
@@ -131,7 +133,7 @@ myggsave <- function(plot,
   
   # Compile to PDF
   system(
-    paste0("pdflatex -output-directory=", dir_to_save, " ", tex_name),
+    paste0("pdflatex -output-directory=", shQuote(dir_to_save), " ", shQuote(tex_name)),
     ignore.stdout = TRUE,
     ignore.stderr = TRUE
   )
@@ -164,11 +166,13 @@ myggsave <- function(plot,
   if (length(ras_files) > 0) file.remove(ras_files)
   
   # --- Copy PNG to presentation folder ---
-  pres_dir <- path.expand("~/Desktop/leninPresentations/data_files")
-  if (!dir.exists(pres_dir)) dir.create(pres_dir, recursive = TRUE)
-  
-  pres_png <- file.path(pres_dir, basename(png_name))
-  file.copy(png_name, pres_png, overwrite = TRUE)
+  pres_png <- NULL
+  if (copy_to_presentation) {
+    pres_dir <- path.expand("~/Desktop/leninPresentations/data_files")
+    if (!dir.exists(pres_dir)) dir.create(pres_dir, recursive = TRUE)
+    pres_png <- file.path(pres_dir, basename(png_name))
+    file.copy(png_name, pres_png, overwrite = TRUE)
+  }
   
   # --- Output ---
   cat("PDF saved at:", pdf_name, "\n",

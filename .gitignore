@@ -14,3 +14,4 @@ Miniconda3-latest-Linux-x86_64.sh
 old/cv_result.RData
 old/cv_models.RData
 /paper/
+/data_files/diffusion_experiments/
