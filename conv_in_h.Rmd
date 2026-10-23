@@ -132,6 +132,10 @@ run_id <- NULL # Set to a printed existing run ID to load it; do not recompute i
 run_refinement_checks <- TRUE
 quadrature_order <- 4L
 refinement_tolerance <- 0.05
+# Persistent local workers, capped by available CPU and planned memory.
+workers <- if (experiment_profile == "full") 8L else 4L # 1L runs sequentially.
+temporal_cache_mib <- 512 # Per worker; 0 streams quadrature without a full cache.
+memory_budget_gib <- NULL # NULL uses current available memory, capped at 64 GiB.
 T_final <- 1e-3
 kappa <- 4
 N_finite <- 4L
@@ -163,7 +167,10 @@ experiment_parameters <- list(
   quadrature_order = quadrature_order, spatial_order = 8L,
   run_refinement_checks = run_refinement_checks,
   refinement_tolerance = refinement_tolerance, error_method = "modal-projection-v1")
-run_dir <- experiment_run("h", experiment_parameters, run_id = run_id)
+execution_settings <- list(workers = workers, temporal_cache_mib = temporal_cache_mib,
+                           memory_budget_gib = memory_budget_gib)
+run_dir <- experiment_run("h", experiment_parameters, run_id = run_id,
+                          execution = execution_settings)
 cat("Run ID:", basename(run_dir), "\nResults:", run_dir, "\n")
 ```
 
@@ -171,48 +178,34 @@ The pilot is for checking behavior, not for claiming publication convergence
 rates. In particular, the pilot in $m$ may reach a spatial or temporal floor.
 The full profile retains the original solver grids, but uses the new modal
 error calculation. No fine reference space-time mesh is allocated.
+Independent cases use persistent workers; each case still steps sequentially
+through time. Workers reuse bounded spatial and temporal caches. The coordinator
+alone saves results. Read `worker_log.txt` for progress and `resources.csv` for
+per-job timings, cache reuse, and observed worker memory. Execution settings do
+not change the numerical parameters used to validate a saved run.
 
 ```{r, eval = FALSE, class.source = "fold-show"}
 # Refuse to overwrite an existing run before starting any expensive work.
 stopifnot(!file.exists(file.path(run_dir, "results.rds")))
-errors_projected <- matrix(NA_real_, length(axis_values), length(alpha_vector))
-diagnostics <- list()
-evaluate_case <- function(spatial, alpha, m, grid) {
-  tadpole_case_error(spatial, alpha, m, diffusion, grid,
-    exact_initial, exact_forcing, AAA, OMEGA, quadrature_order, verbose = TRUE)
-}
-record_diagnostic <- function(spatial, alpha, m, h, dt) {
-  diagnostic <- rational_accuracy_diagnostic(
-    spatial$L, spatial$basis$C, alpha/2, kappa^2, m,
-    spatial$basis$eigenvalues)
-  diagnostic$h <- h
-  diagnostic$time_step <- dt
-  diagnostics[[length(diagnostics)+1L]] <<- diagnostic
-}
-for (i in seq_along(h_vector)) {
-  h <- h_vector[i]
-  spatial <- prepare_tadpole_experiment(h, kappa, active_modes, N_finite)
-  for (j in seq_along(alpha_vector)) {
-    errors_projected[i, j] <- evaluate_case(spatial, alpha_vector[j], m_fixed, time_grid)
-    record_diagnostic(spatial, alpha_vector[j], m_fixed, h, time_grid$time_step)
-  }
-}
-
-checks <- data.frame()
-if (run_refinement_checks) {
-  anchor_spatial <- prepare_tadpole_experiment(anchor_h, kappa, active_modes, N_finite)
-  checks <- do.call(rbind, lapply(alpha_vector, function(alpha) {
-    tadpole_refinement_checks(anchor_spatial, alpha, anchor_m, diffusion,
-      anchor_grid, exact_initial, exact_forcing, AAA, OMEGA,
-      quadrature_order, refinement_tolerance)
-  }))
-}
-results <- list(errors_projected = errors_projected,
-  diagnostics = do.call(rbind, diagnostics), refinement_checks = checks,
-  parameters = experiment_parameters)
+results <- run_tadpole_study(
+  study = "h", axis_values = axis_values, alpha_vector = alpha_vector,
+  time_grids = list(time_grid), fixed_m = m_fixed,
+  anchor_h = anchor_h, anchor_grid = anchor_grid, anchor_m = anchor_m,
+  diffusion = diffusion, kappa = kappa, modes = active_modes, N_finite = N_finite,
+  initial = exact_initial, forcing = exact_forcing, A = AAA, omega = OMEGA,
+  quadrature_order = quadrature_order, run_refinement_checks = run_refinement_checks,
+  refinement_tolerance = refinement_tolerance, workers = workers,
+  temporal_cache_mib = temporal_cache_mib, memory_budget_gib = memory_budget_gib,
+  worker_log = file.path(run_dir, "worker_log.txt"))
+results$parameters <- experiment_parameters
+errors_projected <- results$errors_projected
+checks <- results$refinement_checks
 save_experiment_results(results, run_dir)
 write.csv(results$diagnostics, file.path(run_dir, "rational_diagnostics.csv"), row.names = FALSE)
 write.csv(checks, file.path(run_dir, "refinement_checks.csv"), row.names = FALSE)
+write.csv(results$resources, file.path(run_dir, "resources.csv"), row.names = FALSE)
+saveRDS(results$execution, file.path(run_dir, "execution.rds"))
+print(results$execution)
 print(results$diagnostics)
 print(checks)
 ```

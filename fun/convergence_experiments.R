@@ -1,7 +1,53 @@
+modal_quadrature_moments <- function(coefficients, weights) {
+  stopifnot(is.matrix(coefficients), all(is.finite(coefficients)),
+            ncol(coefficients) %% length(weights) == 0L)
+  n_modes <- nrow(coefficients)
+  n_steps <- ncol(coefficients)/length(weights)
+  b <- array(coefficients, c(n_modes, length(weights), n_steps))
+  means <- matrix(0, n_modes, n_steps)
+  values <- centered <- vector("list", n_modes)
+  for (q in seq_len(n_modes)) {
+    values[[q]] <- matrix(b[q, , ], length(weights), n_steps)
+    means[q, ] <- colSums(values[[q]]*weights)
+    centered[[q]] <- sweep(values[[q]], 2, means[q, ], `-`)
+  }
+  variance <- second <- array(0, c(n_modes, n_modes, n_steps))
+  for (q in seq_len(n_modes)) for (r in seq_len(q)) {
+    variance[q, r, ] <- variance[r, q, ] <-
+      colSums(centered[[q]]*centered[[r]]*weights)
+    second[q, r, ] <- second[r, q, ] <- colSums(values[[q]]*values[[r]]*weights)
+  }
+  list(mean = means, variance = variance, second = second)
+}
+
+prepare_modal_time_data <- function(time_grid, rates, initial, forcing,
+                                    A = 1, omega = pi, quadrature_order = 4L,
+                                    block_steps = 8192L) {
+  rule <- gauss_legendre_rule(quadrature_order)
+  n <- length(time_grid$time_seq)-1L
+  p <- length(rates)
+  means <- matrix(0, p, n)
+  variance <- second <- array(0, c(p, p, n))
+  for (first in seq.int(1L, n, by = block_steps)) {
+    steps <- seq.int(first, min(n, first+block_steps-1L))
+    times <- as.vector(outer(rule$nodes*time_grid$time_step,
+                            time_grid$time_seq[steps], `+`))
+    moments <- modal_quadrature_moments(exact_modal_coefficients(
+      times, rates, initial, forcing, A, omega), rule$weights)
+    means[, steps] <- moments$mean
+    variance[, , steps] <- moments$variance
+    second[, , steps] <- moments$second
+  }
+  list(mean = means, variance = variance, second = second,
+       grid = time_grid, rates = rates, initial = initial, forcing = forcing,
+       A = A, omega = omega, quadrature_order = quadrature_order,
+       g_average = average_sine_forcing(time_grid$time_seq, A, omega))
+}
+
 solve_fractional_evolution_modal_error <- function(
     my_op_frac, time_step, time_seq, val_at_0, spatial_load, g_average,
     modal_basis, coefficients_at_time, quadrature_order = 4L,
-    block_steps = 256L, verbose = FALSE) {
+    block_steps = 8192L, verbose = FALSE, time_data = NULL) {
   stopifnot(length(time_step) == 1L, is.finite(time_step), time_step > 0,
             length(time_seq) >= 2L, all(is.finite(time_seq)),
             all(diff(time_seq) > 0),
@@ -17,30 +63,35 @@ solve_fractional_evolution_modal_error <- function(
   rule <- gauss_legendre_rule(quadrature_order)
   n_steps <- length(time_seq)-1L
   n_modes <- ncol(modal_basis$projection)
+  if (!is.null(time_data)) stopifnot(
+    identical(dim(time_data$mean), c(n_modes, n_steps)),
+    identical(time_data$grid$time_seq, time_seq),
+    time_data$quadrature_order == quadrature_order)
   u <- as.numeric(val_at_0)
   error_sum <- compensation <- 0
   started <- proc.time()[["elapsed"]]
   for (first in seq.int(1L, n_steps, by = block_steps)) {
     steps <- seq.int(first, min(n_steps, first+block_steps-1L))
-    times <- as.vector(outer(rule$nodes*time_step, time_seq[steps], `+`))
-    coefficients <- coefficients_at_time(times)
-    stopifnot(is.matrix(coefficients), nrow(coefficients) == n_modes,
-              ncol(coefficients) == length(times), all(is.finite(coefficients)))
+    if (is.null(time_data)) {
+      times <- as.vector(outer(rule$nodes*time_step, time_seq[steps], `+`))
+      coefficients <- coefficients_at_time(times)
+      stopifnot(is.matrix(coefficients), nrow(coefficients) == n_modes,
+                ncol(coefficients) == length(times))
+      moments <- modal_quadrature_moments(coefficients, rule$weights)
+    }
     for (j in seq_along(steps)) {
       k <- steps[j]
       rhs <- my_op_frac$C %*% u +
         time_step*spatial_load*g_average[k+1L]
       u <- as.numeric(my.solver.frac(my_op_frac, rhs))
-      ix <- (j-1L)*quadrature_order + seq_len(quadrature_order)
-      b <- coefficients[, ix, drop = FALSE]
-      mean_b <- as.numeric(b %*% rule$weights)
+      source <- if (is.null(time_data)) moments else time_data
+      column <- if (is.null(time_data)) j else k
+      mean_b <- source$mean[, column]
       delta <- as.numeric(modal_basis$projection %*% mean_b)-u
-      centered <- b-mean_b
-      variance <- (centered %*% diag(rule$weights)) %*% t(centered)
-      second <- (b %*% diag(rule$weights)) %*% t(b)
       mean_error <- as.numeric(crossprod(delta, my_op_frac$C %*% delta))
-      value <- time_step * (mean_error + sum(modal_basis$gram*variance) +
-        sum(modal_basis$residual_gram*second))
+      value <- time_step * (mean_error +
+        sum(modal_basis$gram*source$variance[, , column]) +
+        sum(modal_basis$residual_gram*source$second[, , column]))
       if (!is.finite(value) || value < 0) stop("Invalid integrated squared error.")
       # Compensated accumulation for very long time grids.
       adjusted <- value-compensation
@@ -106,9 +157,14 @@ prepare_tadpole_experiment <- function(h, kappa, modes, N_finite,
 
 tadpole_case_error <- function(spatial, alpha, m, diffusion, time_grid,
                                initial, forcing, A = 1, omega = pi,
-                               quadrature_order = 4L, verbose = FALSE) {
+                               quadrature_order = 4L, verbose = FALSE,
+                               time_data = NULL, block_steps = 8192L) {
   basis <- spatial$basis
   rates <- diffusion*basis$eigenvalues^(alpha/2)
+  if (!is.null(time_data)) stopifnot(
+    identical(time_data$rates, rates), identical(time_data$initial, initial),
+    identical(time_data$forcing, forcing), identical(time_data$A, A),
+    identical(time_data$omega, omega))
   coefficients <- function(t) exact_modal_coefficients(
     t, rates, initial, forcing, A, omega)
   op <- my.fractional.operators.frac(
@@ -120,9 +176,11 @@ tadpole_case_error <- function(spatial, alpha, m, diffusion, time_grid,
     time_seq = time_grid$time_seq,
     val_at_0 = as.numeric(basis$projection %*% initial),
     spatial_load = as.numeric(basis$loads %*% forcing),
-    g_average = average_sine_forcing(time_grid$time_seq, A, omega),
+    g_average = if (is.null(time_data))
+      average_sine_forcing(time_grid$time_seq, A, omega) else time_data$g_average,
     modal_basis = basis, coefficients_at_time = coefficients,
-    quadrature_order = quadrature_order, verbose = verbose)
+    quadrature_order = quadrature_order, verbose = verbose,
+    time_data = time_data, block_steps = block_steps)
 }
 
 tadpole_refinement_checks <- function(spatial, alpha, m, diffusion, time_grid,
@@ -145,8 +203,310 @@ tadpole_refinement_checks <- function(spatial, alpha, m, diffusion, time_grid,
   checks
 }
 
+diffusion_process_memory <- function() {
+  out <- c(rss_mib = NA_real_, peak_rss_mib = NA_real_)
+  if (file.exists("/proc/self/status")) {
+    lines <- readLines("/proc/self/status", warn = FALSE)
+    for (field in c("VmRSS", "VmHWM")) {
+      line <- grep(paste0("^", field, ":"), lines, value = TRUE)
+      if (length(line)) out[if (field == "VmRSS") "rss_mib" else "peak_rss_mib"] <-
+        as.numeric(strsplit(trimws(sub("^[^:]+:", "", line)), "[[:space:]]+")[[1]][1])/1024
+    }
+  }
+  out
+}
+
+diffusion_available_memory_gib <- function() {
+  available <- NA_real_
+  if (file.exists("/proc/meminfo")) {
+    line <- grep("^MemAvailable:", readLines("/proc/meminfo", warn = FALSE), value = TRUE)
+    if (length(line)) available <- as.numeric(strsplit(trimws(sub(
+      "^[^:]+:", "", line)), "[[:space:]]+")[[1]][1])/1024^2
+  }
+  # Respect conventional cgroup limits where the files are exposed.
+  for (pair in list(c("/sys/fs/cgroup/memory.max", "/sys/fs/cgroup/memory.current"),
+                   c("/sys/fs/cgroup/memory/memory.limit_in_bytes",
+                     "/sys/fs/cgroup/memory/memory.usage_in_bytes"))) {
+    if (all(file.exists(pair))) {
+      limit <- suppressWarnings(as.numeric(readLines(pair[1], warn = FALSE)[1]))
+      used <- suppressWarnings(as.numeric(readLines(pair[2], warn = FALSE)[1]))
+      if (is.finite(limit) && is.finite(used)) {
+        headroom <- max(0, limit-used)/1024^3
+        available <- if (is.finite(available)) min(available, headroom) else headroom
+      }
+    }
+  }
+  available
+}
+
+diffusion_resource_plan <- function(workers, n_tasks, minimum_h,
+                                    temporal_cache_mib = 512,
+                                    memory_budget_gib = NULL) {
+  stopifnot(length(workers) == 1L, is.finite(workers), workers >= 1,
+            workers == as.integer(workers), n_tasks >= 1,
+            is.finite(temporal_cache_mib), temporal_cache_mib >= 0)
+  cores <- if (requireNamespace("parallelly", quietly = TRUE)) {
+    as.integer(parallelly::availableCores())
+  } else {
+    affinity <- if (.Platform$OS.type == "unix") tryCatch(
+      length(parallel::mcaffinity()), error = function(e) 0L) else 0L
+    if (affinity > 0L) affinity else parallel::detectCores()
+  }
+  if (!is.finite(cores) || cores < 1L) cores <- 1L
+  available <- diffusion_available_memory_gib()
+  if (is.null(memory_budget_gib)) memory_budget_gib <-
+    if (is.finite(available)) min(64, .65*available) else 4
+  stopifnot(length(memory_budget_gib) == 1L, is.finite(memory_budget_gib),
+            memory_budget_gib > 0)
+  budget <- if (is.finite(available)) min(memory_budget_gib, .8*available) else memory_budget_gib
+  # Base R/packages, spatial cache, and conservative FEM/factor workspace.
+  per_worker_mib <- 512 + 128 + temporal_cache_mib + 2*ceiling(3/minimum_h)/1024
+  memory_workers <- floor((budget*1024-512)/per_worker_mib)
+  if (memory_workers < 1L) stop(
+    "Insufficient planned memory headroom: lower temporal_cache_mib or free memory.")
+  list(workers_requested = as.integer(workers),
+       workers_used = as.integer(min(workers, cores, n_tasks, memory_workers)),
+       allowed_cores = cores, available_memory_gib = available,
+       memory_budget_gib = budget, estimated_worker_mib = per_worker_mib,
+       temporal_cache_mib = temporal_cache_mib)
+}
+
+new_diffusion_cache <- function(limit_mib) {
+  state <- new.env(parent = emptyenv())
+  state$values <- list()
+  state$sizes <- numeric()
+  state$order <- character()
+  state$limit <- limit_mib*1024^2
+  state
+}
+
+diffusion_cache_get <- function(cache, key) {
+  value <- cache$values[[key]]
+  if (!is.null(value)) cache$order <- c(setdiff(cache$order, key), key)
+  value
+}
+
+diffusion_cache_put <- function(cache, key, value) {
+  size <- as.numeric(object.size(value))
+  if (size > cache$limit) return(invisible(FALSE))
+  while (sum(cache$sizes)+size > cache$limit && length(cache$order)) {
+    oldest <- cache$order[1]
+    cache$values[[oldest]] <- NULL
+    cache$sizes <- cache$sizes[names(cache$sizes) != oldest]
+    cache$order <- cache$order[-1]
+  }
+  cache$values[[key]] <- value
+  cache$sizes[key] <- size
+  cache$order <- c(cache$order, key)
+  invisible(TRUE)
+}
+
+new_diffusion_worker_state <- function(helpers, temporal_cache_mib) {
+  state <- new.env(parent = emptyenv())
+  state$helpers <- helpers
+  state$spatial <- new_diffusion_cache(128)
+  state$temporal <- new_diffusion_cache(temporal_cache_mib)
+  state
+}
+
+initialize_diffusion_worker <- function(library_paths, helper_files, cache_mib) {
+  .libPaths(library_paths)
+  suppressPackageStartupMessages(library(MetricGraph))
+  suppressPackageStartupMessages(library(Matrix))
+  env <- new.env(parent = globalenv())
+  for (file in helper_files) for (expression in parse(file)) {
+    if (is.call(expression) && identical(expression[[1]], as.name("<-")) &&
+        is.call(expression[[3]]) && identical(expression[[3]][[1]], as.name("function")))
+      eval(expression, env)
+  }
+  assign(".diffusion_worker", env$new_diffusion_worker_state(env, cache_mib),
+         envir = globalenv())
+  invisible(TRUE)
+}
+
+execute_diffusion_job <- function(job, settings, state) {
+  started <- proc.time()[["elapsed"]]
+  spatial_key <- digest::digest(list(job$h, settings$kappa, settings$modes,
+                                     settings$N_finite))
+  spatial <- diffusion_cache_get(state$spatial, spatial_key)
+  spatial_hit <- !is.null(spatial)
+  if (!spatial_hit) {
+    spatial <- prepare_tadpole_experiment(job$h, settings$kappa, settings$modes,
+                                         settings$N_finite)
+    diffusion_cache_put(state$spatial, spatial_key, spatial)
+  }
+  rates <- settings$diffusion*spatial$basis$eigenvalues^(job$alpha/2)
+  spec <- list(N = job$N, T = settings$T_final, rates = rates,
+               initial = settings$initial, forcing = settings$forcing,
+               A = settings$A, omega = settings$omega,
+               quadrature_order = job$quadrature_order)
+  temporal_key <- digest::digest(spec)
+  time_data <- diffusion_cache_get(state$temporal, temporal_key)
+  temporal_hit <- !is.null(time_data)
+  if (is.null(time_data)) {
+    grid <- list(N = job$N, time_step = settings$T_final/job$N,
+                 time_seq = seq(0, settings$T_final, length.out = job$N+1))
+    p <- length(rates)
+    estimated_bytes <- 8*job$N*(p+2*p*p+2)+65536
+    if (estimated_bytes <= state$temporal$limit) {
+      # Evict BEFORE allocating the new tables, not after a large peak.
+      while (sum(state$temporal$sizes)+estimated_bytes > state$temporal$limit &&
+             length(state$temporal$order)) {
+        oldest <- state$temporal$order[1]
+        state$temporal$values[[oldest]] <- NULL
+        state$temporal$sizes <- state$temporal$sizes[
+          names(state$temporal$sizes) != oldest]
+        state$temporal$order <- state$temporal$order[-1]
+      }
+      gc(verbose = FALSE)
+      time_data <- prepare_modal_time_data(grid, rates, settings$initial,
+        settings$forcing, settings$A, settings$omega, job$quadrature_order)
+      diffusion_cache_put(state$temporal, temporal_key, time_data)
+    }
+  } else grid <- time_data$grid
+  if (settings$verbose) message(sprintf(
+    "PID %s starting job %s: alpha=%g h=%g m=%g steps=%s",
+    Sys.getpid(), job$id, job$alpha, job$h, job$m, job$N))
+  error <- tadpole_case_error(spatial, job$alpha, job$m, settings$diffusion, grid,
+    settings$initial, settings$forcing, settings$A, settings$omega,
+    job$quadrature_order, verbose = FALSE, time_data = time_data)
+  diagnostic <- if (job$kind == "case") rational_accuracy_diagnostic(
+    spatial$L, spatial$basis$C, job$alpha/2, settings$kappa^2, job$m,
+    spatial$basis$eigenvalues) else NULL
+  if (!is.null(diagnostic)) {
+    diagnostic$h <- job$h
+    diagnostic$time_step <- grid$time_step
+  }
+  memory <- diffusion_process_memory()
+  resources <- data.frame(job = job$id, kind = job$kind, alpha = job$alpha,
+    h = job$h, m = job$m, steps = job$N, quadrature_order = job$quadrature_order,
+    pid = Sys.getpid(), elapsed_seconds = proc.time()[["elapsed"]]-started,
+    temporal_cache_hit = temporal_hit, spatial_cache_hit = spatial_hit,
+    temporal_cache_mib = sum(state$temporal$sizes)/1024^2,
+    spatial_cache_mib = sum(state$spatial$sizes)/1024^2,
+    rss_mib = unname(memory["rss_mib"]),
+    worker_peak_rss_mib = unname(memory["peak_rss_mib"]))
+  if (settings$verbose) message(sprintf("PID %s finished job %s in %.2f s",
+    Sys.getpid(), job$id, resources$elapsed_seconds))
+  list(error = error, diagnostic = diagnostic, resources = resources)
+}
+
+diffusion_worker_task <- function(job, settings) {
+  state <- get(".diffusion_worker", envir = globalenv(), inherits = FALSE)
+  state$helpers$execute_diffusion_job(job, settings, state)
+}
+
+run_tadpole_study <- function(
+    study, axis_values, alpha_vector, time_grids, fixed_h = NULL, fixed_m = NULL,
+    anchor_h, anchor_grid, anchor_m, diffusion, kappa, modes, N_finite,
+    initial, forcing, A = 1, omega = pi, quadrature_order = 4L,
+    run_refinement_checks = TRUE, refinement_tolerance = .05,
+    workers = 4L, temporal_cache_mib = 512, memory_budget_gib = NULL,
+    worker_log = NULL, verbose = TRUE) {
+  stopifnot(study %in% c("h", "tau", "m"), length(axis_values) > 0L,
+            length(alpha_vector) > 0L, is.finite(diffusion), diffusion > 0,
+            if (study == "tau") length(time_grids) == length(axis_values) else
+              length(time_grids) == 1L)
+  if (run_refinement_checks && quadrature_order > 16L)
+    stop("Refinement checks require quadrature_order <= 16.")
+  jobs <- list()
+  keys <- character()
+  add_job <- function(h, alpha, m, N, order, kind) {
+    key <- digest::digest(list(h, alpha, m, as.numeric(N), order))
+    found <- match(key, keys)
+    if (!is.na(found)) return(found)
+    id <- length(jobs)+1L
+    jobs[[id]] <<- list(id = id, h = h, alpha = alpha, m = m, N = N,
+                       quadrature_order = order, kind = kind)
+    keys <<- c(keys, key)
+    id
+  }
+  case_ids <- matrix(0L, length(axis_values), length(alpha_vector))
+  # Interleave alpha values so persistent workers can reuse temporal entries.
+  for (i in seq_along(axis_values)) for (j in seq_along(alpha_vector)) {
+    grid <- time_grids[[if (study == "tau") i else 1L]]
+    case_ids[i, j] <- add_job(if (study == "h") axis_values[i] else fixed_h,
+      alpha_vector[j], if (study == "m") axis_values[i] else fixed_m,
+      length(grid$time_seq)-1L, quadrature_order, "case")
+  }
+  check_ids <- list()
+  if (run_refinement_checks) for (j in seq_along(alpha_vector)) {
+    alpha <- alpha_vector[j]
+    N <- length(anchor_grid$time_seq)-1L
+    check_ids[[j]] <- c(
+      baseline = add_job(anchor_h, alpha, anchor_m, N, quadrature_order, "anchor"),
+      tau = add_job(anchor_h, alpha, anchor_m,
+        ceiling(tail(anchor_grid$time_seq, 1)/(anchor_grid$time_step/2)),
+        quadrature_order, "refine tau"),
+      h = add_job(anchor_h/2, alpha, anchor_m, N, quadrature_order, "refine h"),
+      quadrature = add_job(anchor_h, alpha, anchor_m, N, 2L*quadrature_order,
+                           "refine quadrature"))
+  }
+  T_final <- tail(time_grids[[1]]$time_seq, 1)
+  stopifnot(all(vapply(time_grids, function(g)
+    identical(tail(g$time_seq, 1), T_final), logical(1))))
+  settings <- list(T_final = T_final, diffusion = diffusion, kappa = kappa,
+    modes = modes, N_finite = N_finite, initial = initial, forcing = forcing,
+    A = A, omega = omega, verbose = verbose)
+  plan <- diffusion_resource_plan(workers, length(jobs),
+    min(vapply(jobs, function(x) x$h, numeric(1))), temporal_cache_mib, memory_budget_gib)
+  if (verbose) message(sprintf(
+    "Running %s independent jobs on %s/%s requested workers; %.2f GiB memory budget, %g MiB temporal cache/worker.",
+    length(jobs), plan$workers_used, workers, plan$memory_budget_gib, temporal_cache_mib))
+  started <- proc.time()[["elapsed"]]
+  if (plan$workers_used == 1L) {
+    state <- new_diffusion_worker_state(environment(run_tadpole_study), temporal_cache_mib)
+    output <- lapply(jobs, function(job) execute_diffusion_job(job, settings, state))
+  } else {
+    thread_vars <- c("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+                     "VECLIB_MAXIMUM_THREADS", "BLIS_NUM_THREADS",
+                     "RCPP_PARALLEL_NUM_THREADS")
+    old <- Sys.getenv(thread_vars, unset = NA_character_)
+    on.exit({
+      for (key in thread_vars) if (is.na(old[key])) Sys.unsetenv(key) else
+        do.call(Sys.setenv, setNames(list(old[key]), key))
+    }, add = TRUE)
+    do.call(Sys.setenv, as.list(setNames(rep("1", length(thread_vars)), thread_vars)))
+    cl <- parallel::makePSOCKcluster(plan$workers_used,
+      rscript = file.path(R.home("bin"), "Rscript"),
+      rscript_args = "--vanilla", useXDR = FALSE,
+      outfile = if (is.null(worker_log)) "" else worker_log)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+    files <- normalizePath(here::here("fun", paste0(c("fractional_evolution",
+      "graphs_and_meshes", "exact_solutions", "convergence_experiments"), ".R")),
+      mustWork = TRUE)
+    parallel::clusterCall(cl, initialize_diffusion_worker, .libPaths(), files, temporal_cache_mib)
+    output <- parallel::parLapplyLB(cl, jobs, diffusion_worker_task, settings = settings,
+                                   chunk.size = 1L)
+  }
+  elapsed <- proc.time()[["elapsed"]]-started
+  errors <- matrix(vapply(output[as.vector(case_ids)], function(x) x$error, numeric(1)),
+                   nrow(case_ids), ncol(case_ids))
+  diagnostics <- do.call(rbind, lapply(output[as.vector(case_ids)], function(x) x$diagnostic))
+  checks <- data.frame()
+  if (length(check_ids)) checks <- do.call(rbind, lapply(seq_along(check_ids), function(j) {
+    ids <- check_ids[[j]]
+    baseline <- output[[ids["baseline"]]]$error
+    out <- do.call(rbind, lapply(c("tau", "h", "quadrature"), function(name) {
+      refinement_comparison(baseline, output[[ids[name]]]$error,
+        switch(name, tau = "halve tau", h = "halve h",
+               quadrature = "double time quadrature order"), refinement_tolerance)
+    }))
+    out$alpha <- alpha_vector[j]
+    out
+  }))
+  resources <- do.call(rbind, lapply(output, function(x) x$resources))
+  plan$elapsed_seconds <- elapsed
+  plan$sum_worker_peak_rss_mib <- sum(tapply(resources$worker_peak_rss_mib,
+                                           resources$pid, max), na.rm = TRUE)
+  plan$note <- "Worker RSS peaks are not necessarily simultaneous; budget is a planning estimate."
+  list(errors_projected = errors, diagnostics = diagnostics,
+       refinement_checks = checks, resources = resources, execution = plan)
+}
+
 experiment_run <- function(study, parameters, run_id = NULL,
-                           root = here::here("data_files", "diffusion_experiments")) {
+                           root = here::here("data_files", "diffusion_experiments"),
+                           execution = NULL) {
   stopifnot(study %in% c("h", "tau", "m"), is.list(parameters))
   base <- file.path(root, study)
   if (is.null(run_id)) {
@@ -159,7 +519,7 @@ experiment_run <- function(study, parameters, run_id = NULL,
       tryCatch(system2("git", args, stdout = TRUE, stderr = FALSE),
                error = function(e) "unavailable")
     }
-    metadata <- list(parameters = parameters, created_utc = format(
+    metadata <- list(parameters = parameters, execution = execution, created_utc = format(
       Sys.time(), "%Y-%m-%d %H:%M:%S UTC", tz = "UTC"),
       branch = read_git(c("branch", "--show-current")),
       commit = read_git(c("rev-parse", "HEAD")),

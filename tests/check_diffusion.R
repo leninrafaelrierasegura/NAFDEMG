@@ -161,6 +161,60 @@ expect_error(experiment_run("h", parameters, "..", root))
 stopifnot(experiment_run("h", parameters, basename(one), root) == one)
 cat("PASS: unique results, load validation, overwrite protection\n")
 
+cached_time <- prepare_modal_time_data(grid,
+  spatial$basis$eigenvalues^.45, c(10,0), c(0,10))
+cached_error <- tadpole_case_error(spatial, .9, 4, 1, grid, c(10,0), c(0,10),
+                                  time_data = cached_time)
+near(cached_error, coarse, 1e-11)
+bad_time <- cached_time
+bad_time$rates <- bad_time$rates*2
+expect_error(tadpole_case_error(spatial, .9, 4, 1, grid, c(10,0), c(0,10),
+                                time_data = bad_time))
+cache <- new_diffusion_cache(.001)
+stopifnot(diffusion_cache_put(cache, "one", numeric(100)))
+stopifnot(diffusion_cache_put(cache, "two", numeric(100)))
+stopifnot(is.null(diffusion_cache_get(cache, "one")),
+          !is.null(diffusion_cache_get(cache, "two")),
+          !diffusion_cache_put(cache, "oversize", numeric(10000)))
+cat("PASS: cached/streamed quadrature equivalence, cache validation and eviction\n")
+
+small_grid <- make_time_grid(.001, 1e-5)
+study_args <- list(study = "m", axis_values = 1:4, alpha_vector = c(.5, .9),
+  time_grids = list(small_grid), fixed_h = .04, anchor_h = .04,
+  anchor_grid = small_grid, anchor_m = 4L, diffusion = .7, kappa = 4,
+  modes = c(5L,7L), N_finite = 4L, initial = c(10,0), forcing = c(0,10),
+  run_refinement_checks = TRUE, verbose = FALSE)
+serial <- do.call(run_tadpole_study, c(study_args, list(workers = 1L)))
+stopifnot(any(serial$resources$temporal_cache_hit),
+          any(serial$resources$spatial_cache_hit),
+          all(serial$resources$temporal_cache_mib <= 512))
+thread_env <- Sys.getenv(c("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"),
+                         unset = NA_character_)
+connections_before <- nrow(showConnections())
+parallel_result <- do.call(run_tadpole_study, c(study_args,
+  list(workers = 2L, worker_log = file.path(root, "parallel-test.log"))))
+near(as.numeric(parallel_result$errors_projected), as.numeric(serial$errors_projected), 1e-11)
+near(parallel_result$refinement_checks$refined_error, serial$refinement_checks$refined_error, 1e-11)
+stopifnot(identical(parallel_result$diagnostics, serial$diagnostics),
+          identical(Sys.getenv(names(thread_env), unset = NA_character_), thread_env),
+          nrow(showConnections()) == connections_before)
+streamed_args <- study_args
+streamed_args$run_refinement_checks <- FALSE
+streamed <- do.call(run_tadpole_study, c(streamed_args,
+  list(workers = 1L, temporal_cache_mib = 0)))
+near(as.numeric(streamed$errors_projected), as.numeric(serial$errors_projected), 1e-11)
+stopifnot(!any(streamed$resources$temporal_cache_hit),
+          all(streamed$resources$temporal_cache_mib == 0))
+bad_args <- study_args
+bad_args$axis_values <- c(1, 5)
+expect_error(do.call(run_tadpole_study, c(bad_args,
+  list(workers = 2L, worker_log = file.path(root, "worker-error-test.log")))))
+stopifnot(nrow(showConnections()) == connections_before,
+          identical(Sys.getenv(names(thread_env), unset = NA_character_), thread_env))
+expect_error(diffusion_resource_plan(0L, 8L, .01))
+expect_error(diffusion_resource_plan(4L, 8L, .01, memory_budget_gib = .05))
+cat("PASS: serial/parallel equivalence, cache reuse, streamed fallback, worker cleanup and resource limits\n")
+
 if ("--pilots" %in% commandArgs(trailingOnly = TRUE)) {
   for (study in c("h", "tau", "m")) {
     cat("Running notebook numerical chunks:", study, "\n")
@@ -168,8 +222,8 @@ if ("--pilots" %in% commandArgs(trailingOnly = TRUE)) {
     starts <- which(grepl("^```\\{r", text))
     env <- new.env(parent = helpers)
     # Keep smoke-run outputs in /tmp; exercise exactly the notebook settings.
-    env$experiment_run <- function(study, parameters, run_id = NULL)
-      helpers$experiment_run(study, parameters, run_id, root = root)
+    env$experiment_run <- function(study, parameters, run_id = NULL, execution = NULL)
+      helpers$experiment_run(study, parameters, run_id, root = root, execution = execution)
     for (start in starts) {
       end <- which(seq_along(text) > start & text == "```")[1]
       code <- text[(start+1L):(end-1L)]
@@ -178,7 +232,9 @@ if ("--pilots" %in% commandArgs(trailingOnly = TRUE)) {
     }
     stopifnot(all(is.finite(env$errors_projected)), all(env$errors_projected > 0),
               nrow(env$results$refinement_checks) == 9L,
-              all(env$results$diagnostics$positive_sampled))
+              all(env$results$diagnostics$positive_sampled),
+              nrow(env$results$resources) > 0L,
+              file.exists(file.path(env$run_dir, "resources.csv")))
     cat("PASS notebook", study, "; saved in", env$run_dir, "\n")
   }
 }
