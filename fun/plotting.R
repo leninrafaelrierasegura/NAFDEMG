@@ -1,4 +1,4 @@
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 loglog_line_equation <- function(x1, y1, slope) {
   b <- log10(y1 / (x1 ^ slope))
   
@@ -47,7 +47,7 @@ compute_guiding_lines <- function(x_axis_vector, errors, theoretical_rates, line
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 # Function to order the vertices for plotting
 plotting.order <- function(v, graph){
   edge_number <- graph$mesh$VtE[, 1]
@@ -56,7 +56,7 @@ plotting.order <- function(v, graph){
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 # Function to set the scene for 3D plots
 global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
   
@@ -75,7 +75,7 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 global.scene.setter.rec.and.sphere <- function(x_range, y_range, z_range) {
   
   return(list(xaxis = list(title = list(text = "x", font = list(color = "gray", size = 16)),  tickfont = list(color = "gray", size = 13), range = x_range),
@@ -110,7 +110,7 @@ global.scene.setter.rec.and.sphere.for.hat <- function(x_range, y_range, z_range
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 # Function to plot in 3D
 graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
   U_list <- list(...)
@@ -210,7 +210,7 @@ graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
   U_names <- names(U_list) 
   # Spatial coordinates
@@ -311,7 +311,7 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 # Function to plot the error at each time step
 error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_step) {
   weights <- graph$mesh$weights
@@ -335,7 +335,7 @@ error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_s
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 # Function to plot the 3D comparison of U_true and U_approx
 graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -478,7 +478,7 @@ graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 # Function to plot a single 3D line for 
 graph.plotter.3d.single <- function(graph, U_true, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -552,7 +552,7 @@ graph.plotter.3d.single <- function(graph, U_true, time_seq) {
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 # Function to plot the error convergence
 error.convergence.plotter <- function(x_axis_vector, 
                                       alpha_vector, 
@@ -671,6 +671,14 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
   
   df_melted$column <- factor(df_melted$column, levels = alpha_vector, labels = custom_labels)
 
+  scientific_ticks <- function(x) {
+    labels <- formatC(x, format = "e", digits = 2)
+    labels <- sub("0+e", "e", labels)
+    labels <- sub("[.]e", "e", labels)
+    labels <- sub("e([+-])0+([0-9]+)$", "e\\1\\2", labels)
+    sub("e[+]", "e", labels)
+  }
+
   p <- ggplot() +
     geom_line(data = df_melted, aes(x = x_axis_vector, y = value, color = column), linewidth = 1.6) +
     geom_point(data = df_melted, aes(x = x_axis_vector, y = value, color = column), size = 2) +
@@ -682,9 +690,9 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
       color = color_label
     ) +
     (if (apply_sqrt) {
-      scale_x_continuous(breaks = x_vec, labels = round(x_axis_vector, 4))
+      scale_x_continuous(breaks = x_vec, labels = formatC(x_axis_vector, format = "f", digits = 0))
     } else {
-      scale_x_log10(breaks = x_axis_vector, labels = round(x_axis_vector, 4))
+      scale_x_log10(breaks = x_axis_vector, labels = scientific_ticks)
     }) +
     (if (apply_sqrt) {
       #scale_y_continuous(trans = "log", labels = scales::scientific_format())
@@ -724,7 +732,7 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 graph.plotter.3d.static <- function(graph, z_list) {
   x <- plotting.order(graph$mesh$V[, 1], graph)
   y <- plotting.order(graph$mesh$V[, 2], graph)
@@ -778,7 +786,7 @@ graph.plotter.3d.static <- function(graph, z_list) {
 
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 graph.plotter.3d.two.meshes.time <- function(graph_finer, graph_coarser, 
                                              time_seq, frame_val_to_display,
                                              fs_finer = list(), fs_coarser = list()) {
@@ -944,7 +952,7 @@ if (!is.null(vertical_coarser)) {
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 plot_3d_rectangle_scatter <- function(loc, eigvals, eigfuncs, fixed_colorscale = TRUE) {
 
   x <- loc[,1]
@@ -1331,7 +1339,7 @@ plot_3d_square_mesh_with_hat <- function(mesh,
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 plot_3d_sphere_scatter <- function(mesh, 
                                           eigvals, 
                                           eigfuncs,
@@ -2002,7 +2010,7 @@ plot_3d_mesh_edges_faces_with_hat <- function(mesh,
 
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 graph.plotter.3d.onecol <- function(graph, vec) {
   
   # Coordinates on the mesh
