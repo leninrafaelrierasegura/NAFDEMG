@@ -53,6 +53,7 @@ source_if_updated("fun/plotting")
 source_if_updated("fun/metafunctions")
 source_if_updated("fun/exact_solutions")
 source_if_updated("fun/convergence_experiments")
+source_if_updated("fun/convergence_settings")
 ```
 
 
@@ -125,64 +126,32 @@ library(plotly)
 
 
 ```{r}
-# Parameters: start with an affordable pilot; choose "full" deliberately.
-experiment_profile <- "pilot"
-diffusion <- 1
-run_id <- NULL # Set to a printed existing run ID to load it; do not recompute it.
-run_refinement_checks <- TRUE
-quadrature_order <- 4L
-refinement_tolerance <- 0.05
-# Persistent local workers, capped by available CPU and planned memory.
-workers <- if (experiment_profile == "full") 8L else 4L # 1L runs sequentially.
-temporal_cache_mib <- 512 # Per worker; 0 streams quadrature without a full cache.
-memory_budget_gib <- NULL # NULL uses current available memory, capped at 64 GiB.
-T_final <- 1e-3
-kappa <- 4
-N_finite <- 4L
-active_modes <- c(5L, 7L)
-exact_initial <- c(10, 0)
-exact_forcing <- c(0, 10)
-AAA <- 1
-OMEGA <- pi
-alpha_vector <- seq(0.5, 1.5, by = 0.4)
-stopifnot(experiment_profile %in% c("pilot", "full"))
-h_vector <- if (experiment_profile == "pilot") {
-  10^seq(log10(0.01), log10(0.08), length.out = 4)
-} else 10^seq(log10(0.0009), log10(0.01), length.out = 4)
-m_fixed <- 4L
-time_step_target <- if (experiment_profile == "pilot") 1e-6 else 1e-9
-time_grid <- make_time_grid(T_final, time_step_target)
-axis_values <- h_vector
-anchor_h <- min(h_vector)
-anchor_grid <- time_grid
-anchor_m <- m_fixed
+# Parameters: shared scientific and numerical settings live in fun/convergence_settings.Rmd.
+run_id <- NULL # Set an existing ID to load that run with matching settings.
+settings <- convergence_settings("h")
+invisible(list2env(settings, envir = environment()))
 
-# All grids, coefficients, and error-method settings are saved with this run.
-experiment_parameters <- list(
-  study = "h", profile = experiment_profile, diffusion = diffusion,
-  T_final = T_final, kappa = kappa, alpha = alpha_vector,
-  modes = active_modes, N_finite = N_finite,
-  initial = exact_initial, forcing = exact_forcing, A = AAA, omega = OMEGA,
-  axis = axis_values, fixed = list(m = m_fixed, time_step = time_grid$time_step),
-  quadrature_order = quadrature_order, spatial_order = 8L,
-  run_refinement_checks = run_refinement_checks,
-  refinement_tolerance = refinement_tolerance, error_method = "modal-projection-v1")
-execution_settings <- list(workers = workers, temporal_cache_mib = temporal_cache_mib,
-                           memory_budget_gib = memory_budget_gib)
 run_dir <- experiment_run("h", experiment_parameters, run_id = run_id,
                           execution = execution_settings)
-cat("Run ID:", basename(run_dir), "\nResults:", run_dir, "\n")
+cat("Shared suite:", experiment_parameters$suite_id, "\nRun ID:", basename(run_dir), "\nResults:", run_dir, "\n")
 ```
 
-The pilot is for checking behavior, not for claiming publication convergence
-rates. In particular, the pilot in $m$ may reach a spatial or temporal floor.
-The full profile retains the original solver grids, but uses the new modal
-error calculation. No fine reference space-time mesh is allocated.
-Independent cases use persistent workers; each case still steps sequentially
-through time. Workers reuse bounded spatial and temporal caches. The coordinator
-alone saves results. Read `worker_log.txt` for progress and `resources.csv` for
-per-job timings, cache reuse, and observed worker memory. Execution settings do
-not change the numerical parameters used to validate a saved run.
+All three studies read `fun/convergence_settings.Rmd`. Match the profile and
+shared-suite fingerprint when comparing results. The analytic reference and
+space-time error norm are common; no fine reference space-time mesh is needed.
+The default uniform-modal backend evaluates the same FEM/backward Euler
+recurrence on uniform tadpole meshes without enumerating every time step.
+Actual mesh sizes and time steps are saved and plotted. Refinement checks
+separate accuracy checks from intentional refinement of the study variable.
+The m study also reports its spatial-temporal floor relative to the total error.
+A failed accuracy check means the fitted rate needs further calibration.
+Independent cases use persistent workers. The direct backend advances through
+time and reuses bounded spatial and temporal caches. The uniform-modal backend
+uses scalar recurrences and quadrature, without a large temporal cache. The
+coordinator alone saves results. Read `resources.csv` for per-job timings and
+observed worker memory; `worker_log.txt` records worker startup and direct-solver
+progress. Execution settings do not change the numerical parameters used to
+validate a saved run.
 
 ```{r, eval = FALSE, class.source = "fold-show"}
 # Refuse to overwrite an existing run before starting any expensive work.
@@ -196,7 +165,9 @@ results <- run_tadpole_study(
   quadrature_order = quadrature_order, run_refinement_checks = run_refinement_checks,
   refinement_tolerance = refinement_tolerance, workers = workers,
   temporal_cache_mib = temporal_cache_mib, memory_budget_gib = memory_budget_gib,
-  worker_log = file.path(run_dir, "worker_log.txt"))
+  worker_log = file.path(run_dir, "worker_log.txt"),
+  solver_backend = solver_backend, step_sum_order = step_sum_order,
+  root_interpolation = root_interpolation)
 results$parameters <- experiment_parameters
 errors_projected <- results$errors_projected
 checks <- results$refinement_checks
@@ -208,6 +179,8 @@ saveRDS(results$execution, file.path(run_dir, "execution.rds"))
 print(results$execution)
 print(results$diagnostics)
 print(checks)
+if (nrow(checks) && any(checks$required & !checks$passed))
+  message("Accuracy checks failed: inspect refinement_checks.csv before using these rates.")
 ```
 
 ```{r}

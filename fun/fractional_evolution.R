@@ -10,8 +10,10 @@ library(plotly)
 
 # Function to compute the roots and factor for the rational approximation
 my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
-                         beta # smoothness parameter, beta = alpha/2 with alpha between 0.5 and 2
+                         beta, # smoothness parameter, beta = alpha/2
+                         interpolation = c("linear", "cubic")
                          ) {
+  interpolation <- match.arg(interpolation)
   if (length(m) != 1L || !is.finite(m) || !(m %in% 1:4))
     stop("The installed rational tables support m = 1, 2, 3, 4 only.")
   if (length(beta) != 1L || !is.finite(beta) || beta < 0.25 || beta >= 1)
@@ -21,19 +23,23 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
   m3table <- rSPDE:::m3table
   m4table <- rSPDE:::m4table
   mt <- get(paste0("m", m, "table"))
+  interpolate <- function(column) {
+    if (interpolation == "linear") approx(mt$beta, mt[[column]], beta)$y else
+      splinefun(mt$beta, mt[[column]], method = "fmm")(beta)
+  }
   rb <- rep(0, m + 1)
   rc <- rep(0, m)
   if(m == 1) {
-    rc = approx(mt$beta, mt[[paste0("rc")]], beta)$y
+    rc = interpolate("rc")
   } else {
     rc = sapply(1:m, function(i) {
-      approx(mt$beta, mt[[paste0("rc.", i)]], beta)$y
+      interpolate(paste0("rc.", i))
     })
   }
   rb = sapply(1:(m+1), function(i) {
-    approx(mt$beta, mt[[paste0("rb.", i)]], xout = beta)$y
+    interpolate(paste0("rb.", i))
   })
-  factor = approx(mt$beta, mt$factor, xout = beta)$y
+  factor = interpolate("factor")
   return(list(pl_roots = rb, # roots \{r_{2j}\}_{j=1}^{m+1}
               pr_roots = rc, # roots \{r_{1i}\}_{i=1}^m
               factor = factor # this is c_m/b_{m+1}
@@ -93,7 +99,8 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          scale.factor, # scaling parameter = kappa^2
                                          m = 1, # rational order, m = 1, 2, 3, or 4
                                          time_step, # physical time step = tau
-                                         diffusion = 1 # coefficient outside the fractional power
+                                         diffusion = 1, # coefficient outside the fractional power
+                                         root_interpolation = "linear"
                                          ) {
   stopifnot(length(diffusion) == 1L, is.finite(diffusion), diffusion > 0,
             length(time_step) == 1L, is.finite(time_step), time_step > 0,
@@ -113,7 +120,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                 ))
   } else {
     scaling <- diffusion * scale.factor^beta
-    roots <- my.get.roots(m, beta)
+    roots <- my.get.roots(m, beta, interpolation = root_interpolation)
     poles_rs_k <- compute.partial.fraction.param(factor = roots$factor,
                                                  pr_roots = roots$pr_roots,
                                                  pl_roots = roots$pl_roots,

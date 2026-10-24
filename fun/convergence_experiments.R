@@ -110,7 +110,9 @@ solve_fractional_evolution_modal_error <- function(
 }
 
 rational_accuracy_diagnostic <- function(L, C, beta, scale.factor, m,
-                                         active_eigenvalues = numeric(), n = 512L) {
+                                         active_eigenvalues = numeric(), n = 512L,
+                                         root_interpolation = "linear",
+                                         spectral_upper = NULL) {
   if (beta == 1) return(data.frame(
     m = m, beta = beta, max_relative_error_sampled = 0,
     max_active_rate_error = 0, positive_sampled = TRUE))
@@ -118,11 +120,14 @@ rational_accuracy_diagnostic <- function(L, C, beta, scale.factor, m,
   # Alternatively obtain a rigorous upper bound from |C^-1 L| if supplied
   # by the caller; here use the assembled row sums and a mass lower bound.
   # For these consistent P1 mass matrices C >= diag(rowSums(C))/3.
-  mass <- as.numeric(Matrix::rowSums(C))
-  upper <- max(3*as.numeric(Matrix::rowSums(abs(L)))/mass)
+  upper <- spectral_upper
+  if (is.null(upper)) {
+    mass <- as.numeric(Matrix::rowSums(C))
+    upper <- max(3*as.numeric(Matrix::rowSums(abs(L)))/mass)
+  }
   stopifnot(is.finite(upper), upper >= scale.factor)
   eigenvalues <- exp(seq(log(scale.factor), log(upper), length.out = n))
-  roots <- my.get.roots(m, beta)
+  roots <- my.get.roots(m, beta, interpolation = root_interpolation)
   rate_ratio <- function(lambda) {
     z <- lambda/scale.factor
     R <- roots$factor * vapply(z, function(x) {
@@ -158,7 +163,8 @@ prepare_tadpole_experiment <- function(h, kappa, modes, N_finite,
 tadpole_case_error <- function(spatial, alpha, m, diffusion, time_grid,
                                initial, forcing, A = 1, omega = pi,
                                quadrature_order = 4L, verbose = FALSE,
-                               time_data = NULL, block_steps = 8192L) {
+                               time_data = NULL, block_steps = 8192L,
+                               root_interpolation = "linear") {
   basis <- spatial$basis
   rates <- diffusion*basis$eigenvalues^(alpha/2)
   if (!is.null(time_data)) stopifnot(
@@ -170,7 +176,8 @@ tadpole_case_error <- function(spatial, alpha, m, diffusion, time_grid,
   op <- my.fractional.operators.frac(
     L = spatial$L, beta = alpha/2, C = basis$C,
     scale.factor = spatial$kappa^2, m = m,
-    time_step = time_grid$time_step, diffusion = diffusion)
+    time_step = time_grid$time_step, diffusion = diffusion,
+    root_interpolation = root_interpolation)
   solve_fractional_evolution_modal_error(
     my_op_frac = op, time_step = time_grid$time_step,
     time_seq = time_grid$time_seq,
@@ -201,6 +208,167 @@ tadpole_refinement_checks <- function(spatial, alpha, m, diffusion, time_grid,
                           "double time quadrature order", tolerance))
   checks$alpha <- alpha
   checks
+}
+
+experiment_grid <- function(T_final, target_step) {
+  stopifnot(length(T_final) == 1L, is.finite(T_final), T_final > 0,
+            length(target_step) == 1L, is.finite(target_step), target_step > 0)
+  ratio <- T_final/target_step
+  N <- ceiling(ratio-32*.Machine$double.eps*max(1, ratio))
+  if (N > 2^52) stop("Time grid exceeds the supported exact step-index range.")
+  list(N = max(1, N), time_step = T_final/max(1, N), T_final = T_final)
+}
+
+grid_steps <- function(grid) {
+  if (!is.null(grid$N)) as.numeric(grid$N) else length(grid$time_seq)-1
+}
+
+grid_horizon <- function(grid) {
+  if (!is.null(grid$T_final)) grid$T_final else tail(grid$time_seq, 1)
+}
+
+uniform_tadpole_h <- function(h) {
+  stopifnot(all(is.finite(h)), all(h > 0))
+  inverse <- 1/h
+  1/pmax(1, ceiling(inverse-32*.Machine$double.eps*pmax(1, inverse)))
+}
+
+uniform_tadpole_basis <- function(h, kappa, modes, N_finite) {
+  stopifnot(length(kappa) == 1L, is.finite(kappa), kappa > 0,
+            length(N_finite) == 1L, N_finite >= 0,
+            N_finite == as.integer(N_finite), length(modes) > 0,
+            all(modes == as.integer(modes)), !anyDuplicated(modes))
+  catalogue <- unlist(lapply(0:N_finite, function(j)
+    rep(j, if (j > 0 && j %% 2L == 0L) 2L else 1L)))
+  stopifnot(all(modes >= 1L), all(modes <= length(catalogue)))
+  h <- uniform_tadpole_h(h)
+  w <- catalogue[modes]*pi/2
+  z <- w*h
+  if (any(z >= pi/2)) stop("Uniform modal backend needs at least four elements per wavelength.")
+  residual <- numeric(length(z))
+  small <- abs(z) < .1
+  x <- z[small]^2
+  residual[small] <- x^2*(1/720+x*(1/3024+x*(7/259200+x*(
+    8.350702795147226e-7+x*(-9.986163466652883e-8+x*(
+    -1.826716236438457e-8+x*(-1.465654963502789e-9)))))))
+  zz <- z[!small]
+  residual[!small] <- 1-3*(sin(zz/2)/(zz/2))^4/(2+cos(zz))
+  list(h = h, eigenvalues = kappa^2+w^2,
+       discrete_eigenvalues = kappa^2+12*sin(z/2)^2/(h^2*(2+cos(z))),
+       gram = diag(1-residual, length(z)),
+       residual_gram = diag(residual, length(z)))
+}
+
+discrete_uniform_rule <- function(N, order = 64L) {
+  stopifnot(length(N) == 1L, is.finite(N), N >= 1, N == round(N),
+            N <= 2^52, length(order) == 1L, is.finite(order), order >= 2L,
+            order == as.integer(order), order <= 512L)
+  order <- min(N, order)
+  if (order == 1L) return(list(nodes = 1, weights = 1))
+  j <- seq_len(order-1L)
+  off <- .5*j*sqrt((1-(j/N)^2)/(4*j^2-1))
+  J <- diag(.5, order)
+  J[cbind(j, j+1L)] <- J[cbind(j+1L, j)] <- off
+  e <- eigen(J, symmetric = TRUE)
+  list(nodes = pmin(N, pmax(1, N*e$values+.5)), weights = e$vectors[1, ]^2)
+}
+
+rational_modal_rates <- function(eigenvalues, alpha, m, diffusion, kappa,
+                                 root_interpolation = "linear") {
+  beta <- alpha/2
+  stopifnot(length(alpha) == 1L, is.finite(alpha), alpha > 0, alpha <= 2,
+            length(diffusion) == 1L, is.finite(diffusion), diffusion > 0,
+            all(is.finite(eigenvalues)), all(eigenvalues >= kappa^2))
+  # m = 0 is reserved for error-floor diagnostics, never a study order.
+  if (beta == 1 || m == 0) return(diffusion*eigenvalues^beta)
+  roots <- my.get.roots(m, beta, interpolation = root_interpolation)
+  z <- eigenvalues/kappa^2
+  inverse <- roots$factor*vapply(z, function(x)
+    prod(1-roots$pr_roots*x)/prod(1-roots$pl_roots*x), numeric(1))
+  if (any(!is.finite(inverse)) || any(inverse <= 0)) stop("Invalid rational modal rates.")
+  diffusion*kappa^(2*beta)/inverse
+}
+
+uniform_modal_coefficients <- function(k, time_step, rates, initial, forcing,
+                                       A = 1, omega = pi) {
+  stopifnot(all(is.finite(k)), all(k >= 0), time_step > 0,
+            length(rates) == length(initial), length(initial) == length(forcing),
+            all(is.finite(c(rates, initial, forcing, A, omega))), all(rates > 0))
+  logq <- -log1p(time_step*rates)
+  theta <- omega*time_step
+  sinc <- if (theta == 0) 1 else sin(theta/2)/(theta/2)
+  result <- exp(outer(logq, k))*initial
+  # Stable exp(i*x)-1: R does not implement expm1 for complex numbers.
+  expm1_i <- function(x) -2*sin(x/2)^2+1i*sin(x)
+  for (i in seq_along(rates)) {
+    response <- exp(logq[i])*time_step*A*sinc*Im(exp(1i*theta/2)*
+      (expm1_i(theta*k)-expm1(logq[i]*k))/(expm1_i(theta)-expm1(logq[i])))
+    result[i, ] <- result[i, ]+forcing[i]*response
+  }
+  result
+}
+
+uniform_tadpole_error <- function(h, alpha, m, diffusion, grid, kappa, modes,
+                                  N_finite, initial, forcing, A = 1, omega = pi,
+                                  quadrature_order = 4L, step_sum_order = 64L,
+                                  root_interpolation = "linear") {
+  basis <- uniform_tadpole_basis(h, kappa, modes, N_finite)
+  N <- grid_steps(grid)
+  T <- grid_horizon(grid)
+  stopifnot(abs(N*grid$time_step-T) <= 100*.Machine$double.eps*max(1, T))
+  rule <- discrete_uniform_rule(N, step_sum_order)
+  time_rule <- gauss_legendre_rule(quadrature_order)
+  rates <- rational_modal_rates(basis$discrete_eigenvalues, alpha, m,
+                                diffusion, kappa, root_interpolation)
+  if (N > step_sum_order &&
+      (max(c(rates, diffusion*basis$eigenvalues^(alpha/2)))*T > step_sum_order^2/8 ||
+       abs(omega)*T > step_sum_order/2))
+    stop("Step-sum quadrature may underresolve the dynamics: increase step_sum_order or use direct stepping.")
+  numerical <- uniform_modal_coefficients(rule$nodes, grid$time_step, rates,
+                                          initial, forcing, A, omega)
+  total <- 0
+  for (j in seq_along(time_rule$nodes)) {
+    t <- (rule$nodes-1+time_rule$nodes[j])*grid$time_step
+    exact <- exact_modal_coefficients(t, diffusion*basis$eigenvalues^(alpha/2),
+                                      initial, forcing, A, omega)
+    delta <- exact-numerical
+    squared <- colSums(delta*(basis$gram %*% delta))+
+      colSums(exact*(basis$residual_gram %*% exact))
+    total <- total+time_rule$weights[j]*sum(rule$weights*squared)
+  }
+  if (!is.finite(total) || total < 0) stop("Invalid uniform modal error.")
+  sqrt(T*total)
+}
+
+execute_uniform_diffusion_job <- function(job, settings) {
+  started <- proc.time()[["elapsed"]]
+  grid <- list(N = job$N, T_final = settings$T_final,
+               time_step = settings$T_final/job$N)
+  error <- uniform_tadpole_error(job$h, job$alpha, job$m, settings$diffusion,
+    grid, settings$kappa, settings$modes, settings$N_finite,
+    settings$initial, settings$forcing, settings$A, settings$omega,
+    job$quadrature_order, job$step_sum_order, settings$root_interpolation)
+  basis <- uniform_tadpole_basis(job$h, settings$kappa, settings$modes, settings$N_finite)
+  diagnostic <- NULL
+  if (job$kind == "case") {
+    upper <- settings$kappa^2+12/basis$h^2
+    diagnostic <- rational_accuracy_diagnostic(
+      NULL, NULL, job$alpha/2,
+      settings$kappa^2, job$m, basis$discrete_eigenvalues,
+      root_interpolation = settings$root_interpolation, spectral_upper = upper)
+    diagnostic$h <- basis$h
+    diagnostic$time_step <- grid$time_step
+  }
+  memory <- diffusion_process_memory()
+  resources <- data.frame(job = job$id, kind = job$kind, alpha = job$alpha,
+    h = basis$h, m = job$m, steps = job$N, quadrature_order = job$quadrature_order,
+    step_sum_order = job$step_sum_order,
+    pid = Sys.getpid(), elapsed_seconds = proc.time()[["elapsed"]]-started,
+    temporal_cache_hit = FALSE, spatial_cache_hit = FALSE,
+    temporal_cache_mib = 0, spatial_cache_mib = 0,
+    rss_mib = unname(memory["rss_mib"]),
+    worker_peak_rss_mib = unname(memory["peak_rss_mib"]))
+  list(error = error, diagnostic = diagnostic, resources = resources)
 }
 
 diffusion_process_memory <- function() {
@@ -325,6 +493,8 @@ initialize_diffusion_worker <- function(library_paths, helper_files, cache_mib) 
 }
 
 execute_diffusion_job <- function(job, settings, state) {
+  if (identical(settings$solver_backend, "uniform-modal"))
+    return(execute_uniform_diffusion_job(job, settings))
   started <- proc.time()[["elapsed"]]
   spatial_key <- digest::digest(list(job$h, settings$kappa, settings$modes,
                                      settings$N_finite))
@@ -369,10 +539,11 @@ execute_diffusion_job <- function(job, settings, state) {
     Sys.getpid(), job$id, job$alpha, job$h, job$m, job$N))
   error <- tadpole_case_error(spatial, job$alpha, job$m, settings$diffusion, grid,
     settings$initial, settings$forcing, settings$A, settings$omega,
-    job$quadrature_order, verbose = FALSE, time_data = time_data)
+    job$quadrature_order, verbose = FALSE, time_data = time_data,
+    root_interpolation = settings$root_interpolation)
   diagnostic <- if (job$kind == "case") rational_accuracy_diagnostic(
     spatial$L, spatial$basis$C, job$alpha/2, settings$kappa^2, job$m,
-    spatial$basis$eigenvalues) else NULL
+    spatial$basis$eigenvalues, root_interpolation = settings$root_interpolation) else NULL
   if (!is.null(diagnostic)) {
     diagnostic$h <- job$h
     diagnostic$time_step <- grid$time_step
@@ -380,6 +551,7 @@ execute_diffusion_job <- function(job, settings, state) {
   memory <- diffusion_process_memory()
   resources <- data.frame(job = job$id, kind = job$kind, alpha = job$alpha,
     h = job$h, m = job$m, steps = job$N, quadrature_order = job$quadrature_order,
+    step_sum_order = NA_real_,
     pid = Sys.getpid(), elapsed_seconds = proc.time()[["elapsed"]]-started,
     temporal_cache_hit = temporal_hit, spatial_cache_hit = spatial_hit,
     temporal_cache_mib = sum(state$temporal$sizes)/1024^2,
@@ -402,22 +574,31 @@ run_tadpole_study <- function(
     initial, forcing, A = 1, omega = pi, quadrature_order = 4L,
     run_refinement_checks = TRUE, refinement_tolerance = .05,
     workers = 4L, temporal_cache_mib = 512, memory_budget_gib = NULL,
-    worker_log = NULL, verbose = TRUE) {
+    worker_log = NULL, verbose = TRUE, solver_backend = "direct",
+    step_sum_order = 64L, root_interpolation = "linear") {
+  solver_backend <- match.arg(solver_backend, c("direct", "uniform-modal"))
+  root_interpolation <- match.arg(root_interpolation, c("linear", "cubic"))
   stopifnot(study %in% c("h", "tau", "m"), length(axis_values) > 0L,
             length(alpha_vector) > 0L, is.finite(diffusion), diffusion > 0,
+            all(is.finite(axis_values)), all(axis_values > 0),
+            all(is.finite(alpha_vector)), all(alpha_vector >= .5), all(alpha_vector <= 2),
+            if (study == "m") all(axis_values %in% 1:4) else fixed_m %in% 1:4,
             if (study == "tau") length(time_grids) == length(axis_values) else
               length(time_grids) == 1L)
   if (run_refinement_checks && quadrature_order > 16L)
     stop("Refinement checks require quadrature_order <= 16.")
+  if (run_refinement_checks && step_sum_order > 256L)
+    stop("Refinement checks require step_sum_order <= 256.")
   jobs <- list()
   keys <- character()
-  add_job <- function(h, alpha, m, N, order, kind) {
-    key <- digest::digest(list(h, alpha, m, as.numeric(N), order))
+  add_job <- function(h, alpha, m, N, order, kind, sum_order = step_sum_order) {
+    if (solver_backend == "uniform-modal") h <- uniform_tadpole_h(h)
+    key <- digest::digest(list(h, alpha, m, as.numeric(N), order, sum_order))
     found <- match(key, keys)
     if (!is.na(found)) return(found)
     id <- length(jobs)+1L
     jobs[[id]] <<- list(id = id, h = h, alpha = alpha, m = m, N = N,
-                       quadrature_order = order, kind = kind)
+                       quadrature_order = order, kind = kind, step_sum_order = sum_order)
     keys <<- c(keys, key)
     id
   }
@@ -427,32 +608,43 @@ run_tadpole_study <- function(
     grid <- time_grids[[if (study == "tau") i else 1L]]
     case_ids[i, j] <- add_job(if (study == "h") axis_values[i] else fixed_h,
       alpha_vector[j], if (study == "m") axis_values[i] else fixed_m,
-      length(grid$time_seq)-1L, quadrature_order, "case")
+      grid_steps(grid), quadrature_order, "case")
   }
   check_ids <- list()
   if (run_refinement_checks) for (j in seq_along(alpha_vector)) {
     alpha <- alpha_vector[j]
-    N <- length(anchor_grid$time_seq)-1L
+    N <- grid_steps(anchor_grid)
     check_ids[[j]] <- c(
       baseline = add_job(anchor_h, alpha, anchor_m, N, quadrature_order, "anchor"),
       tau = add_job(anchor_h, alpha, anchor_m,
-        ceiling(tail(anchor_grid$time_seq, 1)/(anchor_grid$time_step/2)),
+        2*N,
         quadrature_order, "refine tau"),
       h = add_job(anchor_h/2, alpha, anchor_m, N, quadrature_order, "refine h"),
       quadrature = add_job(anchor_h, alpha, anchor_m, N, 2L*quadrature_order,
                            "refine quadrature"))
+    if (solver_backend == "uniform-modal") check_ids[[j]] <- c(check_ids[[j]],
+      step_sum = add_job(anchor_h, alpha, anchor_m, N, quadrature_order,
+                         "refine step sum", 2L*step_sum_order),
+      rational = add_job(anchor_h, alpha, 0L, N, quadrature_order,
+                         "exact fractional rates"))
   }
-  T_final <- tail(time_grids[[1]]$time_seq, 1)
+  T_final <- grid_horizon(time_grids[[1]])
   stopifnot(all(vapply(time_grids, function(g)
-    identical(tail(g$time_seq, 1), T_final), logical(1))))
+    identical(grid_horizon(g), T_final), logical(1))))
+  if (solver_backend == "direct" && max(vapply(jobs, function(j) j$N, numeric(1))) > 5e6)
+    stop("Direct stepping exceeds five million steps per case. Use uniform-modal for these finite-mode experiments or select coarser settings.")
   settings <- list(T_final = T_final, diffusion = diffusion, kappa = kappa,
     modes = modes, N_finite = N_finite, initial = initial, forcing = forcing,
-    A = A, omega = omega, verbose = verbose)
+    A = A, omega = omega, verbose = verbose, solver_backend = solver_backend,
+    root_interpolation = root_interpolation)
   plan <- diffusion_resource_plan(workers, length(jobs),
-    min(vapply(jobs, function(x) x$h, numeric(1))), temporal_cache_mib, memory_budget_gib)
+    if (solver_backend == "uniform-modal") 1 else
+      min(vapply(jobs, function(x) x$h, numeric(1))),
+    if (solver_backend == "uniform-modal") 0 else temporal_cache_mib, memory_budget_gib)
+  plan$solver_backend <- solver_backend
   if (verbose) message(sprintf(
     "Running %s independent jobs on %s/%s requested workers; %.2f GiB memory budget, %g MiB temporal cache/worker.",
-    length(jobs), plan$workers_used, workers, plan$memory_budget_gib, temporal_cache_mib))
+    length(jobs), plan$workers_used, workers, plan$memory_budget_gib, plan$temporal_cache_mib))
   started <- proc.time()[["elapsed"]]
   if (plan$workers_used == 1L) {
     state <- new_diffusion_worker_state(environment(run_tadpole_study), temporal_cache_mib)
@@ -487,11 +679,24 @@ run_tadpole_study <- function(
   if (length(check_ids)) checks <- do.call(rbind, lapply(seq_along(check_ids), function(j) {
     ids <- check_ids[[j]]
     baseline <- output[[ids["baseline"]]]$error
-    out <- do.call(rbind, lapply(c("tau", "h", "quadrature"), function(name) {
+    out <- do.call(rbind, lapply(setdiff(names(ids), "baseline"), function(name) {
       refinement_comparison(baseline, output[[ids[name]]]$error,
         switch(name, tau = "halve tau", h = "halve h",
-               quadrature = "double time quadrature order"), refinement_tolerance)
+               quadrature = "double time quadrature order",
+               step_sum = "double step-sum quadrature order",
+               rational = "remove rational approximation"), refinement_tolerance)
     }))
+    out$required <- out$check != switch(study, h = "halve h", tau = "halve tau", m = "") &
+      !(study == "m" & out$check == "remove rational approximation")
+    out$purpose <- ifelse(out$required, "accuracy", "study variation")
+    if (study == "m" && "rational" %in% names(ids)) {
+      floor <- out$check == "remove rational approximation"
+      out$relative_change[floor] <- out$refined_error[floor]/max(baseline, .Machine$double.xmin)
+      out$passed[floor] <- out$relative_change[floor] <= refinement_tolerance
+      out$check[floor] <- "spatial-temporal floor / total error"
+      out$required[floor] <- TRUE
+      out$purpose[floor] <- "accuracy"
+    }
     out$alpha <- alpha_vector[j]
     out
   }))
@@ -500,6 +705,8 @@ run_tadpole_study <- function(
   plan$sum_worker_peak_rss_mib <- sum(tapply(resources$worker_peak_rss_mib,
                                            resources$pid, max), na.rm = TRUE)
   plan$note <- "Worker RSS peaks are not necessarily simultaneous; budget is a planning estimate."
+  if (nrow(checks) && any(checks$required & !checks$passed)) warning(
+    "Some accuracy checks failed; inspect refinement_checks before interpreting fitted rates.")
   list(errors_projected = errors, diagnostics = diagnostics,
        refinement_checks = checks, resources = resources, execution = plan)
 }

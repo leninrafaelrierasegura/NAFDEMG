@@ -17,7 +17,7 @@ load_functions <- function(path, envir) {
 }
 helpers <- new.env(parent = globalenv())
 for (name in c("fractional_evolution", "graphs_and_meshes", "exact_solutions",
-               "convergence_experiments"))
+               "convergence_experiments", "convergence_settings"))
   load_functions(file.path("fun", paste0(name, ".R")), helpers)
 attach(helpers, name = "diffusion-test-helpers")
 near <- function(got, expected, tolerance = 1e-10) {
@@ -178,6 +178,89 @@ stopifnot(is.null(diffusion_cache_get(cache, "one")),
           !diffusion_cache_put(cache, "oversize", numeric(10000)))
 cat("PASS: cached/streamed quadrature equivalence, cache validation and eviction\n")
 
+# The fast evaluator must agree with independently assembled sparse FEM steps.
+# These tests exercise projection norms, all graph mode families, nonzero
+# physical forcing, both coefficient interpolations, and several decay scales.
+for (h in c(.1, .04, .01)) {
+  assembled <- prepare_tadpole_experiment(h, 4, 1:7, 4L)
+  uniform <- uniform_tadpole_basis(h, 4, 1:7, 4L)
+  near(as.numeric(uniform$gram), as.numeric(assembled$basis$gram), 2e-11)
+  near(as.numeric(uniform$residual_gram), as.numeric(assembled$basis$residual_gram), 2e-11)
+}
+for (N in c(1, 2, 7, 50)) {
+  rule <- discrete_uniform_rule(N, 64L)
+  for (power in 0:5) near(sum(rule$weights*(rule$nodes/N)^power),
+                          mean((seq_len(N)/N)^power), 1e-12)
+}
+rule <- discrete_uniform_rule(1e12, 64L)
+near(sum(rule$weights), 1, 1e-13)
+# Reduced-order Gaussian step summation vs explicit summation over all steps.
+gr <- experiment_grid(.5, .5/200)
+for (nu in c(1e-4, 10)) {
+  a <- uniform_tadpole_error(.01, 1.3, 4, nu, gr, 4, c(5L,7L), 4L,
+                             c(10,0), c(0,10), step_sum_order = 32L)
+  b <- uniform_tadpole_error(.01, 1.3, 4, nu, gr, 4, c(5L,7L), 4L,
+                             c(10,0), c(0,10), step_sum_order = 200L)
+  near(a, b, 1e-11)
+}
+for (m in 1:4) for (beta in rSPDE:::m4table$beta[c(1, 20, 50)]) {
+  a <- my.get.roots(m, beta, "linear")
+  b <- my.get.roots(m, beta, "cubic")
+  near(unlist(a), unlist(b), 1e-12)
+}
+for (alpha in c(.9, 1.3)) {
+  linear <- max(abs(rational_modal_rates(c(38,55), alpha, 4, 1, 4, "linear")/
+                      c(38,55)^(alpha/2)-1))
+  cubic <- max(abs(rational_modal_rates(c(38,55), alpha, 4, 1, 4, "cubic")/
+                     c(38,55)^(alpha/2)-1))
+  stopifnot(cubic < linear/5)
+}
+for (method in c("linear", "cubic")) for (alpha in c(.5, .9, 1.3, 2))
+  for (nu in c(1e-4, .7, 10)) {
+    h <- .04
+    assembled <- prepare_tadpole_experiment(h, 4, c(5L,7L), 4L)
+    gr <- make_time_grid(.5, .01)
+    for (m in c(1L,4L)) {
+      direct <- tadpole_case_error(assembled, alpha, m, nu, gr, c(10,0), c(0,10),
+                                   root_interpolation = method)
+      fast <- uniform_tadpole_error(h, alpha, m, nu, gr, 4, c(5L,7L), 4L,
+                                    c(10,0), c(0,10), root_interpolation = method)
+      near(fast, direct, 2e-10)
+    }
+  }
+# Closed recurrence checked independently at every step, including zero forcing
+# frequency and very small time steps. Verify constant initial data separately.
+for (dt in c(.01, 1e-11)) for (omega in c(0, pi)) {
+  rates <- c(.0004, 10)
+  gr <- make_time_grid(20*dt, dt)
+  avg <- average_sine_forcing(gr$time_seq, omega = omega)
+  # The existing forcing helper assumes nonzero frequency; sin(0*t) is zero.
+  if (omega == 0) avg[] <- 0
+  value <- c(10,0)
+  answer <- matrix(0, 2, gr$N)
+  for (k in seq_len(gr$N)) {
+    value <- (value+dt*c(0,10)*avg[k+1])/(1+dt*rates)
+    answer[, k] <- value
+  }
+  near(as.numeric(uniform_modal_coefficients(seq_len(gr$N), dt, rates,
+       c(10,0), c(0,10), omega = omega)), as.numeric(answer), 1e-12)
+}
+for (profile in c("pilot", "full")) {
+  configurations <- lapply(c("h", "tau", "m"), convergence_settings, profile = profile)
+  stopifnot(identical(configurations[[1]]$shared_parameters, configurations[[2]]$shared_parameters),
+            identical(configurations[[1]]$experiment_parameters$suite_id,
+                      configurations[[3]]$experiment_parameters$suite_id),
+            configurations[[1]]$T_final == .5,
+            max(configurations[[1]]$h_vector)/min(configurations[[1]]$h_vector) >= 100*(1-1e-12),
+            max(configurations[[2]]$tau_vector)/min(configurations[[2]]$tau_vector) >= 100*(1-1e-12),
+            length(configurations[[1]]$time_grid) == 3L)
+}
+expect_error(uniform_tadpole_basis(1, 4, c(5L,7L), 4L))
+expect_error(discrete_uniform_rule(2^53))
+expect_error(uniform_tadpole_error(.01, 1.3, 4, 1e8, experiment_grid(.5, 1e-5),
+                                   4, c(5L,7L), 4L, c(10,0), c(0,10)))
+cat("PASS: uniform modal evaluator vs sparse FEM, discrete step quadrature, closed recurrence and shared settings\n")
+
 small_grid <- make_time_grid(.001, 1e-5)
 study_args <- list(study = "m", axis_values = 1:4, alpha_vector = c(.5, .9),
   time_grids = list(small_grid), fixed_h = .04, anchor_h = .04,
@@ -231,7 +314,7 @@ if ("--pilots" %in% commandArgs(trailingOnly = TRUE)) {
         eval(parse(text = code), env)
     }
     stopifnot(all(is.finite(env$errors_projected)), all(env$errors_projected > 0),
-              nrow(env$results$refinement_checks) == 9L,
+              nrow(env$results$refinement_checks) == 15L,
               all(env$results$diagnostics$positive_sampled),
               nrow(env$results$resources) > 0L,
               file.exists(file.path(env$run_dir, "resources.csv")))
