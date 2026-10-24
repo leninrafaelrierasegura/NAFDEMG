@@ -1,6 +1,6 @@
 # Run the actual numerical chunks of all three notebooks, with persistent local
 # output and a common settings fingerprint. No package installs or paper edits.
-# /usr/bin/Rscript --vanilla tests/run_convergence_suite.R [--full]
+# /usr/bin/Rscript --vanilla tests/run_convergence_suite.R [--full] [--package|--computed]
 project_lib <- file.path(getwd(), "renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu")
 if (dir.exists(project_lib)) .libPaths(c(project_lib, .libPaths()))
 stopifnot(getRversion() >= "4.5.0")
@@ -17,6 +17,10 @@ for (name in c("fractional_evolution", "graphs_and_meshes", "exact_solutions",
         is.call(ex[[3]]) && identical(ex[[3]][[1]], as.name("function"))) eval(ex, helpers)
 }
 profile <- if ("--full" %in% commandArgs(trailingOnly = TRUE)) "full" else "pilot"
+source_flags <- intersect(commandArgs(trailingOnly = TRUE),c("--package","--computed"))
+stopifnot(length(source_flags) <= 1L)
+coefficient_source <- if (length(source_flags)) sub("^--","",source_flags) else
+  formals(helpers$convergence_settings)$coefficient_source
 tables <- list()
 suite_id <- NULL
 paths <- character()
@@ -24,7 +28,7 @@ for (study in c("h", "tau", "m")) {
   lines <- readLines(paste0("conv_in_", study, ".Rmd"))
   env <- new.env(parent = helpers)
   env$convergence_settings <- function(study)
-    helpers$convergence_settings(study, profile = profile)
+    helpers$convergence_settings(study, profile = profile, coefficient_source = coefficient_source)
   for (start in which(grepl("^```\\{r", lines))) {
     end <- which(seq_along(lines) > start & lines == "```")[1]
     code <- lines[(start+1):(end-1)]

@@ -139,6 +139,8 @@ cat("Shared suite:", experiment_parameters$suite_id, "\nRun ID:", basename(run_d
 All three studies read `fun/convergence_settings.Rmd`. Match the profile and
 shared-suite fingerprint when comparing results. The analytic reference and
 space-time error norm are common; no fine reference space-time mesh is needed.
+The shared coefficient source chooses fixed m=4 for `"package"` or m=8 for
+`"computed"`, and automatically selects the m study's auxiliary grids.
 The default uniform-modal backend evaluates the same FEM/backward Euler
 recurrence on uniform tadpole meshes without enumerating every time step.
 Actual mesh sizes and time steps are saved and plotted. Refinement checks
@@ -167,7 +169,7 @@ results <- run_tadpole_study(
   temporal_cache_mib = temporal_cache_mib, memory_budget_gib = memory_budget_gib,
   worker_log = file.path(run_dir, "worker_log.txt"),
   solver_backend = solver_backend, step_sum_order = step_sum_order,
-  root_interpolation = root_interpolation)
+  root_interpolation = root_interpolation, coefficient_source = coefficient_source)
 results$parameters <- experiment_parameters
 errors_projected <- results$errors_projected
 checks <- results$refinement_checks

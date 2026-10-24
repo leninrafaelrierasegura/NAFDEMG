@@ -8,21 +8,85 @@ library(ggplot2)
 library(reshape2)
 library(plotly)
 
-# Function to compute the roots and factor for the rational approximation
-my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
+rational_supported_orders <- function(coefficient_source = "package") {
+  coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
+  if (coefficient_source == "package") 1:4 else 1:8
+}
+
+read_computed_fractional_roots <- function() {
+  path <- here::here("matlab", "computed_fractional_roots.csv")
+  if (!file.exists(path)) stop("Missing computed coefficients: ", path)
+  tab <- read.csv(path, stringsAsFactors = FALSE)
+  if (!identical(names(tab), c("m", "beta", "kind", "index", "value")) ||
+      !all(vapply(tab[c("m", "beta", "index", "value")], is.numeric, logical(1))) ||
+      !all(is.finite(as.matrix(tab[c("m", "beta", "index", "value")]))) ||
+      !all(tab$m %in% 1:8) || !all(tab$beta >= .25 & tab$beta < 1) ||
+      !all(tab$kind %in% c("factor", "rc", "rb")) ||
+      anyDuplicated(tab[c("m", "beta", "kind", "index")]))
+    stop("Malformed computed coefficient artifact.")
+  tab
+}
+
+rational_coefficient_info <- function(coefficient_source = "package") {
+  coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
+  if (coefficient_source == "package") {
+    tables <- lapply(1:4, function(m)
+      get(paste0("m", m, "table"), envir = asNamespace("rSPDE")))
+    return(list(source = coefficient_source, orders = 1:4,
+      package_version = as.character(utils::packageVersion("rSPDE")),
+      sha256 = digest::digest(tables, algo = "sha256"), beta_matching = "interpolated"))
+  }
+  tab <- read_computed_fractional_roots()
+  list(source = coefficient_source, orders = 1:8, beta = sort(unique(tab$beta)),
+       sha256 = digest::digest(file = here::here("matlab", "computed_fractional_roots.csv"),
+                               algo = "sha256"), beta_matching = "exact")
+}
+
+validate_fractional_roots <- function(roots, m) {
+  all_roots <- c(roots$pr_roots, roots$pl_roots)
+  if (length(roots$pr_roots) != m || length(roots$pl_roots) != m+1L ||
+      length(roots$factor) != 1L || !is.finite(roots$factor) || roots$factor <= 0 ||
+      !is.numeric(all_roots) || is.complex(all_roots) ||
+      any(!is.finite(all_roots)) || any(all_roots >= 0))
+    stop("Fractional coefficients need a positive factor and real negative roots.")
+  numerator <- sort(roots$pr_roots)
+  denominator <- sort(roots$pl_roots)
+  if (any(denominator[-length(denominator)] >= numerator) ||
+      any(numerator >= denominator[-1L]))
+    stop("Fractional coefficient roots do not interlace; this approximation is unsafe.")
+  roots
+}
+
+my.get.roots <- function(m,
                          beta, # smoothness parameter, beta = alpha/2
-                         interpolation = c("linear", "cubic")
+                         interpolation = c("linear", "cubic"),
+                         coefficient_source = "package"
                          ) {
+  coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
   interpolation <- match.arg(interpolation)
-  if (length(m) != 1L || !is.finite(m) || !(m %in% 1:4))
-    stop("The installed rational tables support m = 1, 2, 3, 4 only.")
+  orders <- rational_supported_orders(coefficient_source)
+  if (length(m) != 1L || !is.finite(m) || !(m %in% orders))
+    stop("Coefficient source '", coefficient_source, "' supports m = ",
+         paste(orders, collapse = ", "), " only.")
   if (length(beta) != 1L || !is.finite(beta) || beta < 0.25 || beta >= 1)
     stop("Fractional evolution tables require 0.25 <= beta < 1; beta = 1 uses the exact solver.")
-  m1table <- rSPDE:::m1table
-  m2table <- rSPDE:::m2table
-  m3table <- rSPDE:::m3table
-  m4table <- rSPDE:::m4table
-  mt <- get(paste0("m", m, "table"))
+  if (coefficient_source == "computed") {
+    tab <- read_computed_fractional_roots()
+    rows <- tab[tab$m == m & abs(tab$beta-beta) <= 32*.Machine$double.eps*max(1, abs(beta)), ]
+    if (!nrow(rows)) stop("Computed coefficients are unavailable at beta = ",
+      format(beta, digits = 16), ". Available beta: ",
+      paste(sort(unique(tab$beta)), collapse = ", "),
+      ". Generate and validate new coefficients; beta interpolation is disabled.")
+    values <- function(kind, indices) {
+      part <- rows[rows$kind == kind, ]
+      if (nrow(part) != length(indices) || !setequal(part$index, indices))
+        stop("Computed coefficient entries are incomplete for m = ", m, ".")
+      part$value[match(indices, part$index)]
+    }
+    return(validate_fractional_roots(list(factor = values("factor", 0),
+      pr_roots = values("rc", seq_len(m)), pl_roots = values("rb", seq_len(m+1L))), m))
+  }
+  mt <- get(paste0("m", m, "table"), envir = asNamespace("rSPDE"))
   interpolate <- function(column) {
     if (interpolation == "linear") approx(mt$beta, mt[[column]], beta)$y else
       splinefun(mt$beta, mt[[column]], method = "fmm")(beta)
@@ -40,17 +104,17 @@ my.get.roots <- function(m, # rational order, m = 1, 2, 3, or 4
     interpolate(paste0("rb.", i))
   })
   factor = interpolate("factor")
-  return(list(pl_roots = rb, # roots \{r_{2j}\}_{j=1}^{m+1}
+  return(validate_fractional_roots(list(pl_roots = rb, # roots \{r_{2j}\}_{j=1}^{m+1}
               pr_roots = rc, # roots \{r_{1i}\}_{i=1}^m
               factor = factor # this is c_m/b_{m+1}
-              ))
+              ), m))
 }
 
 # Function to compute polynomial coefficients from roots
 poly.from.roots <- function(roots) {
   coef <- 1
-  for (r in roots) {coef <- convolve(coef, c(1, -r), type = "open")}
-  return(coef) # returned in increasing order like a+bx+cx^2+...
+  for (r in roots) coef <- c(-r*coef, 0)+c(0, coef)
+  return(coef) # Descending powers; the constant coefficient is one.
 }
 
 # Function to compute the parameters for the partial fraction decomposition
@@ -60,10 +124,13 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            time_step, # \tau
                                            scaling # diffusion * kappa^(2*beta)
                                            ) {
+  strength <- (scaling*time_step)/factor
+  if (!is.finite(strength) || strength <= 0)
+    stop("Invalid or underflowed scaled time step in the rational update.")
   pr_coef <- c(0, poly.from.roots(pr_roots))
   pl_coef <- poly.from.roots(pl_roots)
   factor_pr_coef <- pr_coef
-  pr_plus_pl_coef <- factor_pr_coef + ((scaling * time_step)/factor) * pl_coef
+  pr_plus_pl_coef <- factor_pr_coef + strength * pl_coef
   #res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
   # Coefficients passed here are in descending powers.
   # polyroot() expects ascending powers.
@@ -76,14 +143,24 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
   )
   p <- Re(p)
   
-  eval_poly <- function(coef, x) {
-    Reduce(function(value, a) value * x + a, coef, init = 0)
-  }
-  
-  r <- vapply(seq_along(p), function(j) {
-    eval_poly(factor_pr_coef, p[j]) /
-      (pr_plus_pl_coef[1] * prod(p[j] - p[-j]))
+  derivative <- function(roots, x) sum(vapply(seq_along(roots), function(j)
+    -roots[j]*prod(1-roots[-j]*x), numeric(1)))
+  # At a pole P=-strength*Q: use that identity instead of evaluating the
+  # nearly zero numerator. Products/derivatives retain the root representation.
+  r <- vapply(p, function(x) {
+    -strength*prod(1-pl_roots*x)/
+      (derivative(pr_roots, x)+strength*derivative(pl_roots, x))
   }, numeric(1))
+  if (length(p) != length(pl_roots) || any(!is.finite(r)) || any(r <= 0))
+    stop("Unstable rational update: residues must be finite and positive.")
+  # Guard against a misleading real-pole result with inaccurate reconstruction.
+  z <- 10^seq(0, 12, length.out = 65L)
+  P <- vapply(z, function(x) prod(1-pr_roots*x), numeric(1))
+  Q <- vapply(z, function(x) prod(1-pl_roots*x), numeric(1))
+  expected <- P/(P+strength*Q)
+  reconstructed <- rowSums(vapply(seq_along(p), function(j) r[j]/(z-p[j]), numeric(length(z))))
+  if (any(!is.finite(reconstructed)) || max(abs(reconstructed-expected)) > 5e-9)
+    stop("Unstable rational update: partial-fraction reconstruction failed.")
   
   res <- list(r = r, p = p, k = numeric(0))
   return(list(r = res$r, # residues \{a_k\}_{k=1}^{m+1}
@@ -97,11 +174,13 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          beta, # smoothness parameter beta
                                          C, # mass matrix (not lumped)
                                          scale.factor, # scaling parameter = kappa^2
-                                         m = 1, # rational order, m = 1, 2, 3, or 4
+                                         m = 1, # order supported by the selected source
                                          time_step, # physical time step = tau
                                          diffusion = 1, # coefficient outside the fractional power
-                                         root_interpolation = "linear"
+                                         root_interpolation = "linear",
+                                         coefficient_source = "package"
                                          ) {
+  coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
   stopifnot(length(diffusion) == 1L, is.finite(diffusion), diffusion > 0,
             length(time_step) == 1L, is.finite(time_step), time_step > 0,
             length(beta) == 1L, is.finite(beta), beta > 0, beta <= 1,
@@ -120,7 +199,8 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                 ))
   } else {
     scaling <- diffusion * scale.factor^beta
-    roots <- my.get.roots(m, beta, interpolation = root_interpolation)
+    roots <- my.get.roots(m, beta, interpolation = root_interpolation,
+                          coefficient_source = coefficient_source)
     poles_rs_k <- compute.partial.fraction.param(factor = roots$factor,
                                                  pr_roots = roots$pr_roots,
                                                  pl_roots = roots$pl_roots,
@@ -139,6 +219,7 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                 partial_fraction_terms = partial_fraction_terms, # partial fraction terms
                 residues = poles_rs_k$r, # residues \{a_k\}_{k=1}^{m+1}
                 poles = poles_rs_k$p,
+                coefficient_source = coefficient_source,
                 diffusion = diffusion,
                 factorizations = lapply(partial_fraction_terms, function(A) {
                   Matrix::Cholesky(Matrix::forceSymmetric(A), LDL = FALSE)

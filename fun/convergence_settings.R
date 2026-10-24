@@ -1,7 +1,7 @@
-## ---------------------------------------------------------------------------
-convergence_settings <- function(study, profile = "pilot") {
+convergence_settings <- function(study, profile = "pilot", coefficient_source = "computed") {
   study <- match.arg(study, c("h", "tau", "m"))
   profile <- match.arg(profile, c("pilot", "full"))
+  coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
 
   # Shared scientific experiment: change these here, not in individual notebooks.
   T_final <- 0.5
@@ -31,12 +31,21 @@ convergence_settings <- function(study, profile = "pilot") {
   memory_budget_gib <- NULL
 
   # Auxiliary grids isolate the variable studied; they need not be identical.
-  m_fixed <- 4L
+  m_fixed <- max(rational_supported_orders(coefficient_source))
   h_study_tau <- if (profile == "pilot") 1e-10 else 5e-11
   tau_study_h <- 1e-5
-  m_study_h <- if (profile == "pilot") 1e-6 else 5e-7
-  m_study_tau <- if (profile == "pilot") 1e-11 else 5e-12
-  m_vector <- 1:4
+  if (coefficient_source == "package") {
+    m_study_h <- if (profile == "pilot") 1e-6 else 5e-7
+    m_study_tau <- if (profile == "pilot") 1e-11 else 5e-12
+  } else {
+    m_study_h <- if (profile == "pilot") 2.5e-9 else 1.25e-9
+    # Both profiles must permit a halved-step check with N <= 2^52.
+    m_study_tau <- 2.25e-16
+  }
+  m_vector <- rational_supported_orders(coefficient_source)
+  coefficient_info <- rational_coefficient_info(coefficient_source)
+  for (alpha in alpha_vector[alpha_vector < 2]) for (m in unique(c(m_fixed, m_vector)))
+    my.get.roots(m, alpha/2, root_interpolation, coefficient_source)
 
   h_vector <- uniform_tadpole_h(study_range)
   tau_targets <- study_range
@@ -57,11 +66,13 @@ convergence_settings <- function(study, profile = "pilot") {
     initial = exact_initial, forcing = exact_forcing, A = AAA, omega = OMEGA,
     range_window = range_window, range_points = range_points,
     solver_backend = solver_backend, root_interpolation = root_interpolation,
+    coefficient_info = coefficient_info, rational_update = "direct-products-factored-residues-v1",
     quadrature_order = quadrature_order, step_sum_order = step_sum_order,
     refinement_tolerance = refinement_tolerance, run_refinement_checks = run_refinement_checks,
     auxiliary = list(h_study_tau = h_study_tau, tau_study_h = tau_study_h,
                      m_study_h = m_study_h, m_study_tau = m_study_tau, m_fixed = m_fixed),
-    error_method = "uniform-modal-projection-v2")
+    error_method = if (coefficient_source == "computed")
+      "uniform-modal-stable-difference-v3" else "uniform-modal-projection-v2")
   suite_id <- digest::digest(shared_parameters, algo = "sha256")
   fixed <- switch(study,
     h = list(m = m_fixed, time_step = time_grid$time_step),
@@ -80,10 +91,10 @@ convergence_settings <- function(study, profile = "pilot") {
     time_grids = time_grids, axis_values = axis_values, anchor_h = anchor_h,
     anchor_grid = anchor_grid, anchor_m = anchor_m,
     solver_backend = solver_backend, root_interpolation = root_interpolation,
+    coefficient_source = coefficient_source,
     quadrature_order = quadrature_order, step_sum_order = step_sum_order,
     run_refinement_checks = run_refinement_checks, refinement_tolerance = refinement_tolerance,
     workers = workers, temporal_cache_mib = temporal_cache_mib,
     memory_budget_gib = memory_budget_gib, shared_parameters = shared_parameters,
     experiment_parameters = experiment_parameters, execution_settings = execution_settings)
 }
-

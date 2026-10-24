@@ -112,9 +112,9 @@ solve_fractional_evolution_modal_error <- function(
 rational_accuracy_diagnostic <- function(L, C, beta, scale.factor, m,
                                          active_eigenvalues = numeric(), n = 512L,
                                          root_interpolation = "linear",
-                                         spectral_upper = NULL) {
+                                         spectral_upper = NULL, coefficient_source = "package") {
   if (beta == 1) return(data.frame(
-    m = m, beta = beta, max_relative_error_sampled = 0,
+    m = m, beta = beta, coefficient_source = coefficient_source, max_relative_error_sampled = 0,
     max_active_rate_error = 0, positive_sampled = TRUE))
   # P1 element inverse bound: lambda_max <= kappa^2 + 12 / h_min^2.
   # Alternatively obtain a rigorous upper bound from |C^-1 L| if supplied
@@ -127,7 +127,8 @@ rational_accuracy_diagnostic <- function(L, C, beta, scale.factor, m,
   }
   stopifnot(is.finite(upper), upper >= scale.factor)
   eigenvalues <- exp(seq(log(scale.factor), log(upper), length.out = n))
-  roots <- my.get.roots(m, beta, interpolation = root_interpolation)
+  roots <- my.get.roots(m, beta, interpolation = root_interpolation,
+                        coefficient_source = coefficient_source)
   rate_ratio <- function(lambda) {
     z <- lambda/scale.factor
     R <- roots$factor * vapply(z, function(x) {
@@ -137,7 +138,7 @@ rational_accuracy_diagnostic <- function(L, C, beta, scale.factor, m,
   }
   sampled <- rate_ratio(eigenvalues)
   active <- rate_ratio(active_eigenvalues)
-  data.frame(m = m, beta = beta,
+  data.frame(m = m, beta = beta, coefficient_source = coefficient_source,
     max_relative_error_sampled = max(abs(sampled$inverse_relative-1)),
     max_active_rate_error = if (length(active_eigenvalues))
       max(abs(active$rate_relative-1)) else NA_real_,
@@ -164,7 +165,7 @@ tadpole_case_error <- function(spatial, alpha, m, diffusion, time_grid,
                                initial, forcing, A = 1, omega = pi,
                                quadrature_order = 4L, verbose = FALSE,
                                time_data = NULL, block_steps = 8192L,
-                               root_interpolation = "linear") {
+                               root_interpolation = "linear", coefficient_source = "package") {
   basis <- spatial$basis
   rates <- diffusion*basis$eigenvalues^(alpha/2)
   if (!is.null(time_data)) stopifnot(
@@ -177,7 +178,7 @@ tadpole_case_error <- function(spatial, alpha, m, diffusion, time_grid,
     L = spatial$L, beta = alpha/2, C = basis$C,
     scale.factor = spatial$kappa^2, m = m,
     time_step = time_grid$time_step, diffusion = diffusion,
-    root_interpolation = root_interpolation)
+    root_interpolation = root_interpolation, coefficient_source = coefficient_source)
   solve_fractional_evolution_modal_error(
     my_op_frac = op, time_step = time_grid$time_step,
     time_seq = time_grid$time_seq,
@@ -192,10 +193,12 @@ tadpole_case_error <- function(spatial, alpha, m, diffusion, time_grid,
 
 tadpole_refinement_checks <- function(spatial, alpha, m, diffusion, time_grid,
                                       initial, forcing, A = 1, omega = pi,
-                                      quadrature_order = 4L, tolerance = 0.05) {
+                                      quadrature_order = 4L, tolerance = 0.05,
+                                      root_interpolation = "linear", coefficient_source = "package") {
   evaluate <- function(mesh = spatial, grid = time_grid, order = quadrature_order) {
     tadpole_case_error(mesh, alpha, m, diffusion, grid, initial, forcing,
-                       A, omega, order)
+                       A, omega, order, root_interpolation = root_interpolation,
+                       coefficient_source = coefficient_source)
   }
   baseline <- evaluate()
   fine_time <- make_time_grid(tail(time_grid$time_seq, 1), time_grid$time_step/2)
@@ -214,7 +217,12 @@ experiment_grid <- function(T_final, target_step) {
   stopifnot(length(T_final) == 1L, is.finite(T_final), T_final > 0,
             length(target_step) == 1L, is.finite(target_step), target_step > 0)
   ratio <- T_final/target_step
-  N <- ceiling(ratio-32*.Machine$double.eps*max(1, ratio))
+  # Snap only a quotient already very close to an integer. Subtracting a
+  # relative tolerance can remove whole steps on grids with ~1e15 intervals.
+  nearest <- round(ratio)
+  if (abs(ratio-nearest) <= min(.01, 32*.Machine$double.eps*max(1, ratio)))
+    ratio <- nearest
+  N <- ceiling(ratio)
   if (N > 2^52) stop("Time grid exceeds the supported exact step-index range.")
   list(N = max(1, N), time_step = T_final/max(1, N), T_final = T_final)
 }
@@ -274,14 +282,15 @@ discrete_uniform_rule <- function(N, order = 64L) {
 }
 
 rational_modal_rates <- function(eigenvalues, alpha, m, diffusion, kappa,
-                                 root_interpolation = "linear") {
+                                 root_interpolation = "linear", coefficient_source = "package") {
   beta <- alpha/2
   stopifnot(length(alpha) == 1L, is.finite(alpha), alpha > 0, alpha <= 2,
             length(diffusion) == 1L, is.finite(diffusion), diffusion > 0,
             all(is.finite(eigenvalues)), all(eigenvalues >= kappa^2))
   # m = 0 is reserved for error-floor diagnostics, never a study order.
   if (beta == 1 || m == 0) return(diffusion*eigenvalues^beta)
-  roots <- my.get.roots(m, beta, interpolation = root_interpolation)
+  roots <- my.get.roots(m, beta, interpolation = root_interpolation,
+                        coefficient_source = coefficient_source)
   z <- eigenvalues/kappa^2
   inverse <- roots$factor*vapply(z, function(x)
     prod(1-roots$pr_roots*x)/prod(1-roots$pl_roots*x), numeric(1))
@@ -308,10 +317,70 @@ uniform_modal_coefficients <- function(k, time_step, rates, initial, forcing,
   result
 }
 
+uniform_modal_difference <- function(k, fraction, time_step, exact_rates, numerical_rates,
+                                      initial, forcing, A = 1, omega = pi) {
+  stopifnot(length(fraction) == 1L, is.finite(fraction), fraction >= 0, fraction <= 1,
+            all(is.finite(k)), all(k >= 1), length(time_step) == 1L,
+            is.finite(time_step), time_step > 0,
+            length(exact_rates) == length(numerical_rates),
+            length(initial) == length(exact_rates), length(forcing) == length(initial),
+            all(is.finite(c(exact_rates,numerical_rates,initial,forcing,A,omega))),
+            all(exact_rates > 0), all(numerical_rates > 0))
+  dt <- time_step
+  offset <- (1-fraction)*dt
+  t <- k*dt-offset
+  theta <- omega*dt
+  # The cancellation-free expression below is needed for the high-order,
+  # tiny-step regime. Coarse intervals have a well-resolved direct difference.
+  if (abs(theta) >= .1) return(
+    exact_modal_coefficients(t, exact_rates, initial, forcing, A, omega)-
+      uniform_modal_coefficients(k, dt, numerical_rates, initial, forcing, A, omega))
+  expm1_i <- function(x) -2*sin(x/2)^2+1i*sin(x)
+  x <- dt*numerical_rates
+  remainder <- x-log1p(x)
+  small <- x < .001
+  if (any(small)) {
+    xx <- x[small]
+    # x-log(1+x), retaining the O(x^2) term when direct subtraction rounds to 0.
+    value <- numeric(length(xx))
+    for (j in 2:12) value <- value+(-1)^j*xx^j/j
+    remainder[small] <- value
+  }
+  logq <- -log1p(x)
+  dr <- exact_rates-numerical_rates
+  u <- theta/2
+  u2 <- u*u
+  # exp(i*u)/sinc(u)-1 = u*cot(u)-1 + i*u.
+  phi_minus_one <- -u2*(1/3+u2*(1/45+u2*(2/945+u2*(1/4725+u2*2/93555))))+1i*u
+  out <- matrix(0, length(initial), length(k))
+  for (i in seq_along(initial)) {
+    exponent_difference <- k*(dt*dr[i]+remainder[i])-exact_rates[i]*offset
+    # Factor out the larger exponential so large decay never gives 0*Inf.
+    positive <- exponent_difference > 0
+    initial_difference <- numeric(length(k))
+    initial_difference[!positive] <- -exp(-exact_rates[i]*t[!positive])*
+      expm1(exponent_difference[!positive])
+    initial_difference[positive] <- exp(logq[i]*k[positive])*
+      expm1(-exponent_difference[positive])
+    out[i, ] <- initial[i]*initial_difference
+    if (omega != 0 && A != 0 && forcing[i] != 0) {
+      den_exact <- exact_rates[i]+1i*omega
+      den_numerical <- numerical_rates[i]*(1+phi_minus_one)+1i*omega
+      inverse_difference <- (-dr[i]+numerical_rates[i]*phi_minus_one)/
+        (den_exact*den_numerical)
+      numerator <- expm1_i(theta*k)-expm1(logq[i]*k)
+      numerator_difference <- -exp(1i*omega*t)*expm1_i(omega*offset)-initial_difference
+      out[i, ] <- out[i, ]+forcing[i]*A*Im(
+        inverse_difference*numerator+numerator_difference/den_exact)
+    }
+  }
+  out
+}
+
 uniform_tadpole_error <- function(h, alpha, m, diffusion, grid, kappa, modes,
                                   N_finite, initial, forcing, A = 1, omega = pi,
                                   quadrature_order = 4L, step_sum_order = 64L,
-                                  root_interpolation = "linear") {
+                                  root_interpolation = "linear", coefficient_source = "package") {
   basis <- uniform_tadpole_basis(h, kappa, modes, N_finite)
   N <- grid_steps(grid)
   T <- grid_horizon(grid)
@@ -319,7 +388,7 @@ uniform_tadpole_error <- function(h, alpha, m, diffusion, grid, kappa, modes,
   rule <- discrete_uniform_rule(N, step_sum_order)
   time_rule <- gauss_legendre_rule(quadrature_order)
   rates <- rational_modal_rates(basis$discrete_eigenvalues, alpha, m,
-                                diffusion, kappa, root_interpolation)
+                                diffusion, kappa, root_interpolation, coefficient_source)
   if (N > step_sum_order &&
       (max(c(rates, diffusion*basis$eigenvalues^(alpha/2)))*T > step_sum_order^2/8 ||
        abs(omega)*T > step_sum_order/2))
@@ -331,7 +400,10 @@ uniform_tadpole_error <- function(h, alpha, m, diffusion, grid, kappa, modes,
     t <- (rule$nodes-1+time_rule$nodes[j])*grid$time_step
     exact <- exact_modal_coefficients(t, diffusion*basis$eigenvalues^(alpha/2),
                                       initial, forcing, A, omega)
-    delta <- exact-numerical
+    delta <- if (coefficient_source == "computed") uniform_modal_difference(
+      rule$nodes, time_rule$nodes[j], grid$time_step,
+      diffusion*basis$eigenvalues^(alpha/2), rates, initial, forcing, A, omega) else
+      exact-numerical
     squared <- colSums(delta*(basis$gram %*% delta))+
       colSums(exact*(basis$residual_gram %*% exact))
     total <- total+time_rule$weights[j]*sum(rule$weights*squared)
@@ -347,7 +419,8 @@ execute_uniform_diffusion_job <- function(job, settings) {
   error <- uniform_tadpole_error(job$h, job$alpha, job$m, settings$diffusion,
     grid, settings$kappa, settings$modes, settings$N_finite,
     settings$initial, settings$forcing, settings$A, settings$omega,
-    job$quadrature_order, job$step_sum_order, settings$root_interpolation)
+    job$quadrature_order, job$step_sum_order, settings$root_interpolation,
+    settings$coefficient_source)
   basis <- uniform_tadpole_basis(job$h, settings$kappa, settings$modes, settings$N_finite)
   diagnostic <- NULL
   if (job$kind == "case") {
@@ -355,7 +428,8 @@ execute_uniform_diffusion_job <- function(job, settings) {
     diagnostic <- rational_accuracy_diagnostic(
       NULL, NULL, job$alpha/2,
       settings$kappa^2, job$m, basis$discrete_eigenvalues,
-      root_interpolation = settings$root_interpolation, spectral_upper = upper)
+      root_interpolation = settings$root_interpolation, spectral_upper = upper,
+      coefficient_source = settings$coefficient_source)
     diagnostic$h <- basis$h
     diagnostic$time_step <- grid$time_step
   }
@@ -540,10 +614,12 @@ execute_diffusion_job <- function(job, settings, state) {
   error <- tadpole_case_error(spatial, job$alpha, job$m, settings$diffusion, grid,
     settings$initial, settings$forcing, settings$A, settings$omega,
     job$quadrature_order, verbose = FALSE, time_data = time_data,
-    root_interpolation = settings$root_interpolation)
+    root_interpolation = settings$root_interpolation,
+    coefficient_source = settings$coefficient_source)
   diagnostic <- if (job$kind == "case") rational_accuracy_diagnostic(
     spatial$L, spatial$basis$C, job$alpha/2, settings$kappa^2, job$m,
-    spatial$basis$eigenvalues, root_interpolation = settings$root_interpolation) else NULL
+    spatial$basis$eigenvalues, root_interpolation = settings$root_interpolation,
+    coefficient_source = settings$coefficient_source) else NULL
   if (!is.null(diagnostic)) {
     diagnostic$h <- job$h
     diagnostic$time_step <- grid$time_step
@@ -575,20 +651,26 @@ run_tadpole_study <- function(
     run_refinement_checks = TRUE, refinement_tolerance = .05,
     workers = 4L, temporal_cache_mib = 512, memory_budget_gib = NULL,
     worker_log = NULL, verbose = TRUE, solver_backend = "direct",
-    step_sum_order = 64L, root_interpolation = "linear") {
+    step_sum_order = 64L, root_interpolation = "linear", coefficient_source = "package") {
   solver_backend <- match.arg(solver_backend, c("direct", "uniform-modal"))
+  coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
+  supported_orders <- rational_supported_orders(coefficient_source)
   root_interpolation <- match.arg(root_interpolation, c("linear", "cubic"))
   stopifnot(study %in% c("h", "tau", "m"), length(axis_values) > 0L,
             length(alpha_vector) > 0L, is.finite(diffusion), diffusion > 0,
             all(is.finite(axis_values)), all(axis_values > 0),
             all(is.finite(alpha_vector)), all(alpha_vector >= .5), all(alpha_vector <= 2),
-            if (study == "m") all(axis_values %in% 1:4) else fixed_m %in% 1:4,
+            if (study == "m") all(axis_values %in% supported_orders) else fixed_m %in% supported_orders,
             if (study == "tau") length(time_grids) == length(axis_values) else
               length(time_grids) == 1L)
   if (run_refinement_checks && quadrature_order > 16L)
     stop("Refinement checks require quadrature_order <= 16.")
   if (run_refinement_checks && step_sum_order > 256L)
     stop("Refinement checks require step_sum_order <= 256.")
+  requested_m <- unique(c(if (study == "m") axis_values else fixed_m, anchor_m))
+  for (alpha in alpha_vector[alpha_vector < 2]) for (m in requested_m)
+    my.get.roots(m, alpha/2, root_interpolation, coefficient_source)
+  coefficient_info <- rational_coefficient_info(coefficient_source)
   jobs <- list()
   keys <- character()
   add_job <- function(h, alpha, m, N, order, kind, sum_order = step_sum_order) {
@@ -636,7 +718,7 @@ run_tadpole_study <- function(
   settings <- list(T_final = T_final, diffusion = diffusion, kappa = kappa,
     modes = modes, N_finite = N_finite, initial = initial, forcing = forcing,
     A = A, omega = omega, verbose = verbose, solver_backend = solver_backend,
-    root_interpolation = root_interpolation)
+    root_interpolation = root_interpolation, coefficient_source = coefficient_source)
   plan <- diffusion_resource_plan(workers, length(jobs),
     if (solver_backend == "uniform-modal") 1 else
       min(vapply(jobs, function(x) x$h, numeric(1))),
@@ -708,7 +790,8 @@ run_tadpole_study <- function(
   if (nrow(checks) && any(checks$required & !checks$passed)) warning(
     "Some accuracy checks failed; inspect refinement_checks before interpreting fitted rates.")
   list(errors_projected = errors, diagnostics = diagnostics,
-       refinement_checks = checks, resources = resources, execution = plan)
+       refinement_checks = checks, resources = resources, execution = plan,
+       coefficient_info = coefficient_info)
 }
 
 experiment_run <- function(study, parameters, run_id = NULL,
