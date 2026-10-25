@@ -134,6 +134,11 @@ shared-suite fingerprint when comparing results. The analytic reference and
 space-time error norm are common; no fine reference space-time mesh is needed.
 The shared coefficient source chooses fixed m=4 for `"package"` or m=8 for
 `"computed"`, and automatically selects the m study's auxiliary grids.
+The default computed pilot uses T=1 and diffusion=1 in all three studies.
+Runs are saved outside this code repository under
+`~/Desktop/DOCS/NAFDEMG/diffusion_experiments/`.
+The independent shared `m_max` setting defaults to 4 for the m study;
+raising it to 5--8 leaves the h/tau fixed order at 8 for computed coefficients.
 The default uniform-modal backend evaluates the same FEM/backward Euler
 recurrence on uniform tadpole meshes without enumerating every time step.
 Actual mesh sizes and time steps are saved and plotted. Refinement checks

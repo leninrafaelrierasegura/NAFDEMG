@@ -880,10 +880,21 @@ Every new run gets a unique directory. An existing run can only be loaded by
 an explicit ID with matching parameters; existing results are never silently
 reused for another coefficient or mesh. Generated data/plots stay under this
 directory, without copies into presentation folders.
+The default location is `~/Desktop/DOCS/NAFDEMG/diffusion_experiments/`,
+outside the public code repository. `DOCS` is the user's private repository.
+Set `NAFDEMG_PRIVATE_DIR` to override the private project folder on another
+machine; the experiment subdirectory is appended to that folder.
 
 ```{r}
+private_project_dir <- function() {
+  root <- Sys.getenv("NAFDEMG_PRIVATE_DIR", unset = file.path(
+    path.expand("~"), "Desktop", "DOCS", "NAFDEMG"))
+  if (!nzchar(trimws(root))) stop("NAFDEMG_PRIVATE_DIR must name a private project folder.")
+  normalizePath(path.expand(root), winslash = "/", mustWork = FALSE)
+}
+
 experiment_run <- function(study, parameters, run_id = NULL,
-                           root = here::here("data_files", "diffusion_experiments"),
+                           root = file.path(private_project_dir(), "diffusion_experiments"),
                            execution = NULL) {
   stopifnot(study %in% c("h", "tau", "m"), is.list(parameters))
   base <- file.path(root, study)

@@ -250,7 +250,7 @@ for (profile in c("pilot", "full")) {
   stopifnot(identical(configurations[[1]]$shared_parameters, configurations[[2]]$shared_parameters),
             identical(configurations[[1]]$experiment_parameters$suite_id,
                       configurations[[3]]$experiment_parameters$suite_id),
-            configurations[[1]]$T_final == .5,
+            configurations[[1]]$T_final == 1, configurations[[1]]$diffusion == 1,
             max(configurations[[1]]$h_vector)/min(configurations[[1]]$h_vector) >= 100*(1-1e-12),
             max(configurations[[2]]$tau_vector)/min(configurations[[2]]$tau_vector) >= 100*(1-1e-12),
             length(configurations[[1]]$time_grid) == 3L)

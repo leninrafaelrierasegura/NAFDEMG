@@ -14,33 +14,47 @@ eight in full, with endpoints 1e-4 and 1e-2. Actual uniform mesh lengths and
 time steps are saved and plotted. Endpoint ratios remain 100. The profiles
 share the physical problem; full adds points and tighter auxiliary settings.
 
-The small diffusion coefficient is deliberate: at T=0.5 it reduces the
-rational-operator error in the h study sufficiently to expose the spatial
-error down to h=1e-4. It changes the physical problem and does not improve the
-rational approximation's relative rate error. The sinusoidal forcing stays
-physical and is not multiplied by diffusion. Larger diffusion/horizon values
-require a fresh calibration; accuracy checks can then fail.
+The default computed pilot now uses T=1 and diffusion=1. Fixed rational order
+8 resolves the active-mode operator error sufficiently to retain the
+common h/tau window 1e-4 to 1e-2. The sinusoidal forcing stays physical and is
+not multiplied by diffusion. The exact solution and all three studies use the
+same diffusion coefficient. Changing the horizon, data, alpha values or mesh
+window requires a fresh calibration; accuracy checks can then fail.
 
 The `coefficient_source` default below selects the same source for all studies.
-`"package"` uses rSPDE's orders 1--4 and retains the existing experiment defaults.
+`"package"` uses rSPDE's orders 1--4 and retains the previous T=0.5,
+diffusion=1e-4 experiment, including its auxiliary grids. It is a legacy
+preset for a different physical problem, not a coefficient-only comparison
+with the new computed experiment. Match the physical parameters explicitly
+if making such a comparison.
 `"computed"` uses the audited MATLAB coefficients, orders 1--8, generated at
 the exact beta values 0.25, 0.45, 0.65. Changing this one default automatically
-sets the m-study range and the fixed order in the h and tau studies: 1--4 and
-4 for package, 1--8 and 8 for computed. The physical problem stays the same.
+sets the fixed order in the h and tau studies: 4 for package, 8 for computed.
+The independent `m_max` default is 4: the m study uses every order 1,...,m_max.
+Computed runs allow m_max=4,...,8; package runs require m_max=4. Increase this
+one shared default to extend the m study without changing the fixed h/tau order.
+Within a source, pilot and full share
+the physical problem; full adds points and tighter auxiliary settings.
 Computed coefficients reject unsupported alpha values rather than interpolate
 or silently select another source. Their CSV and provenance JSON live in `matlab/`.
-No MATLAB process is required when running the notebooks. Computed m=8 reaches
-errors around 1e-14 for these data, so its m study automatically uses finer
-auxiliary grids: h=2.5e-9 (pilot), 1.25e-9 (full), and tau approximately
-2.25e-16 in both profiles. The package grids remain h=1e-6/5e-7 and
+No MATLAB process is required when running the notebooks. The default computed
+m=1--4 study uses h=1e-5 (pilot), 5e-6 (full), and tau approximately
+1e-10 (pilot), 5e-11 (full). The pilot therefore shares its fixed h with the
+tau study and its fixed tau with the h study. For m_max>4, the computed study
+automatically tightens to h=1e-7/5e-8 and tau=1e-14/5e-15, which also resolves
+the m=8 errors around 1e-10 to 1e-11. The package grids remain h=1e-6/5e-7 and
 tau=1e-11/5e-12. The h/tau studies retain their original auxiliary grids.
 Saved refinement checks still enforce the 5% tolerance; no points are discarded.
 The computed-source error evaluator uses a stable coefficient difference to
-avoid subtracting two order-one solutions when their difference is near 1e-14.
+avoid subtracting nearly identical solution coefficients.
 These tiny auxiliary grids require the modal backend; direct stepping is not
 practical. They are scalar grid descriptions, not allocated meshes/time vectors.
-The computed time step leaves room to halve it within the exact step-index
-limit of 2^52; further reductions need a new representation/precision audit.
+The computed pilot's spatial-temporal floor is below 1% of its final m error for
+each alpha, with the retained 5% acceptance threshold providing a separate
+guard. The pilot/full time steps leave room for the halved-step checks within
+the exact step-index limit of 2^52. Smaller steps are unnecessary here.
+Passing this calibration supports these finite-mode experiments; it is not
+by itself a claim of publication readiness or a test of general graph data.
 
 Cubic interpolation applies to the package tables; computed coefficients use
 exact-beta lookup and ignore `root_interpolation`. A finite-order fitted slope
@@ -59,14 +73,23 @@ The worker/cache settings apply to direct stepping; the modal backend needs
 no large temporal cache. Memory budgets continue to cap the worker count.
 
 ```{r}
-convergence_settings <- function(study, profile = "pilot", coefficient_source = "computed") {
+convergence_settings <- function(study, profile = "pilot", coefficient_source = "computed", m_max = 4L) {
   study <- match.arg(study, c("h", "tau", "m"))
   profile <- match.arg(profile, c("pilot", "full"))
   coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
+  stopifnot(length(m_max) == 1L, is.finite(m_max), m_max == round(m_max),
+            m_max >= 4L, m_max <= max(rational_supported_orders(coefficient_source)))
+  m_max <- as.integer(m_max)
 
   # Shared scientific experiment: change these here, not in individual notebooks.
-  T_final <- 0.5
-  diffusion <- 1e-4
+  # Computed pilot is the current target; retain the legacy package experiment.
+  if (coefficient_source == "computed") {
+    T_final <- 1
+    diffusion <- 1
+  } else {
+    T_final <- 0.5
+    diffusion <- 1e-4
+  }
   kappa <- 4
   N_finite <- 4L
   active_modes <- c(5L, 7L)
@@ -98,12 +121,14 @@ convergence_settings <- function(study, profile = "pilot", coefficient_source = 
   if (coefficient_source == "package") {
     m_study_h <- if (profile == "pilot") 1e-6 else 5e-7
     m_study_tau <- if (profile == "pilot") 1e-11 else 5e-12
+  } else if (m_max == 4L) {
+    m_study_h <- if (profile == "pilot") 1e-5 else 5e-6
+    m_study_tau <- h_study_tau
   } else {
-    m_study_h <- if (profile == "pilot") 2.5e-9 else 1.25e-9
-    # Both profiles must permit a halved-step check with N <= 2^52.
-    m_study_tau <- 2.25e-16
+    m_study_h <- if (profile == "pilot") 1e-7 else 5e-8
+    m_study_tau <- if (profile == "pilot") 1e-14 else 5e-15
   }
-  m_vector <- rational_supported_orders(coefficient_source)
+  m_vector <- seq_len(m_max)
   coefficient_info <- rational_coefficient_info(coefficient_source)
   for (alpha in alpha_vector[alpha_vector < 2]) for (m in unique(c(m_fixed, m_vector)))
     my.get.roots(m, alpha/2, root_interpolation, coefficient_source)
@@ -127,7 +152,8 @@ convergence_settings <- function(study, profile = "pilot", coefficient_source = 
     initial = exact_initial, forcing = exact_forcing, A = AAA, omega = OMEGA,
     range_window = range_window, range_points = range_points,
     solver_backend = solver_backend, root_interpolation = root_interpolation,
-    coefficient_info = coefficient_info, rational_update = "direct-products-factored-residues-v1",
+    coefficient_info = coefficient_info, m_study_orders = m_vector,
+    rational_update = "direct-products-factored-residues-v1",
     quadrature_order = quadrature_order, step_sum_order = step_sum_order,
     refinement_tolerance = refinement_tolerance, run_refinement_checks = run_refinement_checks,
     auxiliary = list(h_study_tau = h_study_tau, tau_study_h = tau_study_h,
@@ -148,7 +174,7 @@ convergence_settings <- function(study, profile = "pilot", coefficient_source = 
     active_modes = active_modes, exact_initial = exact_initial, exact_forcing = exact_forcing,
     AAA = AAA, OMEGA = OMEGA, alpha_vector = alpha_vector, study_range = study_range,
     h_vector = h_vector, tau_targets = tau_targets, tau_vector = tau_vector,
-    m_vector = m_vector, h_fixed = h_fixed, m_fixed = m_fixed, time_grid = time_grid,
+    m_vector = m_vector, m_max = m_max, h_fixed = h_fixed, m_fixed = m_fixed, time_grid = time_grid,
     time_grids = time_grids, axis_values = axis_values, anchor_h = anchor_h,
     anchor_grid = anchor_grid, anchor_m = anchor_m,
     solver_backend = solver_backend, root_interpolation = root_interpolation,

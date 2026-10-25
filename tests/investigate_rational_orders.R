@@ -108,7 +108,7 @@ factored$compute.partial.fraction.param <- function(factor, pr_roots, pl_roots,
   out
 }
 
-base <- file.path("data_files", "diffusion_experiments", "rational_order_diagnostics")
+base <- file.path(production$private_project_dir(), "diffusion_experiments", "rational_order_diagnostics")
 dir.create(base, recursive = TRUE, showWarnings = FALSE)
 run_dir <- tempfile(paste0(format(Sys.time(), "%Y%m%dT%H%M%SZ", tz = "UTC"), "-"), base)
 stopifnot(dir.create(run_dir))

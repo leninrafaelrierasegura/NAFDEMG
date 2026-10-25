@@ -794,8 +794,15 @@ run_tadpole_study <- function(
        coefficient_info = coefficient_info)
 }
 
+private_project_dir <- function() {
+  root <- Sys.getenv("NAFDEMG_PRIVATE_DIR", unset = file.path(
+    path.expand("~"), "Desktop", "DOCS", "NAFDEMG"))
+  if (!nzchar(trimws(root))) stop("NAFDEMG_PRIVATE_DIR must name a private project folder.")
+  normalizePath(path.expand(root), winslash = "/", mustWork = FALSE)
+}
+
 experiment_run <- function(study, parameters, run_id = NULL,
-                           root = here::here("data_files", "diffusion_experiments"),
+                           root = file.path(private_project_dir(), "diffusion_experiments"),
                            execution = NULL) {
   stopifnot(study %in% c("h", "tau", "m"), is.list(parameters))
   base <- file.path(root, study)

@@ -95,24 +95,51 @@ cat("PASS: sparse solves and physical forcing for both sources; worst absolute d
 
 for (profile in c("pilot", "full")) {
   package <- convergence_settings("m", profile, "package")
-  computed <- convergence_settings("m", profile, "computed")
+  computed <- convergence_settings("m", profile, "computed", m_max = 8L)
   stopifnot(identical(package$m_vector,1:4), identical(computed$m_vector,1:8),
             !identical(package$experiment_parameters$suite_id, computed$experiment_parameters$suite_id))
-  a <- package$shared_parameters; a[c("coefficient_info","auxiliary","error_method")] <- NULL
-  b <- computed$shared_parameters; b[c("coefficient_info","auxiliary","error_method")] <- NULL
+  # Retain the legacy package problem while calibrating the computed source
+  # for unit diffusion. All remaining data/conventions agree across presets.
+  a <- package$shared_parameters; a[c("T_final","diffusion","coefficient_info","m_study_orders","auxiliary","error_method")] <- NULL
+  b <- computed$shared_parameters; b[c("T_final","diffusion","coefficient_info","m_study_orders","auxiliary","error_method")] <- NULL
   stopifnot(identical(a,b), package$m_fixed == 4L, computed$m_fixed == 8L,
+            package$T_final == .5, package$diffusion == 1e-4,
+            computed$T_final == 1, computed$diffusion == 1,
             package$h_fixed == if (profile == "pilot") 1e-6 else 5e-7,
             package$time_grid$time_step == if (profile == "pilot") 1e-11 else 5e-12,
-            computed$h_fixed == if (profile == "pilot") 2.5e-9 else 1.25e-9,
-            computed$time_grid$N == ceiling(.5/2.25e-16),
+            computed$h_fixed == if (profile == "pilot") 1e-7 else 5e-8,
+            computed$time_grid$N == if (profile == "pilot") 1e14 else 2e14,
             2*computed$time_grid$N <= 2^52)
+  for (max_order in 4:8) {
+    selected <- convergence_settings("m",profile,"computed",m_max = max_order)
+    stopifnot(identical(selected$m_vector,seq_len(max_order)), selected$m_fixed == 8L,
+              identical(selected$shared_parameters$m_study_orders,selected$m_vector))
+    for (alpha in selected$alpha_vector) {
+      evaluate <- function(h = selected$h_fixed, grid = selected$time_grid, m = selected$anchor_m)
+        uniform_tadpole_error(h,alpha,m,selected$diffusion,grid,selected$kappa,
+          selected$active_modes,selected$N_finite,selected$exact_initial,selected$exact_forcing,
+          selected$AAA,selected$OMEGA,selected$quadrature_order,selected$step_sum_order,
+          selected$root_interpolation,"computed")
+      error <- evaluate()
+      stopifnot(evaluate(m = 0L)/error < .01,
+                abs(evaluate(h = selected$h_fixed/2)/error-1) < .01,
+                abs(evaluate(grid = experiment_grid(1,selected$time_grid$time_step/2))/error-1) < .01)
+    }
+  }
   for (source in c("package","computed")) for (study in c("h","tau")) {
     s <- convergence_settings(study, profile, source)
     m <- convergence_settings("m",profile,source)
     stopifnot(identical(s$shared_parameters,m$shared_parameters),
+              identical(s$m_vector,1:4), s$m_max == 4L,
               s$m_fixed == if (source == "package") 4L else 8L)
   }
+  default <- convergence_settings("m",profile,"computed")
+  stopifnot(default$h_fixed == if (profile == "pilot") 1e-5 else 5e-6,
+            default$time_grid$time_step == if (profile == "pilot") 1e-10 else 5e-11,
+            !identical(default$experiment_parameters$suite_id,computed$experiment_parameters$suite_id))
 }
+for (order in c(3,4.5,9)) expect_error(convergence_settings("m",m_max = order))
+expect_error(convergence_settings("m",coefficient_source = "package",m_max = 5L))
 z <- c(16+(3*pi/2)^2,16+(2*pi)^2)
 for (alpha in c(.5,.9,1.3)) {
   rate <- rational_modal_rates(z, alpha, 8, 1, 4, "cubic", "computed")
@@ -125,7 +152,7 @@ computed <- convergence_settings("m", coefficient_source = "computed")
 run <- experiment_run("m", package$experiment_parameters, root = root)
 expect_error(experiment_run("m", computed$experiment_parameters, basename(run), root),
              "parameters do not match")
-cat("PASS: source-specific orders/grids, common physics, package defaults and saved-run separation\n")
+cat("PASS: independent m range/order, unit-diffusion calibration (<1% floor for m_max=4:8), legacy package and run separation\n")
 
 # Ordinary recurrence formulas evaluated independently with 100-digit Decimal
 # arithmetic. Near 1e-14, subtracting binary64 solution coefficients is not an
@@ -166,6 +193,16 @@ stopifnot(all(parallel_result$diagnostics$coefficient_source == "computed"),
           identical(serial$coefficient_info,rational_coefficient_info("computed")))
 modal <- do.call(run_tadpole_study,c(args,list(workers = 1L,solver_backend = "uniform-modal")))
 near(as.numeric(serial$errors_projected),as.numeric(modal$errors_projected),1e-9)
+unit_args <- args
+unit_args$axis_values <- c(1L,4L,8L)
+unit_args$time_grids <- list(make_time_grid(1,.002))
+unit_args$anchor_grid <- unit_args$time_grids[[1]]
+unit_args$diffusion <- 1
+unit_direct <- do.call(run_tadpole_study,c(unit_args,list(workers = 1L)))
+unit_modal <- do.call(run_tadpole_study,c(unit_args,list(workers = 1L,solver_backend = "uniform-modal")))
+near(as.numeric(unit_direct$errors_projected),as.numeric(unit_modal$errors_projected),1e-10)
+stopifnot(max(abs(unit_direct$errors_projected/unit_modal$errors_projected-1)) < 1e-8)
+cat("PASS: T=1, diffusion=1 closed recurrence against direct sparse stepping for m=1,4,8 and all alpha\n")
 args$alpha_vector <- 1.1
 expect_error(do.call(run_tadpole_study,c(args,list(workers = 2L))), "unavailable at beta")
 cat("PASS: higher orders through direct/modal backends and parallel workers; unsupported beta rejected early\n")
@@ -189,10 +226,11 @@ if ("--notebooks" %in% commandArgs(trailingOnly = TRUE)) {
               identical(env$results$parameters$shared$coefficient_info,
                         env$results$coefficient_info))
     if (study=="m") {
-      stopifnot(nrow(env$errors_projected)==8L)
+      stopifnot(nrow(env$errors_projected)==env$m_max,env$m_fixed==8L)
       checks <- env$results$refinement_checks
       floor <- checks$check=="spatial-temporal floor / total error"
       stopifnot(all(checks$required[floor]),all(checks$passed[checks$required]),
+                all(checks$relative_change[floor] < .01),
                 all(apply(env$errors_projected,2,function(e) all(diff(e)<0))))
     }
     cat("PASS computed-source notebook:",study,"\n")

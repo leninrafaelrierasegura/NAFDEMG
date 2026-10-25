@@ -1,6 +1,6 @@
 # From the repository root, with the project's R:
 # /usr/bin/Rscript --vanilla tests/benchmark_diffusion.R --steps=5000 --workers=1,4,8
-# Uses full-profile h meshes and shortened time grids. Saves local, ignored
+# Uses full-profile h meshes and shortened time grids. Saves private
 # results and resource measurements; does not execute full production runs.
 project_lib <- file.path(getwd(), "renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu")
 if (dir.exists(project_lib)) .libPaths(c(project_lib, .libPaths()))
@@ -32,7 +32,7 @@ parameters <- list(diffusion = 1, study = "h benchmark", steps = n_steps,
   alpha = c(.5,.9,1.3), m = 4L, workers = worker_counts,
   temporal_cache_mib = 512, production_time_grid = FALSE)
 run_dir <- helpers$experiment_run("h", parameters,
-  root = here::here("data_files", "diffusion_experiments", "benchmarks"))
+  root = file.path(helpers$private_project_dir(), "diffusion_experiments", "benchmarks"))
 cat("Benchmark directory:", run_dir, "\n")
 baseline <- NULL
 summary <- list()

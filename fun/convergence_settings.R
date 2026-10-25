@@ -1,11 +1,20 @@
-convergence_settings <- function(study, profile = "pilot", coefficient_source = "computed") {
+convergence_settings <- function(study, profile = "pilot", coefficient_source = "computed", m_max = 4L) {
   study <- match.arg(study, c("h", "tau", "m"))
   profile <- match.arg(profile, c("pilot", "full"))
   coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
+  stopifnot(length(m_max) == 1L, is.finite(m_max), m_max == round(m_max),
+            m_max >= 4L, m_max <= max(rational_supported_orders(coefficient_source)))
+  m_max <- as.integer(m_max)
 
   # Shared scientific experiment: change these here, not in individual notebooks.
-  T_final <- 0.5
-  diffusion <- 1e-4
+  # Computed pilot is the current target; retain the legacy package experiment.
+  if (coefficient_source == "computed") {
+    T_final <- 1
+    diffusion <- 1
+  } else {
+    T_final <- 0.5
+    diffusion <- 1e-4
+  }
   kappa <- 4
   N_finite <- 4L
   active_modes <- c(5L, 7L)
@@ -37,12 +46,14 @@ convergence_settings <- function(study, profile = "pilot", coefficient_source = 
   if (coefficient_source == "package") {
     m_study_h <- if (profile == "pilot") 1e-6 else 5e-7
     m_study_tau <- if (profile == "pilot") 1e-11 else 5e-12
+  } else if (m_max == 4L) {
+    m_study_h <- if (profile == "pilot") 1e-5 else 5e-6
+    m_study_tau <- h_study_tau
   } else {
-    m_study_h <- if (profile == "pilot") 2.5e-9 else 1.25e-9
-    # Both profiles must permit a halved-step check with N <= 2^52.
-    m_study_tau <- 2.25e-16
+    m_study_h <- if (profile == "pilot") 1e-7 else 5e-8
+    m_study_tau <- if (profile == "pilot") 1e-14 else 5e-15
   }
-  m_vector <- rational_supported_orders(coefficient_source)
+  m_vector <- seq_len(m_max)
   coefficient_info <- rational_coefficient_info(coefficient_source)
   for (alpha in alpha_vector[alpha_vector < 2]) for (m in unique(c(m_fixed, m_vector)))
     my.get.roots(m, alpha/2, root_interpolation, coefficient_source)
@@ -66,7 +77,8 @@ convergence_settings <- function(study, profile = "pilot", coefficient_source = 
     initial = exact_initial, forcing = exact_forcing, A = AAA, omega = OMEGA,
     range_window = range_window, range_points = range_points,
     solver_backend = solver_backend, root_interpolation = root_interpolation,
-    coefficient_info = coefficient_info, rational_update = "direct-products-factored-residues-v1",
+    coefficient_info = coefficient_info, m_study_orders = m_vector,
+    rational_update = "direct-products-factored-residues-v1",
     quadrature_order = quadrature_order, step_sum_order = step_sum_order,
     refinement_tolerance = refinement_tolerance, run_refinement_checks = run_refinement_checks,
     auxiliary = list(h_study_tau = h_study_tau, tau_study_h = tau_study_h,
@@ -87,7 +99,7 @@ convergence_settings <- function(study, profile = "pilot", coefficient_source = 
     active_modes = active_modes, exact_initial = exact_initial, exact_forcing = exact_forcing,
     AAA = AAA, OMEGA = OMEGA, alpha_vector = alpha_vector, study_range = study_range,
     h_vector = h_vector, tau_targets = tau_targets, tau_vector = tau_vector,
-    m_vector = m_vector, h_fixed = h_fixed, m_fixed = m_fixed, time_grid = time_grid,
+    m_vector = m_vector, m_max = m_max, h_fixed = h_fixed, m_fixed = m_fixed, time_grid = time_grid,
     time_grids = time_grids, axis_values = axis_values, anchor_h = anchor_h,
     anchor_grid = anchor_grid, anchor_m = anchor_m,
     solver_backend = solver_backend, root_interpolation = root_interpolation,
