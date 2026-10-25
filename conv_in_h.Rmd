@@ -40,241 +40,62 @@ Go back to the [Contents](about.html) page.
 </div>
 
 
-Let us set some global options for all code chunks in this document.
-
+The three notebooks share `fun/convergence_parameters.R`. The exact
+reference, physical data, quadrature and error norm are identical. Outputs
+use the original fixed filenames under `data_files/` and `data_files/tikzpic/`.
 
 ```{r}
-# Create a clipboard button
-source(here::here("clipboard.R")); clipboard
 source(here::here("sourceifupdated.R"))
 source_if_updated("fun/fractional_evolution")
-source_if_updated("fun/graphs_and_meshes")
+source_if_updated("fun/exact_solutions")
+source_if_updated("fun/tadpole_convergence")
 source_if_updated("fun/plotting")
 source_if_updated("fun/metafunctions")
-source_if_updated("fun/exact_solutions")
-```
-
-
-```{r}
-# Set seed for reproducibility
-set.seed(1982) 
-# Set global options for all code chunks
-knitr::opts_chunk$set(
-  # Disable messages printed by R code chunks
-  message = FALSE,    
-  # Disable warnings printed by R code chunks
-  warning = FALSE,    
-  # Show R code within code chunks in output
-  echo = TRUE,        
-  # Include both R code and its results in output
-  include = TRUE,     
-  # Evaluate R code chunks
-  eval = FALSE,       
-  # Enable caching of R code chunks for faster rendering
-  cache = FALSE,      
-  # Align figures in the center of the output
-  fig.align = "center",
-  # Enable retina display for high-resolution figures
-  retina = 2,
-  # Show errors in the output instead of stopping rendering
-  error = TRUE,
-  # Do not collapse code and output into a single block
-  collapse = FALSE
-)
-# Start the figure counter
+library(ggplot2)
+library(reshape2)
+knitr::opts_chunk$set(eval = FALSE, cache = FALSE, echo = TRUE)
 fig_count <- 0
-# Define the captioner function
 captioner <- function(caption) {
   fig_count <<- fig_count + 1
   paste0("Figure ", fig_count, ": ", caption)
 }
 ```
 
-
-::: {.custom-box}
-To study convergence in $h$, we keep the time step $\tau$ and rational order $m$ fixed. Theorem `lastlasttheorem` in `paper/main.tex` gives
-$$
-E\lesssim\tau+h^{\alpha-\epsilon}
-+h^{\alpha-2}\exp\!\left(-2\pi\sqrt{(1-\alpha/2)m}\right),
-\qquad 0<\alpha<2.
-$$
-The spatial term gives a reference slope $\alpha-\epsilon$ in a regression of $\log_{10}E$ against $\log_{10}h$; the plotted reference slopes use $\alpha$, neglecting a sufficiently small $\epsilon$. This upper bound does not require the observed slope to equal $\alpha$: the smooth finite-mode data used here may show second-order convergence. Temporal, rational, and reference-quadrature errors should be checked independently so they do not mask spatial convergence. In particular, fixing $m$ does not guarantee that the rational error remains negligible as $h$ decreases.
-:::
-
-
-```{r, eval = TRUE}
-# remotes::install_github("davidbolin/rspde", ref = "devel")
-# remotes::install_github("davidbolin/metricgraph", ref = "devel")
-library(rSPDE)
-library(MetricGraph)
-library(grateful)
-
-library(ggplot2)
-library(reshape2)
-library(plotly)
-library(slackr)
-source("keys.R")
-slackr_setup(token = token) # token comes from keys.R
+```{r}
+# Parameters: edit the one shared file, then rerun all three notebooks.
+source(here::here("fun/convergence_parameters.R"), local = TRUE)
+h_vector <- uniform_tadpole_h(study_range)
+study_parameters <- list(problem = convergence_parameters, alpha = alpha_vector,
+                         h = h_vector, tau = time_step_fixed, m = m_fixed)
 ```
 
-
-
-
-
-
+For these smooth finite-mode data, the spatial benchmark is second order.
+We vary h over two orders of magnitude, keeping tau=1e-10 and m=8 fixed.
+The helper evaluates the discrete FEM/backward Euler recurrence in closed
+form; it does not allocate or step through the ten-billion-interval grid.
 
 ```{r}
-# Parameters
-T_final <- 1e-3
-kappa <- 4
-N_finite <- 4 # choose even
-adjusted_N_finite <- N_finite + N_finite/2 + 1
-# Coefficients for u_0 and f
-coeff_U_0 <- 50*(1:adjusted_N_finite)^-1
-coeff_U_0[-5] <- 0
-coeff_FF <- rep(0, adjusted_N_finite)
-coeff_FF[7] <- 10
-
-AAA = 1
-OMEGA = pi
-
-h_vector <- 10^seq(log10(0.0009), log10(0.01), length.out = 4) 
-alpha_vector <- seq(0.5, 1.5, by = 0.4)
-
-# Keep the rational order and actual uniform time grid fixed across all runs.
-m_fixed <- 4
-time_step_target <- 1e-9
-time_grid <- make_time_grid(T_final = T_final, target_step = time_step_target)
-time_step <- time_grid$time_step
-time_seq <- time_grid$time_seq
-g_average <- average_sine_forcing(time_seq, A = AAA, omega = OMEGA)
-
-# The analytic initial projection currently supports only the fifth eigenfunction.
-stopifnot(all(coeff_U_0[-5] == 0))
-```
-
-
-
-
-```{r}
-# Reference quadrature and error accumulation.
-overkill_time_step <- 2e-10
-overkill_h <- 5e-5
-error_verbose <- TRUE # Report completed blocks, percentage, elapsed time, and ETA.
-# Build a reference grid ending at the same final time as the solver grid.
-overkill_graph <- gets.graph.tadpole(h = overkill_h)
-overkill_graph$compute_fem()
-overkill_C <- overkill_graph$mesh$C
-```
-
-
-```{r}
-error_n_blocks <- 100L # More blocks use less memory; blocks may span solver intervals.
-# Preview modeled memory before allocating the reference time vector or solving.
-# estimated_gib excludes FEM/solver objects and other session memory by default.
-error_memory <- estimate_error_memory(
-  n_reference_nodes = nrow(overkill_C),
-  n_reference_samples = ceiling(T_final / overkill_time_step),
-  n_blocks = unique(c(error_n_blocks, 10, 100, 1000, 10000, 100000, 1000000)),
-  n_solver_steps = time_grid$N
-)
-print(error_memory, digits = 3, row.names = FALSE)
-# Set error_n_blocks above to the desired count before running the experiment.
-```
-
-
-```{r}
-reference_grid <- make_time_grid(T_final = T_final, target_step = overkill_time_step)
-overkill_time_step <- reference_grid$time_step
-overkill_time_seq <- reference_grid$time_seq
-
-
-# Spatial eigenfunctions and unfractionalized eigenvalues do not depend on alpha.
-reference_eigen_params <- gets.eigen.params(
-  N_finite = N_finite, kappa = kappa,
-  alpha = alpha_vector[1], graph = overkill_graph
-)
-reference_eigenvalues <- reference_eigen_params$EIGENVAL
-auxE <- reference_eigen_params$EIGENFUN
-active_modes <- which(coeff_U_0 != 0 | coeff_FF != 0)
-exact_basis <- auxE[, active_modes, drop = FALSE]
-exact_initial <- coeff_U_0[active_modes]
-exact_forcing <- coeff_FF[active_modes]
-m_values <- c()
-```
-
-
-
-```{r, eval = FALSE, class.source = "fold-show"}
-# Create a matrix to store the errors
-errors_projected <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
+# Compute the error matrix and save at the original main-branch location.
+errors_projected <- matrix(NA_real_, length(h_vector), length(alpha_vector))
 for (i in seq_along(h_vector)) {
-  h <- h_vector[i]
-  m <- m_fixed
-
-  # Assemble each spatial mesh, initial projection, and load once for all alphas.
-  graph <- gets.graph.tadpole(h = h)
-  graph$compute_fem()
-  C <- graph$mesh$C
-  L <- kappa^2 * C + graph$mesh$G
-  Psi <- graph$fem_basis(overkill_graph$get_mesh_locations())
-  U_0 <- project_u0_tadpole(graph, amplitude = coeff_U_0[5])
-  spatial_modes <- t(Psi) %*% overkill_C %*% auxE
-  spatial_load <- as.numeric(spatial_modes %*% coeff_FF)
-
   for (j in seq_along(alpha_vector)) {
-    alpha <- alpha_vector[j]
-    beta <- alpha / 2
-    exact_rates <- reference_eigenvalues[active_modes]^beta
-    m_values <- c(m_values, m)
-
-    # Evaluate only the active exact modes at the times in the current block.
-    exact_at_time <- function(t) {
-      coefficients <- outer(
-        seq_along(exact_rates), t,
-        function(i, tt) {
-          (exact_initial[i] + exact_forcing[i] * G_sin(
-            t = tt, A = AAA,
-            lambda_j_alpha_half = exact_rates[i], omega = OMEGA
-          )) * exp(-exact_rates[i] * tt)
-        }
-      )
-      exact_basis %*% coefficients
-    }
-
-    my_op_frac <- my.fractional.operators.frac(
-      L = L, beta = beta, C = C,
-      scale.factor = kappa^2, m = m, time_step = time_step
+    errors_projected[i, j] <- tadpole_convergence_error(
+      h = h_vector[i], time_step = time_step_fixed, m = m_fixed,
+      alpha = alpha_vector[j], parameters = convergence_parameters
     )
-
-    # Blocks may span solver intervals; the helper uses the matching state.
-    errorij <- solve_fractional_evolution_error(
-      my_op_frac = my_op_frac,
-      time_step = time_step,
-      time_seq = time_seq,
-      val_at_0 = U_0,
-      spatial_load = spatial_load,
-      g_average = g_average,
-      Psi = Psi,
-      reference_C = overkill_C,
-      reference_times = overkill_time_seq,
-      exact_at_time = exact_at_time,
-      n_blocks = error_n_blocks,
-      verbose = error_verbose
-    )
-    errors_projected[i,j] <- errorij
-    slackr_msg(text = paste0("m = ", m, ", alpha = ", alpha, ", h = ", h, ", time_step = ", time_step, ", error = ", errorij), channel = "#research")
   }
 }
-save(errors_projected, file = here::here("data_files/errors_projected_h.RData"))
+save(errors_projected, study_parameters,
+     file = here::here("data_files/errors_projected_h.RData"))
 ```
-
 
 ```{r}
-# Load the errors_projected data
-load(here::here("data_files/errors_projected_h.RData"))
+# Verify that the fixed-name results belong to the parameters above.
+saved <- new.env()
+load(here::here("data_files/errors_projected_h.RData"), envir = saved)
+stopifnot(identical(saved$study_parameters, study_parameters))
+errors_projected <- saved$errors_projected
 ```
-
 
 ```{r}
 observed_rates <- numeric(length(alpha_vector))
@@ -282,8 +103,8 @@ for (u in 1:length(alpha_vector)) {
   observed_rates[u] <- coef(lm(log10(errors_projected[, u]) ~ log10(h_vector)))[2]
 }
 
-# Reference slopes from the theorem, neglecting a sufficiently small epsilon.
-theoretical_rates <- alpha_vector
+# Smooth finite-mode data give the saturated second-order benchmark.
+theoretical_rates <- rep(2, length(alpha_vector))
 
 
 p_h_tadpole <- error.convergence.plotter(x_axis_vector = h_vector, 
@@ -312,30 +133,10 @@ save(p_h_tadpole, file = here::here("data_files/p_h_tadpole.RData"))
 save(p_h_nicer_tadpole, file = here::here("data_files/p_h_nicer_tadpole.RData"))
 ```
 
-
 ```{r, eval = TRUE, fig.align='center', out.width="400px", out.height="500px", fig.cap = captioner("Comparison between theoretical and observed convergence behavior for the $L_2(\\Gamma\\times(0,T))$-error with respect to $h$ on a $\\text{log}_{10}$–$\\text{log}_{10}$ scale. Dashed lines indicate the theoretical rates, and solid lines represent the observed error curves. The legend below each plot shows the value of $\\alpha$ along with the corresponding theoretical ('theo'), and observed ('obs') rates for each case.")}
 knitr::include_graphics(here::here("data_files/tikzpic/p_h_nicer_tadpole_with_mathpazo.pdf"))
 ```
 
-
-
-
-```{r, eval = TRUE, echo = FALSE}
-initial_comment <- "Here’s the latest plot update for the convergence in h!"
-# option 1
-slackr_upload(
-  filename = "data_files/conv_rates_h_tadpole.png",        # path to your image
-  initial_comment = initial_comment,
-  channels = "#research"
-)
-# option 2
-# ggslackr(p_h_tadpole, channels = "#research", initial_comment = initial_comment) # p is a ggplot2 object
-# option 3
-# slackr_dev(channels = "#research"); plot(mtcars$mpg, mtcars$wt); dev.off()
-```
-
-# References
-
-```{r, eval = TRUE}
-cite_packages(output = "paragraph", out.dir = ".")
-```
+The helper derivation and its restrictions are in `fun/tadpole_convergence.Rmd`.
+Run `/usr/bin/Rscript --vanilla tests/check_convergence.R` to compare these
+errors against the preserved research results and check auxiliary accuracy.

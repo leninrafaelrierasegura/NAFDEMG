@@ -722,7 +722,7 @@ error.convergence.plotter <- function(x_axis_vector,
       title = fig_title,
       x = x_axis_label,
       y = expression(Error),
-      color = "          α  | theo  | obs"
+      color = if (apply_sqrt) "alpha | bound benchmark | observed" else "alpha | theoretical | observed"
     ) +
     (if (apply_sqrt) {
       scale_x_continuous(breaks = x_vec, labels = round(x_axis_vector, 4))
@@ -781,14 +781,28 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
   df <- as.data.frame(cbind(x_vec, errors))
   colnames(df) <- c("x_axis_vector", alpha_vector)
   df_melted <- melt(df, id.vars = "x_axis_vector", variable.name = "column", value.name = "value")
-  custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
-                           formatC(alpha_vector, format = "f", digits = 2),
-                           substring(sprintf("%.20f", theoretical_rates), 1, ifelse(apply_sqrt, 7, 6)),
-                           #formatC(theoretical_rates, format = "f", digits = 4),
-                           formatC(observed_rates, format = "f", digits = 4),
-                           formatC(relative_per_error, format = "f", digits = 2))
-  
+  if (apply_sqrt) {
+    custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s$",
+      formatC(alpha_vector, format = "f", digits = 2),
+      formatC(theoretical_rates, format = "f", digits = 4),
+      formatC(observed_rates, format = "f", digits = 4))
+  } else {
+    custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
+      formatC(alpha_vector, format = "f", digits = 2),
+      formatC(theoretical_rates, format = "f", digits = 4),
+      formatC(observed_rates, format = "f", digits = 4),
+      formatC(relative_per_error, format = "f", digits = 2))
+  }
+
   df_melted$column <- factor(df_melted$column, levels = alpha_vector, labels = custom_labels)
+
+  scientific_ticks <- function(x) {
+    labels <- formatC(x, format = "e", digits = 2)
+    labels <- sub("0+e", "e", labels)
+    labels <- sub("[.]e", "e", labels)
+    labels <- sub("e([+-])0+([0-9]+)$", "e\\1\\2", labels)
+    sub("e[+]", "e", labels)
+  }
 
   p <- ggplot() +
     geom_line(data = df_melted, aes(x = x_axis_vector, y = value, color = column), linewidth = 1.6) +
@@ -801,9 +815,9 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
       color = color_label
     ) +
     (if (apply_sqrt) {
-      scale_x_continuous(breaks = x_vec, labels = round(x_axis_vector, 4))
+      scale_x_continuous(breaks = x_vec, labels = formatC(x_axis_vector, format = "f", digits = 0))
     } else {
-      scale_x_log10(breaks = x_axis_vector, labels = round(x_axis_vector, 4))
+      scale_x_log10(breaks = x_axis_vector, labels = scientific_ticks)
     }) +
     (if (apply_sqrt) {
       #scale_y_continuous(trans = "log", labels = scales::scientific_format())

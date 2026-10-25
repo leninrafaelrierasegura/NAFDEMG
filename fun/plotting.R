@@ -1,4 +1,3 @@
-## ---------------------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -9,8 +8,6 @@ library(ggplot2)
 library(reshape2)
 library(plotly)
 
-
-## ---------------------------------------------------------------------------------------------------------------
 loglog_line_equation <- function(x1, y1, slope) {
   b <- log10(y1 / (x1 ^ slope))
   
@@ -46,8 +43,6 @@ compute_guiding_lines <- function(x_axis_vector, errors, theoretical_rates, line
   return(guiding_lines)
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 # Function to order the vertices for plotting
 plotting.order <- function(v, graph){
   edge_number <- graph$mesh$VtE[, 1]
@@ -55,8 +50,6 @@ plotting.order <- function(v, graph){
   return(c(v[1], v[3:pos], v[2], v[(pos+1):length(v)], v[2]))
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 # Function to set the scene for 3D plots
 global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
   
@@ -74,8 +67,6 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
                                           z = 0))))
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 global.scene.setter.rec.and.sphere <- function(x_range, y_range, z_range) {
   
   return(list(xaxis = list(title = list(text = "x", font = list(color = "gray", size = 16)),  tickfont = list(color = "gray", size = 13), range = x_range),
@@ -109,8 +100,6 @@ global.scene.setter.rec.and.sphere.for.hat <- function(x_range, y_range, z_range
                                           z = 0))))
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 # Function to plot in 3D
 graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
   U_list <- list(...)
@@ -209,8 +198,6 @@ graph.plotter.3d.old <- function(graph, time_seq, frame_val_to_display, ...) {
   return(p)
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
   U_names <- names(U_list) 
   # Spatial coordinates
@@ -310,8 +297,6 @@ graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list) {
   return(p)
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 # Function to plot the error at each time step
 error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_step) {
   weights <- graph$mesh$weights
@@ -334,8 +319,6 @@ error.at.each.time.plotter <- function(graph, U_true, U_approx, time_seq, time_s
   return(p)
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 # Function to plot the 3D comparison of U_true and U_approx
 graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -477,8 +460,6 @@ graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq) {
   return(p)
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 # Function to plot a single 3D line for 
 graph.plotter.3d.single <- function(graph, U_true, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -551,8 +532,6 @@ graph.plotter.3d.single <- function(graph, U_true, time_seq) {
   return(p)
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 # Function to plot the error convergence
 error.convergence.plotter <- function(x_axis_vector, 
                                       alpha_vector, 
@@ -603,7 +582,7 @@ error.convergence.plotter <- function(x_axis_vector,
       title = fig_title,
       x = x_axis_label,
       y = expression(Error),
-      color = "          α  | theo  | obs"
+      color = if (apply_sqrt) "alpha | bound benchmark | observed" else "alpha | theoretical | observed"
     ) +
     (if (apply_sqrt) {
       scale_x_continuous(breaks = x_vec, labels = round(x_axis_vector, 4))
@@ -662,14 +641,28 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
   df <- as.data.frame(cbind(x_vec, errors))
   colnames(df) <- c("x_axis_vector", alpha_vector)
   df_melted <- melt(df, id.vars = "x_axis_vector", variable.name = "column", value.name = "value")
-  custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
-                           formatC(alpha_vector, format = "f", digits = 2),
-                           substring(sprintf("%.20f", theoretical_rates), 1, ifelse(apply_sqrt, 7, 6)),
-                           #formatC(theoretical_rates, format = "f", digits = 4),
-                           formatC(observed_rates, format = "f", digits = 4),
-                           formatC(relative_per_error, format = "f", digits = 2))
-  
+  if (apply_sqrt) {
+    custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s$",
+      formatC(alpha_vector, format = "f", digits = 2),
+      formatC(theoretical_rates, format = "f", digits = 4),
+      formatC(observed_rates, format = "f", digits = 4))
+  } else {
+    custom_labels <- sprintf("$%s \\; | \\; %s \\; | \\; %s \\; | \\; %s$",
+      formatC(alpha_vector, format = "f", digits = 2),
+      formatC(theoretical_rates, format = "f", digits = 4),
+      formatC(observed_rates, format = "f", digits = 4),
+      formatC(relative_per_error, format = "f", digits = 2))
+  }
+
   df_melted$column <- factor(df_melted$column, levels = alpha_vector, labels = custom_labels)
+
+  scientific_ticks <- function(x) {
+    labels <- formatC(x, format = "e", digits = 2)
+    labels <- sub("0+e", "e", labels)
+    labels <- sub("[.]e", "e", labels)
+    labels <- sub("e([+-])0+([0-9]+)$", "e\\1\\2", labels)
+    sub("e[+]", "e", labels)
+  }
 
   p <- ggplot() +
     geom_line(data = df_melted, aes(x = x_axis_vector, y = value, color = column), linewidth = 1.6) +
@@ -682,9 +675,9 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
       color = color_label
     ) +
     (if (apply_sqrt) {
-      scale_x_continuous(breaks = x_vec, labels = round(x_axis_vector, 4))
+      scale_x_continuous(breaks = x_vec, labels = formatC(x_axis_vector, format = "f", digits = 0))
     } else {
-      scale_x_log10(breaks = x_axis_vector, labels = round(x_axis_vector, 4))
+      scale_x_log10(breaks = x_axis_vector, labels = scientific_ticks)
     }) +
     (if (apply_sqrt) {
       #scale_y_continuous(trans = "log", labels = scales::scientific_format())
@@ -723,8 +716,6 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
   return(p)
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 graph.plotter.3d.static <- function(graph, z_list) {
   x <- plotting.order(graph$mesh$V[, 1], graph)
   y <- plotting.order(graph$mesh$V[, 2], graph)
@@ -777,8 +768,6 @@ graph.plotter.3d.static <- function(graph, z_list) {
 }
 
 
-
-## ---------------------------------------------------------------------------------------------------------------
 graph.plotter.3d.two.meshes.time <- function(graph_finer, graph_coarser, 
                                              time_seq, frame_val_to_display,
                                              fs_finer = list(), fs_coarser = list()) {
@@ -943,8 +932,6 @@ if (!is.null(vertical_coarser)) {
   return(p)
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 plot_3d_rectangle_scatter <- function(loc, eigvals, eigfuncs, fixed_colorscale = TRUE) {
 
   x <- loc[,1]
@@ -1330,8 +1317,6 @@ plot_3d_square_mesh_with_hat <- function(mesh,
   return(p)
 }
 
-
-## ---------------------------------------------------------------------------------------------------------------
 plot_3d_sphere_scatter <- function(mesh, 
                                           eigvals, 
                                           eigfuncs,
@@ -2001,8 +1986,6 @@ plot_3d_mesh_edges_faces_with_hat <- function(mesh,
 }
 
 
-
-## ---------------------------------------------------------------------------------------------------------------
 graph.plotter.3d.onecol <- function(graph, vec) {
   
   # Coordinates on the mesh
@@ -2070,5 +2053,4 @@ graph.plotter.3d.onecol <- function(graph, vec) {
   
   return(p)
 }
-
 
