@@ -127,8 +127,8 @@ library(plotly)
 
 ```{r}
 # Parameters
-T_final <- 1e-9
-diffusion <- 1e-3 # nu > 0 in u_t + nu * L^(alpha/2) u = f
+T_final <- 1e-3
+diffusion <- 1 # nu > 0 in u_t + nu * L^(alpha/2) u = f
 workers <- 4L # independent complete cases; set 1L for serial execution
 error_method <- "compressed" # "reference" retains the original error accumulator
 run_id <- NULL # use an existing run ID only to reload matching parameters
@@ -147,8 +147,8 @@ OMEGA = pi
 # Vary only the rational order; keep the spatial and temporal grids fixed.
 m_vector <- c(1, 2, 3, 4)
 alpha_vector <- seq(0.5, 1.5, by = 0.4)
-h_fixed <- 9e-4
-time_step_target <- 1e-10
+h_fixed <- 1e-4
+time_step_target <- 5e-9
 time_grid <- make_time_grid(T_final = T_final, target_step = time_step_target)
 time_step <- time_grid$time_step
 time_seq <- time_grid$time_seq
@@ -159,8 +159,8 @@ g_average <- average_sine_forcing(time_seq, A = AAA, omega = OMEGA)
 
 ```{r}
 # Reference quadrature and error accumulation.
-overkill_time_step <- 1e-12
-overkill_h <- 1e-5
+overkill_time_step <- 1e-9
+overkill_h <- 9e-5
 error_verbose <- TRUE
 
 study_parameters <- list(
@@ -183,7 +183,7 @@ overkill_C <- overkill_graph$mesh$C
 
 
 ```{r}
-error_n_blocks <- 20L
+error_n_blocks <- 1L
 # Preview modeled memory before allocating the reference time vector or solving.
 # estimated_gib excludes FEM/solver objects and other session memory by default.
 error_memory <- estimate_error_memory(

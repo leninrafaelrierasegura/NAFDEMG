@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Isolated rational approximation error in m</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="/home/rierasl/Desktop/NAFDEMG/style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">NAFDEMG</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">Contents</a>
+</li>
+<li>
+  <a href="meshes_and_errors.html">More plots</a>
+</li>
+<li>
+  <a href="preliminaries.html">Preliminaries</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Numerical Approximation
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="functionality.html">Functionality</a>
+    </li>
+    <li>
+      <a href="exp1.html">Example</a>
+    </li>
+    <li>
+      <a href="conv_in_h_with_logtau_and_tauminustwo.html">Convergence in 𝘩</a>
+    </li>
+    <li>
+      <a href="conv_in_tau_with_logtau_and_tauminustwo.html">Convergence in τ</a>
+    </li>
+    <li>
+      <a href="conv_in_m_with_logtau_and_tauminustwo.html">Convergence in 𝑚</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    On a rectangle
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="rectangle_exp1.html">Example</a>
+    </li>
+    <li>
+      <a href="rectangle_conv_in_h.html">Convergence in 𝘩</a>
+    </li>
+    <li>
+      <a href="rectangle_conv_in_tau.html">Convergence in τ</a>
+    </li>
+    <li>
+      <a href="rectangle_conv_in_m.html">Convergence in 𝑚</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    On a sphere
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="sphere_exp1.html">Example</a>
+    </li>
+    <li>
+      <a href="sphere_conv_in_h.html">Convergence in 𝘩</a>
+    </li>
+    <li>
+      <a href="sphere_conv_in_tau.html">Convergence in τ</a>
+    </li>
+    <li>
+      <a href="sphere_conv_in_m.html">Convergence in 𝑚</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Optimal Control
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="control_functionality.html">Control functionality</a>
+    </li>
+    <li>
+      <a href="control2.html">Optimal Control</a>
+    </li>
+    <li>
+      <a href="control_conv_h_with_iteration.html">Convergence in 𝘩</a>
+    </li>
+    <li>
+      <a href="control_conv_tau_with_iteration.html">Convergence in τ</a>
+    </li>
+    <li>
+      <a href="control_conv_m_with_iteration.html">Convergence in 𝑚</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="PosterLeninStatWorkshop2025.html">Poster</a>
+</li>
+<li>
+  <a href="https://leninrafaelrierasegura.github.io/leninPresentations/proposalPresentation.html#1">Presentation</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://arxiv.org/abs/0000.00000">
+    <span class="fa fa-file-pdf"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/leninrafaelrierasegura/NAFDEMG">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Isolated rational approximation error in
+m</h1>
+<h4 class="date">Last rendered: 27-10-2026</h4>
+
+</div>
+
+
+<p>This experiment isolates the error introduced by the rational
+approximation of the <strong>discrete</strong> fractional operator. The
+rational solution is computed with the existing shifted sparse solver at
+every time step. Its reference is backward Euler with the exact
+fractional power of the same assembled FEM operator, evaluated through a
+complete numerical generalized eigendecomposition. No identity about
+projected continuum eigenfunctions is assumed.</p>
+<div id="the-comparison" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> The comparison</h1>
+<p>The physical equation is <span class="math display">\[
+u_t+\nu(\kappa^2-\Delta_\Gamma)^{\alpha/2}u=f,
+\qquad u_0=10e_5,\qquad f(t)=10\sin(\pi t)e_7.
+\]</span> Both discrete evolutions receive the same initial vector,
+physical forcing load, diffusion coefficient, and interval-averaged sine
+forcing. For <span
+class="math inline">\(C=\texttt{graph\$mesh\$C}\)</span> and <span
+class="math inline">\(L=\kappa^2C+G\)</span>, the full numerical
+eigensystem satisfies <span class="math display">\[
+LV=CV\Lambda,\qquad V^\top CV=I.
+\]</span> The exact-discrete reference uses <span
+class="math display">\[
+U_h^{k+1}=V\operatorname{diag}\left(
+\frac{1}{1+\tau\nu\lambda_j^{\alpha/2}}\right)
+V^\top(CU_h^k+\tau F^{k+1}).
+\]</span> The primary measured error is <span class="math display">\[
+E_{\mathrm{rat}}(m)=\left[
+\tau\sum_{k=1}^N(U_h^k-U_{h,m}^k)^\top C(U_h^k-U_{h,m}^k)
+\right]^{1/2}.
+\]</span> This is the exact time integral between their common
+right-constant reconstructions, up to arithmetic error. There is no
+reference space/time quadrature. The initial and forcing hat loads are
+integrated analytically; the latter is an explicit change from the
+fine-mesh forcing-load approximation in the old continuum-error
+notebook.</p>
+<p>Spatial and temporal discretizations are shared by both solutions and
+therefore contribute no independent continuum-error floor. They still
+change the finite-dimensional experiment, so their influence on the
+observed curve is checked by refinement.</p>
+</div>
+<div id="parameters-and-private-run" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Parameters and private
+run</h1>
+<p>The defaults preserve the original horizon <span
+class="math inline">\(T=10^{-3}\)</span>, <span
+class="math inline">\(\kappa=4\)</span>, data, alpha values, package
+coefficient source, and <span class="math inline">\(m=1,2,3,4\)</span>.
+The base mesh is <span class="math inline">\(h=10^{-2}\)</span> and the
+target step is <span class="math inline">\(10^{-5}\)</span>. Space,
+time, and both are independently halved. These are moderate problems
+suitable for a complete eigendecomposition.</p>
+<p><code>workers</code> schedules all alpha/order pairs together within
+each scenario. The eigensystem is reused across parameters, and an exact
+reference history is computed once per alpha/time grid. The size guards
+reject accidentally choosing the large dense problems of the original
+notebook.</p>
+<pre class="r"><code>study_parameters &lt;- if (is.null(params$settings)) isolated_m_parameters() else params$settings
+# To change science settings, pass a modified settings list to
+# render_isolated_m_notebook(parameters = settings). See the example below.
+
+run_dir &lt;- reference_experiment_run(&quot;m&quot;, study_parameters, params$run_id)
+knitr::opts_chunk$set(fig.path = paste0(file.path(run_dir, &quot;notebook_figures&quot;), &quot;/&quot;))
+cat(&quot;Run ID:&quot;, basename(run_dir), &quot;\nPrivate artifacts:&quot;, run_dir, &quot;\n&quot;)</code></pre>
+<pre><code>## Run ID: 20261027T202345-3fed5848e8a917 
+## Private artifacts: /home/rierasl/Desktop/DOCS/NAFDEMG/diffusion_experiments/m/20261027T202345-3fed5848e8a917</code></pre>
+<pre class="r"><code>knitr::kable(study_parameters$scenarios)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">scenario</th>
+<th align="right">h</th>
+<th align="right">target_step</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">base</td>
+<td align="right">0.010</td>
+<td align="right">1e-05</td>
+</tr>
+<tr class="even">
+<td align="left">half_h</td>
+<td align="right">0.005</td>
+<td align="right">1e-05</td>
+</tr>
+<tr class="odd">
+<td align="left">half_tau</td>
+<td align="right">0.010</td>
+<td align="right">5e-06</td>
+</tr>
+<tr class="even">
+<td align="left">half_h_half_tau</td>
+<td align="right">0.005</td>
+<td align="right">5e-06</td>
+</tr>
+</tbody>
+</table>
+<p>Results, figures, and diagnostics stay under
+<code>~/Desktop/DOCS/NAFDEMG/diffusion_experiments/m/&lt;run_id&gt;/</code>
+(or the configured <code>NAFDEMG_PRIVATE_DIR</code>). To reload an
+existing run, render with its <code>run_id</code> and
+<code>execute = FALSE</code>. Metadata must match. Computing into an
+existing results file is refused.</p>
+<pre class="r"><code>result_file &lt;- file.path(run_dir, &quot;isolated_m_results.rds&quot;)
+if (isTRUE(params$execute)) {
+  if (file.exists(result_file)) stop(&quot;This run already has results; reload or use a fresh run ID.&quot;)
+  results &lt;- run_isolated_m_study(study_parameters, workers = params$workers,
+    max_dimension = params$max_dimension, max_dense_mib = params$max_dense_mib,
+    max_history_mib = params$max_history_mib)
+  save_isolated_m_results(results, run_dir)
+} else {
+  if (!file.exists(result_file)) stop(&quot;No saved isolated result for this run ID.&quot;)
+  results &lt;- readRDS(result_file)
+  stopifnot(identical(results$parameters, study_parameters))
+}</code></pre>
+</div>
+<div id="measured-error-and-fitted-decay" class="section level1"
+number="3">
+<h1><span class="header-section-number">3</span> Measured error and
+fitted decay</h1>
+<p>Solid lines show the primary sparse-solver result. Dashed lines use
+the bound exponent <span
+class="math inline">\(-2\pi\sqrt{1-\alpha/2}\)</span>, anchored at the
+first order. Their vertical placement is not a proved bound constant.
+The natural-log fit against <span class="math inline">\(\sqrt m\)</span>
+is a four-point finite-order measurement; it need not equal the bound
+benchmark or be perfectly linear.</p>
+<p><img src="/home/rierasl/Desktop/DOCS/NAFDEMG/diffusion_experiments/m/20261027T202345-3fed5848e8a917/isolated_m_errors.png" width="900" /></p>
+<table>
+<colgroup>
+<col width="3%" />
+<col width="6%" />
+<col width="3%" />
+<col width="12%" />
+<col width="16%" />
+<col width="37%" />
+<col width="19%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">alpha</th>
+<th align="right">m</th>
+<th align="right">error</th>
+<th align="right">product_error</th>
+<th align="right">max_relative_rate_error_excited</th>
+<th align="right">resolution_ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">1.9885e-06</td>
+<td align="right">1.9885e-06</td>
+<td align="right">0.0081792295</td>
+<td align="right">273900412.8</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="right">0.5</td>
+<td align="right">2</td>
+<td align="right">2.9470e-07</td>
+<td align="right">2.9470e-07</td>
+<td align="right">0.0006457062</td>
+<td align="right">40597173.0</td>
+</tr>
+<tr class="odd">
+<td align="left">7</td>
+<td align="right">0.5</td>
+<td align="right">3</td>
+<td align="right">2.0800e-08</td>
+<td align="right">2.0800e-08</td>
+<td align="right">0.0000456241</td>
+<td align="right">2868502.1</td>
+</tr>
+<tr class="even">
+<td align="left">10</td>
+<td align="right">0.5</td>
+<td align="right">4</td>
+<td align="right">9.0000e-10</td>
+<td align="right">9.0000e-10</td>
+<td align="right">0.0000020293</td>
+<td align="right">127586.3</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">0.9</td>
+<td align="right">1</td>
+<td align="right">1.4061e-06</td>
+<td align="right">1.4061e-06</td>
+<td align="right">0.0147213012</td>
+<td align="right">193669649.1</td>
+</tr>
+<tr class="even">
+<td align="left">5</td>
+<td align="right">0.9</td>
+<td align="right">2</td>
+<td align="right">5.5310e-07</td>
+<td align="right">5.5310e-07</td>
+<td align="right">0.0007991222</td>
+<td align="right">76185310.4</td>
+</tr>
+<tr class="odd">
+<td align="left">8</td>
+<td align="right">0.9</td>
+<td align="right">3</td>
+<td align="right">7.6000e-08</td>
+<td align="right">7.6000e-08</td>
+<td align="right">0.0000805238</td>
+<td align="right">10469805.6</td>
+</tr>
+<tr class="even">
+<td align="left">11</td>
+<td align="right">0.9</td>
+<td align="right">4</td>
+<td align="right">4.7200e-08</td>
+<td align="right">4.7200e-08</td>
+<td align="right">0.0000512676</td>
+<td align="right">6503041.8</td>
+</tr>
+<tr class="odd">
+<td align="left">3</td>
+<td align="right">1.3</td>
+<td align="right">1</td>
+<td align="right">3.3275e-06</td>
+<td align="right">3.3275e-06</td>
+<td align="right">0.0145968391</td>
+<td align="right">458326006.6</td>
+</tr>
+<tr class="even">
+<td align="left">6</td>
+<td align="right">1.3</td>
+<td align="right">2</td>
+<td align="right">5.7600e-07</td>
+<td align="right">5.7600e-07</td>
+<td align="right">0.0008792156</td>
+<td align="right">79336236.8</td>
+</tr>
+<tr class="odd">
+<td align="left">9</td>
+<td align="right">1.3</td>
+<td align="right">3</td>
+<td align="right">1.7890e-07</td>
+<td align="right">1.7890e-07</td>
+<td align="right">0.0000918549</td>
+<td align="right">24644670.8</td>
+</tr>
+<tr class="even">
+<td align="left">12</td>
+<td align="right">1.3</td>
+<td align="right">4</td>
+<td align="right">1.8390e-07</td>
+<td align="right">1.8390e-07</td>
+<td align="right">0.0000949971</td>
+<td align="right">25335285.4</td>
+</tr>
+</tbody>
+</table>
+<table>
+<colgroup>
+<col width="11%" />
+<col width="4%" />
+<col width="10%" />
+<col width="11%" />
+<col width="6%" />
+<col width="14%" />
+<col width="13%" />
+<col width="11%" />
+<col width="15%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">scenario</th>
+<th align="right">alpha</th>
+<th align="right">observed_slope</th>
+<th align="right">bound_benchmark</th>
+<th align="right">r_squared</th>
+<th align="right">max_log_fit_residual</th>
+<th align="left">strictly_decreasing</th>
+<th align="right">increasing_pairs</th>
+<th align="right">last_to_previous_error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">base</td>
+<td align="right">0.5</td>
+<td align="right">-7.579209</td>
+<td align="right">-5.441398</td>
+<td align="right">0.958862</td>
+<td align="right">0.698540</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+<td align="right">0.044478</td>
+</tr>
+<tr class="even">
+<td align="left">base</td>
+<td align="right">0.9</td>
+<td align="right">-3.650291</td>
+<td align="right">-4.659735</td>
+<td align="right">0.951902</td>
+<td align="right">0.431524</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+<td align="right">0.621123</td>
+</tr>
+<tr class="odd">
+<td align="left">base</td>
+<td align="right">1.3</td>
+<td align="right">-3.055871</td>
+<td align="right">-3.717183</td>
+<td align="right">0.915725</td>
+<td align="right">0.432572</td>
+<td align="left">FALSE</td>
+<td align="right">1</td>
+<td align="right">1.028023</td>
+</tr>
+<tr class="even">
+<td align="left">half_h</td>
+<td align="right">0.5</td>
+<td align="right">-7.580289</td>
+<td align="right">-5.441398</td>
+<td align="right">0.958866</td>
+<td align="right">0.698559</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+<td align="right">0.044458</td>
+</tr>
+<tr class="odd">
+<td align="left">half_h</td>
+<td align="right">0.9</td>
+<td align="right">-3.652200</td>
+<td align="right">-4.659735</td>
+<td align="right">0.951993</td>
+<td align="right">0.430962</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+<td align="right">0.621182</td>
+</tr>
+<tr class="even">
+<td align="left">half_h</td>
+<td align="right">1.3</td>
+<td align="right">-3.054508</td>
+<td align="right">-3.717183</td>
+<td align="right">0.915813</td>
+<td align="right">0.432572</td>
+<td align="left">FALSE</td>
+<td align="right">1</td>
+<td align="right">1.028025</td>
+</tr>
+<tr class="odd">
+<td align="left">half_tau</td>
+<td align="right">0.5</td>
+<td align="right">-7.579203</td>
+<td align="right">-5.441398</td>
+<td align="right">0.958862</td>
+<td align="right">0.698539</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+<td align="right">0.044479</td>
+</tr>
+<tr class="even">
+<td align="left">half_tau</td>
+<td align="right">0.9</td>
+<td align="right">-3.650291</td>
+<td align="right">-4.659735</td>
+<td align="right">0.951902</td>
+<td align="right">0.431524</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+<td align="right">0.621123</td>
+</tr>
+<tr class="odd">
+<td align="left">half_tau</td>
+<td align="right">1.3</td>
+<td align="right">-3.055871</td>
+<td align="right">-3.717183</td>
+<td align="right">0.915725</td>
+<td align="right">0.432572</td>
+<td align="left">FALSE</td>
+<td align="right">1</td>
+<td align="right">1.028023</td>
+</tr>
+<tr class="even">
+<td align="left">half_h_half_tau</td>
+<td align="right">0.5</td>
+<td align="right">-7.580276</td>
+<td align="right">-5.441398</td>
+<td align="right">0.958867</td>
+<td align="right">0.698557</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+<td align="right">0.044459</td>
+</tr>
+<tr class="odd">
+<td align="left">half_h_half_tau</td>
+<td align="right">0.9</td>
+<td align="right">-3.652200</td>
+<td align="right">-4.659735</td>
+<td align="right">0.951993</td>
+<td align="right">0.430962</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+<td align="right">0.621182</td>
+</tr>
+<tr class="even">
+<td align="left">half_h_half_tau</td>
+<td align="right">1.3</td>
+<td align="right">-3.054508</td>
+<td align="right">-3.717183</td>
+<td align="right">0.915813</td>
+<td align="right">0.432572</td>
+<td align="left">FALSE</td>
+<td align="right">1</td>
+<td align="right">1.028025</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="checks-and-diagnosis" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Checks and
+diagnosis</h1>
+<p>The eigensystem is checked using generalized eigen-residuals and
+<span class="math inline">\(C\)</span>-orthogonality. The independent
+rational root-product recurrence in the complete numerical eigenbasis
+checks the sparse implementation. At <span
+class="math inline">\(\alpha=2\)</span>, rational approximation is
+bypassed; its measured difference should be a numerical zero and
+provides an additional consistency control.</p>
+<p>The diagnostic resolution ratio compares the product error with the
+larger of the sparse/product disagreement and the alpha=2 control. This
+is an empirical numerical indicator, not a certified error bound.</p>
+<p>The measured quantity is the difference between exact-discrete and
+rational FEM/backward Euler solutions on the same grid.</p>
+<p>Every primary rational trajectory uses the shifted sparse solver. The
+diagnostic root-product trajectory uses the complete numerical FEM
+eigenbasis.</p>
+<p>Numerical implementation checks passed: TRUE. All measured errors
+resolved above the diagnostic noise indicator: TRUE.</p>
+<p>Maximum normalized generalized-eigen residual: 1.398e-11; maximum
+C-orthogonality error: 1.466e-14.</p>
+<p>Largest sparse/product error disagreement: 1.922e-14 absolute,
+1.259e-05 relative. Largest alpha=2 control error: 2.827e-14.</p>
+<p>Mesh/time sensitivity checks passed: TRUE. Largest relative error
+change: 0.005189; largest absolute fitted-slope change: 0.001909.</p>
+<p>alpha=0.5: observed slope -7.579209, bound benchmark -5.441398,
+R-squared 0.95886; strictly decreasing: TRUE; final-order/previous-order
+error ratio 0.0444785.</p>
+<p>alpha=0.9: observed slope -3.650291, bound benchmark -4.659735,
+R-squared 0.95190; strictly decreasing: TRUE; final-order/previous-order
+error ratio 0.621123.</p>
+<p>alpha=1.3: observed slope -3.055871, bound benchmark -3.717183,
+R-squared 0.91572; strictly decreasing: FALSE;
+final-order/previous-order error ratio 1.02802.</p>
+<p>For alpha=1.3 the error increases from m=3 to m=4. The corresponding
+maximum excited-mode relative rate errors are 9.18549e-05 and
+9.49971e-05; this checks whether the scalar approximation itself shows
+the same deterioration.</p>
+<p>Some beta values are interpolated between package rows. The beta
+brackets are recorded. Interpolation may contribute to a finite-order
+plateau; these runs do not identify it as the sole cause.</p>
+<p>A stable four-point fit is a finite-order measurement. The
+upper-bound benchmark does not require equality of slopes, linearity on
+the square-root scale, or strict monotonicity of these computed
+approximants.</p>
+<p>The numerical controls are sensitivity and consistency checks, not
+certified roundoff bounds or a uniform fractional-operator approximation
+theorem.</p>
+<table>
+<colgroup>
+<col width="8%" />
+<col width="4%" />
+<col width="4%" />
+<col width="7%" />
+<col width="10%" />
+<col width="10%" />
+<col width="12%" />
+<col width="15%" />
+<col width="14%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">h_requested</th>
+<th align="right">h_min</th>
+<th align="right">h_max</th>
+<th align="right">dimension</th>
+<th align="right">eigenvalue_min</th>
+<th align="right">eigenvalue_max</th>
+<th align="right">relative_residual</th>
+<th align="right">C_orthogonality_error</th>
+<th align="right">estimated_dense_mib</th>
+<th align="right">elapsed_seconds</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.010</td>
+<td align="right">0.010</td>
+<td align="right">0.010</td>
+<td align="right">300</td>
+<td align="right">16</td>
+<td align="right">120016</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">13.73291</td>
+<td align="right">0.18</td>
+</tr>
+<tr class="even">
+<td align="right">0.005</td>
+<td align="right">0.005</td>
+<td align="right">0.005</td>
+<td align="right">600</td>
+<td align="right">16</td>
+<td align="right">480016</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">54.93164</td>
+<td align="right">1.55</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th align="left">scenario</th>
+<th align="right">error</th>
+<th align="right">product_error</th>
+<th align="right">final_state_gap_C</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">base</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0e+00</td>
+</tr>
+<tr class="even">
+<td align="left">half_h</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1e-12</td>
+</tr>
+<tr class="odd">
+<td align="left">half_tau</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0e+00</td>
+</tr>
+<tr class="even">
+<td align="left">half_h_half_tau</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1e-12</td>
+</tr>
+</tbody>
+</table>
+<table>
+<colgroup>
+<col width="2%" />
+<col width="4%" />
+<col width="2%" />
+<col width="21%" />
+<col width="21%" />
+<col width="21%" />
+<col width="13%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">alpha</th>
+<th align="right">m</th>
+<th align="right">absolute_error_disagreement</th>
+<th align="right">relative_error_disagreement</th>
+<th align="left">beta_exact_in_package_table</th>
+<th align="right">beta_table_lower</th>
+<th align="right">beta_table_upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">5.0000e-10</td>
+<td align="left">TRUE</td>
+<td align="right">0.2500000</td>
+<td align="right">0.2500000</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="right">0.5</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">4.8000e-09</td>
+<td align="left">TRUE</td>
+<td align="right">0.2500000</td>
+<td align="right">0.2500000</td>
+</tr>
+<tr class="odd">
+<td align="left">7</td>
+<td align="right">0.5</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">2.8100e-08</td>
+<td align="left">TRUE</td>
+<td align="right">0.2500000</td>
+<td align="right">0.2500000</td>
+</tr>
+<tr class="even">
+<td align="left">10</td>
+<td align="right">0.5</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">2.2903e-06</td>
+<td align="left">TRUE</td>
+<td align="right">0.2500000</td>
+<td align="right">0.2500000</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">0.9</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">4.9000e-09</td>
+<td align="left">FALSE</td>
+<td align="right">0.4434563</td>
+<td align="right">0.4522497</td>
+</tr>
+<tr class="even">
+<td align="left">5</td>
+<td align="right">0.9</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">6.0000e-10</td>
+<td align="left">FALSE</td>
+<td align="right">0.4434563</td>
+<td align="right">0.4522497</td>
+</tr>
+<tr class="odd">
+<td align="left">8</td>
+<td align="right">0.9</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">1.5100e-08</td>
+<td align="left">FALSE</td>
+<td align="right">0.4434563</td>
+<td align="right">0.4522497</td>
+</tr>
+<tr class="even">
+<td align="left">11</td>
+<td align="right">0.9</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">3.0400e-08</td>
+<td align="left">FALSE</td>
+<td align="right">0.4434563</td>
+<td align="right">0.4522497</td>
+</tr>
+<tr class="odd">
+<td align="left">3</td>
+<td align="right">1.3</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">7.0000e-10</td>
+<td align="left">FALSE</td>
+<td align="right">0.6457060</td>
+<td align="right">0.6544995</td>
+</tr>
+<tr class="even">
+<td align="left">6</td>
+<td align="right">1.3</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">9.8000e-09</td>
+<td align="left">FALSE</td>
+<td align="right">0.6457060</td>
+<td align="right">0.6544995</td>
+</tr>
+<tr class="odd">
+<td align="left">9</td>
+<td align="right">1.3</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">3.8400e-08</td>
+<td align="left">FALSE</td>
+<td align="right">0.6457060</td>
+<td align="right">0.6544995</td>
+</tr>
+<tr class="even">
+<td align="left">12</td>
+<td align="right">1.3</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">3.5000e-08</td>
+<td align="left">FALSE</td>
+<td align="right">0.6457060</td>
+<td align="right">0.6544995</td>
+</tr>
+</tbody>
+</table>
+<p>Package interpolation brackets are recorded because unavailable exact
+beta values are obtained by linearly interpolating roots and factors. A
+plateau or increase in the scalar approximation error can survive
+removal of spatial/time error floors. These runs retain the original
+source and do not silently replace coefficients to obtain a preferred
+slope.</p>
+</div>
+<div id="mesh-and-time-sensitivity" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Mesh and time
+sensitivity</h1>
+<p>The default reporting thresholds are a 2% relative change in the
+isolated error and 0.05 absolute change in the fitted slope. Both the
+raw changes and pass flags are saved. A failed sensitivity check calls
+for additional investigation; it is not a failure of the exact-discrete
+comparison identity.</p>
+<table>
+<colgroup>
+<col width="8%" />
+<col width="4%" />
+<col width="15%" />
+<col width="19%" />
+<col width="21%" />
+<col width="21%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">alpha</th>
+<th align="right">m</th>
+<th align="right">error_base</th>
+<th align="right">error_refined</th>
+<th align="left">scenario</th>
+<th align="right">relative_change</th>
+<th align="left">passed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">1.99e-06</td>
+<td align="right">1.99e-06</td>
+<td align="left">half_h</td>
+<td align="right">0.00044190</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.5</td>
+<td align="right">2</td>
+<td align="right">2.90e-07</td>
+<td align="right">2.90e-07</td>
+<td align="left">half_h</td>
+<td align="right">0.00004907</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.5</td>
+<td align="right">3</td>
+<td align="right">2.00e-08</td>
+<td align="right">2.00e-08</td>
+<td align="left">half_h</td>
+<td align="right">0.00022375</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.5</td>
+<td align="right">4</td>
+<td align="right">0.00e+00</td>
+<td align="right">0.00e+00</td>
+<td align="left">half_h</td>
+<td align="right">0.00067667</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.9</td>
+<td align="right">1</td>
+<td align="right">1.41e-06</td>
+<td align="right">1.41e-06</td>
+<td align="left">half_h</td>
+<td align="right">0.00190747</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.9</td>
+<td align="right">2</td>
+<td align="right">5.50e-07</td>
+<td align="right">5.50e-07</td>
+<td align="left">half_h</td>
+<td align="right">0.00016487</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.9</td>
+<td align="right">3</td>
+<td align="right">8.00e-08</td>
+<td align="right">8.00e-08</td>
+<td align="left">half_h</td>
+<td align="right">0.00009385</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.9</td>
+<td align="right">4</td>
+<td align="right">5.00e-08</td>
+<td align="right">5.00e-08</td>
+<td align="left">half_h</td>
+<td align="right">0.00000011</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">1.3</td>
+<td align="right">1</td>
+<td align="right">3.33e-06</td>
+<td align="right">3.32e-06</td>
+<td align="left">half_h</td>
+<td align="right">0.00154732</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">1.3</td>
+<td align="right">2</td>
+<td align="right">5.80e-07</td>
+<td align="right">5.80e-07</td>
+<td align="left">half_h</td>
+<td align="right">0.00040784</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">1.3</td>
+<td align="right">3</td>
+<td align="right">1.80e-07</td>
+<td align="right">1.80e-07</td>
+<td align="left">half_h</td>
+<td align="right">0.00003695</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">1.3</td>
+<td align="right">4</td>
+<td align="right">1.80e-07</td>
+<td align="right">1.80e-07</td>
+<td align="left">half_h</td>
+<td align="right">0.00003514</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">1.99e-06</td>
+<td align="right">1.98e-06</td>
+<td align="left">half_tau</td>
+<td align="right">0.00370284</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.5</td>
+<td align="right">2</td>
+<td align="right">2.90e-07</td>
+<td align="right">2.90e-07</td>
+<td align="left">half_tau</td>
+<td align="right">0.00370283</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.5</td>
+<td align="right">3</td>
+<td align="right">2.00e-08</td>
+<td align="right">2.00e-08</td>
+<td align="left">half_tau</td>
+<td align="right">0.00370278</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.5</td>
+<td align="right">4</td>
+<td align="right">0.00e+00</td>
+<td align="right">0.00e+00</td>
+<td align="left">half_tau</td>
+<td align="right">0.00369656</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.9</td>
+<td align="right">1</td>
+<td align="right">1.41e-06</td>
+<td align="right">1.40e-06</td>
+<td align="left">half_tau</td>
+<td align="right">0.00368465</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.9</td>
+<td align="right">2</td>
+<td align="right">5.50e-07</td>
+<td align="right">5.50e-07</td>
+<td align="left">half_tau</td>
+<td align="right">0.00368461</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.9</td>
+<td align="right">3</td>
+<td align="right">8.00e-08</td>
+<td align="right">8.00e-08</td>
+<td align="left">half_tau</td>
+<td align="right">0.00368475</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.9</td>
+<td align="right">4</td>
+<td align="right">5.00e-08</td>
+<td align="right">5.00e-08</td>
+<td align="left">half_tau</td>
+<td align="right">0.00368510</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">1.3</td>
+<td align="right">1</td>
+<td align="right">3.33e-06</td>
+<td align="right">3.32e-06</td>
+<td align="left">half_tau</td>
+<td align="right">0.00364699</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">1.3</td>
+<td align="right">2</td>
+<td align="right">5.80e-07</td>
+<td align="right">5.70e-07</td>
+<td align="left">half_tau</td>
+<td align="right">0.00364704</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">1.3</td>
+<td align="right">3</td>
+<td align="right">1.80e-07</td>
+<td align="right">1.80e-07</td>
+<td align="left">half_tau</td>
+<td align="right">0.00364707</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">1.3</td>
+<td align="right">4</td>
+<td align="right">1.80e-07</td>
+<td align="right">1.80e-07</td>
+<td align="left">half_tau</td>
+<td align="right">0.00364698</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">1.99e-06</td>
+<td align="right">1.98e-06</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00326258</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.5</td>
+<td align="right">2</td>
+<td align="right">2.90e-07</td>
+<td align="right">2.90e-07</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00365392</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.5</td>
+<td align="right">3</td>
+<td align="right">2.00e-08</td>
+<td align="right">2.00e-08</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00392608</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.5</td>
+<td align="right">4</td>
+<td align="right">0.00e+00</td>
+<td align="right">0.00e+00</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00436199</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.9</td>
+<td align="right">1</td>
+<td align="right">1.41e-06</td>
+<td align="right">1.40e-06</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00178421</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.9</td>
+<td align="right">2</td>
+<td align="right">5.50e-07</td>
+<td align="right">5.50e-07</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00352035</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.9</td>
+<td align="right">3</td>
+<td align="right">8.00e-08</td>
+<td align="right">8.00e-08</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00377818</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.9</td>
+<td align="right">4</td>
+<td align="right">5.00e-08</td>
+<td align="right">5.00e-08</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00368510</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">1.3</td>
+<td align="right">1</td>
+<td align="right">3.33e-06</td>
+<td align="right">3.31e-06</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00518866</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">1.3</td>
+<td align="right">2</td>
+<td align="right">5.80e-07</td>
+<td align="right">5.70e-07</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00324069</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">1.3</td>
+<td align="right">3</td>
+<td align="right">1.80e-07</td>
+<td align="right">1.80e-07</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00368394</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">1.3</td>
+<td align="right">4</td>
+<td align="right">1.80e-07</td>
+<td align="right">1.80e-07</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00368197</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
+<table>
+<colgroup>
+<col width="6%" />
+<col width="22%" />
+<col width="26%" />
+<col width="18%" />
+<col width="18%" />
+<col width="7%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">alpha</th>
+<th align="right">observed_slope_base</th>
+<th align="right">observed_slope_refined</th>
+<th align="left">scenario</th>
+<th align="right">absolute_change</th>
+<th align="left">passed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.5</td>
+<td align="right">-7.579209</td>
+<td align="right">-7.580289</td>
+<td align="left">half_h</td>
+<td align="right">0.00108032</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.9</td>
+<td align="right">-3.650291</td>
+<td align="right">-3.652200</td>
+<td align="left">half_h</td>
+<td align="right">0.00190890</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">1.3</td>
+<td align="right">-3.055871</td>
+<td align="right">-3.054508</td>
+<td align="left">half_h</td>
+<td align="right">0.00136272</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.5</td>
+<td align="right">-7.579209</td>
+<td align="right">-7.579203</td>
+<td align="left">half_tau</td>
+<td align="right">0.00000528</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.9</td>
+<td align="right">-3.650291</td>
+<td align="right">-3.650291</td>
+<td align="left">half_tau</td>
+<td align="right">0.00000041</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">1.3</td>
+<td align="right">-3.055871</td>
+<td align="right">-3.055871</td>
+<td align="left">half_tau</td>
+<td align="right">0.00000001</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">0.5</td>
+<td align="right">-7.579209</td>
+<td align="right">-7.580276</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00106786</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="right">0.9</td>
+<td align="right">-3.650291</td>
+<td align="right">-3.652200</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00190921</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="right">1.3</td>
+<td align="right">-3.055871</td>
+<td align="right">-3.054508</td>
+<td align="left">half_h_half_tau</td>
+<td align="right">0.00136271</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="reproducing-and-interpreting-the-run" class="section level1"
+number="6">
+<h1><span class="header-section-number">6</span> Reproducing and
+interpreting the run</h1>
+<p>The full formulas and implementation are in
+<code>fun/isolated_rational_convergence.Rmd</code>. Run the regression
+checks with <code>Rscript tests/check_isolated_m.R</code> from the
+project environment.</p>
+<p>The RStudio Knit button uses a custom renderer that keeps the report
+in its private run directory. From R, after loading the helpers, a fresh
+run is:</p>
+<pre class="r"><code>settings &lt;- isolated_m_parameters()
+# settings$diffusion &lt;- 2
+render_isolated_m_notebook(parameters = settings, workers = 4L)</code></pre>
+<p>Reload a saved run with
+<code>render_isolated_m_notebook(run_id = "&lt;saved ID&gt;", execute = FALSE)</code>.
+Pass its modified <code>parameters</code> list as well if its scientific
+settings differ from the defaults. Metadata and package versions must
+match. Reloading regenerates the report and figures from saved data
+without overwriting the scientific results.</p>
+<p>This study supports conclusions about the chosen discrete problem,
+physical data, coefficients, and tested orders. It does not measure the
+continuum error <span class="math inline">\(\|u-U_{h,m}^\tau\|\)</span>,
+certify uniform operator accuracy, or establish an asymptotic rational
+approximation rate from four points.</p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

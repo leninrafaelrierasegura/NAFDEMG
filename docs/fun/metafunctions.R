@@ -1,4 +1,4 @@
-## ---------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,13 +10,15 @@ library(reshape2)
 library(plotly)
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 myggsave <- function(plot,
                      width = 9.22,
                      height = 7.05,
-                     use_mathpazo = TRUE) {
+                     use_mathpazo = TRUE,
+                     output_dir = here::here("data_files/tikzpic"),
+                     copy_to_presentation = TRUE) {
   
-  dir_to_save <- here::here("data_files/tikzpic")
+  dir_to_save <- output_dir
   obj_name <- deparse(substitute(plot))
   
   # --- Filename suffix ---
@@ -52,7 +54,7 @@ myggsave <- function(plot,
   
   # Compile to PDF
   system(
-    paste0("pdflatex -output-directory=", dir_to_save, " ", tex_name),
+    paste0("pdflatex -output-directory=", shQuote(dir_to_save), " ", shQuote(tex_name)),
     ignore.stdout = TRUE,
     ignore.stderr = TRUE
   )
@@ -85,11 +87,13 @@ myggsave <- function(plot,
   if (length(ras_files) > 0) file.remove(ras_files)
   
   # --- Copy PNG to presentation folder ---
-  pres_dir <- path.expand("~/Desktop/leninPresentations/data_files")
-  if (!dir.exists(pres_dir)) dir.create(pres_dir, recursive = TRUE)
-  
-  pres_png <- file.path(pres_dir, basename(png_name))
-  file.copy(png_name, pres_png, overwrite = TRUE)
+  pres_png <- NULL
+  if (copy_to_presentation) {
+    pres_dir <- path.expand("~/Desktop/leninPresentations/data_files")
+    if (!dir.exists(pres_dir)) dir.create(pres_dir, recursive = TRUE)
+    pres_png <- file.path(pres_dir, basename(png_name))
+    file.copy(png_name, pres_png, overwrite = TRUE)
+  }
   
   # --- Output ---
   cat("PDF saved at:", pdf_name, "\n",
@@ -98,7 +102,7 @@ myggsave <- function(plot,
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #function to save
 save_dual_for_presentation <- function(obj) {
   obj_name <- deparse(substitute(obj))
@@ -119,7 +123,7 @@ save_dual_for_presentation <- function(obj) {
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 reticulate::use_python(
   "/home/rierasl/miniconda3/envs/phdenv/bin/python",
   required = TRUE
@@ -128,7 +132,7 @@ reticulate::use_python(
 reticulate::py_config()
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 save_plotly_figure_fixed <- function(fig,
                                      dpi = 600,
                                      scale = 2,
@@ -237,7 +241,7 @@ save_plotly_figure_fixed <- function(fig,
 
 
 
-## ---------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 combine_pngs_with_gap <- function(png_files,
                                   output_file,
                                   gap = 20,
