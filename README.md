@@ -56,3 +56,49 @@ stepping in its timings; shared spatial compression setup is excluded.
 
 The editable helpers are `.Rmd` sources. Their generated `.R` and `.hash`
 files are kept synchronized for `source_if_updated()`.
+
+
+## Isolated rational-order experiment
+
+`conv_in_m_isolated.Rmd` measures the difference between exact-discrete and
+rational FEM/backward Euler solutions, using the same mesh, loads, diffusion,
+and time grid. The primary rational solution still uses the shifted sparse
+solver. The new functions are documented in
+`fun/isolated_rational_convergence.Rmd`.
+
+The defaults retain T=0.001 and the original physical data and package tables.
+They use a moderate base h=0.01 and target step 0.00001, then halve h, tau,
+and both. A complete numerical generalized eigensystem is computed once per
+mesh; exact reference histories are shared across rational orders. Dense
+allocation and history-size guards protect against accidentally using the
+fine meshes of the original notebook. This experiment needs no reference
+space-time quadrature and no analytical discrete-mode identities.
+
+The notebook independently checks generalized eigen-residuals and mass
+orthogonality, compares sparse evolution with the scalar rational product in
+the complete numerical FEM eigenbasis, runs an alpha=2 zero-error control,
+and reports mesh/time sensitivity, resolution indicators, package beta
+interpolation brackets, curve monotonicity, and finite-order fitted slopes.
+A plateau or nonmonotone computed curve is retained and diagnosed. A fitted
+slope is not required to equal the theoretical bound exponent.
+
+Run `Rscript tests/check_isolated_m.R` in the project environment for the
+regression checks. The new notebook's RStudio Knit button uses a custom
+renderer that keeps the report private. From R, run:
+
+```r
+source("sourceifupdated.R")
+source_if_updated("fun/reference_experiments")
+source_if_updated("fun/isolated_rational_convergence")
+settings <- isolated_m_parameters()
+# settings$diffusion <- 2
+render_isolated_m_notebook(parameters = settings, workers = 4L)
+```
+
+Private metadata, results, CSV diagnostics, plots, and the rendered notebook
+are saved under `diffusion_experiments/m/<run_id>/`. Reload with
+`render_isolated_m_notebook(parameters = settings, run_id = "<saved ID>",
+execute = FALSE)`. Scientific metadata and package versions must match.
+Reloading regenerates figures and the report without rerunning trajectories.
+Complete result files are never overwritten. Existing `conv_in_m.Rmd` runs
+are separate and are not overwritten by this experiment.

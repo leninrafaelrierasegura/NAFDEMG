@@ -1,0 +1,217 @@
+---
+title: "Isolated rational approximation error in m"
+knit: (function(inputFile, encoding) { source(here::here("sourceifupdated.R")); source_if_updated("fun/reference_experiments"); source_if_updated("fun/isolated_rational_convergence"); render_isolated_m_notebook(input = inputFile, encoding = encoding) })
+date: "Last rendered: `r format(Sys.time(), '%d-%m-%Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    self_contained: true
+    css: !expr here::here("style.css")
+params:
+  settings: null
+  execute: true
+  run_id: null
+  workers: 4
+  max_dimension: 1200
+  max_dense_mib: 1024
+  max_history_mib: 256
+---
+
+This experiment isolates the error introduced by the rational approximation
+of the **discrete** fractional operator. The rational solution is computed
+with the existing shifted sparse solver at every time step. Its reference
+is backward Euler with the exact fractional power of the same assembled
+FEM operator, evaluated through a complete numerical generalized
+eigendecomposition. No identity about projected continuum eigenfunctions
+is assumed.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, echo = TRUE, cache = FALSE, message = FALSE)
+source(here::here("sourceifupdated.R"))
+source_if_updated("fun/fractional_evolution")
+source_if_updated("fun/graphs_and_meshes")
+source_if_updated("fun/reference_experiments")
+source_if_updated("fun/isolated_rational_convergence")
+```
+
+# The comparison
+
+The physical equation is
+\[
+u_t+\nu(\kappa^2-\Delta_\Gamma)^{\alpha/2}u=f,
+\qquad u_0=10e_5,\qquad f(t)=10\sin(\pi t)e_7.
+\]
+Both discrete evolutions receive the same initial vector, physical forcing
+load, diffusion coefficient, and interval-averaged sine forcing. For
+\(C=\texttt{graph\$mesh\$C}\) and \(L=\kappa^2C+G\), the full
+numerical eigensystem satisfies
+\[
+LV=CV\Lambda,\qquad V^\top CV=I.
+\]
+The exact-discrete reference uses
+\[
+U_h^{k+1}=V\operatorname{diag}\left(
+\frac{1}{1+\tau\nu\lambda_j^{\alpha/2}}\right)
+V^\top(CU_h^k+\tau F^{k+1}).
+\]
+The primary measured error is
+\[
+E_{\mathrm{rat}}(m)=\left[
+\tau\sum_{k=1}^N(U_h^k-U_{h,m}^k)^\top C(U_h^k-U_{h,m}^k)
+\right]^{1/2}.
+\]
+This is the exact time integral between their common right-constant
+reconstructions, up to arithmetic error. There is no reference space/time
+quadrature. The initial and forcing hat loads are integrated analytically;
+the latter is an explicit change from the fine-mesh forcing-load
+approximation in the old continuum-error notebook.
+
+Spatial and temporal discretizations are shared by both solutions and
+therefore contribute no independent continuum-error floor. They still
+change the finite-dimensional experiment, so their influence on the
+observed curve is checked by refinement.
+
+# Parameters and private run
+
+The defaults preserve the original horizon \(T=10^{-3}\),
+\(\kappa=4\), data, alpha values, package coefficient source, and
+\(m=1,2,3,4\). The base mesh is \(h=10^{-2}\) and the target step is
+\(10^{-5}\). Space, time, and both are independently halved. These are
+moderate problems suitable for a complete eigendecomposition.
+
+`workers` schedules all alpha/order pairs together within each scenario.
+The eigensystem is reused across parameters, and an exact reference
+history is computed once per alpha/time grid. The size guards reject
+accidentally choosing the large dense problems of the original notebook.
+
+```{r parameters}
+study_parameters <- if (is.null(params$settings)) isolated_m_parameters() else params$settings
+# To change science settings, pass a modified settings list to
+# render_isolated_m_notebook(parameters = settings). See the example below.
+
+run_dir <- reference_experiment_run("m", study_parameters, params$run_id)
+knitr::opts_chunk$set(fig.path = paste0(file.path(run_dir, "notebook_figures"), "/"))
+cat("Run ID:", basename(run_dir), "\nPrivate artifacts:", run_dir, "\n")
+knitr::kable(study_parameters$scenarios)
+```
+
+Results, figures, and diagnostics stay under
+`~/Desktop/DOCS/NAFDEMG/diffusion_experiments/m/<run_id>/` (or the configured
+`NAFDEMG_PRIVATE_DIR`). To reload an existing run, render with its `run_id`
+and `execute = FALSE`. Metadata must match. Computing into an existing
+results file is refused.
+
+```{r compute}
+result_file <- file.path(run_dir, "isolated_m_results.rds")
+if (isTRUE(params$execute)) {
+  if (file.exists(result_file)) stop("This run already has results; reload or use a fresh run ID.")
+  results <- run_isolated_m_study(study_parameters, workers = params$workers,
+    max_dimension = params$max_dimension, max_dense_mib = params$max_dense_mib,
+    max_history_mib = params$max_history_mib)
+  save_isolated_m_results(results, run_dir)
+} else {
+  if (!file.exists(result_file)) stop("No saved isolated result for this run ID.")
+  results <- readRDS(result_file)
+  stopifnot(identical(results$parameters, study_parameters))
+}
+```
+
+# Measured error and fitted decay
+
+Solid lines show the primary sparse-solver result. Dashed lines use the
+bound exponent \(-2\pi\sqrt{1-\alpha/2}\), anchored at the first order.
+Their vertical placement is not a proved bound constant. The natural-log
+fit against \(\sqrt m\) is a four-point finite-order measurement; it need
+not equal the bound benchmark or be perfectly linear.
+
+```{r plot, echo=FALSE}
+plot <- isolated_m_error_plot(results)
+ggplot2::ggsave(file.path(run_dir, "isolated_m_errors.png"), plot,
+                width = 10, height = 7, dpi = 180, bg = "white")
+ggplot2::ggsave(file.path(run_dir, "isolated_m_errors.pdf"), plot,
+                width = 10, height = 7, bg = "white")
+knitr::include_graphics(file.path(run_dir, "isolated_m_errors.png"), rel_path = FALSE)
+```
+
+```{r base-errors, echo=FALSE}
+base <- results$errors[results$errors$scenario == "base", ]
+base <- base[order(base$alpha, base$m), ]
+knitr::kable(base[, c("alpha", "m", "error", "product_error",
+  "max_relative_rate_error_excited", "resolution_ratio")], digits = 10)
+```
+
+```{r slopes, echo=FALSE}
+knitr::kable(results$slopes, digits = 6)
+```
+
+# Checks and diagnosis
+
+The eigensystem is checked using generalized eigen-residuals and
+\(C\)-orthogonality. The independent rational root-product recurrence in
+the complete numerical eigenbasis checks the sparse implementation. At
+\(\alpha=2\), rational approximation is bypassed; its measured difference
+should be a numerical zero and provides an additional consistency control.
+
+The diagnostic resolution ratio compares the product error with the larger
+of the sparse/product disagreement and the alpha=2 control. This is an
+empirical numerical indicator, not a certified error bound.
+
+```{r diagnosis, results='asis', echo=FALSE}
+for (paragraph in isolated_m_diagnosis(results)) cat(paragraph, "\n\n")
+```
+
+```{r numerical-checks, echo=FALSE}
+knitr::kable(results$eigensystem_diagnostics, digits = 10)
+knitr::kable(results$zero_controls[, c("scenario", "error", "product_error", "final_state_gap_C")],
+             digits = 12)
+knitr::kable(base[, c("alpha", "m", "absolute_error_disagreement", "relative_error_disagreement",
+  "beta_exact_in_package_table", "beta_table_lower", "beta_table_upper")], digits = 10)
+```
+
+Package interpolation brackets are recorded because unavailable exact beta
+values are obtained by linearly interpolating roots and factors. A
+plateau or increase in the scalar approximation error can survive removal
+of spatial/time error floors. These runs retain the original source and
+do not silently replace coefficients to obtain a preferred slope.
+
+# Mesh and time sensitivity
+
+The default reporting thresholds are a 2% relative change in the isolated
+error and 0.05 absolute change in the fitted slope. Both the raw changes
+and pass flags are saved. A failed sensitivity check calls for additional
+investigation; it is not a failure of the exact-discrete comparison identity.
+
+```{r refinements, echo=FALSE}
+knitr::kable(results$refinement_errors, digits = 8)
+knitr::kable(results$refinement_slopes, digits = 8)
+```
+
+# Reproducing and interpreting the run
+
+The full formulas and implementation are in
+`fun/isolated_rational_convergence.Rmd`. Run the regression checks with
+`Rscript tests/check_isolated_m.R` from the project environment.
+
+The RStudio Knit button uses a custom renderer that keeps the report in its
+private run directory. From R, after loading the helpers, a fresh run is:
+
+```{r usage, eval=FALSE}
+settings <- isolated_m_parameters()
+# settings$diffusion <- 2
+render_isolated_m_notebook(parameters = settings, workers = 4L)
+```
+
+Reload a saved run with `render_isolated_m_notebook(run_id = "<saved ID>",
+execute = FALSE)`. Pass its modified `parameters` list as well if its
+scientific settings differ from the defaults. Metadata and package versions
+must match. Reloading regenerates the report and figures from saved data
+without overwriting the scientific results.
+
+This study supports conclusions about the chosen discrete problem,
+physical data, coefficients, and tested orders. It does not measure the
+continuum error \(\|u-U_{h,m}^\tau\|\), certify uniform operator accuracy,
+or establish an asymptotic rational approximation rate from four points.
