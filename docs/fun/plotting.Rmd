@@ -790,6 +790,14 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
   
   df_melted$column <- factor(df_melted$column, levels = alpha_vector, labels = custom_labels)
 
+  scientific_ticks <- function(x) {
+    labels <- formatC(x, format = "e", digits = 2)
+    labels <- sub("0+e", "e", labels)
+    labels <- sub("[.]e", "e", labels)
+    labels <- sub("e([+-])0+([0-9]+)$", "e\\1\\2", labels)
+    sub("e[+]", "e", labels)
+  }
+
   p <- ggplot() +
     geom_line(data = df_melted, aes(x = x_axis_vector, y = value, color = column), linewidth = 1.6) +
     geom_point(data = df_melted, aes(x = x_axis_vector, y = value, color = column), size = 2) +
@@ -801,9 +809,9 @@ errorConvergencePlotterLatex <- function(x_axis_vector,
       color = color_label
     ) +
     (if (apply_sqrt) {
-      scale_x_continuous(breaks = x_vec, labels = round(x_axis_vector, 4))
+      scale_x_continuous(breaks = x_vec, labels = formatC(x_axis_vector, format = "f", digits = 0))
     } else {
-      scale_x_log10(breaks = x_axis_vector, labels = round(x_axis_vector, 4))
+      scale_x_log10(breaks = x_axis_vector, labels = scientific_ticks)
     }) +
     (if (apply_sqrt) {
       #scale_y_continuous(trans = "log", labels = scales::scientific_format())
