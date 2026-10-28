@@ -125,7 +125,7 @@ library(plotly)
 
 ```{r}
 # Parameters
-T_final <- 1e-3
+T_final <- 1
 diffusion <- 1 # nu > 0 in u_t + nu * L^(alpha/2) u = f
 workers <- 2L # independent complete cases; set 1L for serial execution
 error_method <- "compressed" # "reference" retains the original error accumulator
@@ -143,8 +143,8 @@ AAA = 1
 OMEGA = pi
 
 # Requested time steps and fixed spatial mesh size.
-tau_targets <- 10^seq(log10(0.000009), log10(0.0001), length.out = 4)
-h_fixed <- 1e-4
+tau_targets <- 10^seq(log10(0.009), log10(0.1), length.out = 4)
+h_fixed <- 1e-3
 m_fixed <- 4
 alpha_vector <- seq(0.5, 1.5, by = 0.4)
 
@@ -165,8 +165,8 @@ g_averages <- lapply(time_grids, function(grid) {
 
 ```{r}
 # Reference quadrature and error accumulation.
-overkill_time_step <- 1e-9
-overkill_h <- 9e-5
+overkill_time_step <- 1e-4
+overkill_h <- 1e-4
 error_verbose <- TRUE
 
 study_parameters <- list(
@@ -189,7 +189,7 @@ overkill_C <- overkill_graph$mesh$C
 
 
 ```{r}
-error_n_blocks <- 100L
+error_n_blocks <- 1L
 # Preview modeled memory before allocating the reference time vector or solving.
 # estimated_gib excludes FEM/solver objects and other session memory by default.
 error_memory <- estimate_error_memory(

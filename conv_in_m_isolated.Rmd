@@ -12,7 +12,7 @@ output:
     self_contained: true
     css: !expr here::here("style.css")
 params:
-  coefficient_source: package
+  coefficient_source: computed
   coefficient_file: !expr here::here("matlab", "computed_fractional_roots.csv")
   settings: null
   execute: true
