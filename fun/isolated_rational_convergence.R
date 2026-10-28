@@ -118,13 +118,87 @@ isolated_tadpole_data <- function(h, kappa = 4, initial_amplitude = 10,
 
 
 ## -----------------------------------------------------------------------------
-isolated_rational_rates <- function(eigenvalues, alpha, m, kappa, diffusion = 1) {
+isolated_default_coefficient_file <- function() {
+  here::here("matlab", "computed_fractional_roots.csv")
+}
+
+isolated_coefficient_source <- function(parameters) {
+  value <- parameters$coefficient_source
+  if (identical(value, "computed")) return("computed")
+  if (value %in% c("package", "original rSPDE package tables with linear interpolation"))
+    return("package")
+  stop("Unknown isolated-study coefficient source: ", value)
+}
+
+isolated_validate_roots <- function(roots, m) {
+  values <- c(roots$pr_roots, roots$pl_roots)
+  if (length(roots$factor) != 1L || !is.numeric(roots$factor) ||
+      !is.finite(roots$factor) || roots$factor <= 0 ||
+      length(roots$pr_roots) != m || length(roots$pl_roots) != m + 1L ||
+      !is.numeric(values) || is.complex(values) || any(!is.finite(values)) || any(values >= 0))
+    stop("Fractional coefficients need one positive factor and finite real negative roots of the expected counts.")
+  numerator <- sort(roots$pr_roots)
+  denominator <- sort(roots$pl_roots)
+  if (any(denominator[-length(denominator)] >= numerator) ||
+      any(numerator >= denominator[-1L]))
+    stop("Fractional numerator and denominator roots must strictly interlace.")
+  roots
+}
+
+isolated_read_computed_coefficients <- function(file = isolated_default_coefficient_file()) {
+  if (length(file) != 1L || is.na(file) || !file.exists(file))
+    stop("Missing computed coefficient file: ", file)
+  tab <- read.csv(file, stringsAsFactors = FALSE)
+  if (!identical(names(tab), c("m", "beta", "kind", "index", "value")) ||
+      !nrow(tab) ||
+      !all(vapply(tab[c("m", "beta", "index", "value")], is.numeric, logical(1))) ||
+      any(!is.finite(as.matrix(tab[c("m", "beta", "index", "value")])) ) ||
+      any(!tab$m %in% 1:8) || any(tab$beta < .25 | tab$beta >= 1) ||
+      any(!tab$kind %in% c("factor", "rc", "rb")) ||
+      any(tab$index != floor(tab$index)) || anyDuplicated(tab[c("m", "beta", "kind", "index")]))
+    stop("Malformed computed coefficient artifact.")
+  tab
+}
+
+isolated_fractional_roots <- function(m, beta, coefficient_source = "package",
+                                      coefficient_file = isolated_default_coefficient_file(),
+                                      coefficient_table = NULL) {
+  coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
+  orders <- if (coefficient_source == "computed") 1:8 else 1:4
+  if (length(m) != 1L || !is.finite(m) || !(m %in% orders))
+    stop("Coefficient source '", coefficient_source, "' supports m = ", paste(orders, collapse = ", "))
+  if (length(beta) != 1L || !is.finite(beta) || beta < .25 || beta >= 1)
+    stop("Fractional coefficient beta must satisfy 0.25 <= beta < 1.")
+  if (coefficient_source == "package") return(isolated_validate_roots(my.get.roots(m, beta), m))
+  tab <- if (is.null(coefficient_table)) isolated_read_computed_coefficients(coefficient_file) else coefficient_table
+  rows <- tab[tab$m == m & abs(tab$beta - beta) <=
+    32 * .Machine$double.eps * max(1, abs(beta)), ]
+  if (!nrow(rows)) stop("No computed coefficients for m = ", m, ", beta = ", beta,
+    ". Available beta: ", paste(sort(unique(tab$beta)), collapse = ", "),
+    ". Computed coefficients are never interpolated or replaced by package coefficients.")
+  values <- function(kind, indices) {
+    part <- rows[rows$kind == kind, ]
+    if (nrow(part) != length(indices) || !setequal(part$index, indices))
+      stop("Incomplete computed coefficient block for m = ", m, ", beta = ", beta)
+    part$value[match(indices, part$index)]
+  }
+  isolated_validate_roots(list(factor = values("factor", 0),
+    pr_roots = values("rc", seq_len(m)), pl_roots = values("rb", seq_len(m + 1L))), m)
+}
+
+
+## -----------------------------------------------------------------------------
+isolated_rational_rates <- function(eigenvalues, alpha, m, kappa, diffusion = 1,
+                                     coefficient_source = "package",
+                                     coefficient_file = isolated_default_coefficient_file(), roots = NULL) {
+  coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
+  orders <- if (coefficient_source == "computed") 1:8 else 1:4
   stopifnot(all(is.finite(eigenvalues)), all(eigenvalues > 0),
             length(alpha) == 1L, alpha >= .5, alpha <= 2,
-            length(m) == 1L, m %in% 1:4, is.finite(diffusion), diffusion > 0,
+            length(m) == 1L, m %in% orders, is.finite(diffusion), diffusion > 0,
             is.finite(kappa), kappa > 0)
   if (alpha == 2) return(diffusion * eigenvalues)
-  roots <- my.get.roots(m, alpha / 2)
+  if (is.null(roots)) roots <- isolated_fractional_roots(m, alpha / 2, coefficient_source, coefficient_file)
   stopifnot(is.finite(roots$factor), roots$factor > 0,
             all(is.finite(c(roots$pr_roots, roots$pl_roots))),
             all(c(roots$pr_roots, roots$pl_roots) < 0))
@@ -145,16 +219,22 @@ isolated_beta_bracket <- function(m, beta) {
 }
 
 isolated_rational_error <- function(data, spectrum, reference, m,
-                                    excitation_tolerance = 1e-8) {
+                                    excitation_tolerance = 1e-8, coefficient_source = "package",
+                                    coefficient_file = isolated_default_coefficient_file(),
+                                    coefficient_table = NULL) {
+  coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
   started <- proc.time()[["elapsed"]]
   stopifnot(nrow(reference$states) == nrow(data$C),
             ncol(reference$states) == length(reference$time_seq))
+  roots <- if (reference$alpha == 2) NULL else isolated_fractional_roots(
+    m, reference$alpha / 2, coefficient_source, coefficient_file, coefficient_table)
   op <- my.fractional.operators.frac(
     L = data$L, beta = reference$alpha / 2, C = data$C,
     scale.factor = data$kappa^2, m = m, time_step = reference$dt,
-    diffusion = reference$diffusion)
+    diffusion = reference$diffusion,
+    fractional_roots = if (coefficient_source == "computed") roots else NULL)
   rates <- isolated_rational_rates(spectrum$values, reference$alpha, m,
-                                   data$kappa, reference$diffusion)
+                                   data$kappa, reference$diffusion, coefficient_source, coefficient_file, roots)
   mu <- 1 / (1 + reference$dt * rates)
   y <- reference$initial_coefficients
   u <- as.numeric(data$initial)
@@ -187,7 +267,9 @@ isolated_rational_error <- function(data, spectrum, reference, m,
     max(abs(reference$forcing_coefficients))
   relative_rate_error <- rates / reference$exact_rates - 1
   bracket <- if (reference$alpha == 2) list(exact = TRUE, lower = 1, upper = 1) else
-    isolated_beta_bracket(m, reference$alpha / 2)
+    if (coefficient_source == "computed") list(exact = TRUE, lower = reference$alpha / 2,
+                                               upper = reference$alpha / 2) else
+      isolated_beta_bracket(m, reference$alpha / 2)
   data.frame(alpha = reference$alpha, diffusion = reference$diffusion, m = m,
     error = sparse_error, product_error = product_error,
     absolute_error_disagreement = abs(sparse_error - product_error),
@@ -195,15 +277,19 @@ isolated_rational_error <- function(data, spectrum, reference, m,
       max(product_error, .Machine$double.xmin), final_state_gap_C = final_gap,
     max_relative_rate_error_full = max(abs(relative_rate_error)),
     max_relative_rate_error_excited = if (any(excited)) max(abs(relative_rate_error[excited])) else 0,
-    excited_numerical_modes = sum(excited), beta_exact_in_package_table = bracket$exact,
+    excited_numerical_modes = sum(excited), coefficient_source = coefficient_source,
+    coefficient_beta_exact = bracket$exact,
+    beta_exact_in_package_table = if (coefficient_source == "package") bracket$exact else NA,
     beta_table_lower = bracket$lower, beta_table_upper = bracket$upper,
     elapsed_seconds = proc.time()[["elapsed"]] - started)
 }
 
 
 ## -----------------------------------------------------------------------------
-isolated_m_parameters <- function() {
-  list(experiment = "isolated_discrete_fractional_m", T_final = 1e-3,
+isolated_m_parameters <- function(coefficient_source = "package",
+                                   coefficient_file = isolated_default_coefficient_file()) {
+  coefficient_source <- match.arg(coefficient_source, c("package", "computed"))
+  parameters <- list(experiment = "isolated_discrete_fractional_m", T_final = 1e-3,
        diffusion = 1, kappa = 4, initial_amplitude = 10, forcing_amplitude = 10,
        A = 1, omega = pi, alpha = c(.5, .9, 1.3), m = 1:4,
        scenarios = data.frame(scenario = c("base", "half_h", "half_tau", "half_h_half_tau"),
@@ -215,6 +301,20 @@ isolated_m_parameters <- function() {
          slope_refinement_absolute = .05, resolution_ratio = 100),
        package_versions = vapply(c("Matrix", "MetricGraph", "rSPDE"),
          function(p) as.character(utils::packageVersion(p)), character(1)))
+  if (coefficient_source == "computed") {
+    isolated_read_computed_coefficients(coefficient_file)
+    parameters$m <- 1:8
+    parameters$coefficient_source <- "computed"
+    parameters$coefficient_file <- normalizePath(coefficient_file, mustWork = TRUE)
+    parameters$coefficient_sha256 <- digest::digest(file = coefficient_file, algo = "sha256")
+    parameters$coefficient_generator <- if (identical(parameters$coefficient_sha256,
+      "d299b6583a35d4613fa25d14318e7d0065842efb2b6efb9d4be2857b772b4596"))
+      list(repository = "NAFDEMG", branch = "diffusion-parameter",
+        script = "tests/audit_rational_generation.m",
+        git_blob = "5d0f78d134c12ea7a3534f2142d05c2a9a5ec504",
+        production_orders = 1:8) else list(description = "Custom artifact; generator not verified")
+  }
+  parameters
 }
 
 isolated_fit_slopes <- function(errors, parameters) {
@@ -224,9 +324,14 @@ isolated_fit_slopes <- function(errors, parameters) {
     values <- values[order(values$m), ]
     valid <- nrow(values) >= 2L && all(is.finite(values$error)) && all(values$error > 0)
     fit <- if (valid) lm(log(error) ~ sqrt(m), data = values) else NULL
+    resolved <- if ("resolved_above_diagnostic_noise" %in% names(values))
+      values[values$resolved_above_diagnostic_noise & values$error > 0, ] else values
+    resolved_fit <- if (nrow(resolved) >= 2L) lm(log(error) ~ sqrt(m), data = resolved) else NULL
     rows[[length(rows) + 1L]] <- data.frame(scenario = scenario, alpha = alpha,
       observed_slope = if (valid) unname(coef(fit)[2L]) else NA_real_,
       bound_benchmark = -2 * pi * sqrt(1 - alpha / 2),
+      resolved_order_count = nrow(resolved),
+      resolved_only_slope = if (!is.null(resolved_fit)) unname(coef(resolved_fit)[2L]) else NA_real_,
       r_squared = if (valid) summary(fit)$r.squared else NA_real_,
       max_log_fit_residual = if (valid) max(abs(residuals(fit))) else NA_real_,
       strictly_decreasing = all(diff(values$error) < 0),
@@ -240,15 +345,27 @@ isolated_fit_slopes <- function(errors, parameters) {
 run_isolated_m_study <- function(parameters = isolated_m_parameters(), workers = 4L,
                                  max_dimension = 1200L, max_dense_mib = 1024,
                                  max_history_mib = 256, verbose = TRUE) {
+  source <- isolated_coefficient_source(parameters)
+  orders <- if (source == "computed") 1:8 else 1:4
+  coefficient_file <- if (source == "computed") parameters$coefficient_file else isolated_default_coefficient_file()
+  coefficient_table <- NULL
+  if (source == "computed") {
+    coefficient_table <- isolated_read_computed_coefficients(coefficient_file)
+    if (is.null(parameters$coefficient_sha256) || !identical(parameters$coefficient_sha256,
+        digest::digest(file = coefficient_file, algo = "sha256")))
+      stop("Computed artifact changed after parameters were prepared; create new parameters and a fresh run.")
+  }
   stopifnot(length(parameters$T_final) == 1L, is.finite(parameters$T_final), parameters$T_final > 0,
             length(parameters$diffusion) == 1L, is.finite(parameters$diffusion), parameters$diffusion > 0,
             length(parameters$alpha) >= 1L, all(is.finite(parameters$alpha)),
             all(parameters$alpha >= .5 & parameters$alpha < 2), !anyDuplicated(parameters$alpha),
-            length(parameters$m) >= 2L, all(parameters$m %in% 1:4), !anyDuplicated(parameters$m),
+            length(parameters$m) >= 2L, all(parameters$m %in% orders), !anyDuplicated(parameters$m),
             nrow(parameters$scenarios) >= 1L, !anyDuplicated(parameters$scenarios$scenario),
             parameters$scenarios$scenario[1L] == "base",
             all(is.finite(parameters$scenarios$h)), all(parameters$scenarios$h > 0),
             all(is.finite(parameters$scenarios$target_step)), all(parameters$scenarios$target_step > 0))
+  for (alpha in parameters$alpha) for (m in parameters$m)
+    isolated_fractional_roots(m, alpha / 2, source, coefficient_file, coefficient_table)
   started <- proc.time()[["elapsed"]]
   meshes <- unique(parameters$scenarios$h)
   spatial <- lapply(meshes, function(h) {
@@ -284,7 +401,8 @@ run_isolated_m_study <- function(parameters = isolated_m_parameters(), workers =
       scenario$scenario, grid$N, nrow(jobs), min(workers, nrow(jobs))))
     rows <- run_reference_cases(seq_len(nrow(jobs)), function(job) {
       isolated_rational_error(data, spectrum, references[[jobs$alpha_index[job]]],
-                              parameters$m[jobs$m_index[job]])
+                              parameters$m[jobs$m_index[job]], coefficient_source = source,
+                              coefficient_file = coefficient_file, coefficient_table = coefficient_table)
     }, workers = workers)
     values <- do.call(rbind, rows)
     errors[[i]] <- data.frame(scenario = scenario$scenario, h_requested = scenario$h,
@@ -294,7 +412,9 @@ run_isolated_m_study <- function(parameters = isolated_m_parameters(), workers =
       data$spatial_load, grid$time_seq, 2, parameters$diffusion, parameters$A,
       parameters$omega, max_history_mib)
     controls[[i]] <- data.frame(scenario = scenario$scenario,
-      isolated_rational_error(data, spectrum, zero_reference, 1L))
+      isolated_rational_error(data, spectrum, zero_reference, 1L,
+        coefficient_source = source, coefficient_file = coefficient_file,
+        coefficient_table = coefficient_table))
     if (verbose) message(sprintf("Completed %s; alpha=2 zero-rational-error control: %.3g",
       scenario$scenario, controls[[i]]$error))
   }
@@ -375,10 +495,14 @@ isolated_m_diagnosis <- function(results) {
         rows$max_relative_rate_error_excited[j + 1L]))
     }
   }
-  if (any(!base$beta_exact_in_package_table)) words <- c(words,
+  if (isolated_coefficient_source(results$parameters) == "package" &&
+      any(!base$beta_exact_in_package_table)) words <- c(words,
     "Some beta values are interpolated between package rows. The beta brackets are recorded. Interpolation may contribute to a finite-order plateau; these runs do not identify it as the sole cause.")
+  words <- c(words, paste0("Coefficient source: ", isolated_coefficient_source(results$parameters), "."))
+  if (!results$status$reference_error_resolution_passed) words <- c(words,
+    "Some orders are below the diagnostic numerical-resolution threshold. Their errors remain plotted, but the all-order fit includes unresolved points. Consult resolved_order_count and resolved_only_slope; the restricted fit is descriptive, not an asymptotic claim. Where unresolved points are involved, large relative refinement changes are inconclusive for mesh/time sensitivity.")
   c(words,
-    "A stable four-point fit is a finite-order measurement. The upper-bound benchmark does not require equality of slopes, linearity on the square-root scale, or strict monotonicity of these computed approximants.",
+    "A fit across the tested orders is a finite-order measurement. The upper-bound benchmark does not require equality of slopes, linearity on the square-root scale, or strict monotonicity of these computed approximants.",
     "The numerical controls are sensitivity and consistency checks, not certified roundoff bounds or a uniform fractional-operator approximation theorem.")
 }
 
@@ -392,7 +516,8 @@ save_isolated_m_results <- function(results, run_dir) {
   for (name in c("errors", "slopes", "refinement_errors", "refinement_slopes",
                  "zero_controls", "eigensystem_diagnostics", "reference_setup"))
     write.csv(results[[name]], file.path(run_dir, paste0(name, ".csv")), row.names = FALSE)
-  writeLines(c("# Isolated m-study diagnosis", "", isolated_m_diagnosis(results)),
+  paragraphs <- isolated_m_diagnosis(results)
+  writeLines(c("# Isolated m-study diagnosis", "", as.vector(rbind(paragraphs, ""))),
              file.path(run_dir, "diagnosis.md"))
   invisible(destination)
 }
@@ -409,7 +534,10 @@ isolated_m_error_plot <- function(results) {
       rows
     }))
   ggplot2::ggplot(errors, ggplot2::aes(sqrt(m), error, color = alpha_label, group = alpha_label)) +
-    ggplot2::geom_line() + ggplot2::geom_point(size = 2) +
+    ggplot2::geom_line() +
+    ggplot2::geom_point(ggplot2::aes(shape = resolved_above_diagnostic_noise), size = 2) +
+    ggplot2::scale_shape_manual(name = "Resolution indicator", values = c(`FALSE` = 1, `TRUE` = 16),
+      labels = c(`FALSE` = "below indicator", `TRUE` = "resolved")) +
     ggplot2::geom_line(data = guides, linetype = "dashed", alpha = .7) +
     ggplot2::facet_wrap(~scenario, ncol = 2) +
     ggplot2::scale_x_continuous(breaks = sqrt(results$parameters$m), labels = results$parameters$m) +
@@ -418,17 +546,26 @@ isolated_m_error_plot <- function(results) {
       labels = scales::label_scientific(digits = 2)) +
     ggplot2::labs(x = "Rational order m (square-root positions)",
       y = "Isolated space-time rational error (natural-log scale)", color = "alpha",
-      subtitle = "Solid: sparse-solver error. Dashed: bound exponent, anchored at first order.") +
+      subtitle = "Solid: sparse-solver error. Dashed: bound exponent, anchored at first order.\nOpen circles: below the numerical resolution indicator.") +
     ggplot2::theme_minimal(base_size = 12) +
     ggplot2::theme(plot.background = ggplot2::element_rect(fill = "white", color = NA),
       legend.position = "bottom")
 }
 
-render_isolated_m_notebook <- function(parameters = isolated_m_parameters(), run_id = NULL,
+render_isolated_m_notebook <- function(parameters = NULL, run_id = NULL,
                                        execute = TRUE, workers = 4L,
                                        input = here::here("conv_in_m_isolated.Rmd"),
                                        max_dimension = 1200L, max_dense_mib = 1024,
-                                       max_history_mib = 256, encoding = "UTF-8") {
+                                       max_history_mib = 256, encoding = "UTF-8",
+                                       coefficient_source = NULL, coefficient_file = NULL) {
+  defaults <- rmarkdown::yaml_front_matter(input)$params
+  if (is.null(parameters)) {
+    if (is.null(coefficient_source)) coefficient_source <- defaults$coefficient_source
+    if (is.null(coefficient_source)) coefficient_source <- "package"
+    if (is.null(coefficient_file)) coefficient_file <- defaults$coefficient_file
+    if (is.null(coefficient_file)) coefficient_file <- isolated_default_coefficient_file()
+    parameters <- isolated_m_parameters(coefficient_source, coefficient_file)
+  }
   stopifnot(length(execute) == 1L, !is.na(execute), is.logical(execute))
   run_dir <- reference_experiment_run("m", parameters, run_id)
   file <- file.path(run_dir, "isolated_m_results.rds")
@@ -439,6 +576,8 @@ render_isolated_m_notebook <- function(parameters = isolated_m_parameters(), run
   rmarkdown::render(input, output_dir = run_dir, intermediates_dir = intermediates,
     knit_root_dir = dirname(normalizePath(input)), encoding = encoding,
     params = list(settings = parameters, run_id = basename(run_dir), execute = execute,
+      coefficient_source = isolated_coefficient_source(parameters),
+      coefficient_file = if (is.null(parameters$coefficient_file)) isolated_default_coefficient_file() else parameters$coefficient_file,
       workers = workers, max_dimension = max_dimension, max_dense_mib = max_dense_mib,
       max_history_mib = max_history_mib), envir = new.env(parent = globalenv()), quiet = TRUE)
 }

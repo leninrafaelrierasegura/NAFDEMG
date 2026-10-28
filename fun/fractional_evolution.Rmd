@@ -292,8 +292,59 @@ compute.partial.fraction.param <- function(factor, # c_m/b_{m+1}
                                            pr_roots, # roots \{r_{1i}\}_{i=1}^m
                                            pl_roots, # roots \{r_{2j}\}_{j=1}^{m+1}
                                            time_step, # \tau
-                                           scaling # \kappa^{2\beta}
+                                           scaling, # diffusion * kappa^(2*beta)
+                                           stable = FALSE
                                            ) {
+  if (stable) {
+    direct_polynomial <- function(roots) {
+      coefficients <- 1
+      for (r in roots) coefficients <- c(-r * coefficients, 0) + c(0, coefficients)
+      coefficients
+    }
+    strength <- (scaling*time_step)/factor
+    if (!is.finite(strength) || strength <= 0)
+      stop("Invalid or underflowed scaled time step in the rational update.")
+    pr_coef <- c(0, direct_polynomial(pr_roots))
+    pl_coef <- direct_polynomial(pl_roots)
+    factor_pr_coef <- pr_coef
+    pr_plus_pl_coef <- factor_pr_coef + strength * pl_coef
+    #res <- gsignal::residue(factor_pr_coef, pr_plus_pl_coef)
+    # Coefficients passed here are in descending powers.
+    # polyroot() expects ascending powers.
+    p <- polyroot(rev(pr_plus_pl_coef))
+
+    # Verify that these poles are numerically real and negative.
+    stopifnot(
+      all(abs(Im(p)) <= 1e-10 * pmax(1, abs(Re(p)))),
+      all(Re(p) < 0)
+    )
+    p <- Re(p)
+
+    derivative <- function(roots, x) sum(vapply(seq_along(roots), function(j)
+      -roots[j]*prod(1-roots[-j]*x), numeric(1)))
+    # At a pole P=-strength*Q: use that identity instead of evaluating the
+    # nearly zero numerator. Products/derivatives retain the root representation.
+    r <- vapply(p, function(x) {
+      -strength*prod(1-pl_roots*x)/
+        (derivative(pr_roots, x)+strength*derivative(pl_roots, x))
+    }, numeric(1))
+    if (length(p) != length(pl_roots) || any(!is.finite(r)) || any(r <= 0))
+      stop("Unstable rational update: residues must be finite and positive.")
+    # Guard against a misleading real-pole result with inaccurate reconstruction.
+    z <- 10^seq(0, 12, length.out = 65L)
+    P <- vapply(z, function(x) prod(1-pr_roots*x), numeric(1))
+    Q <- vapply(z, function(x) prod(1-pl_roots*x), numeric(1))
+    expected <- P/(P+strength*Q)
+    reconstructed <- rowSums(vapply(seq_along(p), function(j) r[j]/(z-p[j]), numeric(length(z))))
+    if (any(!is.finite(reconstructed)) || max(abs(reconstructed-expected)) > 5e-9)
+      stop("Unstable rational update: partial-fraction reconstruction failed.")
+
+    res <- list(r = r, p = p, k = numeric(0))
+    return(list(r = res$r, # residues \{a_k\}_{k=1}^{m+1}
+                p = res$p, # poles \{p_k\}_{k=1}^{m+1}
+                k = res$k # remainder r
+                ))
+  }
   pr_coef <- c(0, poly.from.roots(pr_roots))
   pl_coef <- poly.from.roots(pl_roots)
   factor_pr_coef <- pr_coef
@@ -335,6 +386,12 @@ matrix `C`, `scale.factor`$=\kappa^2$, rational order `m`, physical
 shifted sparse matrices once. This branch retains the original rSPDE
 coefficient tables for orders 1--4. Diffusion multiplies the operator outside
 the fractional power; the forcing and physical time step are unchanged.
+The optional `fractional_roots` list supplies a different coefficient set
+without changing the matrix scheme. The isolated study uses this hook for
+computed orders 1--8. Its update uses direct polynomial multiplication,
+the pole identity for residues, and a sampled reconstruction check to
+avoid the loss of small coefficients in FFT convolution. The default
+package path retains the original order-1--4 implementation.
 
 ```{r}
 # Function to compute the fractional operator
@@ -344,7 +401,8 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                                          scale.factor, # scaling parameter = kappa^2
                                          m = 1, # original package orders 1--4
                                          time_step, # physical time step = tau
-                                         diffusion = 1 # coefficient outside the fractional power
+                                         diffusion = 1, # coefficient outside the fractional power
+                                         fractional_roots = NULL # optional externally validated root/factor list
                                          ) {
   stopifnot(length(diffusion) == 1L, is.finite(diffusion), diffusion > 0,
             length(time_step) == 1L, is.finite(time_step), time_step > 0,
@@ -364,12 +422,19 @@ my.fractional.operators.frac <- function(L, # Laplacian matrix
                 ))
   } else {
     scaling <- diffusion * scale.factor^beta
-    roots <- my.get.roots(m, beta)
+    roots <- if (is.null(fractional_roots)) my.get.roots(m, beta) else fractional_roots
+    if (!is.null(fractional_roots)) {
+      values <- c(roots$pr_roots, roots$pl_roots)
+      stopifnot(length(roots$factor) == 1L, is.finite(roots$factor), roots$factor > 0,
+                length(roots$pr_roots) == m, length(roots$pl_roots) == m + 1L,
+                is.numeric(values), !is.complex(values), all(is.finite(values)), all(values < 0))
+    }
     poles_rs_k <- compute.partial.fraction.param(factor = roots$factor,
                                                  pr_roots = roots$pr_roots,
                                                  pl_roots = roots$pl_roots,
                                                  time_step = time_step, 
-                                                 scaling = scaling)
+                                                 scaling = scaling,
+                                                 stable = !is.null(fractional_roots))
 
     partial_fraction_terms <- list()
     for (i in 1:(m+1)) {
